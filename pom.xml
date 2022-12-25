@@ -10,11 +10,11 @@
 			<artifactId>gson</artifactId>
 			<version>2.10</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.common/google-collect -->
+		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>
-			<groupId>com.google.common</groupId>
-			<artifactId>google-collect</artifactId>
-			<version>1.0</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
 		</dependency>
 	</dependencies>
 	<build>

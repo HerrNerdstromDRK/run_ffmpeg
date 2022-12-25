@@ -33,10 +33,9 @@ public class run_ffmpeg
 
 	/// Directory from which to read the input files to transcode
 //	static String mkvInputDirectory = "C:\\Temp\\Archer" ;
-	static String mkvInputDirectory = "D:\\Temp\\Brave" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band of Brothers" ;
-//	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert\\7.1 10 Cloverfield Lane (2016)" ;
+	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Veronica Mars (2014)" ;
@@ -44,13 +43,13 @@ public class run_ffmpeg
 //	static String mkvInputDirectory = "F:/Movies/Brooklyn Nine-Nine" ;
 
 	/// Directory to which to move MKV files for storage
-	static String mkvFinalDirectory = mkvInputDirectory ;
+//	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\Movies" ;
-	//static String mkvArchiveDirectory = "\\\\yoda\\Backup\\MKV" ;
-	//static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
-	//static String mkvArchiveDirectory = "F:/MKV" ;
+	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
+//	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
+//	static String mkvArchiveDirectory = "F:/MKV" ;
 
 	/// Directory to which to place transcoded MP4 files during transcoding
 //	static String mp4OutputDirectory = mkvInputDirectory ;
@@ -61,20 +60,20 @@ public class run_ffmpeg
 //	static String mp4OutputDirectory = "\\\\yoda\\Backup\\Ali Backup\\Transcoded" ;
 
 	/// Directory to which to move mp4 files once complete
-	static String mp4FinalDirectory = mp4OutputDirectory ;
+//	static String mp4FinalDirectory = mp4OutputDirectory ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4_3\\Movies" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
-//	static String mp4FinalDirectory = "\\\\yoda\\MP4_3\\TV Shows" ;
+	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
 	static boolean testMode = false ;
 
 	/// Set to true to move the mp4/mkv/srt files to the destination
-	static boolean doMoveMP4 = false ;
-	static boolean doMoveMKV = false ;
-	static boolean doMoveSRT = false ;
+	static boolean doMoveMP4 = true ;
+	static boolean doMoveMKV = true ;
+	static boolean doMoveSRT = true ;
 	
 	/// Determines the path separator
 	static boolean isWindows = true ;
