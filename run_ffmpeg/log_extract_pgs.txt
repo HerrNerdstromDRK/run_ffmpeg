@@ -1,0 +1,961 @@
+TranscodeFile.buildPaths> Found movie file: \\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).mkv
+processFile> Processing: A League of Their Own (1992).mkv
+processFile> Execute ffprobe command: "D:\Program Files\ffmpeg\bin\ffprobe" -v quiet -show_streams -print_format json -i "\\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).mkv"
+processFile:1> {
+processFile:2>     "streams": [
+processFile:3>         {
+processFile:4>             "index": 0,
+processFile:5>             "codec_name": "mpeg2video",
+processFile:6>             "codec_long_name": "MPEG-2 video",
+processFile:7>             "profile": "Main",
+processFile:8>             "codec_type": "video",
+processFile:9>             "codec_tag_string": "[0][0][0][0]",
+processFile:10>             "codec_tag": "0x0000",
+processFile:11>             "width": 720,
+processFile:12>             "height": 480,
+processFile:13>             "coded_width": 0,
+processFile:14>             "coded_height": 0,
+processFile:15>             "closed_captions": 0,
+processFile:16>             "film_grain": 0,
+processFile:17>             "has_b_frames": 1,
+processFile:18>             "sample_aspect_ratio": "853:720",
+processFile:19>             "display_aspect_ratio": "853:480",
+processFile:20>             "pix_fmt": "yuv420p",
+processFile:21>             "level": 8,
+processFile:22>             "color_range": "tv",
+processFile:23>             "chroma_location": "left",
+processFile:24>             "field_order": "tt",
+processFile:25>             "refs": 1,
+processFile:26>             "r_frame_rate": "30000/1001",
+processFile:27>             "avg_frame_rate": "30000/1001",
+processFile:28>             "time_base": "1/1000",
+processFile:29>             "start_pts": 0,
+processFile:30>             "start_time": "0.000000",
+processFile:31>             "extradata_size": 150,
+processFile:32>             "disposition": {
+processFile:33>                 "default": 0,
+processFile:34>                 "dub": 0,
+processFile:35>                 "original": 0,
+processFile:36>                 "comment": 0,
+processFile:37>                 "lyrics": 0,
+processFile:38>                 "karaoke": 0,
+processFile:39>                 "forced": 0,
+processFile:40>                 "hearing_impaired": 0,
+processFile:41>                 "visual_impaired": 0,
+processFile:42>                 "clean_effects": 0,
+processFile:43>                 "attached_pic": 0,
+processFile:44>                 "timed_thumbnails": 0,
+processFile:45>                 "captions": 0,
+processFile:46>                 "descriptions": 0,
+processFile:47>                 "metadata": 0,
+processFile:48>                 "dependent": 0,
+processFile:49>                 "still_image": 0
+processFile:50>             },
+processFile:51>             "tags": {
+processFile:52>                 "language": "eng",
+processFile:53>                 "BPS-eng": "3596764",
+processFile:54>                 "DURATION-eng": "02:10:39.832000000",
+processFile:55>                 "NUMBER_OF_FRAMES-eng": "189010",
+processFile:56>                 "NUMBER_OF_BYTES-eng": "3524753540",
+processFile:57>                 "SOURCE_ID-eng": "0100E0",
+processFile:58>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:59>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:60>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:61>             },
+processFile:62>             "side_data_list": [
+processFile:63>                 {
+processFile:64>                     "side_data_type": "CPB properties",
+processFile:65>                     "max_bitrate": 9800000,
+processFile:66>                     "min_bitrate": 0,
+processFile:67>                     "avg_bitrate": 0,
+processFile:68>                     "buffer_size": 1835008,
+processFile:69>                     "vbv_delay": -1
+processFile:70>                 }
+processFile:71>             ]
+processFile:72>         },
+processFile:73>         {
+processFile:74>             "index": 1,
+processFile:75>             "codec_name": "ac3",
+processFile:76>             "codec_long_name": "ATSC A/52A (AC-3)",
+processFile:77>             "codec_type": "audio",
+processFile:78>             "codec_tag_string": "[0][0][0][0]",
+processFile:79>             "codec_tag": "0x0000",
+processFile:80>             "sample_fmt": "fltp",
+processFile:81>             "sample_rate": "48000",
+processFile:82>             "channels": 2,
+processFile:83>             "channel_layout": "stereo",
+processFile:84>             "bits_per_sample": 0,
+processFile:85>             "initial_padding": 0,
+processFile:86>             "r_frame_rate": "0/0",
+processFile:87>             "avg_frame_rate": "0/0",
+processFile:88>             "time_base": "1/1000",
+processFile:89>             "start_pts": 0,
+processFile:90>             "start_time": "0.000000",
+processFile:91>             "bit_rate": "192000",
+processFile:92>             "disposition": {
+processFile:93>                 "default": 1,
+processFile:94>                 "dub": 0,
+processFile:95>                 "original": 0,
+processFile:96>                 "comment": 0,
+processFile:97>                 "lyrics": 0,
+processFile:98>                 "karaoke": 0,
+processFile:99>                 "forced": 0,
+processFile:100>                 "hearing_impaired": 0,
+processFile:101>                 "visual_impaired": 0,
+processFile:102>                 "clean_effects": 0,
+processFile:103>                 "attached_pic": 0,
+processFile:104>                 "timed_thumbnails": 0,
+processFile:105>                 "captions": 0,
+processFile:106>                 "descriptions": 0,
+processFile:107>                 "metadata": 0,
+processFile:108>                 "dependent": 0,
+processFile:109>                 "still_image": 0
+processFile:110>             },
+processFile:111>             "tags": {
+processFile:112>                 "language": "eng",
+processFile:113>                 "title": "Stereo",
+processFile:114>                 "BPS-eng": "192000",
+processFile:115>                 "DURATION-eng": "02:10:39.744000000",
+processFile:116>                 "NUMBER_OF_FRAMES-eng": "244992",
+processFile:117>                 "NUMBER_OF_BYTES-eng": "188153856",
+processFile:118>                 "SOURCE_ID-eng": "0180BD",
+processFile:119>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:120>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:121>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:122>             }
+processFile:123>         },
+processFile:124>         {
+processFile:125>             "index": 2,
+processFile:126>             "codec_name": "ac3",
+processFile:127>             "codec_long_name": "ATSC A/52A (AC-3)",
+processFile:128>             "codec_type": "audio",
+processFile:129>             "codec_tag_string": "[0][0][0][0]",
+processFile:130>             "codec_tag": "0x0000",
+processFile:131>             "sample_fmt": "fltp",
+processFile:132>             "sample_rate": "48000",
+processFile:133>             "channels": 2,
+processFile:134>             "channel_layout": "stereo",
+processFile:135>             "bits_per_sample": 0,
+processFile:136>             "initial_padding": 0,
+processFile:137>             "r_frame_rate": "0/0",
+processFile:138>             "avg_frame_rate": "0/0",
+processFile:139>             "time_base": "1/1000",
+processFile:140>             "start_pts": 0,
+processFile:141>             "start_time": "0.000000",
+processFile:142>             "bit_rate": "192000",
+processFile:143>             "disposition": {
+processFile:144>                 "default": 0,
+processFile:145>                 "dub": 0,
+processFile:146>                 "original": 0,
+processFile:147>                 "comment": 0,
+processFile:148>                 "lyrics": 0,
+processFile:149>                 "karaoke": 0,
+processFile:150>                 "forced": 0,
+processFile:151>                 "hearing_impaired": 0,
+processFile:152>                 "visual_impaired": 0,
+processFile:153>                 "clean_effects": 0,
+processFile:154>                 "attached_pic": 0,
+processFile:155>                 "timed_thumbnails": 0,
+processFile:156>                 "captions": 0,
+processFile:157>                 "descriptions": 0,
+processFile:158>                 "metadata": 0,
+processFile:159>                 "dependent": 0,
+processFile:160>                 "still_image": 0
+processFile:161>             },
+processFile:162>             "tags": {
+processFile:163>                 "language": "spa",
+processFile:164>                 "title": "Stereo",
+processFile:165>                 "BPS-eng": "192000",
+processFile:166>                 "DURATION-eng": "02:10:39.744000000",
+processFile:167>                 "NUMBER_OF_FRAMES-eng": "244992",
+processFile:168>                 "NUMBER_OF_BYTES-eng": "188153856",
+processFile:169>                 "SOURCE_ID-eng": "0181BD",
+processFile:170>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:171>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:172>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:173>             }
+processFile:174>         },
+processFile:175>         {
+processFile:176>             "index": 3,
+processFile:177>             "codec_name": "ac3",
+processFile:178>             "codec_long_name": "ATSC A/52A (AC-3)",
+processFile:179>             "codec_type": "audio",
+processFile:180>             "codec_tag_string": "[0][0][0][0]",
+processFile:181>             "codec_tag": "0x0000",
+processFile:182>             "sample_fmt": "fltp",
+processFile:183>             "sample_rate": "48000",
+processFile:184>             "channels": 2,
+processFile:185>             "channel_layout": "stereo",
+processFile:186>             "bits_per_sample": 0,
+processFile:187>             "initial_padding": 0,
+processFile:188>             "r_frame_rate": "0/0",
+processFile:189>             "avg_frame_rate": "0/0",
+processFile:190>             "time_base": "1/1000",
+processFile:191>             "start_pts": 0,
+processFile:192>             "start_time": "0.000000",
+processFile:193>             "bit_rate": "192000",
+processFile:194>             "disposition": {
+processFile:195>                 "default": 0,
+processFile:196>                 "dub": 0,
+processFile:197>                 "original": 0,
+processFile:198>                 "comment": 0,
+processFile:199>                 "lyrics": 0,
+processFile:200>                 "karaoke": 0,
+processFile:201>                 "forced": 0,
+processFile:202>                 "hearing_impaired": 0,
+processFile:203>                 "visual_impaired": 0,
+processFile:204>                 "clean_effects": 0,
+processFile:205>                 "attached_pic": 0,
+processFile:206>                 "timed_thumbnails": 0,
+processFile:207>                 "captions": 0,
+processFile:208>                 "descriptions": 0,
+processFile:209>                 "metadata": 0,
+processFile:210>                 "dependent": 0,
+processFile:211>                 "still_image": 0
+processFile:212>             },
+processFile:213>             "tags": {
+processFile:214>                 "language": "fre",
+processFile:215>                 "title": "Stereo",
+processFile:216>                 "BPS-eng": "192000",
+processFile:217>                 "DURATION-eng": "02:10:39.744000000",
+processFile:218>                 "NUMBER_OF_FRAMES-eng": "244992",
+processFile:219>                 "NUMBER_OF_BYTES-eng": "188153856",
+processFile:220>                 "SOURCE_ID-eng": "0182BD",
+processFile:221>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:222>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:223>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:224>             }
+processFile:225>         },
+processFile:226>         {
+processFile:227>             "index": 4,
+processFile:228>             "codec_name": "dvd_subtitle",
+processFile:229>             "codec_long_name": "DVD subtitles",
+processFile:230>             "codec_type": "subtitle",
+processFile:231>             "codec_tag_string": "[0][0][0][0]",
+processFile:232>             "codec_tag": "0x0000",
+processFile:233>             "width": 720,
+processFile:234>             "height": 480,
+processFile:235>             "r_frame_rate": "0/0",
+processFile:236>             "avg_frame_rate": "0/0",
+processFile:237>             "time_base": "1/1000",
+processFile:238>             "start_pts": 0,
+processFile:239>             "start_time": "0.000000",
+processFile:240>             "duration_ts": 7839832,
+processFile:241>             "duration": "7839.832000",
+processFile:242>             "extradata_size": 509,
+processFile:243>             "disposition": {
+processFile:244>                 "default": 1,
+processFile:245>                 "dub": 0,
+processFile:246>                 "original": 0,
+processFile:247>                 "comment": 0,
+processFile:248>                 "lyrics": 0,
+processFile:249>                 "karaoke": 0,
+processFile:250>                 "forced": 0,
+processFile:251>                 "hearing_impaired": 0,
+processFile:252>                 "visual_impaired": 0,
+processFile:253>                 "clean_effects": 0,
+processFile:254>                 "attached_pic": 0,
+processFile:255>                 "timed_thumbnails": 0,
+processFile:256>                 "captions": 0,
+processFile:257>                 "descriptions": 0,
+processFile:258>                 "metadata": 0,
+processFile:259>                 "dependent": 0,
+processFile:260>                 "still_image": 0
+processFile:261>             },
+processFile:262>             "tags": {
+processFile:263>                 "language": "spa",
+processFile:264>                 "BPS-eng": "2998",
+processFile:265>                 "DURATION-eng": "02:04:44.406033333",
+processFile:266>                 "NUMBER_OF_FRAMES-eng": "1499",
+processFile:267>                 "NUMBER_OF_BYTES-eng": "2805314",
+processFile:268>                 "SOURCE_ID-eng": "0120BD",
+processFile:269>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:270>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:271>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:272>             }
+processFile:273>         },
+processFile:274>         {
+processFile:275>             "index": 5,
+processFile:276>             "codec_name": "dvd_subtitle",
+processFile:277>             "codec_long_name": "DVD subtitles",
+processFile:278>             "codec_type": "subtitle",
+processFile:279>             "codec_tag_string": "[0][0][0][0]",
+processFile:280>             "codec_tag": "0x0000",
+processFile:281>             "width": 720,
+processFile:282>             "height": 480,
+processFile:283>             "r_frame_rate": "0/0",
+processFile:284>             "avg_frame_rate": "0/0",
+processFile:285>             "time_base": "1/1000",
+processFile:286>             "start_pts": 0,
+processFile:287>             "start_time": "0.000000",
+processFile:288>             "duration_ts": 7839832,
+processFile:289>             "duration": "7839.832000",
+processFile:290>             "extradata_size": 509,
+processFile:291>             "disposition": {
+processFile:292>                 "default": 0,
+processFile:293>                 "dub": 0,
+processFile:294>                 "original": 0,
+processFile:295>                 "comment": 0,
+processFile:296>                 "lyrics": 0,
+processFile:297>                 "karaoke": 0,
+processFile:298>                 "forced": 0,
+processFile:299>                 "hearing_impaired": 0,
+processFile:300>                 "visual_impaired": 0,
+processFile:301>                 "clean_effects": 0,
+processFile:302>                 "attached_pic": 0,
+processFile:303>                 "timed_thumbnails": 0,
+processFile:304>                 "captions": 0,
+processFile:305>                 "descriptions": 0,
+processFile:306>                 "metadata": 0,
+processFile:307>                 "dependent": 0,
+processFile:308>                 "still_image": 0
+processFile:309>             },
+processFile:310>             "tags": {
+processFile:311>                 "language": "kor",
+processFile:312>                 "BPS-eng": "2495",
+processFile:313>                 "DURATION-eng": "02:04:45.604288888",
+processFile:314>                 "NUMBER_OF_FRAMES-eng": "1519",
+processFile:315>                 "NUMBER_OF_BYTES-eng": "2335160",
+processFile:316>                 "SOURCE_ID-eng": "0121BD",
+processFile:317>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:318>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:319>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:320>             }
+processFile:321>         },
+processFile:322>         {
+processFile:323>             "index": 6,
+processFile:324>             "codec_name": "subrip",
+processFile:325>             "codec_long_name": "SubRip subtitle",
+processFile:326>             "codec_type": "subtitle",
+processFile:327>             "codec_tag_string": "[0][0][0][0]",
+processFile:328>             "codec_tag": "0x0000",
+processFile:329>             "r_frame_rate": "0/0",
+processFile:330>             "avg_frame_rate": "0/0",
+processFile:331>             "time_base": "1/1000",
+processFile:332>             "start_pts": 0,
+processFile:333>             "start_time": "0.000000",
+processFile:334>             "duration_ts": 7839832,
+processFile:335>             "duration": "7839.832000",
+processFile:336>             "disposition": {
+processFile:337>                 "default": 0,
+processFile:338>                 "dub": 0,
+processFile:339>                 "original": 0,
+processFile:340>                 "comment": 0,
+processFile:341>                 "lyrics": 0,
+processFile:342>                 "karaoke": 0,
+processFile:343>                 "forced": 0,
+processFile:344>                 "hearing_impaired": 0,
+processFile:345>                 "visual_impaired": 0,
+processFile:346>                 "clean_effects": 0,
+processFile:347>                 "attached_pic": 0,
+processFile:348>                 "timed_thumbnails": 0,
+processFile:349>                 "captions": 0,
+processFile:350>                 "descriptions": 0,
+processFile:351>                 "metadata": 0,
+processFile:352>                 "dependent": 0,
+processFile:353>                 "still_image": 0
+processFile:354>             },
+processFile:355>             "tags": {
+processFile:356>                 "language": "eng",
+processFile:357>                 "BPS-eng": "128",
+processFile:358>                 "DURATION-eng": "02:07:31.859000000",
+processFile:359>                 "NUMBER_OF_FRAMES-eng": "2697",
+processFile:360>                 "NUMBER_OF_BYTES-eng": "123340",
+processFile:361>                 "SOURCE_ID-eng": "0100E0",
+processFile:362>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.15.1 win(x64-release)",
+processFile:363>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2020-05-06 17:52:33",
+processFile:364>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:365>             }
+processFile:366>         }
+processFile:367>     ]
+processFile:368> }
+findIncludedSubTitleStreams> Checking stream: {0,mpeg2video,video,eng}
+findIncludedSubTitleStreams> Ignoring stream: {0,mpeg2video,video,eng}
+findIncludedSubTitleStreams> Checking stream: {1,ac3,audio,Stereo,eng}
+findIncludedSubTitleStreams> Ignoring stream: {1,ac3,audio,Stereo,eng}
+findIncludedSubTitleStreams> Checking stream: {2,ac3,audio,Stereo,spa}
+findIncludedSubTitleStreams> Ignoring stream: {2,ac3,audio,Stereo,spa}
+findIncludedSubTitleStreams> Checking stream: {3,ac3,audio,Stereo,fre}
+findIncludedSubTitleStreams> Ignoring stream: {3,ac3,audio,Stereo,fre}
+findIncludedSubTitleStreams> Checking stream: {4,dvd_subtitle,subtitle,spa}
+findIncludedSubTitleStreams> Found subtitle with language tag but NOT allowable: spa
+findIncludedSubTitleStreams> Checking stream: {5,dvd_subtitle,subtitle,kor}
+findIncludedSubTitleStreams> Found subtitle with language tag but NOT allowable: kor
+findIncludedSubTitleStreams> Checking stream: {6,subrip,subtitle,eng}
+findIncludedSubTitleStreams> Found allowable subtitle stream: {6,subrip,subtitle,eng}
+buildFFmpegSubTitleExtractionOptionsString> ffmpegOptionsCommandString: -map 0:6 -c:s copy "\\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).6.srt"
+executeCommand> "D:\Program Files\ffmpeg\bin\ffmpeg" -y -i "\\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).mkv" -map 0:6 -c:s copy "\\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).6.srt"
+executeCommand> ErrorStream: ffmpeg version 2022-12-15-git-9adf02247c-essentials_build-www.gyan.dev Copyright (c) 2000-2022 the FFmpeg developers
+executeCommand> ErrorStream:   built with gcc 12.1.0 (Rev2, Built by MSYS2 project)
+executeCommand> ErrorStream:   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-bzlib --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-mediafoundation --enable-libass --enable-libfreetype --enable-libfribidi --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-d3d11va --enable-dxva2 --enable-libvpl --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
+executeCommand> ErrorStream:   libavutil      57. 43.100 / 57. 43.100
+executeCommand> ErrorStream:   libavcodec     59. 55.100 / 59. 55.100
+executeCommand> ErrorStream:   libavformat    59. 34.102 / 59. 34.102
+executeCommand> ErrorStream:   libavdevice    59.  8.101 / 59.  8.101
+executeCommand> ErrorStream:   libavfilter     8. 52.100 /  8. 52.100
+executeCommand> ErrorStream:   libswscale      6.  8.112 /  6.  8.112
+executeCommand> ErrorStream:   libswresample   4.  9.100 /  4.  9.100
+executeCommand> ErrorStream:   libpostproc    56.  7.100 / 56.  7.100
+executeCommand> ErrorStream: Input #0, matroska,webm, from '\\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).mkv':
+executeCommand> ErrorStream:   Metadata:
+executeCommand> ErrorStream:     title           : A League of Their Own
+executeCommand> ErrorStream:     encoder         : libmakemkv v1.15.1 (1.3.5/1.4.7) win(x64-release)
+executeCommand> ErrorStream:     creation_time   : 2020-05-06T17:52:33.000000Z
+executeCommand> ErrorStream:   Duration: 02:10:39.83, start: 0.000000, bitrate: 4184 kb/s
+executeCommand> ErrorStream:   Chapters:
+executeCommand> ErrorStream:     Chapter #0:0: start 0.000000, end 165.165000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 01
+executeCommand> ErrorStream:     Chapter #0:1: start 165.165000, end 503.069233
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 02
+executeCommand> ErrorStream:     Chapter #0:2: start 503.069233, end 556.789567
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 03
+executeCommand> ErrorStream:     Chapter #0:3: start 556.789567, end 750.182767
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 04
+executeCommand> ErrorStream:     Chapter #0:4: start 750.182767, end 853.552700
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 05
+executeCommand> ErrorStream:     Chapter #0:5: start 853.552700, end 1086.118367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 06
+executeCommand> ErrorStream:     Chapter #0:6: start 1086.118367, end 1187.319467
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 07
+executeCommand> ErrorStream:     Chapter #0:7: start 1187.319467, end 1470.869400
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 08
+executeCommand> ErrorStream:     Chapter #0:8: start 1470.869400, end 1620.518900
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 09
+executeCommand> ErrorStream:     Chapter #0:9: start 1620.518900, end 1754.219133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 10
+executeCommand> ErrorStream:     Chapter #0:10: start 1754.219133, end 1943.675067
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 11
+executeCommand> ErrorStream:     Chapter #0:11: start 1943.675067, end 2034.098733
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 12
+executeCommand> ErrorStream:     Chapter #0:12: start 2034.098733, end 2178.643133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 13
+executeCommand> ErrorStream:     Chapter #0:13: start 2178.643133, end 2339.904233
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 14
+executeCommand> ErrorStream:     Chapter #0:14: start 2339.904233, end 2467.431633
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 15
+executeCommand> ErrorStream:     Chapter #0:15: start 2467.431633, end 2600.331067
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 16
+executeCommand> ErrorStream:     Chapter #0:16: start 2600.331067, end 2713.410700
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 17
+executeCommand> ErrorStream:     Chapter #0:17: start 2713.410700, end 2943.273667
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 18
+executeCommand> ErrorStream:     Chapter #0:18: start 2943.273667, end 3121.751967
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 19
+executeCommand> ErrorStream:     Chapter #0:19: start 3121.751967, end 3292.289000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 20
+executeCommand> ErrorStream:     Chapter #0:20: start 3292.289000, end 3351.948600
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 21
+executeCommand> ErrorStream:     Chapter #0:21: start 3351.948600, end 3499.529367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 22
+executeCommand> ErrorStream:     Chapter #0:22: start 3499.529367, end 3638.935300
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 23
+executeCommand> ErrorStream:     Chapter #0:23: start 3638.935300, end 3769.465700
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 24
+executeCommand> ErrorStream:     Chapter #0:24: start 3769.465700, end 3880.877000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 25
+executeCommand> ErrorStream:     Chapter #0:25: start 3880.877000, end 3947.209933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 26
+executeCommand> ErrorStream:     Chapter #0:26: start 3947.209933, end 4211.473933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 27
+executeCommand> ErrorStream:     Chapter #0:27: start 4211.473933, end 4397.993600
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 28
+executeCommand> ErrorStream:     Chapter #0:28: start 4397.993600, end 4628.657367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 29
+executeCommand> ErrorStream:     Chapter #0:29: start 4628.657367, end 4789.951833
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 30
+executeCommand> ErrorStream:     Chapter #0:30: start 4789.951833, end 4865.327133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 31
+executeCommand> ErrorStream:     Chapter #0:31: start 4865.327133, end 5008.937267
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 32
+executeCommand> ErrorStream:     Chapter #0:32: start 5008.937267, end 5068.696967
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 33
+executeCommand> ErrorStream:     Chapter #0:33: start 5068.696967, end 5250.745500
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 34
+executeCommand> ErrorStream:     Chapter #0:34: start 5250.745500, end 5376.170800
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 35
+executeCommand> ErrorStream:     Chapter #0:35: start 5376.170800, end 5564.859300
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 36
+executeCommand> ErrorStream:     Chapter #0:36: start 5564.859300, end 5644.672367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 37
+executeCommand> ErrorStream:     Chapter #0:37: start 5644.672367, end 5754.949200
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 38
+executeCommand> ErrorStream:     Chapter #0:38: start 5754.949200, end 5803.063933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 39
+executeCommand> ErrorStream:     Chapter #0:39: start 5803.063933, end 5926.687433
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 40
+executeCommand> ErrorStream:     Chapter #0:40: start 5926.687433, end 6063.090367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 41
+executeCommand> ErrorStream:     Chapter #0:41: start 6063.090367, end 6254.514933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 42
+executeCommand> ErrorStream:     Chapter #0:42: start 6254.514933, end 6361.788767
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 43
+executeCommand> ErrorStream:     Chapter #0:43: start 6361.788767, end 6644.104133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 44
+executeCommand> ErrorStream:     Chapter #0:44: start 6644.104133, end 6845.905733
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 45
+executeCommand> ErrorStream:     Chapter #0:45: start 6845.905733, end 6977.470500
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 46
+executeCommand> ErrorStream:     Chapter #0:46: start 6977.470500, end 7098.024267
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 47
+executeCommand> ErrorStream:     Chapter #0:47: start 7098.024267, end 7201.460933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 48
+executeCommand> ErrorStream:     Chapter #0:48: start 7201.460933, end 7252.478567
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 49
+executeCommand> ErrorStream:     Chapter #0:49: start 7252.478567, end 7437.329900
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 50
+executeCommand> ErrorStream:     Chapter #0:50: start 7437.329900, end 7839.832000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 51
+executeCommand> ErrorStream:   Stream #0:0(eng): Video: mpeg2video (Main), yuv420p(tv, top first), 720x480 [SAR 32:27 DAR 16:9], SAR 853:720 DAR 853:480, 29.97 fps, 29.97 tbr, 1k tbn
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       BPS-eng         : 3596764
+executeCommand> ErrorStream:       DURATION-eng    : 02:10:39.832000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 189010
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 3524753540
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0100E0
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream:     Side data:
+executeCommand> ErrorStream:       cpb: bitrate max/min/avg: 9800000/0/0 buffer size: 1835008 vbv_delay: N/A
+executeCommand> ErrorStream:   Stream #0:1(eng): Audio: ac3, 48000 Hz, stereo, fltp, 192 kb/s (default)
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       title           : Stereo
+executeCommand> ErrorStream:       BPS-eng         : 192000
+executeCommand> ErrorStream:       DURATION-eng    : 02:10:39.744000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 244992
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 188153856
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0180BD
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream:   Stream #0:2(spa): Audio: ac3, 48000 Hz, stereo, fltp, 192 kb/s
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       title           : Stereo
+executeCommand> ErrorStream:       BPS-eng         : 192000
+executeCommand> ErrorStream:       DURATION-eng    : 02:10:39.744000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 244992
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 188153856
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0181BD
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream:   Stream #0:3(fre): Audio: ac3, 48000 Hz, stereo, fltp, 192 kb/s
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       title           : Stereo
+executeCommand> ErrorStream:       BPS-eng         : 192000
+executeCommand> ErrorStream:       DURATION-eng    : 02:10:39.744000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 244992
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 188153856
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0182BD
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream:   Stream #0:4(spa): Subtitle: dvd_subtitle, 720x480 (default)
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       BPS-eng         : 2998
+executeCommand> ErrorStream:       DURATION-eng    : 02:04:44.406033333
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 1499
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 2805314
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0120BD
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream:   Stream #0:5(kor): Subtitle: dvd_subtitle, 720x480
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       BPS-eng         : 2495
+executeCommand> ErrorStream:       DURATION-eng    : 02:04:45.604288888
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 1519
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 2335160
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0121BD
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream:   Stream #0:6(eng): Subtitle: subrip
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       BPS-eng         : 128
+executeCommand> ErrorStream:       DURATION-eng    : 02:07:31.859000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 2697
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 123340
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0100E0
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream: Output #0, srt, to '\\yoda\MKV_Archive1\Movies\A League of Their Own (1992)\A League of Their Own (1992).6.srt':
+executeCommand> ErrorStream:   Metadata:
+executeCommand> ErrorStream:     title           : A League of Their Own
+executeCommand> ErrorStream:     encoder         : Lavf59.34.102
+executeCommand> ErrorStream:   Chapters:
+executeCommand> ErrorStream:     Chapter #0:0: start 0.000000, end 165.165000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 01
+executeCommand> ErrorStream:     Chapter #0:1: start 165.165000, end 503.069233
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 02
+executeCommand> ErrorStream:     Chapter #0:2: start 503.069233, end 556.789567
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 03
+executeCommand> ErrorStream:     Chapter #0:3: start 556.789567, end 750.182767
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 04
+executeCommand> ErrorStream:     Chapter #0:4: start 750.182767, end 853.552700
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 05
+executeCommand> ErrorStream:     Chapter #0:5: start 853.552700, end 1086.118367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 06
+executeCommand> ErrorStream:     Chapter #0:6: start 1086.118367, end 1187.319467
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 07
+executeCommand> ErrorStream:     Chapter #0:7: start 1187.319467, end 1470.869400
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 08
+executeCommand> ErrorStream:     Chapter #0:8: start 1470.869400, end 1620.518900
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 09
+executeCommand> ErrorStream:     Chapter #0:9: start 1620.518900, end 1754.219133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 10
+executeCommand> ErrorStream:     Chapter #0:10: start 1754.219133, end 1943.675067
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 11
+executeCommand> ErrorStream:     Chapter #0:11: start 1943.675067, end 2034.098733
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 12
+executeCommand> ErrorStream:     Chapter #0:12: start 2034.098733, end 2178.643133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 13
+executeCommand> ErrorStream:     Chapter #0:13: start 2178.643133, end 2339.904233
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 14
+executeCommand> ErrorStream:     Chapter #0:14: start 2339.904233, end 2467.431633
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 15
+executeCommand> ErrorStream:     Chapter #0:15: start 2467.431633, end 2600.331067
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 16
+executeCommand> ErrorStream:     Chapter #0:16: start 2600.331067, end 2713.410700
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 17
+executeCommand> ErrorStream:     Chapter #0:17: start 2713.410700, end 2943.273667
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 18
+executeCommand> ErrorStream:     Chapter #0:18: start 2943.273667, end 3121.751967
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 19
+executeCommand> ErrorStream:     Chapter #0:19: start 3121.751967, end 3292.289000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 20
+executeCommand> ErrorStream:     Chapter #0:20: start 3292.289000, end 3351.948600
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 21
+executeCommand> ErrorStream:     Chapter #0:21: start 3351.948600, end 3499.529367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 22
+executeCommand> ErrorStream:     Chapter #0:22: start 3499.529367, end 3638.935300
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 23
+executeCommand> ErrorStream:     Chapter #0:23: start 3638.935300, end 3769.465700
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 24
+executeCommand> ErrorStream:     Chapter #0:24: start 3769.465700, end 3880.877000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 25
+executeCommand> ErrorStream:     Chapter #0:25: start 3880.877000, end 3947.209933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 26
+executeCommand> ErrorStream:     Chapter #0:26: start 3947.209933, end 4211.473933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 27
+executeCommand> ErrorStream:     Chapter #0:27: start 4211.473933, end 4397.993600
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 28
+executeCommand> ErrorStream:     Chapter #0:28: start 4397.993600, end 4628.657367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 29
+executeCommand> ErrorStream:     Chapter #0:29: start 4628.657367, end 4789.951833
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 30
+executeCommand> ErrorStream:     Chapter #0:30: start 4789.951833, end 4865.327133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 31
+executeCommand> ErrorStream:     Chapter #0:31: start 4865.327133, end 5008.937267
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 32
+executeCommand> ErrorStream:     Chapter #0:32: start 5008.937267, end 5068.696967
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 33
+executeCommand> ErrorStream:     Chapter #0:33: start 5068.696967, end 5250.745500
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 34
+executeCommand> ErrorStream:     Chapter #0:34: start 5250.745500, end 5376.170800
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 35
+executeCommand> ErrorStream:     Chapter #0:35: start 5376.170800, end 5564.859300
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 36
+executeCommand> ErrorStream:     Chapter #0:36: start 5564.859300, end 5644.672367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 37
+executeCommand> ErrorStream:     Chapter #0:37: start 5644.672367, end 5754.949200
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 38
+executeCommand> ErrorStream:     Chapter #0:38: start 5754.949200, end 5803.063933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 39
+executeCommand> ErrorStream:     Chapter #0:39: start 5803.063933, end 5926.687433
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 40
+executeCommand> ErrorStream:     Chapter #0:40: start 5926.687433, end 6063.090367
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 41
+executeCommand> ErrorStream:     Chapter #0:41: start 6063.090367, end 6254.514933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 42
+executeCommand> ErrorStream:     Chapter #0:42: start 6254.514933, end 6361.788767
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 43
+executeCommand> ErrorStream:     Chapter #0:43: start 6361.788767, end 6644.104133
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 44
+executeCommand> ErrorStream:     Chapter #0:44: start 6644.104133, end 6845.905733
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 45
+executeCommand> ErrorStream:     Chapter #0:45: start 6845.905733, end 6977.470500
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 46
+executeCommand> ErrorStream:     Chapter #0:46: start 6977.470500, end 7098.024267
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 47
+executeCommand> ErrorStream:     Chapter #0:47: start 7098.024267, end 7201.460933
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 48
+executeCommand> ErrorStream:     Chapter #0:48: start 7201.460933, end 7252.478567
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 49
+executeCommand> ErrorStream:     Chapter #0:49: start 7252.478567, end 7437.329900
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 50
+executeCommand> ErrorStream:     Chapter #0:50: start 7437.329900, end 7839.832000
+executeCommand> ErrorStream:       Metadata:
+executeCommand> ErrorStream:         title           : Chapter 51
+executeCommand> ErrorStream:   Stream #0:0(eng): Subtitle: subrip
+executeCommand> ErrorStream:     Metadata:
+executeCommand> ErrorStream:       BPS-eng         : 128
+executeCommand> ErrorStream:       DURATION-eng    : 02:07:31.859000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 2697
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 123340
+executeCommand> ErrorStream:       SOURCE_ID-eng   : 0100E0
+executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.15.1 win(x64-release)
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2020-05-06 17:52:33
+executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
+executeCommand> ErrorStream: Stream mapping:
+executeCommand> ErrorStream:   Stream #0:6 -> #0:0 (copy)
+executeCommand> ErrorStream: Press [q] to stop, [?] for help
+executeCommand> ErrorStream: size=       0kB time=-577014:32:22.77 bitrate=  -0.0kbits/s speed=N/A    
+executeCommand> ErrorStream: size=       0kB time=00:03:06.43 bitrate=   0.0kbits/s speed=  57x    
+executeCommand> ErrorStream: size=       0kB time=00:04:00.89 bitrate=   0.0kbits/s speed=61.3x    
+executeCommand> ErrorStream: size=       2kB time=00:04:46.67 bitrate=   0.1kbits/s speed=  64x    
+executeCommand> ErrorStream: size=       3kB time=00:05:32.14 bitrate=   0.1kbits/s speed=66.6x    
+executeCommand> ErrorStream: size=       5kB time=00:06:14.92 bitrate=   0.1kbits/s speed=66.9x    
+executeCommand> ErrorStream: size=       6kB time=00:07:04.44 bitrate=   0.1kbits/s speed=68.4x    
+executeCommand> ErrorStream: size=       7kB time=00:08:03.19 bitrate=   0.1kbits/s speed=71.4x    
+executeCommand> ErrorStream: size=       8kB time=00:08:50.68 bitrate=   0.1kbits/s speed=72.3x    
+executeCommand> ErrorStream: size=       9kB time=00:09:33.45 bitrate=   0.1kbits/s speed=72.4x    
+executeCommand> ErrorStream: size=      10kB time=00:10:04.88 bitrate=   0.1kbits/s speed=71.6x    
+executeCommand> ErrorStream: size=      11kB time=00:10:44.62 bitrate=   0.1kbits/s speed=70.9x    
+executeCommand> ErrorStream: size=      12kB time=00:11:22.43 bitrate=   0.1kbits/s speed=70.7x    
+executeCommand> ErrorStream: size=      13kB time=00:11:55.16 bitrate=   0.1kbits/s speed=70.4x    
+executeCommand> ErrorStream: size=      14kB time=00:12:30.06 bitrate=   0.2kbits/s speed=69.9x    
+executeCommand> ErrorStream: size=      15kB time=00:13:12.47 bitrate=   0.2kbits/s speed=69.9x    
+executeCommand> ErrorStream: size=      17kB time=00:13:53.81 bitrate=   0.2kbits/s speed=  70x    
+executeCommand> ErrorStream: size=      18kB time=00:14:43.26 bitrate=   0.2kbits/s speed=70.3x    
+executeCommand> ErrorStream: size=      19kB time=00:15:34.45 bitrate=   0.2kbits/s speed=71.5x    
+executeCommand> ErrorStream: size=      22kB time=00:16:35.14 bitrate=   0.2kbits/s speed=73.1x    
+executeCommand> ErrorStream: size=      24kB time=00:17:22.89 bitrate=   0.2kbits/s speed=73.6x    
+executeCommand> ErrorStream: size=      25kB time=00:18:24.32 bitrate=   0.2kbits/s speed=74.6x    
+executeCommand> ErrorStream: size=      27kB time=00:19:07.86 bitrate=   0.2kbits/s speed=74.7x    
+executeCommand> ErrorStream: size=      28kB time=00:19:52.97 bitrate=   0.2kbits/s speed=74.7x    
+executeCommand> ErrorStream: size=      29kB time=00:20:37.82 bitrate=   0.2kbits/s speed=75.1x    
+executeCommand> ErrorStream: size=      30kB time=00:21:29.03 bitrate=   0.2kbits/s speed=75.7x    
+executeCommand> ErrorStream: size=      32kB time=00:22:21.09 bitrate=   0.2kbits/s speed=76.5x    
+executeCommand> ErrorStream: size=      33kB time=00:23:24.25 bitrate=   0.2kbits/s speed=77.5x    
+executeCommand> ErrorStream: size=      35kB time=00:24:37.52 bitrate=   0.2kbits/s speed=78.7x    
+executeCommand> ErrorStream: size=      35kB time=00:25:01.81 bitrate=   0.2kbits/s speed=77.9x    
+executeCommand> ErrorStream: size=      37kB time=00:25:42.85 bitrate=   0.2kbits/s speed=77.9x    
+executeCommand> ErrorStream: size=      38kB time=00:26:21.63 bitrate=   0.2kbits/s speed=77.8x    
+executeCommand> ErrorStream: size=      40kB time=00:27:21.18 bitrate=   0.2kbits/s speed=78.4x    
+executeCommand> ErrorStream: size=      42kB time=00:28:22.55 bitrate=   0.2kbits/s speed=78.8x    
+executeCommand> ErrorStream: size=      42kB time=00:29:18.30 bitrate=   0.2kbits/s speed=78.7x    
+executeCommand> ErrorStream: size=      43kB time=00:29:48.20 bitrate=   0.2kbits/s speed=78.1x    
+executeCommand> ErrorStream: size=      45kB time=00:30:50.89 bitrate=   0.2kbits/s speed=78.7x    
+executeCommand> ErrorStream: size=      47kB time=00:31:39.24 bitrate=   0.2kbits/s speed=78.6x    
+executeCommand> ErrorStream: size=      49kB time=00:32:39.40 bitrate=   0.2kbits/s speed=78.8x    
+executeCommand> ErrorStream: size=      51kB time=00:33:25.82 bitrate=   0.2kbits/s speed=  79x    
+executeCommand> ErrorStream: size=      52kB time=00:34:15.43 bitrate=   0.2kbits/s speed=79.1x    
+executeCommand> ErrorStream: size=      55kB time=00:35:20.56 bitrate=   0.2kbits/s speed=79.8x    
+executeCommand> ErrorStream: size=      56kB time=00:36:18.56 bitrate=   0.2kbits/s speed=80.4x    
+executeCommand> ErrorStream: size=      58kB time=00:37:14.54 bitrate=   0.2kbits/s speed=80.8x    
+executeCommand> ErrorStream: size=      60kB time=00:38:08.70 bitrate=   0.2kbits/s speed=81.3x    
+executeCommand> ErrorStream: size=      61kB time=00:38:41.26 bitrate=   0.2kbits/s speed=  81x    
+executeCommand> ErrorStream: size=      63kB time=00:39:27.84 bitrate=   0.2kbits/s speed=80.9x    
+executeCommand> ErrorStream: size=      65kB time=00:40:12.49 bitrate=   0.2kbits/s speed=80.9x    
+executeCommand> ErrorStream: size=      66kB time=00:40:59.67 bitrate=   0.2kbits/s speed=80.9x    
+executeCommand> ErrorStream: size=      68kB time=00:41:45.52 bitrate=   0.2kbits/s speed=  81x    
+executeCommand> ErrorStream: size=      70kB time=00:42:33.26 bitrate=   0.2kbits/s speed=81.2x    
+executeCommand> ErrorStream: size=      71kB time=00:43:29.37 bitrate=   0.2kbits/s speed=81.6x    
+executeCommand> ErrorStream: size=      74kB time=00:44:43.61 bitrate=   0.2kbits/s speed=82.4x    
+executeCommand> ErrorStream: size=      75kB time=00:45:35.83 bitrate=   0.2kbits/s speed=82.7x    
+executeCommand> ErrorStream: size=      77kB time=00:46:35.19 bitrate=   0.2kbits/s speed=83.2x    
+executeCommand> ErrorStream: size=      78kB time=00:47:21.10 bitrate=   0.2kbits/s speed=83.3x    
+executeCommand> ErrorStream: size=      81kB time=00:48:35.07 bitrate=   0.2kbits/s speed=  84x    
+executeCommand> ErrorStream: size=      83kB time=00:49:26.39 bitrate=   0.2kbits/s speed=84.3x    
+executeCommand> ErrorStream: size=      84kB time=00:50:04.63 bitrate=   0.2kbits/s speed=  84x    
+executeCommand> ErrorStream: size=      86kB time=00:50:58.32 bitrate=   0.2kbits/s speed=84.2x    
+executeCommand> ErrorStream: size=      87kB time=00:51:43.13 bitrate=   0.2kbits/s speed=  84x    
+executeCommand> ErrorStream: size=      88kB time=00:52:32.68 bitrate=   0.2kbits/s speed=84.1x    
+executeCommand> ErrorStream: size=      89kB time=00:53:21.89 bitrate=   0.2kbits/s speed=  84x    
+executeCommand> ErrorStream: size=      91kB time=00:54:05.44 bitrate=   0.2kbits/s speed=83.9x    
+executeCommand> ErrorStream: size=      92kB time=00:55:16.07 bitrate=   0.2kbits/s speed=84.4x    
+executeCommand> ErrorStream: size=      94kB time=00:56:21.94 bitrate=   0.2kbits/s speed=  85x    
+executeCommand> ErrorStream: size=      96kB time=00:57:14.13 bitrate=   0.2kbits/s speed=84.9x    
+executeCommand> ErrorStream: size=      97kB time=00:58:05.01 bitrate=   0.2kbits/s speed=  85x    
+executeCommand> ErrorStream: size=      98kB time=00:59:00.73 bitrate=   0.2kbits/s speed=85.1x    
+executeCommand> ErrorStream: size=     100kB time=00:59:53.85 bitrate=   0.2kbits/s speed=85.3x    
+executeCommand> ErrorStream: size=     101kB time=01:00:48.57 bitrate=   0.2kbits/s speed=85.5x    
+executeCommand> ErrorStream: size=     103kB time=01:01:25.98 bitrate=   0.2kbits/s speed=85.2x    
+executeCommand> ErrorStream: size=     105kB time=01:02:25.94 bitrate=   0.2kbits/s speed=85.6x    
+executeCommand> ErrorStream: size=     106kB time=01:03:10.85 bitrate=   0.2kbits/s speed=85.6x    
+executeCommand> ErrorStream: size=     108kB time=01:04:00.23 bitrate=   0.2kbits/s speed=85.7x    
+executeCommand> ErrorStream: size=     110kB time=01:04:52.65 bitrate=   0.2kbits/s speed=85.8x    
+executeCommand> ErrorStream: size=     111kB time=01:05:35.06 bitrate=   0.2kbits/s speed=85.8x    
+executeCommand> ErrorStream: size=     113kB time=01:06:29.05 bitrate=   0.2kbits/s speed=85.7x    
+executeCommand> ErrorStream: size=     114kB time=01:07:05.42 bitrate=   0.2kbits/s speed=85.6x    
+executeCommand> ErrorStream: size=     115kB time=01:07:57.34 bitrate=   0.2kbits/s speed=85.4x    
+executeCommand> ErrorStream: size=     116kB time=01:08:34.31 bitrate=   0.2kbits/s speed=85.3x    
+executeCommand> ErrorStream: size=     118kB time=01:09:26.66 bitrate=   0.2kbits/s speed=85.2x    
+executeCommand> ErrorStream: size=     118kB time=01:10:19.14 bitrate=   0.2kbits/s speed=  85x    
+executeCommand> ErrorStream: size=     119kB time=01:11:03.29 bitrate=   0.2kbits/s speed=  85x    
+executeCommand> ErrorStream: size=     121kB time=01:11:57.64 bitrate=   0.2kbits/s speed=85.2x    
+executeCommand> ErrorStream: size=     124kB time=01:12:55.47 bitrate=   0.2kbits/s speed=85.4x    
+executeCommand> ErrorStream: size=     125kB time=01:13:39.48 bitrate=   0.2kbits/s speed=85.3x    
+executeCommand> ErrorStream: size=     126kB time=01:14:24.32 bitrate=   0.2kbits/s speed=85.4x    
+executeCommand> ErrorStream: size=     128kB time=01:15:16.64 bitrate=   0.2kbits/s speed=85.3x    
+executeCommand> ErrorStream: size=     130kB time=01:16:14.30 bitrate=   0.2kbits/s speed=85.4x    
+executeCommand> ErrorStream: size=     132kB time=01:17:14.09 bitrate=   0.2kbits/s speed=85.4x    
+executeCommand> ErrorStream: size=     134kB time=01:18:04.51 bitrate=   0.2kbits/s speed=85.3x    
+executeCommand> ErrorStream: size=     137kB time=01:19:16.35 bitrate=   0.2kbits/s speed=85.7x    
+executeCommand> ErrorStream: size=     138kB time=01:20:06.66 bitrate=   0.2kbits/s speed=85.7x    
+executeCommand> ErrorStream: size=     139kB time=01:20:57.25 bitrate=   0.2kbits/s speed=85.9x    
+executeCommand> ErrorStream: size=     141kB time=01:21:50.63 bitrate=   0.2kbits/s speed=86.1x    
+executeCommand> ErrorStream: size=     143kB time=01:22:43.12 bitrate=   0.2kbits/s speed=86.2x    
+executeCommand> ErrorStream: size=     145kB time=01:23:35.34 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     147kB time=01:24:21.62 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     149kB time=01:25:27.95 bitrate=   0.2kbits/s speed=86.6x    
+executeCommand> ErrorStream: size=     151kB time=01:26:27.91 bitrate=   0.2kbits/s speed=86.7x    
+executeCommand> ErrorStream: size=     152kB time=01:27:40.48 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     153kB time=01:28:15.29 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     155kB time=01:29:17.28 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     156kB time=01:30:05.76 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     157kB time=01:30:48.47 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     158kB time=01:31:35.29 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     160kB time=01:32:47.79 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     160kB time=01:33:24.93 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     161kB time=01:34:07.97 bitrate=   0.2kbits/s speed=86.7x    
+executeCommand> ErrorStream: size=     163kB time=01:34:49.38 bitrate=   0.2kbits/s speed=86.6x    
+executeCommand> ErrorStream: size=     164kB time=01:35:38.30 bitrate=   0.2kbits/s speed=86.7x    
+executeCommand> ErrorStream: size=     166kB time=01:36:30.41 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     167kB time=01:37:06.88 bitrate=   0.2kbits/s speed=86.7x    
+executeCommand> ErrorStream: size=     168kB time=01:37:53.03 bitrate=   0.2kbits/s speed=86.6x    
+executeCommand> ErrorStream: size=     170kB time=01:38:35.11 bitrate=   0.2kbits/s speed=86.5x    
+executeCommand> ErrorStream: size=     171kB time=01:39:23.02 bitrate=   0.2kbits/s speed=86.4x    
+executeCommand> ErrorStream: size=     172kB time=01:39:59.39 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     174kB time=01:41:05.06 bitrate=   0.2kbits/s speed=86.4x    
+executeCommand> ErrorStream: size=     175kB time=01:41:56.77 bitrate=   0.2kbits/s speed=86.4x    
+executeCommand> ErrorStream: size=     176kB time=01:42:40.75 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     177kB time=01:43:24.06 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     178kB time=01:44:22.22 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     180kB time=01:45:22.01 bitrate=   0.2kbits/s speed=86.4x    
+executeCommand> ErrorStream: size=     181kB time=01:46:01.62 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     182kB time=01:46:43.33 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     183kB time=01:47:40.15 bitrate=   0.2kbits/s speed=86.3x    
+executeCommand> ErrorStream: size=     185kB time=01:48:32.43 bitrate=   0.2kbits/s speed=86.2x    
+executeCommand> ErrorStream: size=     186kB time=01:49:15.78 bitrate=   0.2kbits/s speed=86.1x    
+executeCommand> ErrorStream: size=     186kB time=01:50:05.83 bitrate=   0.2kbits/s speed=86.1x    
+executeCommand> ErrorStream: size=     188kB time=01:50:57.71 bitrate=   0.2kbits/s speed=86.1x    
+executeCommand> ErrorStream: size=     191kB time=01:52:09.02 bitrate=   0.2kbits/s speed=86.5x    
+executeCommand> ErrorStream: size=     193kB time=01:53:11.91 bitrate=   0.2kbits/s speed=86.7x    
+executeCommand> ErrorStream: size=     195kB time=01:54:14.41 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     196kB time=01:55:09.73 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     199kB time=01:56:23.47 bitrate=   0.2kbits/s speed=87.1x    
+executeCommand> ErrorStream: size=     200kB time=01:57:05.55 bitrate=   0.2kbits/s speed=87.1x    
+executeCommand> ErrorStream: size=     202kB time=01:57:40.92 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     203kB time=01:58:24.73 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     204kB time=01:59:03.93 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     206kB time=02:00:08.30 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     208kB time=02:00:56.68 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     208kB time=02:01:52.90 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     209kB time=02:02:33.04 bitrate=   0.2kbits/s speed=86.9x    
+executeCommand> ErrorStream: size=     210kB time=02:04:19.25 bitrate=   0.2kbits/s speed=  87x    
+executeCommand> ErrorStream: size=     211kB time=02:04:58.95 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     211kB time=02:05:37.56 bitrate=   0.2kbits/s speed=86.8x    
+executeCommand> ErrorStream: size=     212kB time=02:06:20.44 bitrate=   0.2kbits/s speed=86.7x    
+executeCommand> ErrorStream: size=     213kB time=02:07:26.07 bitrate=   0.2kbits/s speed=86.6x    
+executeCommand> ErrorStream: size=     213kB time=02:07:51.69 bitrate=   0.2kbits/s speed=86.4x    
+executeCommand> ErrorStream: size=     214kB time=02:08:32.40 bitrate=   0.2kbits/s speed=86.4x    
+executeCommand> ErrorStream: size=     215kB time=02:09:10.04 bitrate=   0.2kbits/s speed=86.2x    
+executeCommand> ErrorStream: size=     216kB time=02:09:38.90 bitrate=   0.2kbits/s speed=  86x    
+executeCommand> ErrorStream: size=     216kB time=02:10:13.20 bitrate=   0.2kbits/s speed=85.9x    
+executeCommand> ErrorStream: size=     217kB time=02:10:29.38 bitrate=   0.2kbits/s speed=85.7x    
+executeCommand> ErrorStream: video:0kB audio:0kB subtitle:120kB other streams:0kB global headers:0kB muxing overhead: 80.008110%
+main> Exiting...
