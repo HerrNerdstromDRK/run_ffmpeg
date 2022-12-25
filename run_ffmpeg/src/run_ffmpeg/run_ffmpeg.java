@@ -210,12 +210,15 @@ public class run_ffmpeg
 			// Free any unused memory or handles
 			System.gc() ;
 		}
-
+		out( "main> Shutting down..." ) ;
 		try
 		{
+			out( "main> Waiting for worker threads to finish" ) ;
+			
 			// After the last file is transcoded, the workerThread(s) will perform two move functions
 			// Wait for the workerThreads work queue to become empty
-			for (ExecThread workerThread : workerThreads) {
+			for (ExecThread workerThread : workerThreads)
+			{
 				while( workerThread.hasMoreWork() )
 				{
 					// Let the workerThread finish its business
