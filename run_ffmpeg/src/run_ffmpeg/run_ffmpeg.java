@@ -208,6 +208,7 @@ public class run_ffmpeg
 			}
 			
 			// Free any unused memory or handles
+			// Test
 			System.gc() ;
 		}
 		out( "main> Shutting down..." ) ;
