@@ -122,7 +122,7 @@ public class run_ffmpeg
 		transcodeSmallToLarge,
 		transcodeLargeToSmall
 	} ;
-	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeLargeToSmall ;
+	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeSmallToLarge ;
 
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
 	static BufferedWriter logWriter = null ;
@@ -150,9 +150,6 @@ public class run_ffmpeg
 		transcodeOptions.add( "-vcodec", "libx264" ) ;
 		transcodeOptions.add( "-crf", "17" ) ;
 		transcodeOptions.add( "-movflags", "+faststart" ) ;
-
-		// Options to be used for subtitles
-//		transcodeSubTitleOptions.add( "-copyts" ) ;
 		
 		if( moveMKVAndMP4InParallel )
 		{
@@ -209,6 +206,9 @@ public class run_ffmpeg
 			{
 				break ;
 			}
+			
+			// Free any unused memory or handles
+			System.gc() ;
 		}
 
 		try
@@ -235,7 +235,7 @@ public class run_ffmpeg
 		final long endTime = System.nanoTime() ;
 		final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 
-    	out( "transcodeFile> Total elapsed time: "
+    	out( "main> Total elapsed time: "
     			+ numFormat.format( timeElapsedInSeconds )
     			+ " seconds, "
     			+ numFormat.format( timeElapsedInSeconds / 60.0 )
