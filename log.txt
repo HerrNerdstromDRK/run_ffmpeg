@@ -37,7 +37,6 @@ TranscodeFile.buildPaths> Found tv show file: \\yoda\Backup\To Convert - TV Show
 buildSRTFileList> searchFile (Weeds - S02E07 - Must Find Toes.3.srt) matches regex: Weeds - S02E07 - Must Find Toes(.*).srt
 TranscodeFile.buildPaths> Found tv show file: \\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E08 - MILF Money.mkv
 buildSRTFileList> searchFile (Weeds - S02E08 - MILF Money.4.srt) matches regex: Weeds - S02E08 - MILF Money(.*).srt
-TranscodeFile.buildPaths> Found tv show file: \\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mkv
 TranscodeFile.buildPaths> Found tv show file: \\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E01 - Mother Thinks The Birds Are After Her.mkv
 buildSRTFileList> searchFile (Weeds - S04E01 - Mother Thinks The Birds Are After Her.4.srt) matches regex: Weeds - S04E01 - Mother Thinks The Birds Are After Her(.*).srt
 buildSRTFileList> searchFile (Weeds - S04E01 - Mother Thinks The Birds Are After Her.5.srt) matches regex: Weeds - S04E01 - Mother Thinks The Birds Are After Her(.*).srt
@@ -81,7 +80,6 @@ buildSRTFileList> searchFile (Weeds - S04E12 - Till We Meet Again.4.srt) matches
 TranscodeFile.buildPaths> Found tv show file: \\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E13 - If You Work For A Living Then Why Do You Kill Yourself Working.mkv
 buildSRTFileList> searchFile (Weeds - S04E13 - If You Work For A Living Then Why Do You Kill Yourself Working.4.srt) matches regex: Weeds - S04E13 - If You Work For A Living Then Why Do You Kill Yourself Working(.*).srt
 buildSRTFileList> searchFile (Weeds - S04E13 - If You Work For A Living Then Why Do You Kill Yourself Working.5.srt) matches regex: Weeds - S04E13 - If You Work For A Living Then Why Do You Kill Yourself Working(.*).srt
-TranscodeFile> theMP4FileName: Weeds - S02E101 - Conrads Grow Room.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 02\, mp4OutputDirectory: D:\Temp\Weeds\Season 02\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 02\, length: 1049771825
 TranscodeFile> theMP4FileName: Weeds - S04E103 - Gag Reel.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 1082773608
 TranscodeFile> theMP4FileName: Weeds - S04E102 - Moving Weight.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 1217604651
 TranscodeFile> theMP4FileName: Weeds - S04E101 - Im A Big Kid Now.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 1233555627
@@ -116,137 +114,133 @@ TranscodeFile> theMP4FileName: Weeds - S04E10 - The Love Circle Overlap.mp4, mkv
 TranscodeFile> theMP4FileName: Weeds - S04E09 - Little Boats.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 6062048660
 TranscodeFile> theMP4FileName: Weeds - S04E13 - If You Work For A Living Then Why Do You Kill Yourself Working.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 6314018354
 TranscodeFile> theMP4FileName: Weeds - S04E08 - I Am The Table.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 7320394784
-processFile> Processing: Weeds - S02E101 - Conrads Grow Room.mkv
-processFile> Execute ffprobe command: "D:\Program Files\ffmpeg\bin\ffprobe" -v quiet -show_streams -print_format json -i "\\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mkv"
+processFile> Processing: Weeds - S04E103 - Gag Reel.mkv
+processFile> Execute ffprobe command: "D:\Program Files\ffmpeg\bin\ffprobe" -v quiet -show_streams -print_format json -i "\\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mkv"
 processFile:1> {
 processFile:2>     "streams": [
 processFile:3>         {
 processFile:4>             "index": 0,
-processFile:5>             "codec_name": "mpeg2video",
-processFile:6>             "codec_long_name": "MPEG-2 video",
-processFile:7>             "profile": "Main",
+processFile:5>             "codec_name": "h264",
+processFile:6>             "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+processFile:7>             "profile": "High",
 processFile:8>             "codec_type": "video",
 processFile:9>             "codec_tag_string": "[0][0][0][0]",
 processFile:10>             "codec_tag": "0x0000",
 processFile:11>             "width": 1920,
 processFile:12>             "height": 1080,
-processFile:13>             "coded_width": 0,
-processFile:14>             "coded_height": 0,
+processFile:13>             "coded_width": 1920,
+processFile:14>             "coded_height": 1080,
 processFile:15>             "closed_captions": 0,
 processFile:16>             "film_grain": 0,
-processFile:17>             "has_b_frames": 1,
+processFile:17>             "has_b_frames": 4,
 processFile:18>             "sample_aspect_ratio": "1:1",
 processFile:19>             "display_aspect_ratio": "16:9",
 processFile:20>             "pix_fmt": "yuv420p",
-processFile:21>             "level": 4,
+processFile:21>             "level": 41,
 processFile:22>             "color_range": "tv",
-processFile:23>             "chroma_location": "left",
-processFile:24>             "field_order": "progressive",
-processFile:25>             "refs": 1,
-processFile:26>             "r_frame_rate": "24000/1001",
-processFile:27>             "avg_frame_rate": "24000/1001",
-processFile:28>             "time_base": "1/1000",
-processFile:29>             "start_pts": 0,
-processFile:30>             "start_time": "0.000000",
-processFile:31>             "extradata_size": 150,
-processFile:32>             "disposition": {
-processFile:33>                 "default": 0,
-processFile:34>                 "dub": 0,
-processFile:35>                 "original": 0,
-processFile:36>                 "comment": 0,
-processFile:37>                 "lyrics": 0,
-processFile:38>                 "karaoke": 0,
-processFile:39>                 "forced": 0,
-processFile:40>                 "hearing_impaired": 0,
-processFile:41>                 "visual_impaired": 0,
-processFile:42>                 "clean_effects": 0,
-processFile:43>                 "attached_pic": 0,
-processFile:44>                 "timed_thumbnails": 0,
-processFile:45>                 "captions": 0,
-processFile:46>                 "descriptions": 0,
-processFile:47>                 "metadata": 0,
-processFile:48>                 "dependent": 0,
-processFile:49>                 "still_image": 0
-processFile:50>             },
-processFile:51>             "tags": {
-processFile:52>                 "language": "eng",
-processFile:53>                 "BPS-eng": "13879718",
-processFile:54>                 "DURATION-eng": "00:09:56.596000000",
-processFile:55>                 "NUMBER_OF_FRAMES-eng": "14304",
-processFile:56>                 "NUMBER_OF_BYTES-eng": "1035073035",
-processFile:57>                 "SOURCE_ID-eng": "001011",
-processFile:58>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.17.2 win(x64-release)",
-processFile:59>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2022-12-17 00:58:00",
-processFile:60>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
-processFile:61>             },
-processFile:62>             "side_data_list": [
-processFile:63>                 {
-processFile:64>                     "side_data_type": "CPB properties",
-processFile:65>                     "max_bitrate": 39000000,
-processFile:66>                     "min_bitrate": 0,
-processFile:67>                     "avg_bitrate": 0,
-processFile:68>                     "buffer_size": 9781248,
-processFile:69>                     "vbv_delay": -1
-processFile:70>                 }
-processFile:71>             ]
-processFile:72>         },
-processFile:73>         {
-processFile:74>             "index": 1,
-processFile:75>             "codec_name": "ac3",
-processFile:76>             "codec_long_name": "ATSC A/52A (AC-3)",
-processFile:77>             "codec_type": "audio",
-processFile:78>             "codec_tag_string": "[0][0][0][0]",
-processFile:79>             "codec_tag": "0x0000",
-processFile:80>             "sample_fmt": "fltp",
-processFile:81>             "sample_rate": "48000",
-processFile:82>             "channels": 2,
-processFile:83>             "channel_layout": "stereo",
-processFile:84>             "bits_per_sample": 0,
-processFile:85>             "r_frame_rate": "0/0",
-processFile:86>             "avg_frame_rate": "0/0",
-processFile:87>             "time_base": "1/1000",
-processFile:88>             "start_pts": 0,
-processFile:89>             "start_time": "0.000000",
-processFile:90>             "bit_rate": "192000",
-processFile:91>             "disposition": {
-processFile:92>                 "default": 1,
-processFile:93>                 "dub": 0,
-processFile:94>                 "original": 0,
-processFile:95>                 "comment": 0,
-processFile:96>                 "lyrics": 0,
-processFile:97>                 "karaoke": 0,
-processFile:98>                 "forced": 0,
-processFile:99>                 "hearing_impaired": 0,
-processFile:100>                 "visual_impaired": 0,
-processFile:101>                 "clean_effects": 0,
-processFile:102>                 "attached_pic": 0,
-processFile:103>                 "timed_thumbnails": 0,
-processFile:104>                 "captions": 0,
-processFile:105>                 "descriptions": 0,
-processFile:106>                 "metadata": 0,
-processFile:107>                 "dependent": 0,
-processFile:108>                 "still_image": 0
-processFile:109>             },
-processFile:110>             "tags": {
-processFile:111>                 "language": "eng",
-processFile:112>                 "title": "Stereo",
-processFile:113>                 "BPS-eng": "192000",
-processFile:114>                 "DURATION-eng": "00:09:56.608000000",
-processFile:115>                 "NUMBER_OF_FRAMES-eng": "18644",
-processFile:116>                 "NUMBER_OF_BYTES-eng": "14318592",
-processFile:117>                 "SOURCE_ID-eng": "001100",
-processFile:118>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.17.2 win(x64-release)",
-processFile:119>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2022-12-17 00:58:00",
-processFile:120>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
-processFile:121>             }
-processFile:122>         }
-processFile:123>     ]
-processFile:124> }
-setTranscodeStatus(.in_work)> Touching file: \\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.in_work
-setTranscodeStatus(.in_work)> Touching file: D:\Temp\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.in_work
-transcodeFile> Transcoding: TranscodeFile> theMP4FileName: Weeds - S02E101 - Conrads Grow Room.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 02\, mp4OutputDirectory: D:\Temp\Weeds\Season 02\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 02\, length: 1049771825
-"D:\Program Files\ffmpeg\bin\ffmpeg" -y -i "\\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mkv" -map 0 -vf yadif=1 -vcodec libx264 -crf 17 -movflags +faststart -metadata title="Conrads Grow Room" "D:\Temp\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mp4"
-executeCommand> "D:\Program Files\ffmpeg\bin\ffmpeg" -y -i "\\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mkv" -map 0 -vf yadif=1 -vcodec libx264 -crf 17 -movflags +faststart -metadata title="Conrads Grow Room" "D:\Temp\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mp4"
+processFile:23>             "color_space": "bt709",
+processFile:24>             "color_transfer": "bt709",
+processFile:25>             "color_primaries": "bt709",
+processFile:26>             "chroma_location": "left",
+processFile:27>             "field_order": "progressive",
+processFile:28>             "refs": 1,
+processFile:29>             "is_avc": "true",
+processFile:30>             "nal_length_size": "4",
+processFile:31>             "r_frame_rate": "24000/1001",
+processFile:32>             "avg_frame_rate": "24000/1001",
+processFile:33>             "time_base": "1/1000",
+processFile:34>             "start_pts": 0,
+processFile:35>             "start_time": "0.000000",
+processFile:36>             "bits_per_raw_sample": "8",
+processFile:37>             "extradata_size": 123,
+processFile:38>             "disposition": {
+processFile:39>                 "default": 0,
+processFile:40>                 "dub": 0,
+processFile:41>                 "original": 0,
+processFile:42>                 "comment": 0,
+processFile:43>                 "lyrics": 0,
+processFile:44>                 "karaoke": 0,
+processFile:45>                 "forced": 0,
+processFile:46>                 "hearing_impaired": 0,
+processFile:47>                 "visual_impaired": 0,
+processFile:48>                 "clean_effects": 0,
+processFile:49>                 "attached_pic": 0,
+processFile:50>                 "timed_thumbnails": 0,
+processFile:51>                 "captions": 0,
+processFile:52>                 "descriptions": 0,
+processFile:53>                 "metadata": 0,
+processFile:54>                 "dependent": 0,
+processFile:55>                 "still_image": 0
+processFile:56>             },
+processFile:57>             "tags": {
+processFile:58>                 "language": "eng",
+processFile:59>                 "BPS-eng": "16939692",
+processFile:60>                 "DURATION-eng": "00:08:25.546708333",
+processFile:61>                 "NUMBER_OF_FRAMES-eng": "12121",
+processFile:62>                 "NUMBER_OF_BYTES-eng": "1070474241",
+processFile:63>                 "SOURCE_ID-eng": "001011",
+processFile:64>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.17.2 win(x64-release)",
+processFile:65>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2022-12-17 15:02:51",
+processFile:66>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:67>             }
+processFile:68>         },
+processFile:69>         {
+processFile:70>             "index": 1,
+processFile:71>             "codec_name": "ac3",
+processFile:72>             "codec_long_name": "ATSC A/52A (AC-3)",
+processFile:73>             "codec_type": "audio",
+processFile:74>             "codec_tag_string": "[0][0][0][0]",
+processFile:75>             "codec_tag": "0x0000",
+processFile:76>             "sample_fmt": "fltp",
+processFile:77>             "sample_rate": "48000",
+processFile:78>             "channels": 2,
+processFile:79>             "channel_layout": "stereo",
+processFile:80>             "bits_per_sample": 0,
+processFile:81>             "r_frame_rate": "0/0",
+processFile:82>             "avg_frame_rate": "0/0",
+processFile:83>             "time_base": "1/1000",
+processFile:84>             "start_pts": 0,
+processFile:85>             "start_time": "0.000000",
+processFile:86>             "bit_rate": "192000",
+processFile:87>             "disposition": {
+processFile:88>                 "default": 1,
+processFile:89>                 "dub": 0,
+processFile:90>                 "original": 0,
+processFile:91>                 "comment": 0,
+processFile:92>                 "lyrics": 0,
+processFile:93>                 "karaoke": 0,
+processFile:94>                 "forced": 0,
+processFile:95>                 "hearing_impaired": 0,
+processFile:96>                 "visual_impaired": 0,
+processFile:97>                 "clean_effects": 0,
+processFile:98>                 "attached_pic": 0,
+processFile:99>                 "timed_thumbnails": 0,
+processFile:100>                 "captions": 0,
+processFile:101>                 "descriptions": 0,
+processFile:102>                 "metadata": 0,
+processFile:103>                 "dependent": 0,
+processFile:104>                 "still_image": 0
+processFile:105>             },
+processFile:106>             "tags": {
+processFile:107>                 "language": "eng",
+processFile:108>                 "title": "Stereo",
+processFile:109>                 "BPS-eng": "192000",
+processFile:110>                 "DURATION-eng": "00:08:25.568000000",
+processFile:111>                 "NUMBER_OF_FRAMES-eng": "15799",
+processFile:112>                 "NUMBER_OF_BYTES-eng": "12133632",
+processFile:113>                 "SOURCE_ID-eng": "001100",
+processFile:114>                 "_STATISTICS_WRITING_APP-eng": "MakeMKV v1.17.2 win(x64-release)",
+processFile:115>                 "_STATISTICS_WRITING_DATE_UTC-eng": "2022-12-17 15:02:51",
+processFile:116>                 "_STATISTICS_TAGS-eng": "BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID"
+processFile:117>             }
+processFile:118>         }
+processFile:119>     ]
+processFile:120> }
+setTranscodeStatus(.in_work)> Touching file: \\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E103 - Gag Reel.in_work
+setTranscodeStatus(.in_work)> Touching file: D:\Temp\Weeds\Season 04\Weeds - S04E103 - Gag Reel.in_work
+transcodeFile> Transcoding: TranscodeFile> theMP4FileName: Weeds - S04E103 - Gag Reel.mp4, mkvFinalDirectory: \\yoda\MKV_Archive9\TV Shows\Weeds\Season 04\, mp4OutputDirectory: D:\Temp\Weeds\Season 04\, mp4FinalDirectory: \\yoda\MP4_4\TV Shows\Weeds\Season 04\, length: 1082773608
+"D:\Program Files\ffmpeg\bin\ffmpeg" -y -i "\\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mkv" -map 0 -vf yadif=1 -vcodec libx264 -crf 17 -movflags +faststart -metadata title="Gag Reel" "D:\Temp\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mp4"
+executeCommand> "D:\Program Files\ffmpeg\bin\ffmpeg" -y -i "\\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mkv" -map 0 -vf yadif=1 -vcodec libx264 -crf 17 -movflags +faststart -metadata title="Gag Reel" "D:\Temp\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mp4"
 executeCommand> ErrorStream: ffmpeg version 5.1.2-essentials_build-www.gyan.dev Copyright (c) 2000-2022 the FFmpeg developers
 executeCommand> ErrorStream:   built with gcc 12.1.0 (Rev2, Built by MSYS2 project)
 executeCommand> ErrorStream:   configuration: --enable-gpl --enable-version3 --enable-static --disable-w32threads --disable-autodetect --enable-fontconfig --enable-iconv --enable-gnutls --enable-libxml2 --enable-gmp --enable-lzma --enable-zlib --enable-libsrt --enable-libssh --enable-libzmq --enable-avisynth --enable-sdl2 --enable-libwebp --enable-libx264 --enable-libx265 --enable-libxvid --enable-libaom --enable-libopenjpeg --enable-libvpx --enable-libass --enable-libfreetype --enable-libfribidi --enable-libvidstab --enable-libvmaf --enable-libzimg --enable-amf --enable-cuda-llvm --enable-cuvid --enable-ffnvcodec --enable-nvdec --enable-nvenc --enable-d3d11va --enable-dxva2 --enable-libmfx --enable-libgme --enable-libopenmpt --enable-libopencore-amrwb --enable-libmp3lame --enable-libtheora --enable-libvo-amrwbenc --enable-libgsm --enable-libopencore-amrnb --enable-libopus --enable-libspeex --enable-libvorbis --enable-librubberband
@@ -258,55 +252,54 @@ executeCommand> ErrorStream:   libavfilter     8. 44.100 /  8. 44.100
 executeCommand> ErrorStream:   libswscale      6.  7.100 /  6.  7.100
 executeCommand> ErrorStream:   libswresample   4.  7.100 /  4.  7.100
 executeCommand> ErrorStream:   libpostproc    56.  6.100 / 56.  6.100
-executeCommand> ErrorStream: Input #0, matroska,webm, from '\\yoda\Backup\To Convert - TV Shows\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mkv':
+executeCommand> ErrorStream: Input #0, matroska,webm, from '\\yoda\Backup\To Convert - TV Shows\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mkv':
 executeCommand> ErrorStream:   Metadata:
+executeCommand> ErrorStream:     title           : Weeds Season 4
 executeCommand> ErrorStream:     encoder         : libmakemkv v1.17.2 (1.3.10/1.5.2) win(x64-release)
-executeCommand> ErrorStream:     creation_time   : 2022-12-17T00:58:00.000000Z
-executeCommand> ErrorStream:   Duration: 00:09:56.60, start: 0.000000, bitrate: 14076 kb/s
-executeCommand> ErrorStream:   Stream #0:0(eng): Video: mpeg2video (Main), yuv420p(tv, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 23.98 fps, 23.98 tbr, 1k tbn
+executeCommand> ErrorStream:     creation_time   : 2022-12-17T15:02:51.000000Z
+executeCommand> ErrorStream:   Duration: 00:08:25.55, start: 0.000000, bitrate: 17134 kb/s
+executeCommand> ErrorStream:   Stream #0:0(eng): Video: h264 (High), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], 23.98 fps, 23.98 tbr, 1k tbn
 executeCommand> ErrorStream:     Metadata:
-executeCommand> ErrorStream:       BPS-eng         : 13879718
-executeCommand> ErrorStream:       DURATION-eng    : 00:09:56.596000000
-executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 14304
-executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 1035073035
+executeCommand> ErrorStream:       BPS-eng         : 16939692
+executeCommand> ErrorStream:       DURATION-eng    : 00:08:25.546708333
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 12121
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 1070474241
 executeCommand> ErrorStream:       SOURCE_ID-eng   : 001011
 executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.17.2 win(x64-release)
-executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 00:58:00
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 15:02:51
 executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
-executeCommand> ErrorStream:     Side data:
-executeCommand> ErrorStream:       cpb: bitrate max/min/avg: 39000000/0/0 buffer size: 9781248 vbv_delay: N/A
 executeCommand> ErrorStream:   Stream #0:1(eng): Audio: ac3, 48000 Hz, stereo, fltp, 192 kb/s (default)
 executeCommand> ErrorStream:     Metadata:
 executeCommand> ErrorStream:       title           : Stereo
 executeCommand> ErrorStream:       BPS-eng         : 192000
-executeCommand> ErrorStream:       DURATION-eng    : 00:09:56.608000000
-executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 18644
-executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 14318592
+executeCommand> ErrorStream:       DURATION-eng    : 00:08:25.568000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 15799
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 12133632
 executeCommand> ErrorStream:       SOURCE_ID-eng   : 001100
 executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.17.2 win(x64-release)
-executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 00:58:00
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 15:02:51
 executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
 executeCommand> ErrorStream: Stream mapping:
-executeCommand> ErrorStream:   Stream #0:0 -> #0:0 (mpeg2video (native) -> h264 (libx264))
+executeCommand> ErrorStream:   Stream #0:0 -> #0:0 (h264 (native) -> h264 (libx264))
 executeCommand> ErrorStream:   Stream #0:1 -> #0:1 (ac3 (native) -> aac (native))
 executeCommand> ErrorStream: Press [q] to stop, [?] for help
-executeCommand> ErrorStream: [libx264 @ 00000201563a5080] using SAR=1/1
-executeCommand> ErrorStream: [libx264 @ 00000201563a5080] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
-executeCommand> ErrorStream: [libx264 @ 00000201563a5080] profile High, level 4.2, 4:2:0, 8-bit
-executeCommand> ErrorStream: [libx264 @ 00000201563a5080] 264 - core 164 r3099 e067ab0 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=12 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=17.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
-executeCommand> ErrorStream: Output #0, mp4, to 'D:\Temp\Weeds\Season 02\Weeds - S02E101 - Conrads Grow Room.mp4':
+executeCommand> ErrorStream: [libx264 @ 0000019fb965e440] using SAR=1/1
+executeCommand> ErrorStream: [libx264 @ 0000019fb965e440] using cpu capabilities: MMX2 SSE2Fast SSSE3 SSE4.2 AVX FMA3 BMI2 AVX2
+executeCommand> ErrorStream: [libx264 @ 0000019fb965e440] profile High, level 4.2, 4:2:0, 8-bit
+executeCommand> ErrorStream: [libx264 @ 0000019fb965e440] 264 - core 164 r3099 e067ab0 - H.264/MPEG-4 AVC codec - Copyleft 2003-2022 - http://www.videolan.org/x264.html - options: cabac=1 ref=3 deblock=1:0:0 analyse=0x3:0x113 me=hex subme=7 psy=1 psy_rd=1.00:0.00 mixed_ref=1 me_range=16 chroma_me=1 trellis=1 8x8dct=1 cqm=0 deadzone=21,11 fast_pskip=1 chroma_qp_offset=-2 threads=12 lookahead_threads=2 sliced_threads=0 nr=0 decimate=1 interlaced=0 bluray_compat=0 constrained_intra=0 bframes=3 b_pyramid=2 b_adapt=1 b_bias=0 direct=1 weightb=1 open_gop=0 weightp=2 keyint=250 keyint_min=25 scenecut=40 intra_refresh=0 rc_lookahead=40 rc=crf mbtree=1 crf=17.0 qcomp=0.60 qpmin=0 qpmax=69 qpstep=4 ip_ratio=1.40 aq=1:1.00
+executeCommand> ErrorStream: Output #0, mp4, to 'D:\Temp\Weeds\Season 04\Weeds - S04E103 - Gag Reel.mp4':
 executeCommand> ErrorStream:   Metadata:
-executeCommand> ErrorStream:     title           : Conrads Grow Room
+executeCommand> ErrorStream:     title           : Gag Reel
 executeCommand> ErrorStream:     encoder         : Lavf59.27.100
-executeCommand> ErrorStream:   Stream #0:0(eng): Video: h264 (avc1 / 0x31637661), yuv420p(tv, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 47.95 fps, 48k tbn
+executeCommand> ErrorStream:   Stream #0:0(eng): Video: h264 (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 47.95 fps, 48k tbn
 executeCommand> ErrorStream:     Metadata:
-executeCommand> ErrorStream:       BPS-eng         : 13879718
-executeCommand> ErrorStream:       DURATION-eng    : 00:09:56.596000000
-executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 14304
-executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 1035073035
+executeCommand> ErrorStream:       BPS-eng         : 16939692
+executeCommand> ErrorStream:       DURATION-eng    : 00:08:25.546708333
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 12121
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 1070474241
 executeCommand> ErrorStream:       SOURCE_ID-eng   : 001011
 executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.17.2 win(x64-release)
-executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 00:58:00
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 15:02:51
 executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
 executeCommand> ErrorStream:       encoder         : Lavc59.37.100 libx264
 executeCommand> ErrorStream:     Side data:
@@ -315,869 +308,436 @@ executeCommand> ErrorStream:   Stream #0:1(eng): Audio: aac (LC) (mp4a / 0x61347
 executeCommand> ErrorStream:     Metadata:
 executeCommand> ErrorStream:       title           : Stereo
 executeCommand> ErrorStream:       BPS-eng         : 192000
-executeCommand> ErrorStream:       DURATION-eng    : 00:09:56.608000000
-executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 18644
-executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 14318592
+executeCommand> ErrorStream:       DURATION-eng    : 00:08:25.568000000
+executeCommand> ErrorStream:       NUMBER_OF_FRAMES-eng: 15799
+executeCommand> ErrorStream:       NUMBER_OF_BYTES-eng: 12133632
 executeCommand> ErrorStream:       SOURCE_ID-eng   : 001100
 executeCommand> ErrorStream:       _STATISTICS_WRITING_APP-eng: MakeMKV v1.17.2 win(x64-release)
-executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 00:58:00
+executeCommand> ErrorStream:       _STATISTICS_WRITING_DATE_UTC-eng: 2022-12-17 15:02:51
 executeCommand> ErrorStream:       _STATISTICS_TAGS-eng: BPS DURATION NUMBER_OF_FRAMES NUMBER_OF_BYTES SOURCE_ID
 executeCommand> ErrorStream:       encoder         : Lavc59.37.100 aac
-executeCommand> ErrorStream: frame=    1 fps=0.0 q=0.0 size=       0kB time=00:00:00.02 bitrate=  18.0kbits/s speed=1.29x    
-executeCommand> ErrorStream: frame=   64 fps=0.0 q=25.0 size=       0kB time=00:00:01.32 bitrate=   0.3kbits/s speed=2.43x    
-executeCommand> ErrorStream: frame=  104 fps=100 q=25.0 size=       0kB time=00:00:02.13 bitrate=   0.2kbits/s speed=2.04x    
-executeCommand> ErrorStream: frame=  115 fps= 74 q=25.0 size=     256kB time=00:00:02.45 bitrate= 855.0kbits/s speed=1.58x    
-executeCommand> ErrorStream: frame=  127 fps= 61 q=25.0 size=    1024kB time=00:00:02.64 bitrate=3171.2kbits/s speed=1.27x    
-executeCommand> ErrorStream: frame=  139 fps= 53 q=25.0 size=    1792kB time=00:00:02.92 bitrate=5023.0kbits/s speed=1.12x    
-executeCommand> ErrorStream: frame=  152 fps= 49 q=25.0 size=    2560kB time=00:00:03.11 bitrate=6733.3kbits/s speed=0.997x    
-executeCommand> ErrorStream: frame=  164 fps= 45 q=25.0 size=    3328kB time=00:00:03.43 bitrate=7937.7kbits/s speed=0.944x    
-executeCommand> ErrorStream: frame=  176 fps= 42 q=25.0 size=    3840kB time=00:00:03.62 bitrate=8674.0kbits/s speed=0.872x    
-executeCommand> ErrorStream: frame=  189 fps= 41 q=25.0 size=    4608kB time=00:00:03.94 bitrate=9564.8kbits/s speed=0.847x    
-executeCommand> ErrorStream: frame=  202 fps= 39 q=25.0 size=    5376kB time=00:00:04.18 bitrate=10532.7kbits/s speed=0.81x    
-executeCommand> ErrorStream: frame=  214 fps= 38 q=25.0 size=    6144kB time=00:00:04.50 bitrate=11181.6kbits/s speed=0.795x    
-executeCommand> ErrorStream: frame=  231 fps= 37 q=25.0 size=    6912kB time=00:00:04.82 bitrate=11744.4kbits/s speed=0.767x    
-executeCommand> ErrorStream: frame=  246 fps= 36 q=25.0 size=    7680kB time=00:00:05.09 bitrate=12339.5kbits/s speed=0.752x    
-executeCommand> ErrorStream: frame=  259 fps= 35 q=25.0 size=    8192kB time=00:00:05.41 bitrate=12384.8kbits/s speed=0.738x    
-executeCommand> ErrorStream: frame=  300 fps= 38 q=25.0 size=    8960kB time=00:00:06.31 bitrate=11623.8kbits/s speed=0.803x    
-executeCommand> ErrorStream: frame=  340 fps= 40 q=25.0 size=    9728kB time=00:00:07.01 bitrate=11354.3kbits/s speed=0.833x    
-executeCommand> ErrorStream: frame=  380 fps= 43 q=25.0 size=    9728kB time=00:00:07.89 bitrate=10096.1kbits/s speed=0.883x    
-executeCommand> ErrorStream: frame=  412 fps= 43 q=22.0 size=    9984kB time=00:00:08.59 bitrate=9513.3kbits/s speed=0.897x    
-executeCommand> ErrorStream: frame=  428 fps= 42 q=25.0 size=   10496kB time=00:00:08.87 bitrate=9688.7kbits/s speed=0.877x    
-executeCommand> ErrorStream: frame=  442 fps= 42 q=25.0 size=   11008kB time=00:00:09.17 bitrate=9830.4kbits/s speed=0.864x    
-executeCommand> ErrorStream: frame=  457 fps= 41 q=25.0 size=   11776kB time=00:00:09.57 bitrate=10071.3kbits/s speed=0.86x    
-executeCommand> ErrorStream: frame=  472 fps= 40 q=25.0 size=   12288kB time=00:00:09.81 bitrate=10257.8kbits/s speed=0.841x    
-executeCommand> ErrorStream: frame=  489 fps= 39 q=25.0 size=   13056kB time=00:00:10.15 bitrate=10532.6kbits/s speed=0.816x    
-executeCommand> ErrorStream: frame=  502 fps= 39 q=25.0 size=   13312kB time=00:00:10.51 bitrate=10368.8kbits/s speed=0.812x    
-executeCommand> ErrorStream: frame=  518 fps= 38 q=25.0 size=   14080kB time=00:00:10.77 bitrate=10706.4kbits/s speed=0.799x    
-executeCommand> ErrorStream: frame=  532 fps= 38 q=25.0 size=   14592kB time=00:00:11.11 bitrate=10755.0kbits/s speed=0.793x    
-executeCommand> ErrorStream: frame=  546 fps= 38 q=25.0 size=   15104kB time=00:00:11.37 bitrate=10881.7kbits/s speed=0.783x    
-executeCommand> ErrorStream: frame=  558 fps= 37 q=25.0 size=   15616kB time=00:00:11.66 bitrate=10962.6kbits/s speed=0.776x    
-executeCommand> ErrorStream: frame=  570 fps= 37 q=25.0 size=   16128kB time=00:00:11.86 bitrate=11138.8kbits/s speed=0.763x    
-executeCommand> ErrorStream: frame=  583 fps= 36 q=25.0 size=   16640kB time=00:00:12.18 bitrate=11190.5kbits/s speed=0.759x    
-executeCommand> ErrorStream: frame=  596 fps= 35 q=25.0 size=   17408kB time=00:00:12.39 bitrate=11505.5kbits/s speed=0.737x    
-executeCommand> ErrorStream: frame=  610 fps= 35 q=25.0 size=   17920kB time=00:00:12.65 bitrate=11604.2kbits/s speed=0.731x    
-executeCommand> ErrorStream: frame=  612 fps= 31 q=25.0 size=   17920kB time=00:00:12.75 bitrate=11507.2kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame=  627 fps= 31 q=25.0 size=   18432kB time=00:00:13.07 bitrate=11546.3kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame=  642 fps= 31 q=25.0 size=   19200kB time=00:00:13.35 bitrate=11777.7kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame=  652 fps= 31 q=25.0 size=   19456kB time=00:00:13.61 bitrate=11710.2kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame=  672 fps= 31 q=25.0 size=   20480kB time=00:00:14.05 bitrate=11933.7kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame=  686 fps= 31 q=25.0 size=   20992kB time=00:00:14.29 bitrate=12031.3kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame=  706 fps= 31 q=25.0 size=   21504kB time=00:00:14.69 bitrate=11984.8kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame=  723 fps= 31 q=25.0 size=   22016kB time=00:00:15.08 bitrate=11957.8kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame=  740 fps= 31 q=25.0 size=   22272kB time=00:00:15.40 bitrate=11845.5kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame=  754 fps= 31 q=25.0 size=   22784kB time=00:00:15.72 bitrate=11871.2kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame=  771 fps= 31 q=25.0 size=   23296kB time=00:00:16.08 bitrate=11864.3kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame=  788 fps= 31 q=25.0 size=   23808kB time=00:00:16.40 bitrate=11888.5kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame=  805 fps= 31 q=25.0 size=   24320kB time=00:00:16.78 bitrate=11866.5kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame=  820 fps= 31 q=25.0 size=   24832kB time=00:00:17.06 bitrate=11919.4kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame=  838 fps= 31 q=25.0 size=   25344kB time=00:00:17.49 bitrate=11868.4kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame=  856 fps= 31 q=25.0 size=   25856kB time=00:00:17.81 bitrate=11890.7kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame=  874 fps= 31 q=25.0 size=   26368kB time=00:00:18.19 bitrate=11870.3kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame=  892 fps= 31 q=25.0 size=   26880kB time=00:00:18.58 bitrate=11850.7kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame=  910 fps= 31 q=25.0 size=   27392kB time=00:00:19.05 bitrate=11778.9kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame=  926 fps= 31 q=25.0 size=   28160kB time=00:00:19.28 bitrate=11961.8kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame=  945 fps= 31 q=25.0 size=   28928kB time=00:00:19.66 bitrate=12048.1kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame=  962 fps= 31 q=25.0 size=   29184kB time=00:00:20.07 bitrate=11909.3kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame=  980 fps= 31 q=25.0 size=   29952kB time=00:00:20.39 bitrate=12030.9kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame=  998 fps= 31 q=25.0 size=   30464kB time=00:00:20.77 bitrate=12010.5kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 1017 fps= 31 q=25.0 size=   30976kB time=00:00:21.16 bitrate=11990.7kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 1036 fps= 31 q=25.0 size=   31744kB time=00:00:21.61 bitrate=12033.3kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 1052 fps= 31 q=25.0 size=   32000kB time=00:00:21.90 bitrate=11965.0kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 1072 fps= 31 q=25.0 size=   32768kB time=00:00:22.29 bitrate=12041.1kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 1089 fps= 31 q=25.0 size=   33280kB time=00:00:22.67 bitrate=12022.1kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 1108 fps= 31 q=25.0 size=   33792kB time=00:00:23.12 bitrate=11970.6kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 1124 fps= 31 q=25.0 size=   34304kB time=00:00:23.40 bitrate=12008.0kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 1143 fps= 31 q=25.0 size=   35072kB time=00:00:23.78 bitrate=12078.6kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 1161 fps= 31 q=25.0 size=   35584kB time=00:00:24.21 bitrate=12039.0kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 1177 fps= 31 q=25.0 size=   36352kB time=00:00:24.49 bitrate=12159.6kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 1192 fps= 31 q=25.0 size=   36864kB time=00:00:24.85 bitrate=12150.9kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 1209 fps= 31 q=25.0 size=   37376kB time=00:00:25.19 bitrate=12152.8kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 1225 fps= 31 q=25.0 size=   37888kB time=00:00:25.49 bitrate=12174.9kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 1238 fps= 31 q=25.0 size=   38144kB time=00:00:25.81 bitrate=12105.2kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 1254 fps= 31 q=25.0 size=   38912kB time=00:00:26.21 bitrate=12158.0kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 1269 fps= 31 q=25.0 size=   39424kB time=00:00:26.41 bitrate=12228.5kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 1282 fps= 31 q=25.0 size=   39936kB time=00:00:26.77 bitrate=12219.5kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 1298 fps= 31 q=25.0 size=   40448kB time=00:00:26.98 bitrate=12278.3kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 1312 fps= 31 q=25.0 size=   40960kB time=00:00:27.41 bitrate=12240.2kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 1327 fps= 31 q=25.0 size=   41472kB time=00:00:27.73 bitrate=12250.2kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 1342 fps= 31 q=25.0 size=   42240kB time=00:00:27.94 bitrate=12381.8kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 1359 fps= 31 q=25.0 size=   42752kB time=00:00:28.30 bitrate=12371.4kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 1372 fps= 31 q=25.0 size=   43264kB time=00:00:28.58 bitrate=12398.1kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 1387 fps= 30 q=25.0 size=   43776kB time=00:00:28.90 bitrate=12405.9kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 1402 fps= 30 q=25.0 size=   44288kB time=00:00:29.20 bitrate=12422.7kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 1418 fps= 30 q=25.0 size=   45056kB time=00:00:29.58 bitrate=12474.1kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 1430 fps= 30 q=25.0 size=   45568kB time=00:00:29.80 bitrate=12525.5kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1448 fps= 30 q=25.0 size=   46080kB time=00:00:30.18 bitrate=12505.1kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 1465 fps= 30 q=25.0 size=   46848kB time=00:00:30.57 bitrate=12553.8kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 1478 fps= 30 q=25.0 size=   47104kB time=00:00:30.80 bitrate=12526.3kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1492 fps= 30 q=25.0 size=   47872kB time=00:00:31.12 bitrate=12599.6kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 1508 fps= 30 q=25.0 size=   48384kB time=00:00:31.40 bitrate=12621.9kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 1528 fps= 30 q=25.0 size=   49152kB time=00:00:31.82 bitrate=12650.4kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 1545 fps= 30 q=25.0 size=   49664kB time=00:00:32.17 bitrate=12646.5kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 1564 fps= 30 q=25.0 size=   50432kB time=00:00:32.61 bitrate=12665.7kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 1580 fps= 30 q=25.0 size=   50944kB time=00:00:32.91 bitrate=12678.2kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 1598 fps= 30 q=25.0 size=   51456kB time=00:00:33.30 bitrate=12658.0kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1617 fps= 30 q=25.0 size=   51968kB time=00:00:33.68 bitrate=12638.2kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 1635 fps= 30 q=25.0 size=   52736kB time=00:00:34.09 bitrate=12672.5kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1652 fps= 30 q=25.0 size=   53248kB time=00:00:34.41 bitrate=12676.5kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 1670 fps= 30 q=25.0 size=   53760kB time=00:00:34.79 bitrate=12657.2kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 1689 fps= 30 q=25.0 size=   54528kB time=00:00:35.17 bitrate=12697.9kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 1708 fps= 30 q=25.0 size=   55040kB time=00:00:35.62 bitrate=12655.9kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 1718 fps= 30 q=22.0 size=   55296kB time=00:00:35.79 bitrate=12654.2kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 1738 fps= 30 q=25.0 size=   56320kB time=00:00:36.24 bitrate=12729.2kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1755 fps= 30 q=25.0 size=   56832kB time=00:00:36.58 bitrate=12725.1kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1772 fps= 30 q=25.0 size=   57344kB time=00:00:36.88 bitrate=12735.8kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1786 fps= 30 q=25.0 size=   57856kB time=00:00:37.22 bitrate=12731.6kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 1804 fps= 30 q=25.0 size=   58368kB time=00:00:37.58 bitrate=12720.4kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 1822 fps= 30 q=25.0 size=   58880kB time=00:00:37.99 bitrate=12695.1kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 1840 fps= 30 q=25.0 size=   59392kB time=00:00:38.37 bitrate=12677.3kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 1858 fps= 30 q=25.0 size=   59904kB time=00:00:38.74 bitrate=12666.9kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 1876 fps= 30 q=25.0 size=   60416kB time=00:00:39.12 bitrate=12649.8kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 1894 fps= 30 q=25.0 size=   60928kB time=00:00:39.50 bitrate=12633.0kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 1912 fps= 30 q=25.0 size=   61440kB time=00:00:39.89 bitrate=12616.6kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 1930 fps= 30 q=25.0 size=   61952kB time=00:00:40.23 bitrate=12613.8kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 1951 fps= 30 q=25.0 size=   62720kB time=00:00:40.68 bitrate=12629.5kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 1966 fps= 30 q=25.0 size=   63232kB time=00:00:41.00 bitrate=12633.2kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 1984 fps= 30 q=25.0 size=   63744kB time=00:00:41.32 bitrate=12636.9kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 2005 fps= 30 q=25.0 size=   64512kB time=00:00:41.81 bitrate=12639.1kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 2025 fps= 30 q=25.0 size=   65024kB time=00:00:42.19 bitrate=12623.5kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 2043 fps= 31 q=25.0 size=   65536kB time=00:00:42.60 bitrate=12601.8kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 2060 fps= 30 q=25.0 size=   66048kB time=00:00:42.92 bitrate=12605.6kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 2082 fps= 31 q=25.0 size=   66560kB time=00:00:43.41 bitrate=12559.7kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2097 fps= 31 q=25.0 size=   66816kB time=00:00:43.69 bitrate=12528.0kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 2118 fps= 31 q=25.0 size=   67328kB time=00:00:44.13 bitrate=12495.9kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2133 fps= 31 q=25.0 size=   67840kB time=00:00:44.45 bitrate=12500.3kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2149 fps= 31 q=25.0 size=   68608kB time=00:00:44.84 bitrate=12533.5kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2168 fps= 31 q=25.0 size=   69120kB time=00:00:45.16 bitrate=12537.6kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 2186 fps= 31 q=25.0 size=   69632kB time=00:00:45.54 bitrate=12524.0kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 2205 fps= 31 q=25.0 size=   70144kB time=00:00:45.97 bitrate=12499.0kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 2224 fps= 31 q=25.0 size=   70656kB time=00:00:46.37 bitrate=12480.2kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2238 fps= 31 q=25.0 size=   71168kB time=00:00:46.67 bitrate=12490.2kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 2257 fps= 31 q=25.0 size=   71936kB time=00:00:47.08 bitrate=12516.3kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2277 fps= 31 q=25.0 size=   72448kB time=00:00:47.46 bitrate=12503.4kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2296 fps= 31 q=25.0 size=   72960kB time=00:00:47.89 bitrate=12479.6kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2312 fps= 31 q=25.0 size=   73472kB time=00:00:48.21 bitrate=12483.7kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2332 fps= 31 q=25.0 size=   73984kB time=00:00:48.61 bitrate=12465.9kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2352 fps= 31 q=25.0 size=   74496kB time=00:00:49.06 bitrate=12437.6kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 2368 fps= 31 q=25.0 size=   74752kB time=00:00:49.38 bitrate=12399.5kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 2385 fps= 31 q=25.0 size=   75264kB time=00:00:49.68 bitrate=12409.4kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 2404 fps= 31 q=25.0 size=   75776kB time=00:00:50.13 bitrate=12382.1kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 2422 fps= 31 q=25.0 size=   76288kB time=00:00:50.51 bitrate=12371.0kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 2440 fps= 31 q=25.0 size=   76800kB time=00:00:50.90 bitrate=12360.1kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 2458 fps= 31 q=25.0 size=   77312kB time=00:00:51.17 bitrate=12375.1kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 2476 fps= 31 q=25.0 size=   77824kB time=00:00:51.60 bitrate=12354.0kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 2494 fps= 31 q=25.0 size=   78592kB time=00:00:52.01 bitrate=12378.7kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 2512 fps= 31 q=25.0 size=   79104kB time=00:00:52.37 bitrate=12373.1kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 2530 fps= 31 q=25.0 size=   79616kB time=00:00:52.71 bitrate=12372.5kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 2547 fps= 31 q=25.0 size=   80128kB time=00:00:53.07 bitrate=12367.0kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 2565 fps= 31 q=25.0 size=   80640kB time=00:00:53.48 bitrate=12351.7kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 2582 fps= 31 q=25.0 size=   81152kB time=00:00:53.80 bitrate=12356.2kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 2586 fps= 31 q=25.0 size=   81152kB time=00:00:53.99 bitrate=12312.3kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2605 fps= 31 q=25.0 size=   81664kB time=00:00:54.29 bitrate=12321.8kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2623 fps= 31 q=25.0 size=   82176kB time=00:00:54.67 bitrate=12312.0kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2643 fps= 31 q=25.0 size=   82688kB time=00:00:55.08 bitrate=12297.5kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2659 fps= 31 q=25.0 size=   83200kB time=00:00:55.50 bitrate=12278.6kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2678 fps= 31 q=25.0 size=   83712kB time=00:00:55.82 bitrate=12283.3kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2699 fps= 31 q=25.0 size=   84224kB time=00:00:56.27 bitrate=12260.1kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 2710 fps= 31 q=25.0 size=   84736kB time=00:00:56.49 bitrate=12288.0kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2726 fps= 31 q=25.0 size=   85504kB time=00:00:56.78 bitrate=12334.2kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2740 fps= 31 q=25.0 size=   85760kB time=00:00:57.13 bitrate=12297.2kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 2761 fps= 31 q=25.0 size=   86016kB time=00:00:57.57 bitrate=12237.9kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2776 fps= 31 q=25.0 size=   86272kB time=00:00:57.87 bitrate=12211.0kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2797 fps= 31 q=25.0 size=   86528kB time=00:00:58.28 bitrate=12162.1kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2812 fps= 31 q=25.0 size=   86784kB time=00:00:58.60 bitrate=12131.4kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2824 fps= 31 q=25.0 size=   87296kB time=00:00:58.90 bitrate=12141.1kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2842 fps= 31 q=25.0 size=   88320kB time=00:00:59.28 bitrate=12204.0kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2859 fps= 31 q=25.0 size=   88576kB time=00:00:59.60 bitrate=12173.7kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2876 fps= 31 q=25.0 size=   89088kB time=00:00:59.98 bitrate=12165.7kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 2893 fps= 31 q=25.0 size=   89600kB time=00:01:00.26 bitrate=12179.3kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2908 fps= 31 q=25.0 size=   90112kB time=00:01:00.62 bitrate=12175.6kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 2929 fps= 31 q=25.0 size=   90624kB time=00:01:01.07 bitrate=12155.0kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 2944 fps= 31 q=25.0 size=   91136kB time=00:01:01.39 bitrate=12159.9kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 2962 fps= 31 q=25.0 size=   91648kB time=00:01:01.86 bitrate=12135.5kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 2984 fps= 31 q=25.0 size=   92160kB time=00:01:02.16 bitrate=12144.6kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 3008 fps= 31 q=25.0 size=   92416kB time=00:01:02.69 bitrate=12074.8kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 3032 fps= 31 q=25.0 size=   92672kB time=00:01:03.14 bitrate=12022.3kbits/s speed=0.644x    
-executeCommand> ErrorStream: frame= 3056 fps= 31 q=25.0 size=   92928kB time=00:01:03.65 bitrate=11958.6kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 3074 fps= 31 q=25.0 size=   93184kB time=00:01:04.08 bitrate=11911.7kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3100 fps= 31 q=25.0 size=   93696kB time=00:01:04.66 bitrate=11870.4kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3122 fps= 31 q=25.0 size=   93952kB time=00:01:05.06 bitrate=11828.7kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 3150 fps= 31 q=25.0 size=   94208kB time=00:01:05.68 bitrate=11749.2kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 3176 fps= 31 q=25.0 size=   94464kB time=00:01:06.19 bitrate=11690.0kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 3195 fps= 31 q=25.0 size=   94720kB time=00:01:06.64 bitrate=11642.9kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 3218 fps= 31 q=25.0 size=   94976kB time=00:01:07.11 bitrate=11592.8kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 3233 fps= 31 q=25.0 size=   95232kB time=00:01:07.41 bitrate=11572.5kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 3249 fps= 31 q=25.0 size=   95744kB time=00:01:07.73 bitrate=11579.8kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 3266 fps= 31 q=25.0 size=   96256kB time=00:01:08.13 bitrate=11572.4kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 3284 fps= 31 q=25.0 size=   96768kB time=00:01:08.45 bitrate=11579.6kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 3302 fps= 31 q=25.0 size=   97280kB time=00:01:08.82 bitrate=11579.5kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 3321 fps= 31 q=25.0 size=   97792kB time=00:01:09.22 bitrate=11572.3kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 3338 fps= 31 q=25.0 size=   98304kB time=00:01:09.61 bitrate=11568.7kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 3356 fps= 31 q=25.0 size=   98816kB time=00:01:09.97 bitrate=11568.7kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 3376 fps= 31 q=25.0 size=   99328kB time=00:01:10.35 bitrate=11565.2kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 3391 fps= 31 q=25.0 size=   99840kB time=00:01:10.76 bitrate=11558.2kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 3406 fps= 31 q=25.0 size=  100096kB time=00:01:10.99 bitrate=11549.5kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 3423 fps= 31 q=25.0 size=  100608kB time=00:01:11.33 bitrate=11553.1kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 3440 fps= 31 q=25.0 size=  101120kB time=00:01:11.76 bitrate=11542.8kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 3458 fps= 31 q=25.0 size=  101632kB time=00:01:12.08 bitrate=11549.8kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 3475 fps= 31 q=25.0 size=  102144kB time=00:01:12.46 bitrate=11546.5kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 3492 fps= 31 q=25.0 size=  102656kB time=00:01:12.85 bitrate=11543.2kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 3506 fps= 31 q=25.0 size=  103168kB time=00:01:13.06 bitrate=11566.9kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3525 fps= 31 q=25.0 size=  103680kB time=00:01:13.45 bitrate=11563.5kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 3542 fps= 31 q=25.0 size=  103936kB time=00:01:13.83 bitrate=11531.8kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 3556 fps= 31 q=25.0 size=  104448kB time=00:01:14.13 bitrate=11541.9kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3572 fps= 31 q=25.0 size=  104960kB time=00:01:14.45 bitrate=11548.6kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3592 fps= 31 q=25.0 size=  105472kB time=00:01:14.83 bitrate=11545.4kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3607 fps= 31 q=25.0 size=  105984kB time=00:01:15.24 bitrate=11538.9kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3622 fps= 31 q=25.0 size=  106496kB time=00:01:15.54 bitrate=11548.9kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3640 fps= 31 q=25.0 size=  106752kB time=00:01:15.92 bitrate=11518.1kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3657 fps= 31 q=25.0 size=  107264kB time=00:01:16.24 bitrate=11524.7kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3675 fps= 31 q=25.0 size=  107776kB time=00:01:16.62 bitrate=11521.7kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3693 fps= 31 q=25.0 size=  108288kB time=00:01:17.01 bitrate=11518.7kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3710 fps= 31 q=25.0 size=  108800kB time=00:01:17.33 bitrate=11525.3kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3727 fps= 31 q=25.0 size=  109056kB time=00:01:17.73 bitrate=11492.2kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3740 fps= 31 q=25.0 size=  109568kB time=00:01:17.97 bitrate=11511.4kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 3758 fps= 31 q=25.0 size=  109824kB time=00:01:18.37 bitrate=11478.6kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3776 fps= 31 q=25.0 size=  110336kB time=00:01:18.69 bitrate=11485.2kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 3795 fps= 31 q=25.0 size=  111104kB time=00:01:19.08 bitrate=11509.0kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 3812 fps= 31 q=25.0 size=  111616kB time=00:01:19.46 bitrate=11506.2kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 3831 fps= 31 q=25.0 size=  112128kB time=00:01:19.89 bitrate=11497.2kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3850 fps= 31 q=25.0 size=  112640kB time=00:01:20.29 bitrate=11491.4kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3867 fps= 31 q=25.0 size=  113152kB time=00:01:20.59 bitrate=11500.9kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3886 fps= 31 q=25.0 size=  113408kB time=00:01:21.00 bitrate=11469.2kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 3904 fps= 31 q=25.0 size=  113920kB time=00:01:21.42 bitrate=11460.6kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3926 fps= 31 q=25.0 size=  114432kB time=00:01:21.89 bitrate=11446.2kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 3939 fps= 31 q=25.0 size=  114688kB time=00:01:22.09 bitrate=11445.0kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3958 fps= 31 q=25.0 size=  115200kB time=00:01:22.51 bitrate=11436.6kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 3981 fps= 31 q=25.0 size=  115712kB time=00:01:22.98 bitrate=11422.5kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 3998 fps= 31 q=25.0 size=  116224kB time=00:01:23.41 bitrate=11414.3kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 4018 fps= 31 q=25.0 size=  116736kB time=00:01:23.79 bitrate=11412.1kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 4030 fps= 31 q=25.0 size=  116992kB time=00:01:24.01 bitrate=11408.1kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 4053 fps= 31 q=25.0 size=  117760kB time=00:01:24.50 bitrate=11416.3kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 4072 fps= 31 q=25.0 size=  118272kB time=00:01:24.90 bitrate=11411.2kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 4093 fps= 31 q=25.0 size=  118784kB time=00:01:25.39 bitrate=11394.7kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 4112 fps= 31 q=25.0 size=  119296kB time=00:01:25.71 bitrate=11401.1kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 4136 fps= 31 q=25.0 size=  119808kB time=00:01:26.22 bitrate=11382.1kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 4161 fps= 31 q=25.0 size=  120320kB time=00:01:26.76 bitrate=11360.4kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 4184 fps= 31 q=25.0 size=  120832kB time=00:01:27.21 bitrate=11350.2kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 4208 fps= 31 q=25.0 size=  121344kB time=00:01:27.72 bitrate=11331.7kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 4232 fps= 31 q=25.0 size=  122112kB time=00:01:28.17 bitrate=11345.5kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 4245 fps= 31 q=25.0 size=  122368kB time=00:01:28.49 bitrate=11328.2kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 4269 fps= 31 q=25.0 size=  122880kB time=00:01:29.00 bitrate=11310.1kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 4294 fps= 31 q=25.0 size=  123904kB time=00:01:29.49 bitrate=11341.9kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 4312 fps= 31 q=25.0 size=  124160kB time=00:01:29.89 bitrate=11314.1kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 4330 fps= 31 q=25.0 size=  124672kB time=00:01:30.32 bitrate=11307.1kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 4352 fps= 32 q=25.0 size=  125184kB time=00:01:30.70 bitrate=11305.4kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 4366 fps= 31 q=25.0 size=  125440kB time=00:01:31.02 bitrate=11288.7kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 4388 fps= 32 q=25.0 size=  125952kB time=00:01:31.49 bitrate=11276.7kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 4404 fps= 32 q=25.0 size=  126464kB time=00:01:31.88 bitrate=11275.2kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 4424 fps= 32 q=25.0 size=  126976kB time=00:01:32.26 bitrate=11273.7kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 4441 fps= 32 q=25.0 size=  127232kB time=00:01:32.58 bitrate=11257.4kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 4461 fps= 32 q=25.0 size=  127744kB time=00:01:33.01 bitrate=11250.9kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 4479 fps= 32 q=25.0 size=  128256kB time=00:01:33.39 bitrate=11249.5kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 4498 fps= 32 q=25.0 size=  128512kB time=00:01:33.80 bitrate=11223.2kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 4522 fps= 32 q=25.0 size=  129024kB time=00:01:34.31 bitrate=11206.8kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 4544 fps= 32 q=25.0 size=  129792kB time=00:01:34.69 bitrate=11227.8kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 4566 fps= 32 q=25.0 size=  130304kB time=00:01:35.18 bitrate=11214.0kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4582 fps= 32 q=25.0 size=  130560kB time=00:01:35.50 bitrate=11198.4kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4605 fps= 32 q=25.0 size=  131072kB time=00:01:36.02 bitrate=11182.3kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4629 fps= 32 q=25.0 size=  131584kB time=00:01:36.49 bitrate=11171.4kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4653 fps= 32 q=25.0 size=  132096kB time=00:01:36.98 bitrate=11158.1kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4672 fps= 32 q=25.0 size=  132352kB time=00:01:37.38 bitrate=11133.2kbits/s speed=0.663x    
-executeCommand> ErrorStream: frame= 4687 fps= 32 q=25.0 size=  133120kB time=00:01:37.77 bitrate=11153.9kbits/s speed=0.663x    
-executeCommand> ErrorStream: frame= 4703 fps= 32 q=25.0 size=  133632kB time=00:01:38.06 bitrate=11162.7kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4719 fps= 32 q=25.0 size=  133888kB time=00:01:38.38 bitrate=11147.7kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4738 fps= 32 q=25.0 size=  134400kB time=00:01:38.83 bitrate=11139.6kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4754 fps= 32 q=25.0 size=  134912kB time=00:01:39.11 bitrate=11150.7kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4776 fps= 32 q=25.0 size=  135424kB time=00:01:39.56 bitrate=11142.7kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4791 fps= 32 q=25.0 size=  135936kB time=00:01:39.88 bitrate=11149.0kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4812 fps= 32 q=25.0 size=  136448kB time=00:01:40.37 bitrate=11136.2kbits/s speed=0.662x    
-executeCommand> ErrorStream: frame= 4827 fps= 32 q=25.0 size=  136704kB time=00:01:40.65 bitrate=11126.4kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4846 fps= 32 q=25.0 size=  137216kB time=00:01:41.07 bitrate=11120.9kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4863 fps= 32 q=25.0 size=  137472kB time=00:01:41.39 bitrate=11106.5kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4881 fps= 32 q=25.0 size=  137984kB time=00:01:41.78 bitrate=11105.8kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4896 fps= 32 q=25.0 size=  138496kB time=00:01:42.05 bitrate=11116.7kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 4911 fps= 32 q=25.0 size=  138752kB time=00:01:42.37 bitrate=11102.5kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 4929 fps= 32 q=25.0 size=  139520kB time=00:01:42.80 bitrate=11117.6kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 4946 fps= 32 q=25.0 size=  140032kB time=00:01:43.08 bitrate=11128.4kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 4960 fps= 32 q=25.0 size=  140544kB time=00:01:43.40 bitrate=11134.5kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 4972 fps= 32 q=25.0 size=  141056kB time=00:01:43.70 bitrate=11142.9kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 4984 fps= 32 q=25.0 size=  141568kB time=00:01:43.91 bitrate=11160.4kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 5008 fps= 32 q=25.0 size=  141824kB time=00:01:44.42 bitrate=11125.7kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 5032 fps= 32 q=25.0 size=  142336kB time=00:01:44.91 bitrate=11113.7kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5056 fps= 32 q=25.0 size=  142592kB time=00:01:45.42 bitrate=11079.6kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5080 fps= 32 q=25.0 size=  142848kB time=00:01:45.89 bitrate=11050.3kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5102 fps= 32 q=25.0 size=  143104kB time=00:01:46.41 bitrate=11016.8kbits/s speed=0.661x    
-executeCommand> ErrorStream: frame= 5120 fps= 32 q=25.0 size=  143360kB time=00:01:46.73 bitrate=11003.4kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 5140 fps= 32 q=25.0 size=  144384kB time=00:01:47.15 bitrate=11037.9kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 5157 fps= 32 q=25.0 size=  144896kB time=00:01:47.49 bitrate=11041.9kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5174 fps= 32 q=25.0 size=  145408kB time=00:01:47.92 bitrate=11037.1kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 5191 fps= 32 q=25.0 size=  145920kB time=00:01:48.20 bitrate=11047.6kbits/s speed=0.66x    
-executeCommand> ErrorStream: frame= 5205 fps= 32 q=25.0 size=  146176kB time=00:01:48.52 bitrate=11034.3kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5223 fps= 32 q=25.0 size=  146688kB time=00:01:48.90 bitrate=11033.9kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5240 fps= 32 q=25.0 size=  147200kB time=00:01:49.22 bitrate=11040.0kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 5258 fps= 32 q=25.0 size=  147712kB time=00:01:49.61 bitrate=11039.6kbits/s speed=0.658x    
-executeCommand> ErrorStream: frame= 5276 fps= 32 q=25.0 size=  148224kB time=00:01:50.03 bitrate=11034.9kbits/s speed=0.659x    
-executeCommand> ErrorStream: frame= 5288 fps= 32 q=25.0 size=  148480kB time=00:01:50.25 bitrate=11032.6kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5306 fps= 32 q=25.0 size=  148992kB time=00:01:50.61 bitrate=11034.3kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5325 fps= 32 q=25.0 size=  149504kB time=00:01:51.01 bitrate=11031.8kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5343 fps= 32 q=25.0 size=  150016kB time=00:01:51.40 bitrate=11031.4kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5361 fps= 31 q=25.0 size=  150528kB time=00:01:51.78 bitrate=11031.1kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5376 fps= 31 q=25.0 size=  151040kB time=00:01:52.10 bitrate=11037.0kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 5392 fps= 31 q=25.0 size=  151552kB time=00:01:52.46 bitrate=11038.7kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5410 fps= 31 q=25.0 size=  152064kB time=00:01:52.85 bitrate=11038.3kbits/s speed=0.657x    
-executeCommand> ErrorStream: frame= 5426 fps= 31 q=25.0 size=  152320kB time=00:01:53.13 bitrate=11029.8kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 5445 fps= 31 q=25.0 size=  152832kB time=00:01:53.51 bitrate=11029.4kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 5458 fps= 31 q=25.0 size=  153344kB time=00:01:53.83 bitrate=11035.3kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 5475 fps= 31 q=25.0 size=  153856kB time=00:01:54.13 bitrate=11043.1kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 5492 fps= 31 q=25.0 size=  154368kB time=00:01:54.51 bitrate=11042.7kbits/s speed=0.656x    
-executeCommand> ErrorStream: frame= 5506 fps= 31 q=25.0 size=  154624kB time=00:01:54.83 bitrate=11030.2kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 5523 fps= 31 q=25.0 size=  155136kB time=00:01:55.11 bitrate=11040.1kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 5541 fps= 31 q=25.0 size=  155648kB time=00:01:55.54 bitrate=11035.6kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 5558 fps= 31 q=25.0 size=  156160kB time=00:01:55.92 bitrate=11035.2kbits/s speed=0.655x    
-executeCommand> ErrorStream: frame= 5571 fps= 31 q=25.0 size=  156416kB time=00:01:56.13 bitrate=11033.0kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 5590 fps= 31 q=25.0 size=  157184kB time=00:01:56.56 bitrate=11046.6kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 5606 fps= 31 q=25.0 size=  157952kB time=00:01:56.88 bitrate=11070.2kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 5624 fps= 31 q=25.0 size=  158464kB time=00:01:57.22 bitrate=11073.7kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 5640 fps= 31 q=25.0 size=  159232kB time=00:01:57.65 bitrate=11087.1kbits/s speed=0.654x    
-executeCommand> ErrorStream: frame= 5654 fps= 31 q=25.0 size=  159744kB time=00:01:57.86 bitrate=11102.6kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 5672 fps= 31 q=25.0 size=  160256kB time=00:01:58.25 bitrate=11102.0kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 5691 fps= 31 q=25.0 size=  161024kB time=00:01:58.63 bitrate=11119.1kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 5709 fps= 31 q=25.0 size=  161536kB time=00:01:59.06 bitrate=11114.5kbits/s speed=0.653x    
-executeCommand> ErrorStream: frame= 5726 fps= 31 q=25.0 size=  162048kB time=00:01:59.38 bitrate=11119.8kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 5746 fps= 31 q=25.0 size=  162816kB time=00:01:59.78 bitrate=11134.7kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 5763 fps= 31 q=25.0 size=  163328kB time=00:02:00.14 bitrate=11136.0kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 5780 fps= 31 q=25.0 size=  163840kB time=00:02:00.55 bitrate=11133.4kbits/s speed=0.652x    
-executeCommand> ErrorStream: frame= 5798 fps= 31 q=25.0 size=  164352kB time=00:02:00.87 bitrate=11138.6kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 5815 fps= 31 q=25.0 size=  165120kB time=00:02:01.25 bitrate=11155.2kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 5829 fps= 31 q=25.0 size=  165632kB time=00:02:01.55 bitrate=11162.3kbits/s speed=0.651x    
-executeCommand> ErrorStream: frame= 5845 fps= 31 q=25.0 size=  166400kB time=00:02:01.83 bitrate=11188.5kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 5858 fps= 31 q=25.0 size=  166656kB time=00:02:02.15 bitrate=11176.4kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 5874 fps= 31 q=25.0 size=  167168kB time=00:02:02.53 bitrate=11175.6kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 5888 fps= 31 q=25.0 size=  167680kB time=00:02:02.77 bitrate=11188.4kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 5905 fps= 31 q=25.0 size=  168448kB time=00:02:03.15 bitrate=11204.6kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 5922 fps= 31 q=25.0 size=  168960kB time=00:02:03.56 bitrate=11201.8kbits/s speed=0.65x    
-executeCommand> ErrorStream: frame= 5938 fps= 31 q=25.0 size=  169472kB time=00:02:03.79 bitrate=11214.4kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 5955 fps= 31 q=25.0 size=  169984kB time=00:02:04.13 bitrate=11217.4kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 5972 fps= 31 q=25.0 size=  170496kB time=00:02:04.56 bitrate=11212.6kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 5992 fps= 31 q=25.0 size=  171008kB time=00:02:04.94 bitrate=11211.7kbits/s speed=0.649x    
-executeCommand> ErrorStream: frame= 6004 fps= 31 q=25.0 size=  171264kB time=00:02:05.20 bitrate=11205.6kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 6021 fps= 31 q=25.0 size=  171776kB time=00:02:05.54 bitrate=11208.5kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 6036 fps= 31 q=25.0 size=  172288kB time=00:02:05.84 bitrate=11215.2kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 6049 fps= 31 q=25.0 size=  172800kB time=00:02:06.16 bitrate=11220.0kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 6064 fps= 31 q=25.0 size=  173312kB time=00:02:06.48 bitrate=11224.8kbits/s speed=0.648x    
-executeCommand> ErrorStream: frame= 6081 fps= 31 q=25.0 size=  173824kB time=00:02:06.76 bitrate=11233.3kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 6097 fps= 31 q=25.0 size=  174336kB time=00:02:07.14 bitrate=11232.4kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 6112 fps= 31 q=25.0 size=  174592kB time=00:02:07.44 bitrate=11222.5kbits/s speed=0.647x    
-executeCommand> ErrorStream: frame= 6129 fps= 31 q=25.0 size=  175104kB time=00:02:07.76 bitrate=11227.2kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 6142 fps= 31 q=25.0 size=  175616kB time=00:02:08.04 bitrate=11235.7kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 6157 fps= 31 q=25.0 size=  176128kB time=00:02:08.42 bitrate=11234.7kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 6172 fps= 31 q=25.0 size=  176640kB time=00:02:08.68 bitrate=11245.0kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 6189 fps= 31 q=25.0 size=  177152kB time=00:02:09.06 bitrate=11244.0kbits/s speed=0.646x    
-executeCommand> ErrorStream: frame= 6205 fps= 31 q=25.0 size=  177664kB time=00:02:09.36 bitrate=11250.5kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 6220 fps= 31 q=25.0 size=  178176kB time=00:02:09.68 bitrate=11255.1kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 6237 fps= 31 q=25.0 size=  178688kB time=00:02:10.06 bitrate=11254.1kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 6253 fps= 31 q=25.0 size=  179200kB time=00:02:10.34 bitrate=11262.3kbits/s speed=0.644x    
-executeCommand> ErrorStream: frame= 6268 fps= 31 q=25.0 size=  179712kB time=00:02:10.70 bitrate=11263.2kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 6285 fps= 31 q=25.0 size=  180224kB time=00:02:11.05 bitrate=11265.8kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 6301 fps= 31 q=25.0 size=  180736kB time=00:02:11.34 bitrate=11272.2kbits/s speed=0.644x    
-executeCommand> ErrorStream: frame= 6316 fps= 31 q=25.0 size=  181248kB time=00:02:11.69 bitrate=11274.8kbits/s speed=0.644x    
-executeCommand> ErrorStream: frame= 6336 fps= 31 q=25.0 size=  181760kB time=00:02:12.18 bitrate=11264.7kbits/s speed=0.645x    
-executeCommand> ErrorStream: frame= 6349 fps= 31 q=25.0 size=  182272kB time=00:02:12.37 bitrate=11280.0kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 6364 fps= 31 q=25.0 size=  182528kB time=00:02:12.65 bitrate=11272.2kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 6376 fps= 31 q=25.0 size=  183040kB time=00:02:12.94 bitrate=11278.5kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 6396 fps= 31 q=25.0 size=  183552kB time=00:02:13.35 bitrate=11275.6kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 6411 fps= 31 q=25.0 size=  184320kB time=00:02:13.67 bitrate=11295.7kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 6424 fps= 31 q=25.0 size=  184576kB time=00:02:13.97 bitrate=11286.2kbits/s speed=0.643x    
-executeCommand> ErrorStream: frame= 6439 fps= 31 q=25.0 size=  185344kB time=00:02:14.25 bitrate=11309.7kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 6451 fps= 31 q=25.0 size=  185600kB time=00:02:14.57 bitrate=11298.4kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 6469 fps= 31 q=25.0 size=  186368kB time=00:02:14.86 bitrate=11320.0kbits/s speed=0.642x    
-executeCommand> ErrorStream: frame= 6481 fps= 31 q=25.0 size=  186880kB time=00:02:15.14 bitrate=11327.9kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 6499 fps= 31 q=25.0 size=  187392kB time=00:02:15.57 bitrate=11323.1kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 6515 fps= 31 q=25.0 size=  187904kB time=00:02:15.85 bitrate=11330.9kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 6531 fps= 31 q=25.0 size=  188416kB time=00:02:16.17 bitrate=11335.1kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 6544 fps= 31 q=25.0 size=  188928kB time=00:02:16.49 bitrate=11339.2kbits/s speed=0.641x    
-executeCommand> ErrorStream: frame= 6559 fps= 31 q=25.0 size=  189440kB time=00:02:16.74 bitrate=11348.7kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 6574 fps= 31 q=25.0 size=  189696kB time=00:02:17.06 bitrate=11337.5kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 6590 fps= 31 q=25.0 size=  190208kB time=00:02:17.36 bitrate=11343.4kbits/s speed=0.64x    
-executeCommand> ErrorStream: frame= 6603 fps= 31 q=25.0 size=  190464kB time=00:02:17.68 bitrate=11332.2kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 6616 fps= 31 q=25.0 size=  190976kB time=00:02:17.96 bitrate=11339.8kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 6631 fps= 31 q=25.0 size=  191232kB time=00:02:18.26 bitrate=11330.5kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 6646 fps= 31 q=25.0 size=  191744kB time=00:02:18.58 bitrate=11334.6kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 6662 fps= 31 q=25.0 size=  192256kB time=00:02:18.90 bitrate=11338.7kbits/s speed=0.639x    
-executeCommand> ErrorStream: frame= 6676 fps= 31 q=25.0 size=  192768kB time=00:02:19.17 bitrate=11346.2kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 6691 fps= 31 q=25.0 size=  193280kB time=00:02:19.56 bitrate=11345.1kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 6704 fps= 31 q=25.0 size=  193536kB time=00:02:19.81 bitrate=11339.3kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 6720 fps= 31 q=25.0 size=  194048kB time=00:02:20.18 bitrate=11339.9kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 6734 fps= 31 q=25.0 size=  194560kB time=00:02:20.39 bitrate=11352.5kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6748 fps= 31 q=25.0 size=  194816kB time=00:02:20.71 bitrate=11341.6kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6763 fps= 31 q=25.0 size=  195328kB time=00:02:21.07 bitrate=11342.2kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6776 fps= 31 q=25.0 size=  195840kB time=00:02:21.29 bitrate=11354.8kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6789 fps= 31 q=25.0 size=  196096kB time=00:02:21.58 bitrate=11345.6kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6805 fps= 31 q=25.0 size=  196608kB time=00:02:21.86 bitrate=11353.0kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6818 fps= 30 q=25.0 size=  197120kB time=00:02:22.16 bitrate=11358.7kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6831 fps= 30 q=25.0 size=  197376kB time=00:02:22.44 bitrate=11351.3kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6852 fps= 31 q=25.0 size=  198400kB time=00:02:22.86 bitrate=11376.1kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6870 fps= 31 q=25.0 size=  198912kB time=00:02:23.27 bitrate=11373.2kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6886 fps= 31 q=22.0 size=  199424kB time=00:02:23.59 bitrate=11377.0kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 6907 fps= 31 q=25.0 size=  200192kB time=00:02:24.08 bitrate=11382.0kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6926 fps= 31 q=22.0 size=  200960kB time=00:02:24.40 bitrate=11400.3kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6945 fps= 31 q=25.0 size=  201728kB time=00:02:24.78 bitrate=11413.5kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6963 fps= 31 q=25.0 size=  202496kB time=00:02:25.17 bitrate=11426.7kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 6982 fps= 31 q=25.0 size=  203008kB time=00:02:25.57 bitrate=11423.7kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 6998 fps= 31 q=25.0 size=  203264kB time=00:02:25.87 bitrate=11414.7kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 7015 fps= 31 q=25.0 size=  203776kB time=00:02:26.28 bitrate=11411.7kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7033 fps= 31 q=25.0 size=  204288kB time=00:02:26.66 bitrate=11410.4kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 7051 fps= 31 q=25.0 size=  204544kB time=00:02:27.09 bitrate=11391.6kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 7068 fps= 31 q=25.0 size=  205056kB time=00:02:27.37 bitrate=11398.6kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7084 fps= 31 q=22.0 size=  205312kB time=00:02:27.69 bitrate=11388.1kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7102 fps= 31 q=22.0 size=  205824kB time=00:02:28.11 bitrate=11383.6kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7124 fps= 31 q=22.0 size=  206592kB time=00:02:28.58 bitrate=11390.0kbits/s speed=0.638x    
-executeCommand> ErrorStream: frame= 7137 fps= 31 q=25.0 size=  207104kB time=00:02:28.77 bitrate=11403.5kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7150 fps= 31 q=25.0 size=  207360kB time=00:02:29.09 bitrate=11393.1kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7167 fps= 31 q=25.0 size=  207872kB time=00:02:29.46 bitrate=11393.5kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7183 fps= 31 q=25.0 size=  208384kB time=00:02:29.78 bitrate=11397.2kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7198 fps= 31 q=25.0 size=  208640kB time=00:02:30.10 bitrate=11386.8kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7213 fps= 31 q=25.0 size=  209152kB time=00:02:30.37 bitrate=11393.7kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7231 fps= 31 q=25.0 size=  209408kB time=00:02:30.76 bitrate=11378.6kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7245 fps= 31 q=25.0 size=  209920kB time=00:02:31.08 bitrate=11382.3kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7258 fps= 31 q=25.0 size=  210176kB time=00:02:31.31 bitrate=11378.5kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7273 fps= 31 q=25.0 size=  210432kB time=00:02:31.70 bitrate=11363.5kbits/s speed=0.637x    
-executeCommand> ErrorStream: frame= 7288 fps= 31 q=25.0 size=  210944kB time=00:02:31.97 bitrate=11370.4kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 7300 fps= 30 q=22.0 size=  211200kB time=00:02:32.17 bitrate=11369.8kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7317 fps= 30 q=25.0 size=  211456kB time=00:02:32.59 bitrate=11351.8kbits/s speed=0.636x    
-executeCommand> ErrorStream: frame= 7330 fps= 30 q=25.0 size=  211712kB time=00:02:32.81 bitrate=11349.6kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7346 fps= 30 q=22.0 size=  212224kB time=00:02:33.19 bitrate=11348.6kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7363 fps= 30 q=25.0 size=  212480kB time=00:02:33.57 bitrate=11333.8kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7377 fps= 30 q=25.0 size=  212992kB time=00:02:33.87 bitrate=11339.1kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7395 fps= 30 q=25.0 size=  213248kB time=00:02:34.19 bitrate=11329.2kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7410 fps= 30 q=25.0 size=  213760kB time=00:02:34.58 bitrate=11328.2kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7423 fps= 30 q=25.0 size=  214016kB time=00:02:34.77 bitrate=11327.7kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7438 fps= 30 q=22.0 size=  214528kB time=00:02:35.11 bitrate=11329.8kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7456 fps= 30 q=25.0 size=  215040kB time=00:02:35.47 bitrate=11330.3kbits/s speed=0.635x    
-executeCommand> ErrorStream: frame= 7468 fps= 30 q=22.0 size=  215296kB time=00:02:35.69 bitrate=11328.3kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7485 fps= 30 q=25.0 size=  215808kB time=00:02:36.07 bitrate=11327.3kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7501 fps= 30 q=25.0 size=  216320kB time=00:02:36.37 bitrate=11332.5kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7515 fps= 30 q=25.0 size=  216576kB time=00:02:36.69 bitrate=11322.7kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7533 fps= 30 q=25.0 size=  217088kB time=00:02:37.09 bitrate=11320.2kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7544 fps= 30 q=22.0 size=  217600kB time=00:02:37.29 bitrate=11333.0kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7558 fps= 30 q=25.0 size=  218112kB time=00:02:37.58 bitrate=11338.2kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7575 fps= 30 q=25.0 size=  218880kB time=00:02:37.93 bitrate=11353.5kbits/s speed=0.634x    
-executeCommand> ErrorStream: frame= 7586 fps= 30 q=25.0 size=  219136kB time=00:02:38.16 bitrate=11349.9kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7599 fps= 30 q=25.0 size=  219648kB time=00:02:38.44 bitrate=11356.5kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7614 fps= 30 q=25.0 size=  220160kB time=00:02:38.82 bitrate=11355.5kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7628 fps= 30 q=25.0 size=  220672kB time=00:02:39.06 bitrate=11365.1kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7642 fps= 30 q=25.0 size=  221184kB time=00:02:39.44 bitrate=11364.0kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7657 fps= 30 q=25.0 size=  221696kB time=00:02:39.63 bitrate=11376.6kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 7674 fps= 30 q=25.0 size=  222208kB time=00:02:40.04 bitrate=11374.0kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7690 fps= 30 q=25.0 size=  222976kB time=00:02:40.34 bitrate=11392.1kbits/s speed=0.633x    
-executeCommand> ErrorStream: frame= 7705 fps= 30 q=25.0 size=  223488kB time=00:02:40.61 bitrate=11398.5kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 7720 fps= 30 q=25.0 size=  224000kB time=00:02:40.98 bitrate=11398.9kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 7737 fps= 30 q=25.0 size=  224512kB time=00:02:41.36 bitrate=11397.8kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 7750 fps= 30 q=25.0 size=  224768kB time=00:02:41.55 bitrate=11397.2kbits/s speed=0.632x    
-executeCommand> ErrorStream: frame= 7765 fps= 30 q=25.0 size=  225280kB time=00:02:41.94 bitrate=11396.1kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7780 fps= 30 q=25.0 size=  225792kB time=00:02:42.26 bitrate=11399.4kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7797 fps= 30 q=25.0 size=  226304kB time=00:02:42.53 bitrate=11405.8kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7810 fps= 30 q=25.0 size=  226816kB time=00:02:42.92 bitrate=11404.7kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7825 fps= 30 q=25.0 size=  227328kB time=00:02:43.15 bitrate=11414.0kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7840 fps= 30 q=25.0 size=  227584kB time=00:02:43.43 bitrate=11407.4kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7856 fps= 30 q=25.0 size=  228096kB time=00:02:43.86 bitrate=11403.3kbits/s speed=0.631x    
-executeCommand> ErrorStream: frame= 7867 fps= 30 q=25.0 size=  228608kB time=00:02:44.05 bitrate=11415.5kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 7882 fps= 30 q=25.0 size=  228864kB time=00:02:44.37 bitrate=11406.1kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 7897 fps= 30 q=25.0 size=  229376kB time=00:02:44.71 bitrate=11407.9kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 7912 fps= 30 q=25.0 size=  229888kB time=00:02:44.97 bitrate=11415.6kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 7929 fps= 30 q=25.0 size=  230400kB time=00:02:45.35 bitrate=11414.5kbits/s speed=0.63x    
-executeCommand> ErrorStream: frame= 7945 fps= 30 q=25.0 size=  230912kB time=00:02:45.65 bitrate=11419.2kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 7960 fps= 30 q=25.0 size=  231168kB time=00:02:45.97 bitrate=11409.8kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 7977 fps= 30 q=25.0 size=  231680kB time=00:02:46.35 bitrate=11408.7kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 7993 fps= 30 q=25.0 size=  232192kB time=00:02:46.63 bitrate=11414.9kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 8008 fps= 30 q=25.0 size=  232448kB time=00:02:46.99 bitrate=11402.7kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 8024 fps= 30 q=25.0 size=  232960kB time=00:02:47.33 bitrate=11404.5kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 8039 fps= 30 q=25.0 size=  233472kB time=00:02:47.63 bitrate=11409.2kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 8054 fps= 30 q=25.0 size=  233728kB time=00:02:47.95 bitrate=11399.9kbits/s speed=0.629x    
-executeCommand> ErrorStream: frame= 8066 fps= 30 q=25.0 size=  234240kB time=00:02:48.17 bitrate=11410.4kbits/s speed=0.628x    
-executeCommand> ErrorStream: frame= 8080 fps= 30 q=25.0 size=  234752kB time=00:02:48.49 bitrate=11413.6kbits/s speed=0.628x    
-executeCommand> ErrorStream: frame= 8096 fps= 30 q=25.0 size=  235008kB time=00:02:48.85 bitrate=11401.5kbits/s speed=0.628x    
-executeCommand> ErrorStream: frame= 8114 fps= 30 q=25.0 size=  235776kB time=00:02:49.13 bitrate=11420.0kbits/s speed=0.628x    
-executeCommand> ErrorStream: frame= 8125 fps= 30 q=25.0 size=  236032kB time=00:02:49.45 bitrate=11410.8kbits/s speed=0.628x    
-executeCommand> ErrorStream: frame= 8138 fps= 30 q=25.0 size=  236288kB time=00:02:49.68 bitrate=11407.4kbits/s speed=0.627x    
-executeCommand> ErrorStream: frame= 8155 fps= 30 q=25.0 size=  236800kB time=00:02:50.02 bitrate=11409.2kbits/s speed=0.627x    
-executeCommand> ErrorStream: frame= 8172 fps= 30 q=25.0 size=  237312kB time=00:02:50.45 bitrate=11405.2kbits/s speed=0.627x    
-executeCommand> ErrorStream: frame= 8186 fps= 30 q=22.0 size=  237824kB time=00:02:50.66 bitrate=11415.6kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame= 8203 fps= 30 q=25.0 size=  238592kB time=00:02:51.05 bitrate=11426.7kbits/s speed=0.627x    
-executeCommand> ErrorStream: frame= 8218 fps= 30 q=25.0 size=  238848kB time=00:02:51.34 bitrate=11419.0kbits/s speed=0.627x    
-executeCommand> ErrorStream: frame= 8235 fps= 30 q=25.0 size=  239360kB time=00:02:51.73 bitrate=11417.9kbits/s speed=0.627x    
-executeCommand> ErrorStream: frame= 8251 fps= 30 q=25.0 size=  239872kB time=00:02:52.05 bitrate=11421.1kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame= 8266 fps= 30 q=25.0 size=  240384kB time=00:02:52.37 bitrate=11424.2kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame= 8280 fps= 30 q=25.0 size=  240896kB time=00:02:52.65 bitrate=11430.1kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame= 8289 fps= 30 q=25.0 size=  241152kB time=00:02:52.84 bitrate=11429.6kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame= 8305 fps= 30 q=25.0 size=  241664kB time=00:02:53.14 bitrate=11434.1kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8320 fps= 30 q=25.0 size=  242176kB time=00:02:53.46 bitrate=11437.2kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8330 fps= 30 q=25.0 size=  242432kB time=00:02:53.67 bitrate=11435.2kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8346 fps= 30 q=25.0 size=  242944kB time=00:02:54.05 bitrate=11434.1kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8362 fps= 30 q=25.0 size=  243456kB time=00:02:54.35 bitrate=11438.5kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8377 fps= 30 q=25.0 size=  243968kB time=00:02:54.63 bitrate=11444.4kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8392 fps= 30 q=25.0 size=  244480kB time=00:02:54.99 bitrate=11444.6kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8407 fps= 30 q=25.0 size=  244736kB time=00:02:55.38 bitrate=11431.5kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8422 fps= 30 q=25.0 size=  245248kB time=00:02:55.57 bitrate=11442.9kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame= 8437 fps= 30 q=25.0 size=  245760kB time=00:02:55.95 bitrate=11441.8kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8452 fps= 30 q=25.0 size=  246272kB time=00:02:56.27 bitrate=11444.8kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8468 fps= 30 q=25.0 size=  246784kB time=00:02:56.55 bitrate=11450.6kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8484 fps= 30 q=25.0 size=  247296kB time=00:02:56.93 bitrate=11449.4kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8499 fps= 30 q=25.0 size=  247808kB time=00:02:57.23 bitrate=11453.8kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8514 fps= 30 q=25.0 size=  248064kB time=00:02:57.55 bitrate=11445.0kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8527 fps= 30 q=25.0 size=  248576kB time=00:02:57.87 bitrate=11448.0kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8544 fps= 30 q=25.0 size=  248832kB time=00:02:58.15 bitrate=11441.9kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8559 fps= 30 q=25.0 size=  249344kB time=00:02:58.45 bitrate=11446.3kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8572 fps= 30 q=25.0 size=  249856kB time=00:02:58.77 bitrate=11449.3kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 8584 fps= 30 q=22.0 size=  250112kB time=00:02:58.98 bitrate=11447.3kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8602 fps= 30 q=22.0 size=  250624kB time=00:02:59.41 bitrate=11443.5kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8620 fps= 30 q=25.0 size=  251392kB time=00:02:59.75 bitrate=11456.7kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8635 fps= 30 q=25.0 size=  252160kB time=00:03:00.05 bitrate=11472.7kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8649 fps= 30 q=25.0 size=  252416kB time=00:03:00.37 bitrate=11464.0kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8662 fps= 30 q=25.0 size=  252928kB time=00:03:00.58 bitrate=11473.6kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8677 fps= 30 q=25.0 size=  253440kB time=00:03:00.97 bitrate=11472.5kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8690 fps= 30 q=25.0 size=  253952kB time=00:03:01.20 bitrate=11480.8kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8704 fps= 30 q=25.0 size=  254464kB time=00:03:01.54 bitrate=11482.3kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8720 fps= 30 q=25.0 size=  254976kB time=00:03:01.86 bitrate=11485.1kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 8736 fps= 30 q=25.0 size=  255488kB time=00:03:02.16 bitrate=11489.3kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8751 fps= 30 q=25.0 size=  255744kB time=00:03:02.48 bitrate=11480.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8768 fps= 30 q=22.0 size=  256512kB time=00:03:02.86 bitrate=11491.0kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8780 fps= 30 q=22.0 size=  257024kB time=00:03:03.08 bitrate=11500.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8799 fps= 30 q=25.0 size=  257792kB time=00:03:03.46 bitrate=11510.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8815 fps= 30 q=25.0 size=  258304kB time=00:03:03.85 bitrate=11509.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8830 fps= 30 q=25.0 size=  258816kB time=00:03:04.14 bitrate=11513.6kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8847 fps= 30 q=25.0 size=  259328kB time=00:03:04.46 bitrate=11516.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8863 fps= 30 q=25.0 size=  259840kB time=00:03:04.87 bitrate=11513.8kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 8877 fps= 30 q=25.0 size=  260096kB time=00:03:05.06 bitrate=11513.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8887 fps= 30 q=25.0 size=  260352kB time=00:03:05.36 bitrate=11505.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8904 fps= 30 q=25.0 size=  260864kB time=00:03:05.70 bitrate=11507.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8918 fps= 30 q=22.0 size=  261376kB time=00:03:05.94 bitrate=11515.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8935 fps= 30 q=25.0 size=  261888kB time=00:03:06.32 bitrate=11514.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8947 fps= 30 q=25.0 size=  262400kB time=00:03:06.60 bitrate=11519.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame= 8967 fps= 30 q=25.0 size=  262912kB time=00:03:06.98 bitrate=11518.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 8990 fps= 30 q=25.0 size=  263168kB time=00:03:07.43 bitrate=11502.0kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9014 fps= 30 q=25.0 size=  263424kB time=00:03:07.94 bitrate=11481.8kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9038 fps= 30 q=25.0 size=  263680kB time=00:03:08.43 bitrate=11463.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9062 fps= 30 q=25.0 size=  263936kB time=00:03:08.94 bitrate=11443.1kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9086 fps= 30 q=25.0 size=  264192kB time=00:03:09.46 bitrate=11423.2kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9110 fps= 30 q=25.0 size=  264448kB time=00:03:09.93 bitrate=11406.0kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9134 fps= 30 q=25.0 size=  264704kB time=00:03:10.44 bitrate=11386.4kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9158 fps= 30 q=25.0 size=  265216kB time=00:03:10.95 bitrate=11377.8kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9180 fps= 30 q=25.0 size=  265472kB time=00:03:11.40 bitrate=11362.2kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9196 fps= 30 q=25.0 size=  265728kB time=00:03:11.76 bitrate=11351.6kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9213 fps= 30 q=25.0 size=  265984kB time=00:03:12.10 bitrate=11342.4kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 9230 fps= 30 q=25.0 size=  266496kB time=00:03:12.49 bitrate=11341.5kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame= 9244 fps= 30 q=25.0 size=  267008kB time=00:03:12.74 bitrate=11348.2kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9261 fps= 30 q=25.0 size=  267520kB time=00:03:13.13 bitrate=11347.4kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9277 fps= 30 q=25.0 size=  268032kB time=00:03:13.42 bitrate=11351.5kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9292 fps= 30 q=25.0 size=  268544kB time=00:03:13.74 bitrate=11354.4kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9308 fps= 30 q=25.0 size=  268800kB time=00:03:14.13 bitrate=11342.8kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9325 fps= 30 q=25.0 size=  269312kB time=00:03:14.41 bitrate=11348.2kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9340 fps= 30 q=25.0 size=  269824kB time=00:03:14.73 bitrate=11351.1kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9354 fps= 30 q=25.0 size=  270336kB time=00:03:15.11 bitrate=11350.2kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9368 fps= 30 q=25.0 size=  270848kB time=00:03:15.30 bitrate=11360.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9381 fps= 30 q=25.0 size=  271104kB time=00:03:15.62 bitrate=11352.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9398 fps= 30 q=25.0 size=  271872kB time=00:03:15.94 bitrate=11366.2kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9415 fps= 30 q=25.0 size=  272384kB time=00:03:16.33 bitrate=11365.4kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9430 fps= 30 q=25.0 size=  272896kB time=00:03:16.65 bitrate=11368.2kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9446 fps= 30 q=25.0 size=  273152kB time=00:03:16.94 bitrate=11361.6kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9463 fps= 30 q=25.0 size=  273664kB time=00:03:17.33 bitrate=11360.8kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9481 fps= 30 q=25.0 size=  274176kB time=00:03:17.73 bitrate=11358.7kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame= 9494 fps= 30 q=25.0 size=  274688kB time=00:03:17.97 bitrate=11366.4kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9512 fps= 30 q=25.0 size=  275200kB time=00:03:18.31 bitrate=11368.0kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9531 fps= 30 q=25.0 size=  275712kB time=00:03:18.74 bitrate=11364.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9548 fps= 30 q=25.0 size=  275968kB time=00:03:19.12 bitrate=11353.3kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9567 fps= 30 q=25.0 size=  276736kB time=00:03:19.50 bitrate=11363.0kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9580 fps= 30 q=25.0 size=  276992kB time=00:03:19.78 bitrate=11357.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9597 fps= 30 q=25.0 size=  277504kB time=00:03:20.14 bitrate=11358.1kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9614 fps= 30 q=25.0 size=  278016kB time=00:03:20.46 bitrate=11360.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9632 fps= 30 q=22.0 size=  278528kB time=00:03:20.81 bitrate=11362.5kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9646 fps= 30 q=25.0 size=  279040kB time=00:03:21.17 bitrate=11362.8kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9661 fps= 30 q=25.0 size=  279552kB time=00:03:21.42 bitrate=11369.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9676 fps= 30 q=25.0 size=  279808kB time=00:03:21.77 bitrate=11360.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9693 fps= 30 q=25.0 size=  280320kB time=00:03:22.13 bitrate=11360.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9709 fps= 30 q=25.0 size=  280832kB time=00:03:22.41 bitrate=11365.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9724 fps= 30 q=25.0 size=  281088kB time=00:03:22.77 bitrate=11355.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9742 fps= 30 q=25.0 size=  281856kB time=00:03:23.17 bitrate=11364.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9758 fps= 30 q=25.0 size=  282368kB time=00:03:23.47 bitrate=11368.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9779 fps= 30 q=25.0 size=  282880kB time=00:03:23.92 bitrate=11363.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9795 fps= 30 q=25.0 size=  283392kB time=00:03:24.24 bitrate=11366.5kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9816 fps= 30 q=25.0 size=  283904kB time=00:03:24.75 bitrate=11358.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9830 fps= 30 q=25.0 size=  284160kB time=00:03:24.97 bitrate=11356.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame= 9852 fps= 30 q=25.0 size=  284928kB time=00:03:25.41 bitrate=11362.8kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9867 fps= 30 q=25.0 size=  285184kB time=00:03:25.73 bitrate=11355.3kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9886 fps= 30 q=25.0 size=  285696kB time=00:03:26.16 bitrate=11352.2kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9903 fps= 30 q=25.0 size=  286208kB time=00:03:26.50 bitrate=11353.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9924 fps= 30 q=25.0 size=  286720kB time=00:03:26.93 bitrate=11350.6kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9939 fps= 30 q=25.0 size=  287232kB time=00:03:27.25 bitrate=11353.3kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9960 fps= 30 q=25.0 size=  287744kB time=00:03:27.72 bitrate=11347.8kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9976 fps= 30 q=25.0 size=  288256kB time=00:03:28.02 bitrate=11351.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame= 9992 fps= 30 q=25.0 size=  288768kB time=00:03:28.36 bitrate=11353.2kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10012 fps= 30 q=25.0 size=  289280kB time=00:03:28.78 bitrate=11350.1kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10029 fps= 30 q=25.0 size=  289792kB time=00:03:29.13 bitrate=11351.6kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10048 fps= 30 q=25.0 size=  290304kB time=00:03:29.55 bitrate=11348.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10065 fps= 30 q=25.0 size=  290816kB time=00:03:29.83 bitrate=11353.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10084 fps= 30 q=25.0 size=  291072kB time=00:03:30.28 bitrate=11339.3kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10101 fps= 30 q=25.0 size=  291584kB time=00:03:30.64 bitrate=11339.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10120 fps= 30 q=25.0 size=  292352kB time=00:03:31.05 bitrate=11347.7kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=10141 fps= 30 q=25.0 size=  292608kB time=00:03:31.43 bitrate=11337.0kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10156 fps= 30 q=25.0 size=  292864kB time=00:03:31.75 bitrate=11329.8kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10180 fps= 30 q=25.0 size=  293376kB time=00:03:32.26 bitrate=11322.3kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10204 fps= 30 q=25.0 size=  293632kB time=00:03:32.77 bitrate=11304.9kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10226 fps= 30 q=25.0 size=  293888kB time=00:03:33.22 bitrate=11290.9kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10240 fps= 30 q=25.0 size=  294144kB time=00:03:33.54 bitrate=11283.8kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10256 fps= 30 q=25.0 size=  294656kB time=00:03:33.86 bitrate=11286.6kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10273 fps= 30 q=25.0 size=  294912kB time=00:03:34.25 bitrate=11276.1kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10288 fps= 30 q=25.0 size=  295168kB time=00:03:34.57 bitrate=11269.1kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10312 fps= 30 q=25.0 size=  295680kB time=00:03:35.06 bitrate=11262.9kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10336 fps= 30 q=25.0 size=  295936kB time=00:03:35.57 bitrate=11245.9kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10357 fps= 30 q=25.0 size=  296192kB time=00:03:35.95 bitrate=11235.6kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10378 fps= 30 q=25.0 size=  296448kB time=00:03:36.42 bitrate=11220.9kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10395 fps= 30 q=25.0 size=  296704kB time=00:03:36.74 bitrate=11214.0kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10419 fps= 30 q=25.0 size=  296960kB time=00:03:37.25 bitrate=11197.2kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10443 fps= 30 q=25.0 size=  297472kB time=00:03:37.74 bitrate=11191.3kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10462 fps= 30 q=25.0 size=  297728kB time=00:03:38.15 bitrate=11180.1kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10478 fps= 30 q=25.0 size=  298240kB time=00:03:38.47 bitrate=11182.9kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10500 fps= 30 q=25.0 size=  298496kB time=00:03:39.02 bitrate=11164.2kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10515 fps= 30 q=25.0 size=  298752kB time=00:03:39.24 bitrate=11162.9kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10539 fps= 30 q=25.0 size=  299008kB time=00:03:39.75 bitrate=11146.4kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10563 fps= 30 q=25.0 size=  299264kB time=00:03:40.24 bitrate=11131.1kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10587 fps= 30 q=25.0 size=  299520kB time=00:03:40.75 bitrate=11114.8kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10609 fps= 30 q=25.0 size=  299776kB time=00:03:41.26 bitrate=11098.5kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10629 fps= 30 q=25.0 size=  300032kB time=00:03:41.65 bitrate=11088.8kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10648 fps= 30 q=25.0 size=  300288kB time=00:03:42.05 bitrate=11078.0kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10662 fps= 30 q=25.0 size=  300544kB time=00:03:42.35 bitrate=11072.5kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10677 fps= 30 q=25.0 size=  301056kB time=00:03:42.67 bitrate=11075.4kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10692 fps= 30 q=25.0 size=  301824kB time=00:03:42.95 bitrate=11089.9kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10706 fps= 30 q=25.0 size=  302336kB time=00:03:43.25 bitrate=11093.8kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10719 fps= 30 q=25.0 size=  302848kB time=00:03:43.53 bitrate=11098.8kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10732 fps= 30 q=25.0 size=  303360kB time=00:03:43.78 bitrate=11104.9kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10749 fps= 30 q=25.0 size=  304128kB time=00:03:44.14 bitrate=11115.0kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10764 fps= 30 q=25.0 size=  304640kB time=00:03:44.53 bitrate=11114.7kbits/s speed=0.626x    
-executeCommand> ErrorStream: frame=10777 fps= 30 q=25.0 size=  305152kB time=00:03:44.74 bitrate=11122.8kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10792 fps= 30 q=25.0 size=  305920kB time=00:03:45.06 bitrate=11134.9kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10806 fps= 30 q=25.0 size=  306432kB time=00:03:45.36 bitrate=11138.8kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10820 fps= 30 q=25.0 size=  306944kB time=00:03:45.64 bitrate=11143.7kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10832 fps= 30 q=25.0 size=  307456kB time=00:03:45.87 bitrate=11150.7kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10845 fps= 30 q=25.0 size=  307968kB time=00:03:46.15 bitrate=11155.5kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10860 fps= 30 q=25.0 size=  308736kB time=00:03:46.45 bitrate=11168.6kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10873 fps= 30 q=25.0 size=  308992kB time=00:03:46.77 bitrate=11162.1kbits/s speed=0.625x    
-executeCommand> ErrorStream: frame=10888 fps= 30 q=25.0 size=  309504kB time=00:03:47.09 bitrate=11164.8kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10903 fps= 30 q=25.0 size=  310016kB time=00:03:47.34 bitrate=11170.7kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10917 fps= 30 q=25.0 size=  310528kB time=00:03:47.66 bitrate=11173.4kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10930 fps= 30 q=25.0 size=  311040kB time=00:03:47.88 bitrate=11181.4kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10942 fps= 30 q=25.0 size=  311552kB time=00:03:48.20 bitrate=11184.1kbits/s speed=0.624x    
-executeCommand> ErrorStream: frame=10958 fps= 30 q=25.0 size=  312064kB time=00:03:48.45 bitrate=11189.9kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10971 fps= 30 q=25.0 size=  312320kB time=00:03:48.75 bitrate=11184.5kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10984 fps= 30 q=25.0 size=  312832kB time=00:03:49.07 bitrate=11187.1kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=10998 fps= 30 q=25.0 size=  313344kB time=00:03:49.35 bitrate=11191.9kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=11013 fps= 30 q=25.0 size=  313856kB time=00:03:49.67 bitrate=11194.6kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=11028 fps= 30 q=25.0 size=  314368kB time=00:03:49.97 bitrate=11198.3kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=11041 fps= 30 q=25.0 size=  314880kB time=00:03:50.25 bitrate=11203.0kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=11054 fps= 30 q=25.0 size=  315392kB time=00:03:50.44 bitrate=11211.9kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11068 fps= 30 q=25.0 size=  315904kB time=00:03:50.80 bitrate=11212.4kbits/s speed=0.623x    
-executeCommand> ErrorStream: frame=11085 fps= 30 q=25.0 size=  316416kB time=00:03:51.14 bitrate=11214.0kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11098 fps= 30 q=25.0 size=  316928kB time=00:03:51.46 bitrate=11216.6kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11112 fps= 30 q=25.0 size=  317440kB time=00:03:51.76 bitrate=11220.3kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11126 fps= 30 q=25.0 size=  317952kB time=00:03:51.95 bitrate=11229.1kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11142 fps= 30 q=25.0 size=  318464kB time=00:03:52.40 bitrate=11225.5kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11155 fps= 30 q=25.0 size=  318976kB time=00:03:52.59 bitrate=11234.2kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11161 fps= 30 q=25.0 size=  319232kB time=00:03:52.78 bitrate=11234.0kbits/s speed=0.622x    
-executeCommand> ErrorStream: frame=11179 fps= 30 q=25.0 size=  320000kB time=00:03:53.06 bitrate=11247.6kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11192 fps= 30 q=25.0 size=  320512kB time=00:03:53.38 bitrate=11250.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11204 fps= 30 q=25.0 size=  321024kB time=00:03:53.62 bitrate=11256.8kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11218 fps= 30 q=25.0 size=  321536kB time=00:03:53.96 bitrate=11258.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11234 fps= 30 q=25.0 size=  322304kB time=00:03:54.28 bitrate=11269.8kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11246 fps= 30 q=25.0 size=  322816kB time=00:03:54.51 bitrate=11276.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11260 fps= 30 q=25.0 size=  323328kB time=00:03:54.79 bitrate=11280.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11275 fps= 30 q=25.0 size=  323840kB time=00:03:55.09 bitrate=11284.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11290 fps= 30 q=25.0 size=  324352kB time=00:03:55.43 bitrate=11285.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11307 fps= 30 q=25.0 size=  325120kB time=00:03:55.79 bitrate=11295.2kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11323 fps= 30 q=25.0 size=  325632kB time=00:03:56.07 bitrate=11299.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11337 fps= 30 q=25.0 size=  326144kB time=00:03:56.39 bitrate=11302.2kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11352 fps= 30 q=25.0 size=  326656kB time=00:03:56.77 bitrate=11301.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11367 fps= 30 q=25.0 size=  327424kB time=00:03:57.03 bitrate=11315.9kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11378 fps= 30 q=25.0 size=  327680kB time=00:03:57.29 bitrate=11312.5kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11395 fps= 30 q=25.0 size=  328448kB time=00:03:57.65 bitrate=11321.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11410 fps= 30 q=25.0 size=  329216kB time=00:03:57.97 bitrate=11332.9kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11428 fps= 30 q=25.0 size=  329728kB time=00:03:58.31 bitrate=11334.3kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11443 fps= 30 q=25.0 size=  330240kB time=00:03:58.63 bitrate=11336.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11458 fps= 30 q=25.0 size=  330752kB time=00:03:58.95 bitrate=11339.1kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11475 fps= 30 q=25.0 size=  331264kB time=00:03:59.25 bitrate=11342.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11494 fps= 30 q=25.0 size=  331776kB time=00:03:59.65 bitrate=11340.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11511 fps= 30 q=25.0 size=  332288kB time=00:04:00.04 bitrate=11340.1kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11528 fps= 30 q=25.0 size=  332800kB time=00:04:00.42 bitrate=11339.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11542 fps= 30 q=25.0 size=  333312kB time=00:04:00.68 bitrate=11344.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11559 fps= 30 q=25.0 size=  333824kB time=00:04:01.04 bitrate=11345.1kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11578 fps= 30 q=25.0 size=  334592kB time=00:04:01.45 bitrate=11352.1kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11594 fps= 30 q=25.0 size=  335104kB time=00:04:01.77 bitrate=11354.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11614 fps= 30 q=25.0 size=  335616kB time=00:04:02.19 bitrate=11351.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11631 fps= 30 q=25.0 size=  336384kB time=00:04:02.53 bitrate=11361.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11647 fps= 30 q=25.0 size=  336896kB time=00:04:02.83 bitrate=11365.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11665 fps= 30 q=25.0 size=  337664kB time=00:04:03.24 bitrate=11372.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11680 fps= 30 q=25.0 size=  338176kB time=00:04:03.60 bitrate=11372.2kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11696 fps= 30 q=25.0 size=  338688kB time=00:04:03.88 bitrate=11376.5kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11714 fps= 30 q=25.0 size=  339200kB time=00:04:04.24 bitrate=11376.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11733 fps= 30 q=25.0 size=  339968kB time=00:04:04.65 bitrate=11383.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11752 fps= 30 q=25.0 size=  340480kB time=00:04:05.07 bitrate=11380.9kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11769 fps= 30 q=25.0 size=  341248kB time=00:04:05.41 bitrate=11390.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11790 fps= 30 q=25.0 size=  341760kB time=00:04:05.84 bitrate=11388.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11805 fps= 30 q=25.0 size=  342272kB time=00:04:06.16 bitrate=11390.3kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11829 fps= 30 q=25.0 size=  342784kB time=00:04:06.63 bitrate=11385.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11853 fps= 30 q=25.0 size=  343296kB time=00:04:07.14 bitrate=11379.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11874 fps= 30 q=25.0 size=  343808kB time=00:04:07.65 bitrate=11372.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11888 fps= 30 q=25.0 size=  344320kB time=00:04:07.89 bitrate=11378.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11911 fps= 30 q=25.0 size=  345088kB time=00:04:08.34 bitrate=11383.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11926 fps= 30 q=25.0 size=  345600kB time=00:04:08.68 bitrate=11384.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11943 fps= 30 q=25.0 size=  346112kB time=00:04:09.06 bitrate=11383.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11962 fps= 30 q=25.0 size=  346880kB time=00:04:09.49 bitrate=11389.6kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=11978 fps= 30 q=25.0 size=  347392kB time=00:04:09.77 bitrate=11393.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=11997 fps= 30 q=25.0 size=  347904kB time=00:04:10.15 bitrate=11393.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12012 fps= 30 q=25.0 size=  348416kB time=00:04:10.58 bitrate=11390.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12027 fps= 30 q=25.0 size=  348928kB time=00:04:10.77 bitrate=11398.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12046 fps= 30 q=25.0 size=  349440kB time=00:04:11.17 bitrate=11396.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12063 fps= 30 q=25.0 size=  349952kB time=00:04:11.56 bitrate=11396.0kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12082 fps= 30 q=25.0 size=  350464kB time=00:04:11.98 bitrate=11393.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12098 fps= 30 q=25.0 size=  350976kB time=00:04:12.26 bitrate=11397.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12118 fps= 30 q=25.0 size=  351488kB time=00:04:12.71 bitrate=11393.8kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12135 fps= 30 q=25.0 size=  351744kB time=00:04:13.07 bitrate=11385.8kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12152 fps= 30 q=25.0 size=  352512kB time=00:04:13.39 bitrate=11396.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12169 fps= 30 q=25.0 size=  353024kB time=00:04:13.73 bitrate=11397.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12188 fps= 30 q=25.0 size=  353536kB time=00:04:14.16 bitrate=11394.8kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12200 fps= 30 q=25.0 size=  354048kB time=00:04:14.37 bitrate=11401.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12217 fps= 30 q=25.0 size=  354560kB time=00:04:14.76 bitrate=11401.0kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12237 fps= 30 q=25.0 size=  355328kB time=00:04:15.14 bitrate=11408.5kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12256 fps= 30 q=25.0 size=  355840kB time=00:04:15.59 bitrate=11404.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12272 fps= 30 q=25.0 size=  356352kB time=00:04:15.89 bitrate=11408.0kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12292 fps= 30 q=25.0 size=  357120kB time=00:04:16.29 bitrate=11414.5kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12309 fps= 30 q=25.0 size=  357632kB time=00:04:16.66 bitrate=11414.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12327 fps= 30 q=25.0 size=  358144kB time=00:04:17.06 bitrate=11413.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12344 fps= 30 q=25.0 size=  358912kB time=00:04:17.38 bitrate=11423.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12364 fps= 30 q=25.0 size=  359680kB time=00:04:17.77 bitrate=11430.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12381 fps= 30 q=25.0 size=  360192kB time=00:04:18.15 bitrate=11429.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12399 fps= 30 q=25.0 size=  360704kB time=00:04:18.58 bitrate=11427.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12415 fps= 30 q=25.0 size=  361472kB time=00:04:18.85 bitrate=11439.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12430 fps= 30 q=25.0 size=  361984kB time=00:04:19.17 bitrate=11441.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12447 fps= 30 q=25.0 size=  362752kB time=00:04:19.56 bitrate=11448.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12466 fps= 30 q=25.0 size=  363264kB time=00:04:19.98 bitrate=11446.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12483 fps= 30 q=25.0 size=  364032kB time=00:04:20.26 bitrate=11458.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12502 fps= 30 q=25.0 size=  364544kB time=00:04:20.69 bitrate=11455.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12519 fps= 30 q=25.0 size=  365312kB time=00:04:21.07 bitrate=11462.6kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12536 fps= 30 q=25.0 size=  365824kB time=00:04:21.39 bitrate=11464.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12550 fps= 30 q=25.0 size=  366336kB time=00:04:21.71 bitrate=11466.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12567 fps= 30 q=25.0 size=  366848kB time=00:04:22.05 bitrate=11467.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12586 fps= 30 q=25.0 size=  367616kB time=00:04:22.48 bitrate=11473.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12603 fps= 30 q=25.0 size=  368384kB time=00:04:22.76 bitrate=11484.9kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12621 fps= 30 q=25.0 size=  368896kB time=00:04:23.18 bitrate=11482.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12636 fps= 30 q=25.0 size=  369408kB time=00:04:23.57 bitrate=11481.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12650 fps= 30 q=25.0 size=  369920kB time=00:04:23.78 bitrate=11488.0kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12667 fps= 30 q=25.0 size=  370432kB time=00:04:24.17 bitrate=11487.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12682 fps= 30 q=25.0 size=  370944kB time=00:04:24.49 bitrate=11489.2kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12698 fps= 30 q=25.0 size=  371200kB time=00:04:24.78 bitrate=11484.1kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12715 fps= 30 q=25.0 size=  371712kB time=00:04:25.17 bitrate=11483.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12730 fps= 30 q=25.0 size=  372224kB time=00:04:25.49 bitrate=11485.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12747 fps= 30 q=25.0 size=  372736kB time=00:04:25.77 bitrate=11489.1kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12764 fps= 30 q=25.0 size=  372992kB time=00:04:26.15 bitrate=11480.4kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12778 fps= 30 q=25.0 size=  373504kB time=00:04:26.47 bitrate=11482.3kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12794 fps= 30 q=25.0 size=  374016kB time=00:04:26.79 bitrate=11484.3kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12813 fps= 30 q=25.0 size=  374528kB time=00:04:27.17 bitrate=11483.5kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12826 fps= 30 q=25.0 size=  374784kB time=00:04:27.49 bitrate=11477.6kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12842 fps= 30 q=25.0 size=  375296kB time=00:04:27.79 bitrate=11480.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12860 fps= 30 q=25.0 size=  375808kB time=00:04:28.18 bitrate=11479.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12877 fps= 30 q=25.0 size=  376576kB time=00:04:28.58 bitrate=11485.7kbits/s speed=0.621x    
-executeCommand> ErrorStream: frame=12892 fps= 30 q=25.0 size=  376832kB time=00:04:28.82 bitrate=11483.5kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12909 fps= 30 q=25.0 size=  377344kB time=00:04:29.16 bitrate=11484.5kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12926 fps= 30 q=25.0 size=  377856kB time=00:04:29.58 bitrate=11481.9kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12943 fps= 30 q=25.0 size=  378368kB time=00:04:29.86 bitrate=11485.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12957 fps= 30 q=25.0 size=  378624kB time=00:04:30.18 bitrate=11479.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12973 fps= 30 q=25.0 size=  379136kB time=00:04:30.57 bitrate=11479.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=12991 fps= 30 q=25.0 size=  379648kB time=00:04:30.86 bitrate=11481.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13005 fps= 30 q=25.0 size=  380160kB time=00:04:31.18 bitrate=11483.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13022 fps= 30 q=25.0 size=  380416kB time=00:04:31.57 bitrate=11475.2kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13041 fps= 30 q=25.0 size=  381184kB time=00:04:31.95 bitrate=11482.2kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13058 fps= 30 q=25.0 size=  381440kB time=00:04:32.27 bitrate=11476.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13077 fps= 30 q=25.0 size=  382208kB time=00:04:32.68 bitrate=11482.4kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13096 fps= 30 q=25.0 size=  382720kB time=00:04:33.06 bitrate=11481.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13112 fps= 30 q=25.0 size=  382976kB time=00:04:33.36 bitrate=11476.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13126 fps= 30 q=25.0 size=  383488kB time=00:04:33.68 bitrate=11478.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13143 fps= 30 q=25.0 size=  384000kB time=00:04:34.09 bitrate=11477.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13159 fps= 30 q=25.0 size=  384512kB time=00:04:34.38 bitrate=11479.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13171 fps= 30 q=25.0 size=  384768kB time=00:04:34.66 bitrate=11475.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13186 fps= 30 q=25.0 size=  385280kB time=00:04:34.96 bitrate=11478.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13198 fps= 30 q=25.0 size=  385536kB time=00:04:35.24 bitrate=11474.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13210 fps= 30 q=25.0 size=  386048kB time=00:04:35.43 bitrate=11481.9kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13227 fps= 30 q=25.0 size=  386816kB time=00:04:35.79 bitrate=11489.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13245 fps= 30 q=25.0 size=  387072kB time=00:04:36.20 bitrate=11480.3kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13262 fps= 30 q=25.0 size=  387584kB time=00:04:36.52 bitrate=11482.2kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13279 fps= 30 q=25.0 size=  387840kB time=00:04:36.90 bitrate=11473.9kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13299 fps= 30 q=25.0 size=  388352kB time=00:04:37.29 bitrate=11473.1kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13318 fps= 30 q=25.0 size=  388864kB time=00:04:37.73 bitrate=11469.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13334 fps= 30 q=25.0 size=  389120kB time=00:04:38.03 bitrate=11464.9kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13352 fps= 30 q=25.0 size=  389376kB time=00:04:38.48 bitrate=11454.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13364 fps= 30 q=22.0 size=  389632kB time=00:04:38.67 bitrate=11453.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13384 fps= 30 q=25.0 size=  390400kB time=00:04:39.12 bitrate=11457.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13402 fps= 30 q=25.0 size=  390912kB time=00:04:39.46 bitrate=11458.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13417 fps= 30 q=25.0 size=  391424kB time=00:04:39.78 bitrate=11460.7kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13429 fps= 30 q=25.0 size=  391680kB time=00:04:40.08 bitrate=11455.9kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13448 fps= 30 q=25.0 size=  392448kB time=00:04:40.40 bitrate=11465.3kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13465 fps= 30 q=25.0 size=  392960kB time=00:04:40.78 bitrate=11464.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13485 fps= 30 q=25.0 size=  393472kB time=00:04:41.19 bitrate=11463.0kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13500 fps= 30 q=25.0 size=  393728kB time=00:04:41.57 bitrate=11454.8kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13513 fps= 30 q=25.0 size=  394240kB time=00:04:41.77 bitrate=11461.9kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13534 fps= 30 q=25.0 size=  394752kB time=00:04:42.21 bitrate=11458.5kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13545 fps= 30 q=25.0 size=  395008kB time=00:04:42.41 bitrate=11458.2kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13558 fps= 30 q=25.0 size=  395776kB time=00:04:42.73 bitrate=11467.4kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13574 fps= 30 q=25.0 size=  396288kB time=00:04:43.09 bitrate=11467.6kbits/s speed=0.62x    
-executeCommand> ErrorStream: frame=13588 fps= 30 q=25.0 size=  396800kB time=00:04:43.34 bitrate=11472.0kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13603 fps= 30 q=25.0 size=  397056kB time=00:04:43.73 bitrate=11463.9kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13622 fps= 30 q=25.0 size=  397824kB time=00:04:44.05 bitrate=11473.1kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13638 fps= 30 q=25.0 size=  398080kB time=00:04:44.39 bitrate=11466.7kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13653 fps= 30 q=25.0 size=  398592kB time=00:04:44.71 bitrate=11468.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13670 fps= 30 q=25.0 size=  399104kB time=00:04:45.03 bitrate=11470.4kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13688 fps= 30 q=25.0 size=  399616kB time=00:04:45.41 bitrate=11469.7kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13707 fps= 30 q=25.0 size=  400128kB time=00:04:45.80 bitrate=11468.9kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13724 fps= 30 q=25.0 size=  400384kB time=00:04:46.22 bitrate=11459.2kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13742 fps= 30 q=25.0 size=  400896kB time=00:04:46.54 bitrate=11461.0kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13760 fps= 30 q=25.0 size=  401408kB time=00:04:46.93 bitrate=11460.3kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13779 fps= 30 q=25.0 size=  401920kB time=00:04:47.31 bitrate=11459.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13796 fps= 30 q=25.0 size=  402432kB time=00:04:47.72 bitrate=11458.0kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13813 fps= 30 q=25.0 size=  403200kB time=00:04:48.02 bitrate=11468.0kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13828 fps= 30 q=25.0 size=  403456kB time=00:04:48.34 bitrate=11462.5kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13845 fps= 30 q=25.0 size=  403968kB time=00:04:48.72 bitrate=11461.8kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13862 fps= 30 q=25.0 size=  404480kB time=00:04:49.04 bitrate=11463.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13876 fps= 30 q=25.0 size=  404736kB time=00:04:49.36 bitrate=11458.2kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13893 fps= 30 q=25.0 size=  405248kB time=00:04:49.70 bitrate=11459.1kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13912 fps= 30 q=25.0 size=  405760kB time=00:04:50.09 bitrate=11458.4kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13924 fps= 30 q=25.0 size=  406272kB time=00:04:50.34 bitrate=11462.8kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13941 fps= 30 q=25.0 size=  406784kB time=00:04:50.73 bitrate=11462.1kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13958 fps= 30 q=25.0 size=  407040kB time=00:04:51.02 bitrate=11457.5kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=13972 fps= 30 q=25.0 size=  407552kB time=00:04:51.34 bitrate=11459.3kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=13989 fps= 30 q=25.0 size=  408064kB time=00:04:51.73 bitrate=11458.6kbits/s speed=0.619x    
-executeCommand> ErrorStream: frame=14005 fps= 30 q=25.0 size=  408576kB time=00:04:52.01 bitrate=11462.1kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14020 fps= 30 q=25.0 size=  408832kB time=00:04:52.37 bitrate=11455.1kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14037 fps= 30 q=25.0 size=  409344kB time=00:04:52.71 bitrate=11456.0kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14054 fps= 30 q=25.0 size=  409856kB time=00:04:53.03 bitrate=11457.8kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14068 fps= 30 q=25.0 size=  410368kB time=00:04:53.35 bitrate=11459.6kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14086 fps= 30 q=25.0 size=  410880kB time=00:04:53.73 bitrate=11458.9kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14102 fps= 30 q=25.0 size=  411136kB time=00:04:54.05 bitrate=11453.6kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14119 fps= 30 q=25.0 size=  411648kB time=00:04:54.42 bitrate=11453.7kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14131 fps= 30 q=25.0 size=  411904kB time=00:04:54.74 bitrate=11448.4kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14147 fps= 30 q=25.0 size=  412416kB time=00:04:55.01 bitrate=11451.9kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14163 fps= 30 q=25.0 size=  412672kB time=00:04:55.31 bitrate=11447.4kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14179 fps= 30 q=25.0 size=  413184kB time=00:04:55.72 bitrate=11445.9kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14198 fps= 30 q=25.0 size=  413696kB time=00:04:56.04 bitrate=11447.7kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14215 fps= 30 q=25.0 size=  414208kB time=00:04:56.42 bitrate=11447.0kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14234 fps= 30 q=25.0 size=  414720kB time=00:04:56.81 bitrate=11446.3kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14246 fps= 30 q=25.0 size=  414976kB time=00:04:57.04 bitrate=11444.3kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14264 fps= 30 q=25.0 size=  415488kB time=00:04:57.45 bitrate=11442.8kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14280 fps= 30 q=25.0 size=  415744kB time=00:04:57.87 bitrate=11433.5kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14296 fps= 30 q=25.0 size=  416512kB time=00:04:58.06 bitrate=11447.2kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14313 fps= 30 q=25.0 size=  417024kB time=00:04:58.45 bitrate=11446.5kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14332 fps= 30 q=25.0 size=  417536kB time=00:04:58.90 bitrate=11443.4kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14348 fps= 30 q=25.0 size=  418048kB time=00:04:59.17 bitrate=11446.8kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14368 fps= 30 q=25.0 size=  418560kB time=00:04:59.56 bitrate=11446.2kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14385 fps= 30 q=25.0 size=  418816kB time=00:04:59.94 bitrate=11438.5kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14406 fps= 30 q=25.0 size=  419584kB time=00:05:00.45 bitrate=11440.0kbits/s speed=0.618x    
-executeCommand> ErrorStream: frame=14420 fps= 30 q=25.0 size=  419840kB time=00:05:00.69 bitrate=11438.0kbits/s speed=0.618x    
-executeComman
+executeCommand> ErrorStream: frame=    1 fps=0.0 q=0.0 size=       0kB time=00:00:00.49 bitrate=   0.8kbits/s speed=  11x    
+executeCommand> ErrorStream: frame=   58 fps=0.0 q=25.0 size=       0kB time=00:00:01.70 bitrate=   0.2kbits/s speed=3.13x    
+executeCommand> ErrorStream: frame=  104 fps= 96 q=25.0 size=       0kB time=00:00:02.60 bitrate=   0.1kbits/s speed= 2.4x    
+executeCommand> ErrorStream: frame=  118 fps= 70 q=25.0 size=     512kB time=00:00:02.92 bitrate=1435.2kbits/s speed=1.73x    
+executeCommand> ErrorStream: frame=  135 fps= 58 q=25.0 size=     768kB time=00:00:03.22 bitrate=1953.2kbits/s speed=1.39x    
+executeCommand> ErrorStream: frame=  151 fps= 54 q=25.0 size=    1280kB time=00:00:03.60 bitrate=2908.5kbits/s speed=1.28x    
+executeCommand> ErrorStream: frame=  166 fps= 48 q=25.0 size=    1792kB time=00:00:03.92 bitrate=3739.9kbits/s speed=1.14x    
+executeCommand> ErrorStream: frame=  182 fps= 45 q=25.0 size=    2048kB time=00:00:04.24 bitrate=3952.0kbits/s speed=1.06x    
+executeCommand> ErrorStream: frame=  198 fps= 44 q=25.0 size=    2560kB time=00:00:04.58 bitrate=4572.4kbits/s speed=1.01x    
+executeCommand> ErrorStream: frame=  213 fps= 42 q=25.0 size=    2816kB time=00:00:04.88 bitrate=4722.1kbits/s speed=0.971x    
+executeCommand> ErrorStream: frame=  226 fps= 40 q=25.0 size=    3328kB time=00:00:05.16 bitrate=5280.9kbits/s speed=0.918x    
+executeCommand> ErrorStream: frame=  243 fps= 39 q=25.0 size=    3584kB time=00:00:05.52 bitrate=5313.8kbits/s speed=0.89x    
+executeCommand> ErrorStream: frame=  258 fps= 38 q=25.0 size=    4096kB time=00:00:05.80 bitrate=5782.7kbits/s speed=0.864x    
+executeCommand> ErrorStream: frame=  274 fps= 37 q=25.0 size=    4352kB time=00:00:06.16 bitrate=5782.7kbits/s speed=0.838x    
+executeCommand> ErrorStream: frame=  291 fps= 36 q=25.0 size=    4864kB time=00:00:06.50 bitrate=6123.9kbits/s speed=0.814x    
+executeCommand> ErrorStream: frame=  309 fps= 36 q=25.0 size=    5376kB time=00:00:06.89 bitrate=6391.3kbits/s speed=0.797x    
+executeCommand> ErrorStream: frame=  325 fps= 35 q=25.0 size=    5888kB time=00:00:07.21 bitrate=6689.4kbits/s speed=0.787x    
+executeCommand> ErrorStream: frame=  340 fps= 35 q=25.0 size=    6144kB time=00:00:07.53 bitrate=6683.6kbits/s speed=0.777x    
+executeCommand> ErrorStream: frame=  357 fps= 35 q=25.0 size=    6656kB time=00:00:07.89 bitrate=6907.9kbits/s speed=0.763x    
+executeCommand> ErrorStream: frame=  373 fps= 34 q=25.0 size=    6912kB time=00:00:08.21 bitrate=6894.1kbits/s speed=0.756x    
+executeCommand> ErrorStream: frame=  388 fps= 34 q=25.0 size=    7168kB time=00:00:08.53 bitrate=6881.3kbits/s speed=0.751x    
+executeCommand> ErrorStream: frame=  405 fps= 34 q=25.0 size=    7680kB time=00:00:08.87 bitrate=7089.3kbits/s speed=0.735x    
+executeCommand> ErrorStream: frame=  422 fps= 33 q=25.0 size=    7936kB time=00:00:09.23 bitrate=7038.0kbits/s speed=0.733x    
+executeCommand> ErrorStream: frame=  439 fps= 33 q=25.0 size=    8448kB time=00:00:09.62 bitrate=7193.0kbits/s speed=0.734x    
+executeCommand> ErrorStream: frame=  452 fps= 33 q=25.0 size=    8704kB time=00:00:09.83 bitrate=7250.2kbits/s speed=0.716x    
+executeCommand> ErrorStream: frame=  470 fps= 33 q=25.0 size=    9216kB time=00:00:10.21 bitrate=7388.2kbits/s speed=0.717x    
+executeCommand> ErrorStream: frame=  484 fps= 33 q=25.0 size=    9472kB time=00:00:10.53 bitrate=7362.9kbits/s speed=0.71x    
+executeCommand> ErrorStream: frame=  501 fps= 32 q=25.0 size=    9728kB time=00:00:10.90 bitrate=7310.3kbits/s speed=0.705x    
+executeCommand> ErrorStream: frame=  517 fps= 32 q=25.0 size=   10240kB time=00:00:11.22 bitrate=7475.6kbits/s speed= 0.7x    
+executeCommand> ErrorStream: frame=  532 fps= 32 q=25.0 size=   10752kB time=00:00:11.54 bitrate=7631.8kbits/s speed=0.697x    
+executeCommand> ErrorStream: frame=  549 fps= 32 q=25.0 size=   11008kB time=00:00:11.88 bitrate=7589.0kbits/s speed=0.695x    
+executeCommand> ErrorStream: frame=  554 fps= 31 q=25.0 size=   11264kB time=00:00:12.01 bitrate=7682.8kbits/s speed=0.682x    
+executeCommand> ErrorStream: frame=  565 fps= 31 q=25.0 size=   11520kB time=00:00:12.20 bitrate=7733.7kbits/s speed=0.672x    
+executeCommand> ErrorStream: frame=  577 fps= 31 q=25.0 size=   11776kB time=00:00:12.50 bitrate=7716.7kbits/s speed=0.667x    
+executeCommand> ErrorStream: frame=  589 fps= 30 q=25.0 size=   12032kB time=00:00:12.69 bitrate=7765.2kbits/s speed=0.656x    
+executeCommand> ErrorStream: frame=  598 fps= 30 q=22.0 size=   12288kB time=00:00:12.90 bitrate=7799.4kbits/s speed=0.645x    
+executeCommand> ErrorStream: frame=  615 fps= 30 q=25.0 size=   12800kB time=00:00:13.22 bitrate=7927.8kbits/s speed=0.644x    
+executeCommand> ErrorStream: frame=  631 fps= 30 q=25.0 size=   13056kB time=00:00:13.61 bitrate=7858.2kbits/s speed=0.647x    
+executeCommand> ErrorStream: frame=  646 fps= 30 q=25.0 size=   13568kB time=00:00:13.93 bitrate=7978.8kbits/s speed=0.644x    
+executeCommand> ErrorStream: frame=  662 fps= 30 q=25.0 size=   14080kB time=00:00:14.25 bitrate=8093.9kbits/s speed=0.637x    
+executeCommand> ErrorStream: frame=  675 fps= 29 q=25.0 size=   14336kB time=00:00:14.50 bitrate=8095.6kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame=  691 fps= 29 q=25.0 size=   14848kB time=00:00:14.89 bitrate=8168.6kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame=  706 fps= 29 q=25.0 size=   15104kB time=00:00:15.14 bitrate=8168.9kbits/s speed=0.631x    
+executeCommand> ErrorStream: frame=  723 fps= 29 q=25.0 size=   15616kB time=00:00:15.50 bitrate=8248.4kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame=  734 fps= 29 q=25.0 size=   15872kB time=00:00:15.72 bitrate=8269.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame=  747 fps= 29 q=25.0 size=   16128kB time=00:00:16.04 bitrate=8235.6kbits/s speed=0.623x    
+executeCommand> ErrorStream: frame=  763 fps= 29 q=25.0 size=   16640kB time=00:00:16.34 bitrate=8341.7kbits/s speed=0.622x    
+executeCommand> ErrorStream: frame=  778 fps= 29 q=25.0 size=   16896kB time=00:00:16.66 bitrate=8307.4kbits/s speed=0.622x    
+executeCommand> ErrorStream: frame=  784 fps= 29 q=25.0 size=   17152kB time=00:00:16.81 bitrate=8358.4kbits/s speed=0.616x    
+executeCommand> ErrorStream: frame=  799 fps= 29 q=25.0 size=   17408kB time=00:00:17.13 bitrate=8324.6kbits/s speed=0.615x    
+executeCommand> ErrorStream: frame=  815 fps= 29 q=25.0 size=   17920kB time=00:00:17.42 bitrate=8422.6kbits/s speed=0.61x    
+executeCommand> ErrorStream: frame=  832 fps= 29 q=25.0 size=   18176kB time=00:00:17.83 bitrate=8348.8kbits/s speed=0.613x    
+executeCommand> ErrorStream: frame=  845 fps= 29 q=25.0 size=   18688kB time=00:00:18.02 bitrate=8492.6kbits/s speed=0.609x    
+executeCommand> ErrorStream: frame=  860 fps= 29 q=25.0 size=   19200kB time=00:00:18.41 bitrate=8543.2kbits/s speed=0.611x    
+executeCommand> ErrorStream: frame=  874 fps= 29 q=25.0 size=   19456kB time=00:00:18.60 bitrate=8567.8kbits/s speed=0.607x    
+executeCommand> ErrorStream: frame=  889 fps= 28 q=25.0 size=   19712kB time=00:00:18.98 bitrate=8505.0kbits/s speed=0.607x    
+executeCommand> ErrorStream: frame=  905 fps= 28 q=25.0 size=   20224kB time=00:00:19.28 bitrate=8590.7kbits/s speed=0.606x    
+executeCommand> ErrorStream: frame=  918 fps= 28 q=25.0 size=   20480kB time=00:00:19.66 bitrate=8529.7kbits/s speed=0.609x    
+executeCommand> ErrorStream: frame=  935 fps= 28 q=25.0 size=   20992kB time=00:00:19.94 bitrate=8621.3kbits/s speed=0.608x    
+executeCommand> ErrorStream: frame=  949 fps= 28 q=25.0 size=   21504kB time=00:00:20.24 bitrate=8701.3kbits/s speed=0.606x    
+executeCommand> ErrorStream: frame=  963 fps= 28 q=25.0 size=   21760kB time=00:00:20.58 bitrate=8658.9kbits/s speed=0.607x    
+executeCommand> ErrorStream: frame=  977 fps= 28 q=25.0 size=   22272kB time=00:00:20.77 bitrate=8780.8kbits/s speed=0.603x    
+executeCommand> ErrorStream: frame=  994 fps= 28 q=25.0 size=   22528kB time=00:00:21.16 bitrate=8720.5kbits/s speed=0.605x    
+executeCommand> ErrorStream: frame= 1008 fps= 28 q=25.0 size=   23040kB time=00:00:21.48 bitrate=8785.9kbits/s speed=0.602x    
+executeCommand> ErrorStream: frame= 1025 fps= 28 q=25.0 size=   23552kB time=00:00:21.78 bitrate=8858.0kbits/s speed=0.601x    
+executeCommand> ErrorStream: frame= 1041 fps= 28 q=25.0 size=   23808kB time=00:00:22.16 bitrate=8799.1kbits/s speed=0.603x    
+executeCommand> ErrorStream: frame= 1056 fps= 28 q=25.0 size=   24320kB time=00:00:22.48 bitrate=8860.4kbits/s speed= 0.6x    
+executeCommand> ErrorStream: frame= 1075 fps= 28 q=25.0 size=   24576kB time=00:00:22.86 bitrate=8803.4kbits/s speed=0.602x    
+executeCommand> ErrorStream: frame= 1092 fps= 28 q=25.0 size=   25088kB time=00:00:23.14 bitrate=8879.1kbits/s speed=0.601x    
+executeCommand> ErrorStream: frame= 1104 fps= 28 q=25.0 size=   25344kB time=00:00:23.46 bitrate=8847.4kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 1121 fps= 28 q=25.0 size=   25856kB time=00:00:23.78 bitrate=8904.7kbits/s speed= 0.6x    
+executeCommand> ErrorStream: frame= 1134 fps= 28 q=25.0 size=   26112kB time=00:00:24.10 bitrate=8873.5kbits/s speed= 0.6x    
+executeCommand> ErrorStream: frame= 1149 fps= 28 q=25.0 size=   26624kB time=00:00:24.36 bitrate=8952.4kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 1164 fps= 28 q=25.0 size=   27136kB time=00:00:24.72 bitrate=8990.7kbits/s speed=0.598x    
+executeCommand> ErrorStream: frame= 1181 fps= 28 q=25.0 size=   27392kB time=00:00:25.06 bitrate=8952.0kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 1198 fps= 28 q=25.0 size=   27904kB time=00:00:25.45 bitrate=8981.7kbits/s speed=0.601x    
+executeCommand> ErrorStream: frame= 1212 fps= 28 q=25.0 size=   28160kB time=00:00:25.70 bitrate=8973.8kbits/s speed=0.597x    
+executeCommand> ErrorStream: frame= 1229 fps= 28 q=25.0 size=   28672kB time=00:00:26.06 bitrate=9009.9kbits/s speed=0.598x    
+executeCommand> ErrorStream: frame= 1246 fps= 28 q=25.0 size=   29184kB time=00:00:26.45 bitrate=9037.6kbits/s speed= 0.6x    
+executeCommand> ErrorStream: frame= 1260 fps= 28 q=25.0 size=   29440kB time=00:00:26.70 bitrate=9029.5kbits/s speed=0.596x    
+executeCommand> ErrorStream: frame= 1280 fps= 28 q=25.0 size=   29952kB time=00:00:27.15 bitrate=9035.0kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 1291 fps= 28 q=25.0 size=   30208kB time=00:00:27.43 bitrate=9020.1kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 1306 fps= 28 q=25.0 size=   30464kB time=00:00:27.69 bitrate=9012.5kbits/s speed=0.598x    
+executeCommand> ErrorStream: frame= 1320 fps= 28 q=25.0 size=   30976kB time=00:00:28.01 bitrate=9059.3kbits/s speed=0.596x    
+executeCommand> ErrorStream: frame= 1336 fps= 28 q=22.0 size=   31232kB time=00:00:28.30 bitrate=9037.8kbits/s speed=0.596x    
+executeCommand> ErrorStream: frame= 1353 fps= 28 q=25.0 size=   31744kB time=00:00:28.69 bitrate=9063.0kbits/s speed=0.598x    
+executeCommand> ErrorStream: frame= 1368 fps= 28 q=25.0 size=   32256kB time=00:00:29.01 bitrate=9107.6kbits/s speed=0.596x    
+executeCommand> ErrorStream: frame= 1384 fps= 28 q=25.0 size=   32512kB time=00:00:29.33 bitrate=9079.7kbits/s speed=0.597x    
+executeCommand> ErrorStream: frame= 1398 fps= 28 q=25.0 size=   33024kB time=00:00:29.61 bitrate=9136.3kbits/s speed=0.596x    
+executeCommand> ErrorStream: frame= 1414 fps= 28 q=25.0 size=   33280kB time=00:00:29.86 bitrate=9128.2kbits/s speed=0.595x    
+executeCommand> ErrorStream: frame= 1428 fps= 28 q=25.0 size=   33792kB time=00:00:30.18 bitrate=9170.4kbits/s speed=0.593x    
+executeCommand> ErrorStream: frame= 1446 fps= 28 q=25.0 size=   34048kB time=00:00:30.57 bitrate=9123.8kbits/s speed=0.595x    
+executeCommand> ErrorStream: frame= 1462 fps= 28 q=25.0 size=   34560kB time=00:00:30.95 bitrate=9146.1kbits/s speed=0.596x    
+executeCommand> ErrorStream: frame= 1477 fps= 28 q=25.0 size=   34816kB time=00:00:31.25 bitrate=9125.8kbits/s speed=0.594x    
+executeCommand> ErrorStream: frame= 1494 fps= 28 q=25.0 size=   35328kB time=00:00:31.59 bitrate=9160.0kbits/s speed=0.595x    
+executeCommand> ErrorStream: frame= 1510 fps= 28 q=25.0 size=   35584kB time=00:00:31.91 bitrate=9133.9kbits/s speed=0.595x    
+executeCommand> ErrorStream: frame= 1524 fps= 28 q=25.0 size=   35840kB time=00:00:32.21 bitrate=9114.3kbits/s speed=0.593x    
+executeCommand> ErrorStream: frame= 1541 fps= 28 q=25.0 size=   36352kB time=00:00:32.59 bitrate=9135.6kbits/s speed=0.594x    
+executeCommand> ErrorStream: frame= 1557 fps= 28 q=25.0 size=   36608kB time=00:00:32.87 bitrate=9122.3kbits/s speed=0.594x    
+executeCommand> ErrorStream: frame= 1566 fps= 28 q=22.0 size=   36864kB time=00:00:33.06 bitrate=9132.8kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1583 fps= 28 q=25.0 size=   37376kB time=00:00:33.45 bitrate=9153.3kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 1599 fps= 28 q=25.0 size=   37888kB time=00:00:33.77 bitrate=9190.8kbits/s speed=0.593x    
+executeCommand> ErrorStream: frame= 1615 fps= 28 q=25.0 size=   38144kB time=00:00:34.15 bitrate=9148.9kbits/s speed=0.594x    
+executeCommand> ErrorStream: frame= 1630 fps= 28 q=25.0 size=   38656kB time=00:00:34.47 bitrate=9185.6kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 1650 fps= 28 q=25.0 size=   39168kB time=00:00:34.79 bitrate=9221.7kbits/s speed=0.593x    
+executeCommand> ErrorStream: frame= 1667 fps= 28 q=25.0 size=   39680kB time=00:00:35.17 bitrate=9240.2kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 1682 fps= 28 q=25.0 size=   39936kB time=00:00:35.60 bitrate=9188.4kbits/s speed=0.594x    
+executeCommand> ErrorStream: frame= 1695 fps= 28 q=25.0 size=   40448kB time=00:00:35.79 bitrate=9256.3kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 1713 fps= 28 q=25.0 size=   40704kB time=00:00:36.18 bitrate=9216.0kbits/s speed=0.593x    
+executeCommand> ErrorStream: frame= 1727 fps= 28 q=25.0 size=   41216kB time=00:00:36.45 bitrate=9260.9kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1743 fps= 28 q=25.0 size=   41472kB time=00:00:36.77 bitrate=9237.4kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1758 fps= 28 q=25.0 size=   41984kB time=00:00:37.09 bitrate=9270.8kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 1775 fps= 28 q=25.0 size=   42496kB time=00:00:37.46 bitrate=9293.0kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1791 fps= 28 q=25.0 size=   42752kB time=00:00:37.78 bitrate=9269.8kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1806 fps= 28 q=25.0 size=   43264kB time=00:00:38.10 bitrate=9302.0kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1823 fps= 28 q=25.0 size=   43776kB time=00:00:38.44 bitrate=9328.5kbits/s speed=0.59x    
+executeCommand> ErrorStream: frame= 1840 fps= 28 q=25.0 size=   44032kB time=00:00:38.80 bitrate=9295.4kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1855 fps= 28 q=25.0 size=   44288kB time=00:00:39.18 bitrate=9257.8kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 1870 fps= 28 q=25.0 size=   44800kB time=00:00:39.40 bitrate=9314.1kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 1888 fps= 28 q=22.0 size=   45056kB time=00:00:39.78 bitrate=9277.0kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1902 fps= 28 q=25.0 size=   45568kB time=00:00:40.10 bitrate=9307.5kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1917 fps= 28 q=25.0 size=   46080kB time=00:00:40.46 bitrate=9327.7kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1932 fps= 28 q=25.0 size=   46336kB time=00:00:40.72 bitrate=9320.6kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 1949 fps= 28 q=25.0 size=   46848kB time=00:00:41.06 bitrate=9345.3kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 1965 fps= 28 q=25.0 size=   47360kB time=00:00:41.45 bitrate=9359.9kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 1980 fps= 28 q=25.0 size=   47872kB time=00:00:41.74 bitrate=9393.4kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 1997 fps= 28 q=25.0 size=   48128kB time=00:00:42.09 bitrate=9367.0kbits/s speed=0.59x    
+executeCommand> ErrorStream: frame= 2014 fps= 28 q=25.0 size=   48640kB time=00:00:42.38 bitrate=9400.0kbits/s speed=0.59x    
+executeCommand> ErrorStream: frame= 2028 fps= 28 q=25.0 size=   48896kB time=00:00:42.73 bitrate=9374.0kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2045 fps= 28 q=25.0 size=   49152kB time=00:00:43.09 bitrate=9343.8kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2060 fps= 28 q=25.0 size=   49664kB time=00:00:43.47 bitrate=9357.7kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 2076 fps= 28 q=25.0 size=   49920kB time=00:00:43.73 bitrate=9350.9kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2093 fps= 28 q=25.0 size=   50432kB time=00:00:44.07 bitrate=9373.6kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2110 fps= 28 q=25.0 size=   50688kB time=00:00:44.45 bitrate=9339.8kbits/s speed=0.59x    
+executeCommand> ErrorStream: frame= 2124 fps= 28 q=22.0 size=   51200kB time=00:00:44.71 bitrate=9380.2kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2141 fps= 28 q=25.0 size=   51712kB time=00:00:45.07 bitrate=9397.7kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2157 fps= 28 q=25.0 size=   51968kB time=00:00:45.46 bitrate=9364.5kbits/s speed=0.59x    
+executeCommand> ErrorStream: frame= 2172 fps= 28 q=25.0 size=   52480kB time=00:00:45.73 bitrate=9399.4kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2189 fps= 28 q=25.0 size=   52992kB time=00:00:46.10 bitrate=9416.4kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2205 fps= 28 q=25.0 size=   53248kB time=00:00:46.37 bitrate=9405.4kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2220 fps= 28 q=25.0 size=   53760kB time=00:00:46.76 bitrate=9417.8kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2237 fps= 28 q=25.0 size=   54016kB time=00:00:47.08 bitrate=9398.4kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2254 fps= 28 q=25.0 size=   54528kB time=00:00:47.46 bitrate=9410.7kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2268 fps= 28 q=25.0 size=   55040kB time=00:00:47.72 bitrate=9448.1kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2282 fps= 28 q=25.0 size=   55296kB time=00:00:48.08 bitrate=9420.4kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2296 fps= 28 q=25.0 size=   55808kB time=00:00:48.29 bitrate=9465.7kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2313 fps= 28 q=25.0 size=   56064kB time=00:00:48.72 bitrate=9425.8kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2328 fps= 28 q=25.0 size=   56576kB time=00:00:49.04 bitrate=9449.8kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2344 fps= 28 q=25.0 size=   57088kB time=00:00:49.32 bitrate=9481.8kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2361 fps= 28 q=25.0 size=   57600kB time=00:00:49.70 bitrate=9492.9kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2376 fps= 28 q=25.0 size=   57856kB time=00:00:50.02 bitrate=9474.1kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2391 fps= 28 q=25.0 size=   58368kB time=00:00:50.28 bitrate=9509.3kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2408 fps= 28 q=25.0 size=   58880kB time=00:00:50.70 bitrate=9512.0kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2421 fps= 28 q=25.0 size=   59136kB time=00:00:50.90 bitrate=9517.3kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2436 fps= 28 q=25.0 size=   59648kB time=00:00:51.22 bitrate=9539.7kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2453 fps= 28 q=25.0 size=   59904kB time=00:00:51.60 bitrate=9509.4kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2471 fps= 28 q=25.0 size=   60416kB time=00:00:51.98 bitrate=9519.8kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2485 fps= 28 q=25.0 size=   60928kB time=00:00:52.26 bitrate=9549.5kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2501 fps= 28 q=25.0 size=   61184kB time=00:00:52.62 bitrate=9523.6kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2518 fps= 28 q=25.0 size=   61696kB time=00:00:52.90 bitrate=9552.9kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2532 fps= 28 q=25.0 size=   61952kB time=00:00:53.22 bitrate=9534.9kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2549 fps= 28 q=25.0 size=   62464kB time=00:00:53.61 bitrate=9544.8kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2566 fps= 28 q=25.0 size=   62720kB time=00:00:53.90 bitrate=9530.9kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2580 fps= 28 q=25.0 size=   63232kB time=00:00:54.22 bitrate=9552.0kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2597 fps= 28 q=25.0 size=   63488kB time=00:00:54.61 bitrate=9523.2kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2613 fps= 28 q=25.0 size=   64000kB time=00:00:54.89 bitrate=9551.5kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2625 fps= 28 q=25.0 size=   64256kB time=00:00:55.18 bitrate=9537.8kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2642 fps= 28 q=25.0 size=   64768kB time=00:00:55.63 bitrate=9536.4kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2658 fps= 28 q=25.0 size=   65280kB time=00:00:55.85 bitrate=9575.1kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2675 fps= 28 q=25.0 size=   65536kB time=00:00:56.21 bitrate=9550.6kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2691 fps= 28 q=25.0 size=   65792kB time=00:00:56.61 bitrate=9519.3kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2706 fps= 28 q=25.0 size=   66304kB time=00:00:56.85 bitrate=9553.8kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2722 fps= 28 q=25.0 size=   66560kB time=00:00:57.23 bitrate=9526.3kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2740 fps= 28 q=25.0 size=   67072kB time=00:00:57.57 bitrate=9542.7kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2755 fps= 28 q=25.0 size=   67584kB time=00:00:57.87 bitrate=9565.9kbits/s speed=0.587x    
+executeCommand> ErrorStream: frame= 2771 fps= 28 q=25.0 size=   67840kB time=00:00:58.26 bitrate=9538.8kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2786 fps= 28 q=25.0 size=   68352kB time=00:00:58.53 bitrate=9565.3kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2802 fps= 28 q=25.0 size=   68864kB time=00:00:58.83 bitrate=9588.0kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2818 fps= 28 q=25.0 size=   69120kB time=00:00:59.22 bitrate=9561.3kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2838 fps= 28 q=25.0 size=   69632kB time=00:00:59.62 bitrate=9566.6kbits/s speed=0.589x    
+executeCommand> ErrorStream: frame= 2850 fps= 28 q=25.0 size=   69888kB time=00:00:59.86 bitrate=9564.2kbits/s speed=0.588x    
+executeCommand> ErrorStream: frame= 2874 fps= 28 q=25.0 size=   70400kB time=00:01:00.39 bitrate=9549.1kbits/s speed=0.59x    
+executeCommand> ErrorStream: frame= 2892 fps= 28 q=25.0 size=   70656kB time=00:01:00.75 bitrate=9526.7kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 2913 fps= 28 q=25.0 size=   70912kB time=00:01:01.20 bitrate=9491.2kbits/s speed=0.591x    
+executeCommand> ErrorStream: frame= 2937 fps= 28 q=25.0 size=   71168kB time=00:01:01.65 bitrate=9456.2kbits/s speed=0.592x    
+executeCommand> ErrorStream: frame= 2959 fps= 28 q=25.0 size=   71424kB time=00:01:02.12 bitrate=9418.6kbits/s speed=0.594x    
+executeCommand> ErrorStream: frame= 2976 fps= 28 q=25.0 size=   71936kB time=00:01:02.54 bitrate=9421.4kbits/s speed=0.595x    
+executeCommand> ErrorStream: frame= 2997 fps= 28 q=25.0 size=   72192kB time=00:01:02.93 bitrate=9397.2kbits/s speed=0.595x    
+executeCommand> ErrorStream: frame= 3019 fps= 28 q=25.0 size=   72448kB time=00:01:03.40 bitrate=9360.7kbits/s speed=0.597x    
+executeCommand> ErrorStream: frame= 3037 fps= 28 q=25.0 size=   72704kB time=00:01:03.82 bitrate=9331.0kbits/s speed=0.598x    
+executeCommand> ErrorStream: frame= 3056 fps= 28 q=25.0 size=   72960kB time=00:01:04.14 bitrate=9317.1kbits/s speed=0.597x    
+executeCommand> ErrorStream: frame= 3080 fps= 29 q=25.0 size=   73472kB time=00:01:04.66 bitrate=9308.2kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 3102 fps= 29 q=22.0 size=   73728kB time=00:01:05.13 bitrate=9273.4kbits/s speed=0.599x    
+executeCommand> ErrorStream: frame= 3127 fps= 29 q=25.0 size=   74240kB time=00:01:05.64 bitrate=9264.9kbits/s speed=0.601x    
+executeCommand> ErrorStream: frame= 3148 fps= 29 q=25.0 size=   74496kB time=00:01:06.13 bitrate=9227.9kbits/s speed=0.603x    
+executeCommand> ErrorStream: frame= 3164 fps= 29 q=25.0 size=   74752kB time=00:01:06.53 bitrate=9203.2kbits/s speed=0.604x    
+executeCommand> ErrorStream: frame= 3187 fps= 29 q=25.0 size=   75008kB time=00:01:06.92 bitrate=9181.7kbits/s speed=0.604x    
+executeCommand> ErrorStream: frame= 3211 fps= 29 q=25.0 size=   75264kB time=00:01:07.41 bitrate=9146.0kbits/s speed=0.606x    
+executeCommand> ErrorStream: frame= 3231 fps= 29 q=25.0 size=   75520kB time=00:01:07.81 bitrate=9122.3kbits/s speed=0.607x    
+executeCommand> ErrorStream: frame= 3251 fps= 29 q=25.0 size=   75776kB time=00:01:08.20 bitrate=9101.7kbits/s speed=0.607x    
+executeCommand> ErrorStream: frame= 3274 fps= 29 q=25.0 size=   76032kB time=00:01:08.75 bitrate=9058.7kbits/s speed=0.609x    
+executeCommand> ErrorStream: frame= 3293 fps= 29 q=25.0 size=   76288kB time=00:01:09.14 bitrate=9038.8kbits/s speed=0.61x    
+executeCommand> ErrorStream: frame= 3311 fps= 29 q=25.0 size=   76544kB time=00:01:09.54 bitrate=9016.2kbits/s speed=0.611x    
+executeCommand> ErrorStream: frame= 3330 fps= 29 q=25.0 size=   76800kB time=00:01:09.86 bitrate=9005.0kbits/s speed=0.61x    
+executeCommand> ErrorStream: frame= 3350 fps= 29 q=25.0 size=   77056kB time=00:01:10.35 bitrate=8972.0kbits/s speed=0.612x    
+executeCommand> ErrorStream: frame= 3370 fps= 29 q=25.0 size=   77568kB time=00:01:10.74 bitrate=8982.5kbits/s speed=0.613x    
+executeCommand> ErrorStream: frame= 3392 fps= 29 q=25.0 size=   77824kB time=00:01:11.14 bitrate=8960.8kbits/s speed=0.613x    
+executeCommand> ErrorStream: frame= 3416 fps= 29 q=25.0 size=   78080kB time=00:01:11.65 bitrate=8926.1kbits/s speed=0.614x    
+executeCommand> ErrorStream: frame= 3437 fps= 29 q=25.0 size=   78336kB time=00:01:12.10 bitrate=8899.7kbits/s speed=0.615x    
+executeCommand> ErrorStream: frame= 3457 fps= 29 q=25.0 size=   78848kB time=00:01:12.55 bitrate=8902.6kbits/s speed=0.616x    
+executeCommand> ErrorStream: frame= 3481 fps= 29 q=25.0 size=   79104kB time=00:01:13.04 bitrate=8871.5kbits/s speed=0.618x    
+executeCommand> ErrorStream: frame= 3500 fps= 29 q=25.0 size=   79360kB time=00:01:13.45 bitrate=8851.1kbits/s speed=0.618x    
+executeCommand> ErrorStream: frame= 3521 fps= 30 q=25.0 size=   79616kB time=00:01:13.83 bitrate=8833.4kbits/s speed=0.619x    
+executeCommand> ErrorStream: frame= 3542 fps= 30 q=25.0 size=   79872kB time=00:01:14.34 bitrate=8800.8kbits/s speed=0.621x    
+executeCommand> ErrorStream: frame= 3560 fps= 30 q=25.0 size=   80128kB time=00:01:14.66 bitrate=8791.2kbits/s speed=0.621x    
+executeCommand> ErrorStream: frame= 3581 fps= 30 q=25.0 size=   80384kB time=00:01:15.11 bitrate=8766.7kbits/s speed=0.621x    
+executeCommand> ErrorStream: frame= 3602 fps= 30 q=22.0 size=   80640kB time=00:01:15.60 bitrate=8737.5kbits/s speed=0.622x    
+executeCommand> ErrorStream: frame= 3626 fps= 30 q=25.0 size=   81152kB time=00:01:16.07 bitrate=8738.8kbits/s speed=0.623x    
+executeCommand> ErrorStream: frame= 3647 fps= 30 q=25.0 size=   81408kB time=00:01:16.56 bitrate=8710.1kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 3666 fps= 30 q=25.0 size=   81664kB time=00:01:16.88 bitrate=8701.2kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 3688 fps= 30 q=25.0 size=   81920kB time=00:01:17.41 bitrate=8668.3kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 3707 fps= 30 q=25.0 size=   82176kB time=00:01:17.73 bitrate=8659.6kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 3731 fps= 30 q=25.0 size=   82432kB time=00:01:18.22 bitrate=8632.1kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 3755 fps= 30 q=25.0 size=   82688kB time=00:01:18.74 bitrate=8602.6kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 3779 fps= 30 q=25.0 size=   82944kB time=00:01:19.21 bitrate=8578.1kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 3803 fps= 30 q=25.0 size=   83456kB time=00:01:19.76 bitrate=8571.0kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 3827 fps= 30 q=25.0 size=   83712kB time=00:01:20.23 bitrate=8547.0kbits/s speed=0.631x    
+executeCommand> ErrorStream: frame= 3848 fps= 30 q=25.0 size=   83968kB time=00:01:20.68 bitrate=8525.6kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 3866 fps= 30 q=25.0 size=   84480kB time=00:01:21.06 bitrate=8536.9kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 3884 fps= 30 q=25.0 size=   84736kB time=00:01:21.42 bitrate=8524.7kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 3904 fps= 30 q=25.0 size=   84992kB time=00:01:21.87 bitrate=8503.6kbits/s speed=0.633x    
+executeCommand> ErrorStream: frame= 3927 fps= 30 q=25.0 size=   85248kB time=00:01:22.32 bitrate=8482.8kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 3942 fps= 30 q=25.0 size=   85504kB time=00:01:22.66 bitrate=8473.2kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 3964 fps= 30 q=25.0 size=   85760kB time=00:01:23.09 bitrate=8454.9kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 3985 fps= 30 q=25.0 size=   86272kB time=00:01:23.56 bitrate=8457.6kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4002 fps= 30 q=25.0 size=   86272kB time=00:01:23.88 bitrate=8425.3kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4020 fps= 30 q=25.0 size=   86784kB time=00:01:24.26 bitrate=8436.7kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4040 fps= 30 q=25.0 size=   87296kB time=00:01:24.69 bitrate=8443.7kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4057 fps= 30 q=25.0 size=   87552kB time=00:01:25.03 bitrate=8434.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4074 fps= 30 q=25.0 size=   87808kB time=00:01:25.41 bitrate=8421.2kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4088 fps= 30 q=25.0 size=   88064kB time=00:01:25.67 bitrate=8420.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4105 fps= 30 q=25.0 size=   88576kB time=00:01:26.03 bitrate=8433.7kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4122 fps= 30 q=25.0 size=   88832kB time=00:01:26.42 bitrate=8420.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4136 fps= 30 q=25.0 size=   89088kB time=00:01:26.69 bitrate=8417.8kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4156 fps= 30 q=25.0 size=   89344kB time=00:01:27.14 bitrate=8398.6kbits/s speed=0.637x    
+executeCommand> ErrorStream: frame= 4170 fps= 30 q=25.0 size=   89600kB time=00:01:27.38 bitrate=8400.0kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4184 fps= 30 q=25.0 size=   89856kB time=00:01:27.70 bitrate=8393.3kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4205 fps= 30 q=25.0 size=   90368kB time=00:01:28.14 bitrate=8398.2kbits/s speed=0.637x    
+executeCommand> ErrorStream: frame= 4220 fps= 30 q=25.0 size=   90624kB time=00:01:28.46 bitrate=8391.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4241 fps= 30 q=25.0 size=   90880kB time=00:01:28.85 bitrate=8378.9kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4255 fps= 30 q=25.0 size=   91136kB time=00:01:29.13 bitrate=8376.3kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4273 fps= 30 q=25.0 size=   91648kB time=00:01:29.55 bitrate=8383.2kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4289 fps= 30 q=25.0 size=   91904kB time=00:01:29.94 bitrate=8370.8kbits/s speed=0.637x    
+executeCommand> ErrorStream: frame= 4306 fps= 30 q=25.0 size=   92416kB time=00:01:30.21 bitrate=8391.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4319 fps= 30 q=25.0 size=   92672kB time=00:01:30.58 bitrate=8381.1kbits/s speed=0.637x    
+executeCommand> ErrorStream: frame= 4337 fps= 30 q=25.0 size=   92928kB time=00:01:30.85 bitrate=8378.6kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4352 fps= 30 q=25.0 size=   93184kB time=00:01:31.15 bitrate=8374.1kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4367 fps= 30 q=25.0 size=   93696kB time=00:01:31.56 bitrate=8382.9kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4386 fps= 30 q=25.0 size=   93952kB time=00:01:31.88 bitrate=8376.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4403 fps= 30 q=25.0 size=   94464kB time=00:01:32.24 bitrate=8389.0kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4420 fps= 30 q=25.0 size=   94720kB time=00:01:32.65 bitrate=8375.0kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4439 fps= 30 q=25.0 size=   95232kB time=00:01:33.03 bitrate=8385.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4456 fps= 30 q=25.0 size=   95488kB time=00:01:33.41 bitrate=8373.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4475 fps= 30 q=25.0 size=   96000kB time=00:01:33.78 bitrate=8385.8kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4488 fps= 30 q=22.0 size=   96256kB time=00:01:34.05 bitrate=8383.4kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4505 fps= 30 q=25.0 size=   96768kB time=00:01:34.35 bitrate=8401.3kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4525 fps= 30 q=25.0 size=   97024kB time=00:01:34.76 bitrate=8387.5kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4541 fps= 30 q=25.0 size=   97280kB time=00:01:35.14 bitrate=8375.7kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4556 fps= 30 q=25.0 size=   97536kB time=00:01:35.46 bitrate=8369.6kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4575 fps= 30 q=25.0 size=   98048kB time=00:01:35.85 bitrate=8379.8kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4588 fps= 30 q=25.0 size=   98304kB time=00:01:36.17 bitrate=8373.7kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4605 fps= 30 q=25.0 size=   98816kB time=00:01:36.53 bitrate=8385.7kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4624 fps= 30 q=25.0 size=   99072kB time=00:01:36.91 bitrate=8374.1kbits/s speed=0.636x    
+executeCommand> ErrorStream: frame= 4637 fps= 30 q=25.0 size=   99584kB time=00:01:37.10 bitrate=8400.8kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4653 fps= 30 q=25.0 size=   99840kB time=00:01:37.49 bitrate=8389.2kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4668 fps= 30 q=25.0 size=  100096kB time=00:01:37.81 bitrate=8383.2kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4686 fps= 30 q=25.0 size=  100608kB time=00:01:38.19 bitrate=8393.1kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4701 fps= 30 q=25.0 size=  100608kB time=00:01:38.47 bitrate=8369.5kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4716 fps= 30 q=25.0 size=  101632kB time=00:01:38.79 bitrate=8427.3kbits/s speed=0.635x    
+executeCommand> ErrorStream: frame= 4732 fps= 30 q=25.0 size=  102144kB time=00:01:39.11 bitrate=8442.4kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 4749 fps= 30 q=25.0 size=  102656kB time=00:01:39.47 bitrate=8453.8kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 4764 fps= 30 q=25.0 size=  103168kB time=00:01:39.79 bitrate=8468.7kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 4781 fps= 30 q=25.0 size=  103680kB time=00:01:40.11 bitrate=8483.5kbits/s speed=0.633x    
+executeCommand> ErrorStream: frame= 4798 fps= 30 q=25.0 size=  103936kB time=00:01:40.50 bitrate=8472.0kbits/s speed=0.634x    
+executeCommand> ErrorStream: frame= 4812 fps= 30 q=25.0 size=  104448kB time=00:01:40.82 bitrate=8486.7kbits/s speed=0.633x    
+executeCommand> ErrorStream: frame= 4829 fps= 30 q=25.0 size=  104960kB time=00:01:41.09 bitrate=8504.9kbits/s speed=0.633x    
+executeCommand> ErrorStream: frame= 4842 fps= 30 q=25.0 size=  105472kB time=00:01:41.41 bitrate=8519.4kbits/s speed=0.633x    
+executeCommand> ErrorStream: frame= 4858 fps= 30 q=25.0 size=  105728kB time=00:01:41.78 bitrate=8509.7kbits/s speed=0.633x    
+executeCommand> ErrorStream: frame= 4871 fps= 30 q=25.0 size=  106240kB time=00:01:41.99 bitrate=8533.0kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 4888 fps= 30 q=25.0 size=  106752kB time=00:01:42.37 bitrate=8541.9kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 4902 fps= 30 q=25.0 size=  107008kB time=00:01:42.69 bitrate=8535.7kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 4919 fps= 30 q=25.0 size=  107520kB time=00:01:43.01 bitrate=8549.9kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 4934 fps= 30 q=25.0 size=  108032kB time=00:01:43.33 bitrate=8564.1kbits/s speed=0.632x    
+executeCommand> ErrorStream: frame= 4951 fps= 30 q=25.0 size=  108544kB time=00:01:43.70 bitrate=8574.6kbits/s speed=0.631x    
+executeCommand> ErrorStream: frame= 4967 fps= 30 q=25.0 size=  108800kB time=00:01:44.02 bitrate=8568.3kbits/s speed=0.631x    
+executeCommand> ErrorStream: frame= 4984 fps= 30 q=25.0 size=  109312kB time=00:01:44.40 bitrate=8577.0kbits/s speed=0.631x    
+executeCommand> ErrorStream: frame= 4998 fps= 30 q=25.0 size=  109824kB time=00:01:44.72 bitrate=8590.8kbits/s speed=0.631x    
+executeCommand> ErrorStream: frame= 5016 fps= 30 q=25.0 size=  110080kB time=00:01:45.00 bitrate=8588.1kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 5032 fps= 30 q=22.0 size=  110592kB time=00:01:45.38 bitrate=8596.6kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 5049 fps= 30 q=25.0 size=  111104kB time=00:01:45.77 bitrate=8605.1kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 5063 fps= 30 q=25.0 size=  111360kB time=00:01:46.00 bitrate=8605.8kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 5079 fps= 30 q=25.0 size=  111616kB time=00:01:46.38 bitrate=8594.5kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 5092 fps= 30 q=25.0 size=  112128kB time=00:01:46.60 bitrate=8616.6kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5109 fps= 30 q=25.0 size=  112640kB time=00:01:47.02 bitrate=8621.4kbits/s speed=0.63x    
+executeCommand> ErrorStream: frame= 5124 fps= 30 q=25.0 size=  112896kB time=00:01:47.34 bitrate=8615.3kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5140 fps= 30 q=25.0 size=  113152kB time=00:01:47.62 bitrate=8612.6kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5157 fps= 30 q=25.0 size=  113664kB time=00:01:48.01 bitrate=8620.8kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5172 fps= 30 q=25.0 size=  113920kB time=00:01:48.33 bitrate=8614.7kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5188 fps= 30 q=25.0 size=  114432kB time=00:01:48.62 bitrate=8629.6kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5205 fps= 30 q=25.0 size=  114688kB time=00:01:49.01 bitrate=8618.4kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5220 fps= 30 q=25.0 size=  114944kB time=00:01:49.33 bitrate=8612.4kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 5241 fps= 30 q=25.0 size=  115712kB time=00:01:49.78 bitrate=8634.6kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5256 fps= 30 q=25.0 size=  115968kB time=00:01:50.05 bitrate=8631.9kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 5274 fps= 30 q=25.0 size=  116224kB time=00:01:50.42 bitrate=8622.5kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 5292 fps= 30 q=25.0 size=  116736kB time=00:01:50.80 bitrate=8630.5kbits/s speed=0.629x    
+executeCommand> ErrorStream: frame= 5304 fps= 30 q=25.0 size=  116992kB time=00:01:51.06 bitrate=8629.5kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 5321 fps= 30 q=25.0 size=  117248kB time=00:01:51.40 bitrate=8621.8kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5338 fps= 30 q=25.0 size=  117760kB time=00:01:51.78 bitrate=8629.7kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 5353 fps= 30 q=25.0 size=  118016kB time=00:01:52.10 bitrate=8623.8kbits/s speed=0.628x    
+executeCommand> ErrorStream: frame= 5369 fps= 30 q=25.0 size=  118272kB time=00:01:52.40 bitrate=8619.6kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5386 fps= 30 q=25.0 size=  118784kB time=00:01:52.78 bitrate=8627.4kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5404 fps= 30 q=25.0 size=  119040kB time=00:01:53.13 bitrate=8619.9kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5424 fps= 30 q=25.0 size=  119552kB time=00:01:53.57 bitrate=8622.8kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5436 fps= 30 q=25.0 size=  119808kB time=00:01:53.81 bitrate=8623.5kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5453 fps= 30 q=25.0 size=  120064kB time=00:01:54.13 bitrate=8617.7kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5469 fps= 30 q=25.0 size=  120576kB time=00:01:54.51 bitrate=8625.4kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5486 fps= 30 q=25.0 size=  121088kB time=00:01:54.92 bitrate=8631.5kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5499 fps= 30 q=25.0 size=  121344kB time=00:01:55.11 bitrate=8635.3kbits/s speed=0.627x    
+executeCommand> ErrorStream: frame= 5514 fps= 30 q=25.0 size=  121856kB time=00:01:55.43 bitrate=8647.7kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5531 fps= 30 q=25.0 size=  122112kB time=00:01:55.79 bitrate=8638.7kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5547 fps= 30 q=25.0 size=  122624kB time=00:01:56.11 bitrate=8651.0kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5562 fps= 30 q=25.0 size=  122880kB time=00:01:56.43 bitrate=8645.3kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5579 fps= 30 q=25.0 size=  123392kB time=00:01:56.77 bitrate=8655.9kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5595 fps= 30 q=25.0 size=  123904kB time=00:01:57.09 bitrate=8668.1kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5610 fps= 30 q=25.0 size=  124160kB time=00:01:57.41 bitrate=8662.3kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5627 fps= 30 q=25.0 size=  124672kB time=00:01:57.78 bitrate=8671.3kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5643 fps= 30 q=25.0 size=  124928kB time=00:01:58.12 bitrate=8664.0kbits/s speed=0.626x    
+executeCommand> ErrorStream: frame= 5659 fps= 30 q=25.0 size=  125440kB time=00:01:58.42 bitrate=8677.5kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5674 fps= 30 q=25.0 size=  125696kB time=00:01:58.76 bitrate=8670.3kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5691 fps= 30 q=25.0 size=  126208kB time=00:01:59.12 bitrate=8679.1kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5707 fps= 30 q=25.0 size=  126464kB time=00:01:59.50 bitrate=8668.7kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5723 fps= 30 q=25.0 size=  126976kB time=00:01:59.78 bitrate=8683.7kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5741 fps= 30 q=25.0 size=  127488kB time=00:02:00.17 bitrate=8690.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5758 fps= 30 q=25.0 size=  128000kB time=00:02:00.49 bitrate=8702.6kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5769 fps= 30 q=25.0 size=  128256kB time=00:02:00.78 bitrate=8698.4kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5784 fps= 30 q=25.0 size=  128768kB time=00:02:01.17 bitrate=8705.4kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5802 fps= 30 q=25.0 size=  129024kB time=00:02:01.42 bitrate=8704.4kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5819 fps= 30 q=25.0 size=  129536kB time=00:02:01.77 bitrate=8714.4kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5836 fps= 30 q=25.0 size=  129792kB time=00:02:02.15 bitrate=8704.2kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5850 fps= 30 q=25.0 size=  130048kB time=00:02:02.45 bitrate=8700.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5867 fps= 30 q=25.0 size=  130560kB time=00:02:02.79 bitrate=8710.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5884 fps= 30 q=25.0 size=  131072kB time=00:02:03.09 bitrate=8723.0kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5898 fps= 30 q=25.0 size=  131328kB time=00:02:03.43 bitrate=8715.9kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5915 fps= 30 q=25.0 size=  131584kB time=00:02:03.79 bitrate=8707.3kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5932 fps= 30 q=25.0 size=  132096kB time=00:02:04.18 bitrate=8714.1kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5946 fps= 30 q=25.0 size=  132352kB time=00:02:04.43 bitrate=8713.0kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 5966 fps= 30 q=25.0 size=  132864kB time=00:02:04.88 bitrate=8715.4kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 5982 fps= 30 q=25.0 size=  133120kB time=00:02:05.20 bitrate=8709.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6000 fps= 30 q=25.0 size=  133632kB time=00:02:05.58 bitrate=8716.6kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6016 fps= 30 q=22.0 size=  133888kB time=00:02:05.97 bitrate=8706.7kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6035 fps= 30 q=25.0 size=  134400kB time=00:02:06.31 bitrate=8716.4kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6052 fps= 30 q=25.0 size=  134912kB time=00:02:06.63 bitrate=8727.5kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6069 fps= 30 q=25.0 size=  135168kB time=00:02:06.99 bitrate=8719.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6089 fps= 30 q=25.0 size=  135680kB time=00:02:07.40 bitrate=8724.2kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6105 fps= 30 q=25.0 size=  135936kB time=00:02:07.78 bitrate=8714.4kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6123 fps= 30 q=25.0 size=  136448kB time=00:02:08.17 bitrate=8721.0kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6141 fps= 30 q=25.0 size=  136704kB time=00:02:08.49 bitrate=8715.6kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6159 fps= 30 q=25.0 size=  136960kB time=00:02:08.87 bitrate=8706.0kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6174 fps= 30 q=25.0 size=  137472kB time=00:02:09.19 bitrate=8716.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6189 fps= 30 q=25.0 size=  137728kB time=00:02:09.51 bitrate=8711.5kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6206 fps= 30 q=25.0 size=  137984kB time=00:02:09.89 bitrate=8701.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6222 fps= 30 q=25.0 size=  138496kB time=00:02:10.19 bitrate=8714.2kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6237 fps= 30 q=25.0 size=  138752kB time=00:02:10.51 bitrate=8708.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6252 fps= 30 q=25.0 size=  139264kB time=00:02:10.83 bitrate=8719.6kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6266 fps= 30 q=22.0 size=  139520kB time=00:02:11.17 bitrate=8712.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6285 fps= 30 q=25.0 size=  140032kB time=00:02:11.47 bitrate=8725.0kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6303 fps= 30 q=25.0 size=  140544kB time=00:02:11.86 bitrate=8731.4kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6318 fps= 30 q=25.0 size=  140800kB time=00:02:12.26 bitrate=8720.5kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6334 fps= 30 q=25.0 size=  141312kB time=00:02:12.52 bitrate=8735.3kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6352 fps= 30 q=25.0 size=  141568kB time=00:02:12.88 bitrate=8727.3kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6366 fps= 30 q=25.0 size=  142080kB time=00:02:13.20 bitrate=8737.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6382 fps= 30 q=25.0 size=  142336kB time=00:02:13.54 bitrate=8731.2kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6400 fps= 30 q=25.0 size=  142848kB time=00:02:13.90 bitrate=8738.8kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6414 fps= 30 q=25.0 size=  143360kB time=00:02:14.22 bitrate=8749.2kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6431 fps= 30 q=25.0 size=  143616kB time=00:02:14.61 bitrate=8739.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6447 fps= 30 q=25.0 size=  144128kB time=00:02:14.89 bitrate=8753.0kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6462 fps= 30 q=25.0 size=  144640kB time=00:02:15.21 bitrate=8763.3kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6480 fps= 30 q=25.0 size=  144896kB time=00:02:15.59 bitrate=8753.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6495 fps= 30 q=25.0 size=  145408kB time=00:02:15.89 bitrate=8765.6kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6510 fps= 30 q=25.0 size=  145664kB time=00:02:16.29 bitrate=8754.9kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6527 fps= 30 q=25.0 size=  146176kB time=00:02:16.53 bitrate=8770.6kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6544 fps= 30 q=25.0 size=  146688kB time=00:02:16.91 bitrate=8776.6kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6558 fps= 30 q=25.0 size=  146944kB time=00:02:17.23 bitrate=8771.4kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6576 fps= 30 q=25.0 size=  147456kB time=00:02:17.57 bitrate=8780.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6592 fps= 30 q=25.0 size=  147968kB time=00:02:17.89 bitrate=8790.2kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6606 fps= 30 q=25.0 size=  148224kB time=00:02:18.19 bitrate=8786.4kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6627 fps= 30 q=25.0 size=  148736kB time=00:02:18.60 bitrate=8790.9kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6642 fps= 30 q=25.0 size=  148992kB time=00:02:18.92 bitrate=8785.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6664 fps= 30 q=25.0 size=  149760kB time=00:02:19.41 bitrate=8800.0kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6681 fps= 30 q=25.0 size=  150016kB time=00:02:19.79 bitrate=8790.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6696 fps= 30 q=25.0 size=  150272kB time=00:02:20.11 bitrate=8785.7kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6714 fps= 30 q=25.0 size=  150784kB time=00:02:20.43 bitrate=8795.5kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6733 fps= 30 q=25.0 size=  151296kB time=00:02:20.82 bitrate=8801.3kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6750 fps= 30 q=25.0 size=  151552kB time=00:02:21.20 bitrate=8792.3kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6768 fps= 30 q=25.0 size=  152064kB time=00:02:21.54 bitrate=8800.7kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6786 fps= 30 q=25.0 size=  152320kB time=00:02:21.90 bitrate=8793.0kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6804 fps= 30 q=25.0 size=  152832kB time=00:02:22.35 bitrate=8794.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6820 fps= 30 q=25.0 size=  153344kB time=00:02:22.69 bitrate=8803.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6840 fps= 30 q=25.0 size=  153856kB time=00:02:23.08 bitrate=8808.8kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6852 fps= 30 q=25.0 size=  154112kB time=00:02:23.38 bitrate=8805.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6870 fps= 30 q=25.0 size=  154368kB time=00:02:23.72 bitrate=8798.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6886 fps= 30 q=25.0 size=  154880kB time=00:02:24.10 bitrate=8804.4kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 6897 fps= 30 q=25.0 size=  155136kB time=00:02:24.34 bitrate=8804.6kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6915 fps= 30 q=25.0 size=  155648kB time=00:02:24.61 bitrate=8816.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6930 fps= 30 q=25.0 size=  155904kB time=00:02:24.93 bitrate=8811.8kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6947 fps= 30 q=25.0 size=  156416kB time=00:02:25.32 bitrate=8817.3kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6964 fps= 30 q=25.0 size=  156672kB time=00:02:25.62 bitrate=8813.7kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6978 fps= 30 q=25.0 size=  157184kB time=00:02:25.94 bitrate=8823.1kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 6995 fps= 30 q=25.0 size=  157440kB time=00:02:26.32 bitrate=8814.3kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 7011 fps= 30 q=25.0 size=  157952kB time=00:02:26.60 bitrate=8826.2kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 7027 fps= 30 q=25.0 size=  158464kB time=00:02:26.98 bitrate=8831.7kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 7043 fps= 30 q=25.0 size=  158720kB time=00:02:27.34 bitrate=8824.2kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 7060 fps= 30 q=25.0 size=  159232kB time=00:02:27.73 bitrate=8829.6kbits/s speed=0.625x    
+executeCommand> ErrorStream: frame= 7077 fps= 30 q=25.0 size=  159488kB time=00:02:28.01 bitrate=8827.2kbits/s speed=0.624x    
+executeCommand> ErrorStream: frame= 7091 fps= 30 q=25.
