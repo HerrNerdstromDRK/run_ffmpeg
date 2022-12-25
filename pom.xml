@@ -14,7 +14,7 @@
 		<dependency>
 			<groupId>com.google.common</groupId>
 			<artifactId>google-collect</artifactId>
-			<version>0.5</version>
+			<version>1.0</version>
 		</dependency>
 	</dependencies>
 	<build>
