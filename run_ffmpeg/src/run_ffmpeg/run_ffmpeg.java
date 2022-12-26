@@ -68,7 +68,7 @@ public class run_ffmpeg
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to move the mp4/mkv/srt files to the destination
 	static boolean doMoveMP4 = true ;
