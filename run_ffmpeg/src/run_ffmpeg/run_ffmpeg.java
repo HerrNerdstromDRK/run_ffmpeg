@@ -68,7 +68,7 @@ public class run_ffmpeg
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
-	static boolean testMode = false ;
+	static boolean testMode = true ;
 
 	/// Set to true to move the mp4/mkv/srt files to the destination
 	static boolean doMoveMP4 = true ;
@@ -122,7 +122,7 @@ public class run_ffmpeg
 		transcodeSmallToLarge,
 		transcodeLargeToSmall
 	} ;
-	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeSmallToLarge ;
+	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeByDirectory ;
 
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
 	static BufferedWriter logWriter = null ;
@@ -598,9 +598,12 @@ public class run_ffmpeg
     	if( inputFile.getMKVFileShouldMove() )
     	{
     		moveFile( inputFile.getMKVFileNameWithPath(), inputFile.getMkvFinalFileNameWithPath() ) ;
-    		for( File srtFile : inputFile.srtFileList )
+    		if( doMoveSRT )
     		{
-    			moveFile( srtFile.getAbsolutePath(), inputFile.getMkvFinalFileNameWithPath() ) ;
+	    		for( File srtFile : inputFile.srtFileList )
+	    		{
+	    			moveFile( srtFile.getAbsolutePath(), inputFile.getMkvFinalDirectory() + srtFile.getName() ) ;
+	    		}
     		}
     	}
     	if( inputFile.getMP4FileShouldMove() )
