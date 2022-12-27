@@ -13,17 +13,17 @@ public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
 //	static String mkvInputDirectory = "C:\\Temp\\7.1 BlacKkKlansman (2018)" ;
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive8\\Movies\\Fast and Furious Presents Hobbs and Shaw (2019)" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive1\\Movies\\A League of Their Own (1992)" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Fury (2014)" ;
+//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Directory to which to write .srt files
-	static final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
+	static final String subTitleStreamExtractDestinationDirectory = "D:\\temp"; //mkvInputDirectory ;
 
 	/// Directory to which to write any .MKV files that have 6.1 or 7.1 sound, but without those streams
 	static final String mkvWithoutHighEndAudioDestinationDirectory = "D:\\Temp" ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	static final boolean doSubTitleExtract = true ;
