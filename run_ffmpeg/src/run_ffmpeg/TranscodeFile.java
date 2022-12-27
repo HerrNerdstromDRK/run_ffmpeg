@@ -144,7 +144,7 @@ public class TranscodeFile
     		if( searchFileName.matches( fileNameSearchString ) )
     		{
     			// Found a matching .srt file
-    			run_ffmpeg.log( "buildSRTFileList> searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchString ) ;
+//    			run_ffmpeg.log( "buildSRTFileList> searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchString ) ;
     			srtFileList.add( searchFile ) ;
     		}
     	}

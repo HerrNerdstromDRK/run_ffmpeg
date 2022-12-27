@@ -35,19 +35,19 @@ public class run_ffmpeg
 //	static String mkvInputDirectory = "C:\\Temp\\Archer" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band of Brothers" ;
-	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
+//	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Veronica Mars (2014)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
-//	static String mkvInputDirectory = "F:/Movies/Brooklyn Nine-Nine" ;
+	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
 	/// Directory to which to move MKV files for storage
-//	static String mkvFinalDirectory = mkvInputDirectory ;
+	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\Movies" ;
-	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
+//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
 //	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvArchiveDirectory = "F:/MKV" ;
 
@@ -61,10 +61,11 @@ public class run_ffmpeg
 
 	/// Directory to which to move mp4 files once complete
 //	static String mp4FinalDirectory = mp4OutputDirectory ;
+	static String mp4FinalDirectory = mkvInputDirectory ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4_3\\Movies" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
-	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
+//	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
@@ -602,7 +603,10 @@ public class run_ffmpeg
     		{
 	    		for( File srtFile : inputFile.srtFileList )
 	    		{
-	    			moveFile( srtFile.getAbsolutePath(), inputFile.getMkvFinalDirectory() + srtFile.getName() ) ;
+	    			if( !srtFile.getAbsolutePath().equalsIgnoreCase( inputFile.getMkvFinalDirectory() ) )
+	    			{
+	    				moveFile( srtFile.getAbsolutePath(), inputFile.getMkvFinalDirectory() + srtFile.getName() ) ;
+	    			}
 	    		}
     		}
     	}
