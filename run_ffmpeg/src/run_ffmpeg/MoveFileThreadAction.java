@@ -59,13 +59,24 @@ public class MoveFileThreadAction extends ThreadAction
 
 			if( !isTestMode() )
 			{
+				final long startTime = System.nanoTime() ;
 				Path temp = Files.move(
 						Paths.get( sourceFileName ),
 						Paths.get( destinationFileName ) ) ;
 				if( temp != null )
 				{
 					out( "MoveFileThreadAction.doAction> Success: " + toString() ) ;
-
+					final long endTime = System.nanoTime() ;
+					final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
+					final long fileLength = destinationFile.length() ;
+					final double fileLengthInMB = fileLength / 1e6 ;
+					final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
+					
+			    	out( "MoveFileThreadAction.doAction> Total elapsed time: "
+			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds )
+			    			+ " seconds, "
+			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds / 60.0 )
+			    			+ " minutes; moved " + fileLengthInMB + "MB at " + MBPerSecond + "MB/sec" ) ;
 				}
 				else
 				{
@@ -87,9 +98,9 @@ public class MoveFileThreadAction extends ThreadAction
 	@Override
 	public String toString()
 	{
-		String retMe = "MoveFileThreadAction> Move file from \""
+		String retMe = "Move \""
 				+ sourceFileName
-				+ "\" to \""
+				+ "\" -> \""
 				+ destinationFileName
 				+ "\"";
 		return retMe ;

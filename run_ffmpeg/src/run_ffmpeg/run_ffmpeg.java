@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableList;
 public class run_ffmpeg
 {
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
-	static NumberFormat numFormat = NumberFormat.getInstance( new Locale( "en", "US" ) ) ;
+	static public NumberFormat numFormat = NumberFormat.getInstance( new Locale( "en", "US" ) ) ;
 
 	/// Note, for some reason this program needs to use the F:\\ nomenclature for representing file paths,
 	/// and NOT have a trailing separator
