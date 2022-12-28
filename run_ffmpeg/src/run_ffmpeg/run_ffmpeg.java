@@ -248,22 +248,6 @@ public class run_ffmpeg
 		closeLogFile() ;
 	} // main()
 
-    /**
-     * Check for the presence of a file named stopFileName. If present, return true.
-     * @return
-     */
-    public synchronized static boolean stopExecution()
-    {
-    	return stopExecution( stopFileName ) ;
-    }
-
-    public synchronized static boolean stopExecution( final String fileName )
-    {
-    	final File stopFile = new File( fileName ) ;
-    	boolean fileExists = stopFile.exists() ;
-    	return fileExists ;
-    }
-
     public static String addPathSeparatorIfNecessary( String inputPath )
 	{
 		String retMe = inputPath ;
@@ -311,22 +295,6 @@ public class run_ffmpeg
 			subTitleOptions.add( "-c:s", "mov_text" ) ;
 		}
 		return subTitleOptions ;
-	}
-
-	static void closeLogFile()
-	{
-		try
-		{
-			if( logWriter != null )
-			{
-				logWriter.close() ;
-			}
-		}
-		catch( Exception theException )
-		{
-			out( "closeLogFile> Exception closing logWriter: " + theException ) ;
-		}
-		logWriter = null ;
 	}
 
 	public static void executeCommand( ImmutableList.Builder< String > theCommand )
@@ -465,22 +433,6 @@ public class run_ffmpeg
 		return (inputFileNameList.size() > 0) ;
 	}
 
-	static synchronized void log( final String logMe )
-	{
-		if( logWriter != null )
-		{
-			try
-			{
-				logWriter.write( logMe ) ;
-				logWriter.newLine() ;
-			}
-			catch( Exception theException )
-			{
-				System.out.println( "log> Unable to write to logWriter: " + theException ) ;
-			}
-		}
-	}
-
 	static void makeDirectory( final String directoryName )
 	{
 		try
@@ -547,6 +499,52 @@ public class run_ffmpeg
 		}
 	}
 
+	static void closeLogFile()
+	{
+		try
+		{
+			if( logWriter != null )
+			{
+				logWriter.close() ;
+			}
+		}
+		catch( Exception theException )
+		{
+			out( "closeLogFile> Exception closing logWriter: " + theException ) ;
+		}
+		logWriter = null ;
+	}
+
+	static synchronized void log( final String logMe )
+	{
+		if( logWriter != null )
+		{
+			try
+			{
+				logWriter.write( logMe ) ;
+				logWriter.newLine() ;
+			}
+			catch( Exception theException )
+			{
+				System.out.println( "log> Unable to write to logWriter: " + theException ) ;
+			}
+		}
+	}
+
+	static synchronized void out( final String outputMe )
+	{
+		System.out.println( outputMe ) ;
+		log( outputMe ) ;
+	}
+
+	static synchronized void out( final List< TranscodeFile > theFiles )
+	{
+		for( TranscodeFile theFile : theFiles )
+		{
+			out( theFile.toString() ) ;
+		}
+	}
+
 	public static List< TranscodeFile > orderFilesToTranscode( final List< TranscodeFile > theFiles )
 	{
 		SortedMap< Long, TranscodeFile > filesBySizeMap = null ;
@@ -575,20 +573,6 @@ public class run_ffmpeg
 		return filesByOrder ;
 	}
 
-	static synchronized void out( final String outputMe )
-	{
-		System.out.println( outputMe ) ;
-		log( outputMe ) ;
-	}
-
-	static synchronized void out( final List< TranscodeFile > theFiles )
-	{
-		for( TranscodeFile theFile : theFiles )
-		{
-			out( theFile.toString() ) ;
-		}
-	}
-
 	/**
      * Replace the extension in the given inputFileName with the provided new extension.
      * @param inputFileName
@@ -604,7 +588,23 @@ public class run_ffmpeg
     	return inputFileName ;
     }
 
-    public static List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles( final String inputDirectory )
+    /**
+	 * Check for the presence of a file named stopFileName. If present, return true.
+	 * @return
+	 */
+	public synchronized static boolean stopExecution()
+	{
+		return stopExecution( stopFileName ) ;
+	}
+
+	public synchronized static boolean stopExecution( final String fileName )
+	{
+		final File stopFile = new File( fileName ) ;
+		boolean fileExists = stopFile.exists() ;
+		return fileExists ;
+	}
+
+	public static List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles( final String inputDirectory )
 	{
 		assert( inputDirectory != null ) ;
 	
