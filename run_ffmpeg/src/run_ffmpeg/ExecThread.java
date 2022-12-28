@@ -3,12 +3,18 @@ package run_ffmpeg;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExecThread extends Thread {
-
+public class ExecThread extends Thread
+{
+	protected String threadName = "Unnamed Thread" ;
 	private List< ThreadAction > execList = new ArrayList< >() ;
 
 	private boolean keepRunning = true ;
 
+	public ExecThread( String _threadName )
+	{
+		threadName = _threadName ;
+	}
+	
 	@Override
 	public void run()
 	{
@@ -78,7 +84,12 @@ public class ExecThread extends Thread {
 	
 	public String toString()
 	{
-		return "ExecThread" ;
+		return getThreadName() ;
+	}
+	
+	public String getThreadName()
+	{
+		return threadName ;
 	}
 
 }

@@ -165,7 +165,13 @@ public class run_ffmpeg
 		// Instantiate and start the worker threads
 		for( int workerThreadsIndex = 0 ; workerThreadsIndex < workerThreads.length ; ++workerThreadsIndex )
 		{
-			workerThreads[ workerThreadsIndex ] = new ExecThread() ;
+			String execThreadName = "MP4 Move Thread" ;
+			if( (workerThreads.length > 1) && (0 == workerThreadsIndex ) )
+			{
+				// Two threads, and this is the first
+				execThreadName = "MKV Move Thread" ;
+			}
+			workerThreads[ workerThreadsIndex ] = new ExecThread( execThreadName ) ;
 			workerThreads[ workerThreadsIndex ].start() ;
 		}
 		
