@@ -38,15 +38,15 @@ public class run_ffmpeg
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Veronica Mars (2014)" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
-	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
+//	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
 	/// Directory to which to move MKV files for storage
-	static String mkvFinalDirectory = mkvInputDirectory ;
+//	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\Movies" ;
+	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\Movies" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
 //	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvArchiveDirectory = "F:/MKV" ;
@@ -61,9 +61,9 @@ public class run_ffmpeg
 
 	/// Directory to which to move mp4 files once complete
 //	static String mp4FinalDirectory = mp4OutputDirectory ;
-	static String mp4FinalDirectory = mkvInputDirectory ;
+//	static String mp4FinalDirectory = mkvInputDirectory ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-//	static String mp4FinalDirectory = "\\\\yoda\\MP4_3\\Movies" ;
+	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
@@ -83,7 +83,7 @@ public class run_ffmpeg
 	static boolean overwriteMP4s = false ;
 
 	/// Set to true to enable de-interlacing
-	static boolean deInterlaceInput = true ;
+	static boolean deInterlaceInput = false ;
 	
 	/// Separator to use to demarc directories
 	static public String pathSeparator = "\\" ;
@@ -264,32 +264,165 @@ public class run_ffmpeg
     	return fileExists ;
     }
 
-    public static List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles( final String inputDirectory )
-    {
-    	assert( inputDirectory != null ) ;
+    public static String addPathSeparatorIfNecessary( String inputPath )
+	{
+		String retMe = inputPath ;
+		if( !inputPath.endsWith( getPathSeparator() ) )
+		{
+			retMe = inputPath + getPathSeparator() ;
+		}
+		return retMe ;
+	}
 
-    	List< TranscodeFile > filesToTranscode = new ArrayList< >() ;
+	public static void buildDirectories( final TranscodeFile inputFile )
+	{
+		makeDirectory( inputFile.getMkvFinalDirectory() ) ;
+		makeDirectory( inputFile.getMp4OutputDirectory() ) ;
+		makeDirectory( inputFile.getMp4FinalDirectory() ) ;
+	}
 
-    	// inputDirectory could be:
-    	// - Invalid path
-    	// - Empty
-    	// - Contain one or more movies
-    	// - Contain one or more TV Shows
-    	// - Contain one or more movies and one or more TV Shows
+	/**
+	 * Build a list of ffmpeg mapping options to incorporate any subtitle (.srt) files into the transcode.
+	 * Excludes importing the srt files themselves.
+	 * @param theTranscodeFile
+	 * @return
+	 */
+	public static ImmutableList.Builder< String > buildSRTOptions( TranscodeFile theTranscodeFile )
+	{
+		// "${srtInputFiles[@]}" -map 0:v -map 0:a -map -0:s "${srtMapping[@]}" -copyts
+		ImmutableList.Builder< String > subTitleOptions = new ImmutableList.Builder< String >() ;
+	
+		// Check if we found any srt files
+		if( !theTranscodeFile.srtFileList.isEmpty() )
+		{
+			// Next, add the mapping for video and audio for index 0, and remove subtitles from index 0
+			subTitleOptions.add( "-map", "-0:s" ) ;
+			
+			// Now add the mapping for each input file
+			// Note: This assumes the same iteration for this loop as with the input options.
+			// In practice it doesn't matter since each of the SRT input files only has a single input stream.
+			for( int mappingIndex = 1 ; mappingIndex <= theTranscodeFile.srtFileList.size() ; ++mappingIndex )
+			{
+				subTitleOptions.add( "-map", "" + mappingIndex + ":s" ) ;
+			}
+	
+			// Finally, add the options to copy the timestamp and use the mov_text subtitle codec
+			// TODO: May need to update this based on use of other codecs (dvds, etc.)
+			subTitleOptions.add( "-c:s", "mov_text" ) ;
+		}
+		return subTitleOptions ;
+	}
 
-    	File inputDirectoryFile = new File( inputDirectory ) ;
-    	if( !inputDirectoryFile.exists() )
-    	{
-    		out( "surveyInputDirectoryAndBuildTranscodeFiles> inputDirectory does not exist: " + inputDirectory ) ;
-    		return filesToTranscode ;
-    	}
+	static void closeLogFile()
+	{
+		try
+		{
+			if( logWriter != null )
+			{
+				logWriter.close() ;
+			}
+		}
+		catch( Exception theException )
+		{
+			out( "closeLogFile> Exception closing logWriter: " + theException ) ;
+		}
+		logWriter = null ;
+	}
 
-    	// First, look for files in the inputDirectory with extensions listed in transcodeExtensions
-    	filesToTranscode.addAll( getTranscodeFilesInDirectory( inputDirectory ) ) ;
-    	return filesToTranscode ;
-    }
+	public static void executeCommand( ImmutableList.Builder< String > theCommand )
+	{
+		executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
+	}
 
-    public static List< TranscodeFile > getTranscodeFilesInDirectory( final String inputDirectory )
+	public static void executeCommand( final String theCommand )
+	{
+		out( "executeCommand> " + theCommand ) ;
+	
+		// Only execute the command if we are NOT in test mode
+		if( !testMode )
+		{
+			try
+			{
+				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+				final Process process = Runtime.getRuntime().exec( theCommand ) ;
+	
+				BufferedReader errorStreamReader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ;
+				String line = null ;
+				while( (line = errorStreamReader.readLine()) != null )
+				{
+	
+					out( "executeCommand> ErrorStream: " + line ) ;
+				}
+			}
+			catch( Exception theException )
+			{
+				theException.printStackTrace() ;
+			}
+		}
+	}
+
+	static boolean fileExists( final String fileNameWithPath )
+	{
+		final File theFile = new File( fileNameWithPath ) ;
+		return theFile.exists() ;
+	}
+
+	public static List< File > getFilesInDirectoryWithExtension( final String directoryPath, final String extension )
+	{
+		List< File > filesInDirectoryWithExtension = new ArrayList< >() ;
+		try
+		{
+			Stream< Path > walk = Files.walk( Paths.get( directoryPath ) ) ;
+			List< String > fileNames = walk.filter( Files::isRegularFile ).map( x -> x.toString() ).collect( Collectors.toList() ) ;
+			walk.close() ;
+	
+			// Filter by extension
+			for( String fileName : fileNames )
+			{
+				if( fileName.endsWith( extension ) )
+				{
+					filesInDirectoryWithExtension.add( new File( fileName ) ) ;
+				}
+			}
+		} // try()
+		catch( Exception theException )
+		{
+			out( "getFilesInDirectoryWithExtension (" + directoryPath + ")> Exception: " + theException ) ;
+		}
+		return filesInDirectoryWithExtension ;
+	}
+
+	static String getPathSeparator()
+	{
+		String retMe = pathSeparator ;
+		if( !isWindows )
+		{
+			// Linux naming
+			retMe = "\\\\" ;
+		}
+		return retMe ;
+	}
+
+	public static List< File > getSubDirectories( final File directoryPathFile )
+	{
+		File[] directories = directoryPathFile.listFiles( File::isDirectory ) ;
+		return Arrays.asList( directories ) ;
+	}
+
+	/**
+	     * Retrieve all subdirectories to the given directoryPath.
+	     * Note that this excludes the parent directory.
+	     * Example: directoryPath = F:/Movies, return all directories underneath it (like "Elf" and "Mr. Deeds"), but not the
+	     * directory itself (F:/Movies)
+	     * @param directoryPath
+	     * @return
+	     */
+	public static List< File > getSubDirectories( final String directoryPath )
+	{
+		return getSubDirectories( new File( directoryPath ) ) ;
+	}
+
+	public static List< TranscodeFile > getTranscodeFilesInDirectory( final String inputDirectory )
     {
     	return getTranscodeFilesInDirectory( new File( inputDirectory ) ) ;
     }
@@ -309,94 +442,7 @@ public class run_ffmpeg
     	return transcodeFilesInDirectory ;
     }
 
-    public static void executeCommand( ImmutableList.Builder< String > theCommand )
-    {
-    	executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
-    }
-    
-	public static void executeCommand( final String theCommand )
-	{
-		out( "executeCommand> " + theCommand ) ;
-
-		// Only execute the command if we are NOT in test mode
-		if( !testMode )
-		{
-			try
-			{
-				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				final Process process = Runtime.getRuntime().exec( theCommand ) ;
-
-				BufferedReader errorStreamReader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ;
-				String line = null ;
-				while( (line = errorStreamReader.readLine()) != null )
-				{
-
-					out( "executeCommand> ErrorStream: " + line ) ;
-				}
-			}
-			catch( Exception theException )
-			{
-				theException.printStackTrace() ;
-			}
-		}
-	}
-
-	public static List< File > getFilesInDirectoryWithExtension( final String directoryPath, final String extension )
-	{
-		List< File > filesInDirectoryWithExtension = new ArrayList< >() ;
-		try
-		{
-			Stream< Path > walk = Files.walk( Paths.get( directoryPath ) ) ;
-			List< String > fileNames = walk.filter( Files::isRegularFile ).map( x -> x.toString() ).collect( Collectors.toList() ) ;
-			walk.close() ;
-
-			// Filter by extension
-			for( String fileName : fileNames )
-			{
-				if( fileName.endsWith( extension ) )
-				{
-					filesInDirectoryWithExtension.add( new File( fileName ) ) ;
-				}
-			}
-		} // try()
-		catch( Exception theException )
-		{
-			out( "getFilesInDirectoryWithExtension (" + directoryPath + ")> Exception: " + theException ) ;
-		}
-		return filesInDirectoryWithExtension ;
-	}
-
-    static String getPathSeparator()
-	{
-		String retMe = pathSeparator ;
-		if( !isWindows )
-		{
-			// Linux naming
-			retMe = "\\\\" ;
-		}
-		return retMe ;
-	}
-
-	/**
-	     * Retrieve all subdirectories to the given directoryPath.
-	     * Note that this excludes the parent directory.
-	     * Example: directoryPath = F:/Movies, return all directories underneath it (like "Elf" and "Mr. Deeds"), but not the
-	     * directory itself (F:/Movies)
-	     * @param directoryPath
-	     * @return
-	     */
-    public static List< File > getSubDirectories( final String directoryPath )
-    {
-    	return getSubDirectories( new File( directoryPath ) ) ;
-    }
-
-    public static List< File > getSubDirectories( final File directoryPathFile )
-    {
-    	File[] directories = directoryPathFile.listFiles( File::isDirectory ) ;
-    	return Arrays.asList( directories ) ;
-    }
-
-	static boolean hasInputFileInDirectory( final File theDirectory )
+    static boolean hasInputFileInDirectory( final File theDirectory )
 	{
 		for( String extension : transcodeExtensions )
 		{
@@ -417,6 +463,22 @@ public class run_ffmpeg
 	{
 		List< File > inputFileNameList = getFilesInDirectoryWithExtension( directoryName, extension ) ;
 		return (inputFileNameList.size() > 0) ;
+	}
+
+	static synchronized void log( final String logMe )
+	{
+		if( logWriter != null )
+		{
+			try
+			{
+				logWriter.write( logMe ) ;
+				logWriter.newLine() ;
+			}
+			catch( Exception theException )
+			{
+				System.out.println( "log> Unable to write to logWriter: " + theException ) ;
+			}
+		}
 	}
 
 	static void makeDirectory( final String directoryName )
@@ -440,15 +502,92 @@ public class run_ffmpeg
 		}
 	}
 
-    public static String addPathSeparatorIfNecessary( String inputPath )
-    {
-    	String retMe = inputPath ;
-    	if( !inputPath.endsWith( getPathSeparator() ) )
+    public static void moveFile( final String sourceFileName, final String destinationFileName )
+	{
+		boolean doMove = false ;
+		if( sourceFileName.endsWith( ".mkv" ) ) doMove = doMoveMKV ;
+		else if( sourceFileName.endsWith( ".mp4" ) ) doMove = doMoveMP4 ;
+		else if( sourceFileName.endsWith( ".srt" ) ) doMove = doMoveSRT ;
+		else
 		{
-			retMe = inputPath + getPathSeparator() ;
+			out( "moveFile> Unable to find move boolean for input file: " + sourceFileName ) ;
 		}
-    	return retMe ;
-    }
+		
+		if( !sourceFileName.equalsIgnoreCase( destinationFileName ) && doMove )
+		{
+	    	MoveFileThreadAction theMoveFileThreadAction =
+	    			new MoveFileThreadAction( sourceFileName, destinationFileName ) ;
+	
+	    	int workerThreadsIndex = mkvMoveThreadIndex ;
+	    	if( sourceFileName.contains( ".mp4" ) )
+	    	{
+	    		workerThreadsIndex = mp4MoveThreadIndex ;
+	    	}
+	
+	    	// Move the input file to its archive location
+	    	workerThreads[ workerThreadsIndex ].addWork( theMoveFileThreadAction ) ;
+	    }
+	}
+
+	static void openLogFile()
+	{
+		openLogFile( logWriterFileName ) ;
+	}
+
+	static void openLogFile( final String fileName )
+	{
+		try
+		{
+			logWriter = new BufferedWriter( new FileWriter( fileName ) ) ;
+		}
+		catch( Exception theException )
+		{
+			logWriter = null ;
+			out( "openLogFile> Exception opening logWriter: " + theException ) ;
+		}
+	}
+
+	public static List< TranscodeFile > orderFilesToTranscode( final List< TranscodeFile > theFiles )
+	{
+		SortedMap< Long, TranscodeFile > filesBySizeMap = null ;
+		switch( transcodeOrder )
+		{
+		case transcodeByDirectory:
+			// Default ordering is by directory
+			break;
+		case transcodeSmallToLarge:
+			filesBySizeMap = new TreeMap< Long, TranscodeFile >() ;
+			break ;
+		case transcodeLargeToSmall:
+			filesBySizeMap = new TreeMap< Long, TranscodeFile >( Collections.reverseOrder() ) ;
+			break ;
+		}
+	
+		List< TranscodeFile > filesByOrder = theFiles ;
+		if( filesBySizeMap != null )
+		{
+			for( TranscodeFile theFile : theFiles )
+			{
+				filesBySizeMap.put( Long.valueOf( theFile.getInputFileSize() ), theFile ) ;
+			}
+			filesByOrder = new ArrayList< TranscodeFile >( filesBySizeMap.values() ) ;
+		}
+		return filesByOrder ;
+	}
+
+	static synchronized void out( final String outputMe )
+	{
+		System.out.println( outputMe ) ;
+		log( outputMe ) ;
+	}
+
+	static synchronized void out( final List< TranscodeFile > theFiles )
+	{
+		for( TranscodeFile theFile : theFiles )
+		{
+			out( theFile.toString() ) ;
+		}
+	}
 
 	/**
      * Replace the extension in the given inputFileName with the provided new extension.
@@ -465,42 +604,32 @@ public class run_ffmpeg
     	return inputFileName ;
     }
 
-    public static List< TranscodeFile > orderFilesToTranscode( final List< TranscodeFile > theFiles )
-    {
-    	SortedMap< Long, TranscodeFile > filesBySizeMap = null ;
-    	switch( transcodeOrder )
-    	{
-    	case transcodeByDirectory:
-    		// Default ordering is by directory
-    		break;
-    	case transcodeSmallToLarge:
-    		filesBySizeMap = new TreeMap< Long, TranscodeFile >() ;
-    		break ;
-    	case transcodeLargeToSmall:
-    		filesBySizeMap = new TreeMap< Long, TranscodeFile >( Collections.reverseOrder() ) ;
-    		break ;
-    	}
+    public static List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles( final String inputDirectory )
+	{
+		assert( inputDirectory != null ) ;
+	
+		List< TranscodeFile > filesToTranscode = new ArrayList< >() ;
+	
+		// inputDirectory could be:
+		// - Invalid path
+		// - Empty
+		// - Contain one or more movies
+		// - Contain one or more TV Shows
+		// - Contain one or more movies and one or more TV Shows
+	
+		File inputDirectoryFile = new File( inputDirectory ) ;
+		if( !inputDirectoryFile.exists() )
+		{
+			out( "surveyInputDirectoryAndBuildTranscodeFiles> inputDirectory does not exist: " + inputDirectory ) ;
+			return filesToTranscode ;
+		}
+	
+		// First, look for files in the inputDirectory with extensions listed in transcodeExtensions
+		filesToTranscode.addAll( getTranscodeFilesInDirectory( inputDirectory ) ) ;
+		return filesToTranscode ;
+	}
 
-    	List< TranscodeFile > filesByOrder = theFiles ;
-    	if( filesBySizeMap != null )
-    	{
-    		for( TranscodeFile theFile : theFiles )
-    		{
-    			filesBySizeMap.put( Long.valueOf( theFile.getInputFileSize() ), theFile ) ;
-    		}
-    		filesByOrder = new ArrayList< TranscodeFile >( filesBySizeMap.values() ) ;
-    	}
-    	return filesByOrder ;
-    }
-
-    public static void buildDirectories( final TranscodeFile inputFile )
-    {
-    	makeDirectory( inputFile.getMkvFinalDirectory() ) ;
-    	makeDirectory( inputFile.getMp4OutputDirectory() ) ;
-    	makeDirectory( inputFile.getMp4FinalDirectory() ) ;
-    }
-
-    public static void transcodeFile( TranscodeFile inputFile, FFmpegProbeResult ffmpegProbeResult )
+	public static void transcodeFile( TranscodeFile inputFile, FFmpegProbeResult ffmpegProbeResult )
     {
     	// Precondition: ffmpegProbeResult is not null
     	out( "transcodeFile> Transcoding: " + inputFile ) ;
@@ -616,137 +745,7 @@ public class run_ffmpeg
     	}
     }
     
-    /**
-     * Build a list of ffmpeg mapping options to incorporate any subtitle (.srt) files into the transcode.
-     * Excludes importing the srt files themselves.
-     * @param theTranscodeFile
-     * @return
-     */
-    public static ImmutableList.Builder< String > buildSRTOptions( TranscodeFile theTranscodeFile )
-    {
-    	// "${srtInputFiles[@]}" -map 0:v -map 0:a -map -0:s "${srtMapping[@]}" -copyts
-    	ImmutableList.Builder< String > subTitleOptions = new ImmutableList.Builder< String >() ;
-
-    	// Check if we found any srt files
-    	if( !theTranscodeFile.srtFileList.isEmpty() )
-    	{
-    		// Next, add the mapping for video and audio for index 0, and remove subtitles from index 0
-    		subTitleOptions.add( "-map", "-0:s" ) ;
-    		
-    		// Now add the mapping for each input file
-    		// Note: This assumes the same iteration for this loop as with the input options.
-    		// In practice it doesn't matter since each of the SRT input files only has a single input stream.
-    		for( int mappingIndex = 1 ; mappingIndex <= theTranscodeFile.srtFileList.size() ; ++mappingIndex )
-    		{
-    			subTitleOptions.add( "-map", "" + mappingIndex + ":s" ) ;
-    		}
-
-    		// Finally, add the options to copy the timestamp and use the mov_text subtitle codec
-    		// TODO: May need to update this based on use of other codecs (dvds, etc.)
-    		subTitleOptions.add( "-c:s", "mov_text" ) ;
-    	}
-    	return subTitleOptions ;
-    }
-    
-    public static void moveFile( final String sourceFileName, final String destinationFileName )
-    {
-    	boolean doMove = false ;
-    	if( sourceFileName.endsWith( ".mkv" ) ) doMove = doMoveMKV ;
-    	else if( sourceFileName.endsWith( ".mp4" ) ) doMove = doMoveMP4 ;
-    	else if( sourceFileName.endsWith( ".srt" ) ) doMove = doMoveSRT ;
-    	else
-    	{
-    		out( "moveFile> Unable to find move boolean for input file: " + sourceFileName ) ;
-    	}
-    	
-    	if( !sourceFileName.equalsIgnoreCase( destinationFileName ) && doMove )
-    	{
-	    	MoveFileThreadAction theMoveFileThreadAction =
-	    			new MoveFileThreadAction( sourceFileName, destinationFileName ) ;
-
-	    	int workerThreadsIndex = mkvMoveThreadIndex ;
-	    	if( sourceFileName.contains( ".mp4" ) )
-	    	{
-	    		workerThreadsIndex = mp4MoveThreadIndex ;
-	    	}
-
-	    	// Move the input file to its archive location
-	    	workerThreads[ workerThreadsIndex ].addWork( theMoveFileThreadAction ) ;
-	    }
-    }
-    
-    static boolean fileExists( final String fileNameWithPath )
-    {
-    	final File theFile = new File( fileNameWithPath ) ;
-    	return theFile.exists() ;
-    }
-
-    static synchronized void out( final String outputMe )
-    {
-    	System.out.println( outputMe ) ;
-    	log( outputMe ) ;
-    }
-
-    static synchronized void out( final List< TranscodeFile > theFiles )
-    {
-    	for( TranscodeFile theFile : theFiles )
-    	{
-    		out( theFile.toString() ) ;
-    	}
-    }
-    
-    static synchronized void log( final String logMe )
-    {
-    	if( logWriter != null )
-    	{
-    		try
-    		{
-    			logWriter.write( logMe ) ;
-    			logWriter.newLine() ;
-    		}
-    		catch( Exception theException )
-    		{
-    			System.out.println( "log> Unable to write to logWriter: " + theException ) ;
-    		}
-    	}
-    }
-
-    static void openLogFile()
-    {
-    	openLogFile( logWriterFileName ) ;
-    }
-
-    static void openLogFile( final String fileName )
-    {
-    	try
-    	{
-    		logWriter = new BufferedWriter( new FileWriter( fileName ) ) ;
-    	}
-    	catch( Exception theException )
-    	{
-    		logWriter = null ;
-    		out( "openLogFile> Exception opening logWriter: " + theException ) ;
-    	}
-    }
-
-    static void closeLogFile()
-    {
-    	try
-    	{
-    		if( logWriter != null )
-    		{
-    			logWriter.close() ;
-    		}
-    	}
-    	catch( Exception theException )
-    	{
-    		out( "closeLogFile> Exception closing logWriter: " + theException ) ;
-    	}
-		logWriter = null ;
-    }
-    
-
-	static String toStringForCommandExecution( final ImmutableList< String > theList )
+    static String toStringForCommandExecution( final ImmutableList< String > theList )
 	{
 		String retMe = "" ;
 		for( Iterator< String > listIterator = theList.iterator() ; listIterator.hasNext() ; )
