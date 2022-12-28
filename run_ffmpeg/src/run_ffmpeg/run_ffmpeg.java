@@ -33,12 +33,12 @@ public class run_ffmpeg
 
 	/// Directory from which to read the input files to transcode
 //	static String mkvInputDirectory = "C:\\Temp\\Archer" ;
-//	static String mkvInputDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
+	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band of Brothers" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\To Convert" ;
+//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
@@ -123,7 +123,7 @@ public class run_ffmpeg
 		transcodeSmallToLarge,
 		transcodeLargeToSmall
 	} ;
-	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeByDirectory ;
+	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeSmallToLarge ;
 
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
 	static BufferedWriter logWriter = null ;
@@ -229,6 +229,7 @@ public class run_ffmpeg
 				// Gracefully shutdown the worker thread
 		    	workerThread.stopRunning() ;
 				workerThread.join() ;
+				out( "main> Successfully shut down workerThread: " + workerThread.toString() ) ;
 			}
 		}
 		catch( Exception theException )

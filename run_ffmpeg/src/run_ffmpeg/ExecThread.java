@@ -75,5 +75,10 @@ public class ExecThread extends Thread {
 	{
 		keepRunning = false ;
 	}
+	
+	public String toString()
+	{
+		return "ExecThread" ;
+	}
 
 }

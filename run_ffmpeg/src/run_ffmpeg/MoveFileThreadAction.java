@@ -64,12 +64,12 @@ public class MoveFileThreadAction extends ThreadAction
 						Paths.get( destinationFileName ) ) ;
 				if( temp != null )
 				{
-					out( "MoveFileThreadAction.doAction> Success" ) ;
+					out( "MoveFileThreadAction.doAction> Success: " + toString() ) ;
 
 				}
 				else
 				{
-					out( "MoveFileThreadAction.doAction> Failed" ) ;
+					out( "MoveFileThreadAction.doAction> Failed: " + toString() ) ;
 				}
 			}
 		}
