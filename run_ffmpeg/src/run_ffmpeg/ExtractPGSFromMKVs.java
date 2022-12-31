@@ -12,12 +12,12 @@ import com.google.gson.GsonBuilder;
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
-//	static String mkvInputDirectory = "C:\\Temp\\7.1 BlacKkKlansman (2018)" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Fury (2014)" ;
+	static String mkvInputDirectory = "C:\\Temp\\Darkest Hour (2017)" ;
+//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Fury (2014)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Directory to which to write .srt files
-	static final String subTitleStreamExtractDestinationDirectory = "D:\\temp"; //mkvInputDirectory ;
+	static final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
 
 	/// Directory to which to write any .MKV files that have 6.1 or 7.1 sound, but without those streams
 	static final String mkvWithoutHighEndAudioDestinationDirectory = "D:\\Temp" ;
@@ -88,7 +88,7 @@ public class ExtractPGSFromMKVs
 	  	// process the file, and move the input and output files (if necessary).
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
-			if( run_ffmpeg.stopExecution() )
+			if( run_ffmpeg.stopExecution( stopFileName ) )
 			{
 				out( "main> Stopping execution due to presence of stop file: " + stopFileName ) ;
 				break ;

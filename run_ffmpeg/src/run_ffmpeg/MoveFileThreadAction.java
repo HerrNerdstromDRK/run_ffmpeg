@@ -76,7 +76,8 @@ public class MoveFileThreadAction extends ThreadAction
 			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds )
 			    			+ " seconds, "
 			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds / 60.0 )
-			    			+ " minutes; moved " + fileLengthInMB + "MB at " + MBPerSecond + "MB/sec" ) ;
+			    			+ " minutes; moved " + fileLengthInMB + "MB at "
+			    			+ run_ffmpeg.numFormat.format( MBPerSecond ) + "MB/sec" ) ;
 				}
 				else
 				{
