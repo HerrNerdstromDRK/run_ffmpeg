@@ -37,7 +37,7 @@ public class run_ffmpeg
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\The Client (1994)" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
