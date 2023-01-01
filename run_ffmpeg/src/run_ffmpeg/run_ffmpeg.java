@@ -730,12 +730,18 @@ public class run_ffmpeg
     	if( testMode )
     	{
     		out( "transcodeFile> Executing command: " + toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-    	}
-    	else
-    	{
-    		executeCommand( ffmpegCommand ) ;
+    		// NOTE: Returning from method here.
+    		return ;
     	}
 
+    	boolean executeSuccess = executeCommand( ffmpegCommand ) ;
+    	if( !executeSuccess )
+    	{
+    		out( "transcodeFile> Error in execute command" ) ;
+    		// Do not move any files since the transcode failed
+    		return ;
+    	}
+    	
     	long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 
     	double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
