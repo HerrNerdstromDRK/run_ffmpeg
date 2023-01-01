@@ -25,11 +25,7 @@ public class MoveFileThreadAction extends ThreadAction
 	@Override
 	public void doAction()
 	{
-		out( "MoveFileThreadAction.doAction> Moving file from \""
-				+ sourceFileName
-				+ "\" to \""
-				+ destinationFileName
-				+ "\"" ) ;
+		out( "MoveFileThreadAction.doAction> " + toString() ) ;
 
 		File sourceFile = new File( sourceFileName ) ;
 		Path sourcePath = Paths.get( sourceFile.getParent() ) ;
@@ -41,7 +37,8 @@ public class MoveFileThreadAction extends ThreadAction
 		{
 			if( !Files.exists( sourcePath ) )
 			{
-				out( "MoveFileThreadAction.doAction> sourcePath does not exist: " + sourcePath ) ;
+				out( "MoveFileThreadAction.doAction> sourcePath does not exist: " + sourcePath
+						+ " " + toString() ) ;
 				if( !isTestMode() )
 				{
 					Files.createDirectory( sourcePath ) ;
@@ -50,7 +47,8 @@ public class MoveFileThreadAction extends ThreadAction
 
 			if( !Files.exists( destinationPath ) )
 			{
-				out( "MoveFileThreadAction.doAction> destinationPath does not exist: " + destinationPath ) ;
+				out( "MoveFileThreadAction.doAction> destinationPath does not exist: " + destinationPath
+						+ " " + toString() ) ;
 				if( !isTestMode() )
 				{
 					Files.createDirectory( destinationPath ) ;
@@ -65,19 +63,19 @@ public class MoveFileThreadAction extends ThreadAction
 						Paths.get( destinationFileName ) ) ;
 				if( temp != null )
 				{
-					out( "MoveFileThreadAction.doAction> Success: " + toString() ) ;
 					final long endTime = System.nanoTime() ;
 					final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 					final long fileLength = destinationFile.length() ;
 					final double fileLengthInMB = fileLength / 1e6 ;
 					final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
 					
-			    	out( "MoveFileThreadAction.doAction> Total elapsed time: "
+			    	out( "MoveFileThreadAction.doAction> Success; Total elapsed time: "
 			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds )
 			    			+ " seconds, "
 			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds / 60.0 )
 			    			+ " minutes; moved " + fileLengthInMB + "MB at "
-			    			+ run_ffmpeg.numFormat.format( MBPerSecond ) + "MB/sec" ) ;
+			    			+ run_ffmpeg.numFormat.format( MBPerSecond ) + "MB/sec"
+			    			+ " " + toString() ) ;
 				}
 				else
 				{

@@ -32,13 +32,12 @@ public class run_ffmpeg
 	/// That is, "\\\\yoda\\Backup" is treated different from "X:\Backup"
 
 	/// Directory from which to read the input files to transcode
-//	static String mkvInputDirectory = "C:\\Temp\\Archer" ;
-	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert" ;
+
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band of Brothers" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\To Convert" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\The Client (1994)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
@@ -46,7 +45,7 @@ public class run_ffmpeg
 //	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\Movies" ;
+	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive6\\Movies" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
 //	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvArchiveDirectory = "F:/MKV" ;
@@ -80,7 +79,7 @@ public class run_ffmpeg
 	static boolean isWindows = true ;
 	
 	/// Set to true if this application should overwrite existing MP4 files; false otherwise
-	static boolean overwriteMP4s = false ;
+	static boolean overwriteMP4s = true ;
 
 	/// Set to true to enable de-interlacing
 	static boolean deInterlaceInput = false ;
@@ -283,12 +282,14 @@ public class run_ffmpeg
 		// "${srtInputFiles[@]}" -map 0:v -map 0:a -map -0:s "${srtMapping[@]}" -copyts
 		ImmutableList.Builder< String > subTitleOptions = new ImmutableList.Builder< String >() ;
 	
+		// Part of my transcode workflow process is to extract .srt files into separate files,
+		// or to extract PGS streams into .sup files and OCR Them.
+		// As such, never use default subtitle streams -- exclude them all explicitly.
+		subTitleOptions.add( "-map", "-0:s" ) ;
+
 		// Check if we found any srt files
 		if( !theTranscodeFile.srtFileList.isEmpty() )
 		{
-			// Next, add the mapping for video and audio for index 0, and remove subtitles from index 0
-			subTitleOptions.add( "-map", "-0:s" ) ;
-			
 			// Now add the mapping for each input file
 			// Note: This assumes the same iteration for this loop as with the input options.
 			// In practice it doesn't matter since each of the SRT input files only has a single input stream.
@@ -304,15 +305,23 @@ public class run_ffmpeg
 		return subTitleOptions ;
 	}
 
-	public static void executeCommand( ImmutableList.Builder< String > theCommand )
+	public static boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
-		executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
+		return executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
 	}
 
-	public static void executeCommand( final String theCommand )
+	/**
+	 * Execute the given command.
+	 * Return true if successful, false otherwise.
+	 * Returns true in all cases when in test mode.
+	 * @param theCommand
+	 * @return
+	 */
+	public static boolean executeCommand( final String theCommand )
 	{
 		out( "executeCommand> " + theCommand ) ;
-	
+		boolean retMe = true ;
+		
 		// Only execute the command if we are NOT in test mode
 		if( !testMode )
 		{
@@ -328,12 +337,21 @@ public class run_ffmpeg
 	
 					out( "executeCommand> ErrorStream: " + line ) ;
 				}
+				
+				if( process.exitValue() != 0 )
+				{
+					// Error occurred
+					out( "executeCommand> Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
+					retMe = false ;
+				}
 			}
 			catch( Exception theException )
 			{
-				theException.printStackTrace() ;
+				retMe = false ;
+				out( "executeCommand> Exception: " + theException + " for command: " + theCommand ) ;
 			}
 		}
+		return retMe ;
 	}
 
 	static boolean fileExists( final String fileNameWithPath )
