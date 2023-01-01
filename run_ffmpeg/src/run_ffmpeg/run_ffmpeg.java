@@ -187,6 +187,11 @@ public class run_ffmpeg
 	  	// transcode the file, and move the input and output files (if necessary).
 		for( TranscodeFile fileToTranscode : filesToTranscodeInOrder )
 		{
+			if( stopExecution() )
+			{
+				break ;
+			}
+			
 			if( (fileToTranscode.isTranscodeInProgress() && !overwriteMP4s)
 					|| (fileToTranscode.isTranscodeComplete() && !overwriteMP4s) )
 			{
@@ -208,11 +213,6 @@ public class run_ffmpeg
 			fileToTranscode.setTranscodeInProgress();
 			transcodeFile( fileToTranscode, ffmpegProbeResult ) ;
 			fileToTranscode.setTranscodeComplete();
-
-			if( stopExecution() )
-			{
-				break ;
-			}
 			
 			// Free any unused memory or handles
 			System.gc() ;
