@@ -363,6 +363,11 @@ public class ExtractPGSFromMKVs
 		return extractableSubTitleStreams ;
 	}
 
+	/**
+	 * Run ffprobe on the given file.
+	 * If an error occurs, return null. 
+	 * Otherwise, return the FFmpegProbeResult from the ffprobe.
+	 */
 	public static FFmpegProbeResult ffprobeFile( TranscodeFile theFile )
 	{
 		log( "ffprobeFile> Processing: " + theFile.getMkvFileName() ) ;
@@ -408,8 +413,16 @@ public class ExtractPGSFromMKVs
 				++lineNumber ;
 			}
 			
-			// Deserialize the JSON streams info from this file
-			result = gson.fromJson(inputBuffer, FFmpegProbeResult.class);
+			if( process.exitValue() != 0 )
+			{
+				out( "ffprobeFile> Error running ffprobe on file " + theFile.getMkvFileName() + "; exitValue: " + process.exitValue() ) ;
+				result = null ; // already null, but just for clarity
+			}
+			else
+			{
+				// Deserialize the JSON streams info from this file
+				result = gson.fromJson(inputBuffer, FFmpegProbeResult.class);
+			}
 		}
 		catch( Exception theException )
 		{
