@@ -555,11 +555,11 @@ public class run_ffmpeg
 			}
 		}
 	}
-
+	
 	static synchronized void out( final String outputMe )
 	{
 		System.out.println( outputMe ) ;
-		log( outputMe ) ;
+		out( outputMe ) ;
 	}
 
 	static synchronized void out( final List< TranscodeFile > theFiles )
