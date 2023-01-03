@@ -23,7 +23,7 @@ public class ExtractPGSFromMKVs
 	static final String mkvWithoutHighEndAudioDestinationDirectory = "D:\\Temp" ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = false ;
+	static boolean testMode = true ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	static final boolean doSubTitleExtract = true ;

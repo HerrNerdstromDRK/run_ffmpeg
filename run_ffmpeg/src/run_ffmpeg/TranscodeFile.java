@@ -95,7 +95,7 @@ public class TranscodeFile
 			// The formal should be like this:
 			// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
 			setMovieName( getTheMKVFile().getParentFile().getName() ) ;
-			// movieName should be of the form "Transformers (2007)
+			// movieName should be of the form "Transformers (2007)"
 		}
 		else
 		{
