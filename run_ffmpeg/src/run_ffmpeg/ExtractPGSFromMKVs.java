@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
-	static String mkvInputDirectory = "C:\\Temp\\The Prestige (2006)" ;
+	static String mkvInputDirectory = "C:\\Temp\\Star Trek Deep Space Nine\\Season 02" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Fury (2014)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
@@ -23,7 +23,7 @@ public class ExtractPGSFromMKVs
 	static final String mkvWithoutHighEndAudioDestinationDirectory = "D:\\Temp" ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	static final boolean doSubTitleExtract = true ;

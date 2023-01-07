@@ -46,11 +46,11 @@ public class ExecThread extends Thread
 					++numCommands ;
 				}
 			} // while( keepRunning )
-			run_ffmpeg.out( "ExecThread> Shutting down after executing " + numCommands + " command(s)" ) ;
+			run_ffmpeg.out( "ExecThread(" + toString() + ").run> Shutting down after executing " + numCommands + " command(s)" ) ;
 		}
 		catch( Exception theException )
 		{
-			run_ffmpeg.out( "ExecThread.run> Exception: " + theException ) ;
+			run_ffmpeg.out( "ExecThread(" + toString() + ").run> Exception: " + theException ) ;
 		}
 	}
 
@@ -74,7 +74,7 @@ public class ExecThread extends Thread
 		{
 			execList.add( addMe ) ;
 		}
-		run_ffmpeg.out( "ExecThread> Added work: " + addMe ) ;
+		run_ffmpeg.out( "ExecThread(" + toString() + "> Added work: " + addMe ) ;
 	}
 
 	public synchronized void stopRunning()

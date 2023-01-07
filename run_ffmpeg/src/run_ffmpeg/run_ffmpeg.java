@@ -33,11 +33,11 @@ public class run_ffmpeg
 
 	/// Directory from which to read the input files to transcode
 
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band of Brothers" ;
+	static String mkvInputDirectory = "C:\\Temp\\Star Trek Deep Space Nine" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert" ;
+//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
@@ -45,8 +45,8 @@ public class run_ffmpeg
 //	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive6\\Movies" ;
-//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
+//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\Movies" ;
+	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
 //	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvArchiveDirectory = "F:/MKV" ;
 
@@ -62,13 +62,13 @@ public class run_ffmpeg
 //	static String mp4FinalDirectory = mp4OutputDirectory ;
 //	static String mp4FinalDirectory = mkvInputDirectory ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
+//	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
-//	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
+	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to move the mp4/mkv/srt files to the destination
 	static boolean doMoveMP4 = true ;
@@ -82,7 +82,7 @@ public class run_ffmpeg
 	static boolean overwriteMP4s = true ;
 
 	/// Set to true to enable de-interlacing
-	static boolean deInterlaceInput = false ;
+	static boolean deInterlaceInput = true ;
 	
 	/// Separator to use to demarc directories
 	static public String pathSeparator = "\\" ;
@@ -481,6 +481,9 @@ public class run_ffmpeg
 
     public static void moveFile( final String sourceFileName, final String destinationFileName )
 	{
+    	out( "moveFile> Moving file " + sourceFileName + " to " + destinationFileName ) ;
+    	
+    	// Set the move variable based on the type of file being moved
 		boolean doMove = false ;
 		if( sourceFileName.endsWith( ".mkv" ) ) doMove = doMoveMKV ;
 		else if( sourceFileName.endsWith( ".mp4" ) ) doMove = doMoveMP4 ;
@@ -489,7 +492,10 @@ public class run_ffmpeg
 		{
 			out( "moveFile> Unable to find move boolean for input file: " + sourceFileName ) ;
 		}
-		
+
+		// Execute the move if the destination file doesn't already exits
+		// and if we have determined (from above) this type of file should be moved
+		// Note that the MoveFileThreadAction respects the testMode variable
 		if( !sourceFileName.equalsIgnoreCase( destinationFileName ) && doMove )
 		{
 	    	MoveFileThreadAction theMoveFileThreadAction =
@@ -726,15 +732,10 @@ public class run_ffmpeg
     	long startTime = System.nanoTime() ;
     	out( toStringForCommandExecution( ffmpegCommand.build() ) ) ;
 
-    	// Execute the transcode
-    	if( testMode )
-    	{
-    		out( "transcodeFile> Executing command: " + toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-    		// NOTE: Returning from method here.
-    		return ;
-    	}
+		out( "transcodeFile> Executing command: " + toStringForCommandExecution( ffmpegCommand.build() ) ) ;
 
-    	boolean executeSuccess = executeCommand( ffmpegCommand ) ;
+    	// Only execute the transcode if testMode is false
+    	boolean executeSuccess = testMode ? true : executeCommand( ffmpegCommand ) ;
     	if( !executeSuccess )
     	{
     		out( "transcodeFile> Error in execute command" ) ;
@@ -758,6 +759,7 @@ public class run_ffmpeg
     	// Move the MKV file to its final directory
     	if( inputFile.getMKVFileShouldMove() )
     	{
+    		// moveFile respects the testMode variable
     		moveFile( inputFile.getMKVFileNameWithPath(), inputFile.getMkvFinalFileNameWithPath() ) ;
     		if( doMoveSRT )
     		{
