@@ -122,7 +122,7 @@ public class run_ffmpeg
 		transcodeSmallToLarge,
 		transcodeLargeToSmall
 	} ;
-	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeSmallToLarge ;
+	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeByDirectory ;
 
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
 	static BufferedWriter logWriter = null ;
