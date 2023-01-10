@@ -724,7 +724,9 @@ public class run_ffmpeg
 		}
 		
 		// Convert audio to ac3
-		ffmpegCommand.add( "-c:a", "ac3" ) ;
+		// Still trying to figure out how to handle this. However, for now the streaming device seems to prefer AAC
+		// albeit without 5.1 *shrug*
+//		ffmpegCommand.add( "-c:a", "ac3" ) ;
 		
 		//  8) Add subtitle transcode options
 		ffmpegCommand.addAll( localTranscodeSubTitleOptions.build() ) ;
