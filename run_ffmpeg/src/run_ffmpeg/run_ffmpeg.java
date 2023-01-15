@@ -34,10 +34,10 @@ public class run_ffmpeg
 	/// Directory from which to read the input files to transcode
 
 //	static String mkvInputDirectory = "C:\\Temp\\Star Trek Deep Space Nine" ;
-//	static String mkvInputDirectory = "\\\\yoda\\Backup\\To Convert - TV Shows\\Weeds" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert - TV Shows" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\ConvertMe" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\To Convert" ;
+//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
@@ -45,8 +45,8 @@ public class run_ffmpeg
 //	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive2\\Movies" ;
-//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
+//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive2\\Movies" ;
+	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
 //	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvArchiveDirectory = "F:/MKV" ;
 
@@ -62,9 +62,9 @@ public class run_ffmpeg
 //	static String mp4FinalDirectory = mp4OutputDirectory ;
 //	static String mp4FinalDirectory = mkvInputDirectory ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
+//	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
-//	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
+	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
@@ -296,6 +296,7 @@ public class run_ffmpeg
 			for( int mappingIndex = 1 ; mappingIndex <= theTranscodeFile.srtFileList.size() ; ++mappingIndex )
 			{
 				subTitleOptions.add( "-map", "" + mappingIndex + ":s" ) ;
+				subTitleOptions.add( "-metadata:s:s:" + mappingIndex, "language=eng" ) ;
 			}
 	
 			// Finally, add the options to copy the timestamp and use the mov_text subtitle codec
