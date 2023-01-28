@@ -318,18 +318,19 @@ public class TranscodeFile
 	
 	public boolean getTranscodeStatus( final String extensionToCheck )
 	{
-		String transcodeCompleteFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
-		if( run_ffmpeg.fileExists( transcodeCompleteFileName ))
+		String transcodeExtensionFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
+		if( run_ffmpeg.fileExists( transcodeExtensionFileName ))
 		{
-			out( "getTranscodeStatus(" + extensionToCheck + ")> Found file " + transcodeCompleteFileName ) ;
+			out( "getTranscodeStatus(" + extensionToCheck + ")> Found file " + transcodeExtensionFileName ) ;
 			return true ;
 		}
-		transcodeCompleteFileName = getMp4OutputFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
+/*		transcodeCompleteFileName = getMp4OutputFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
 		if( run_ffmpeg.fileExists( transcodeCompleteFileName ) )
 		{
 			out( "getTranscodeStatus(" + extensionToCheck + ")> Found file " + transcodeCompleteFileName ) ;
 			return true ;
 		}
+*/
 		return false ;
 	}
 	
@@ -341,6 +342,7 @@ public class TranscodeFile
 		{
 			run_ffmpeg.touchFile( mkvTouchFileName ) ;
 		}
+/* Only place transcode status files in the mkv directory
 		if( !mkvFinalDirectory.equalsIgnoreCase( mp4FinalDirectory ) )
 		{
 			final String mp4TouchFileName = getMP4OutputFileNameWithPath().replace( ".mp4", extensionToWrite ) ;
@@ -350,6 +352,7 @@ public class TranscodeFile
 				run_ffmpeg.touchFile( mp4TouchFileName ) ;
 			}
 		}
+		*/
 		// As a general rule, don't delete any files. It's no big deal if the .in_work file remains
 	}
 	
