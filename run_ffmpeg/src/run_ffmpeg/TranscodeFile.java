@@ -2,6 +2,7 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 /**
@@ -23,6 +24,9 @@ public class TranscodeFile
 	
 	// List of .srt files corresponding to this TranscodeFile
 	protected ArrayList< File > srtFileList = new ArrayList< File >() ;
+	
+	// Track the ffprobe result for this input file
+	protected FFmpegProbeResult theFFmpegProbeResult = null ;
 
 	/// The extension of a file, corresponding to this one, that indicates the file
 	/// is currently being transcode
@@ -40,6 +44,14 @@ public class TranscodeFile
 
 	private boolean isTVShow = false ;
 	private boolean isOtherVideo = false ;
+	
+	/// Variables to track basic characteristics of the input file
+	protected boolean _audioHasStereo = false ;
+	protected boolean _audioHasFivePointOne = false ;
+	protected boolean _audioHasSixPointOne = false ;
+	protected boolean _audioHasSevenPointOne = false ;
+	protected int numAudioStreams = 0 ;
+	protected ArrayList< FFmpegStream > audioStreams = new ArrayList< FFmpegStream >() ;
 
 	public TranscodeFile( final File theMKVFile,
 			final String mkvFinalDirectory,
@@ -242,6 +254,71 @@ public class TranscodeFile
 		run_ffmpeg.makeDirectory( getMkvFinalDirectory() ) ;
 		run_ffmpeg.makeDirectory( getMp4OutputDirectory() ) ;
 		run_ffmpeg.makeDirectory( getMp4FinalDirectory() ) ;
+	}
+
+	public void processFFmpegProbeResult( FFmpegProbeResult _theFFmpegProbeResult )
+	{
+		theFFmpegProbeResult = _theFFmpegProbeResult ;
+		processVideoStreams( theFFmpegProbeResult.getStreamsByCodecType( "video" ) ) ;
+		processAudioStreams( theFFmpegProbeResult.getStreamsByCodecType( "audio" ) ) ;
+		processSubTitleStreams( theFFmpegProbeResult.getStreamsByCodecType( "subtitle" ) ) ;
+	}
+	
+	protected void processVideoStreams( List< FFmpegStream > inputStreams )
+	{
+		// Pre-condition: inputStreams contains streams only of type video
+		for( FFmpegStream theInputStream : inputStreams )
+		{
+			
+		}
+	}
+	
+	protected void processAudioStreams( List< FFmpegStream > inputStreams )
+	{
+		// Pre-condition: inputStreams contains streams only of type audio
+		audioStreams.addAll( inputStreams ) ;
+				
+		for( FFmpegStream theInputStream : inputStreams )
+		{
+			if( theInputStream.channel_layout.contains( "stereo" ) )
+			{
+				setAudioHasStereo( true ) ;
+			}
+			else if( theInputStream.channel_layout.contains( "5.1" ) )
+			{
+				setAudioHasFivePointOne( true ) ;
+			}
+			else if( theInputStream.channel_layout.contains( "6.1" ) )
+			{
+				setAudioHasSixPointOne( true ) ;
+			}
+			else if( theInputStream.channel_layout.contains( "7.1" ) )
+			{
+				setAudioHasSevenPointOne( true ) ;
+			}
+			else
+			{
+				out( "TranscodeFile.processAudioStreams> Unknown channel_layout: " + theInputStream.channel_layout ) ;
+			}
+		}
+	}
+	
+	protected FFmpegStream getAudioStreamAt( int index )
+	{
+		if( (index < 0) || (index >= getNumAudioStreams()) )
+		{
+			return null ;
+		}
+		return audioStreams.get( index ) ;
+	}
+	
+	protected void processSubTitleStreams( List< FFmpegStream > inputStreams )
+	{
+		// Pre-condition: inputStreams contains streams only of type subtitle
+		for( FFmpegStream theInputStream : inputStreams )
+		{
+			
+		}
 	}
 
 	public String getMKVFileNameWithPath()
@@ -463,4 +540,45 @@ public class TranscodeFile
 		return getTheMKVFile().getAbsolutePath() ;
 	}
 
+	public boolean audioHasStereo() {
+		return _audioHasStereo;
+	}
+
+	public void setAudioHasStereo(boolean _audioHasStereo) {
+		this._audioHasStereo = _audioHasStereo;
+	}
+
+	public boolean audioHasFivePointOne() {
+		return _audioHasFivePointOne;
+	}
+
+	public void setAudioHasFivePointOne(boolean _audioHasFivePointOne) {
+		this._audioHasFivePointOne = _audioHasFivePointOne;
+	}
+
+	public boolean audioHasSixPointOne() {
+		return _audioHasSixPointOne;
+	}
+
+	public void setAudioHasSixPointOne(boolean _audioHasSixPointOne) {
+		this._audioHasSixPointOne = _audioHasSixPointOne;
+	}
+
+	public boolean audioHasSevenPointOne() {
+		return _audioHasSevenPointOne;
+	}
+
+	public void setAudioHasSevenPointOne(boolean _audioHasSevenPointOne) {
+		this._audioHasSevenPointOne = _audioHasSevenPointOne;
+	}
+
+	public boolean hasSRTInputFiles()
+	{
+		return !srtFileList.isEmpty() ;
+	}
+
+	public int getNumAudioStreams() {
+		return audioStreams.size() ;
+	}
+	
 }

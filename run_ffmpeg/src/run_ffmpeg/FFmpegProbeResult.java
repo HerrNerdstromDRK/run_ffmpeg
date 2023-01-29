@@ -1,5 +1,6 @@
 package run_ffmpeg;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -26,6 +27,19 @@ public class FFmpegProbeResult {
 	  public List<FFmpegStream> getStreams() {
 	    if (streams == null) return Collections.emptyList();
 	    return ImmutableList.copyOf(streams);
+	  }
+	  
+	  public List< FFmpegStream > getStreamsByCodecType( final String searchType )
+	  {
+		List< FFmpegStream > returnMe = new ArrayList< FFmpegStream >() ;
+		for( FFmpegStream theInputStream : getStreams() )
+		{
+				if( theInputStream.codec_type.equalsIgnoreCase(searchType) )
+				{
+					returnMe.add( theInputStream ) ;
+				}
+		}		  
+		return returnMe ;
 	  }
 
 	  public List<FFmpegChapter> getChapters() {

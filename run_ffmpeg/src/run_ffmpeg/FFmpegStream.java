@@ -95,6 +95,12 @@ public class FFmpegStream {
 	  public FFmpegDisposition disposition;
 
 	  public Map<String, String> tags;
+		
+		public String getTagByName( final String tagName )
+		{
+			String tagValue = tags.get( tagName ) ;
+			return tagValue ;
+		}
 	  
 	  public String toString()
 	  {

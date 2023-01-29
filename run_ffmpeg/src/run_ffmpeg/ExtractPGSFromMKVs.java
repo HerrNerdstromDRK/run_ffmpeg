@@ -12,7 +12,7 @@ import com.google.gson.GsonBuilder;
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
-	static String mkvInputDirectory = "C:\\\\Temp" ;
+	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Fury (2014)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 

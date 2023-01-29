@@ -32,8 +32,7 @@ public class run_ffmpeg
 	/// That is, "\\\\yoda\\Backup" is treated different from "X:\Backup"
 
 	/// Directory from which to read the input files to transcode
-
-	static String mkvInputDirectory = "C:\\Temp" ;
+	static String mkvInputDirectory = "C:\\Temp\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert - TV Shows" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert" ;
@@ -66,7 +65,7 @@ public class run_ffmpeg
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to move the mp4/mkv/srt files to the destination
 	static boolean doMoveMP4 = true ;
@@ -89,18 +88,6 @@ public class run_ffmpeg
 	static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
 	static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
 
-	// Include the options for transcoding
-	// The standard is that the options strings include no leading or trailing spaces
-	// -v yadif=1: de-interlace
-	// -copyts: Copies the timestamps into the output file for use by subtitles
-	// -c:s copy: Copy the subtitle stream from MKV to MP4. Deleted for now until I can figure out a solution that
-	//   supports PGS
-	//   - -c:s mov_text
-	// -vcodec libx264: Use H.264 codec for otuput
-	// -crf 17: Set quality; anything better than 17 will not be noticeable
-	// -map 0: Copy all streams, including subtitles
-	// -movflags +faststart: Include indexing so it's easy to move anywhere in the file during playback
-	static ImmutableList.Builder< String > transcodeOptions = new ImmutableList.Builder<String>() ;
 
 	/// Set to true to host two move threads that move MKV and MP4 files in parallel
 	static boolean moveMKVAndMP4InParallel = true ;
@@ -142,13 +129,7 @@ public class run_ffmpeg
 	{
 		numFormat.setMaximumFractionDigits( 2 ) ;
 		openLogFile() ;
-		
-		// Set the basic transcode options
-		if( deInterlaceInput )	transcodeOptions.add( "-vf", "yadif=1" ) ;
-		transcodeOptions.add( "-vcodec", "libx264" ) ;
-		transcodeOptions.add( "-crf", "17" ) ;
-		transcodeOptions.add( "-movflags", "+faststart" ) ;
-		
+				
 		if( moveMKVAndMP4InParallel )
 		{
 			workerThreads = new ExecThread[ 2 ] ;
@@ -205,10 +186,11 @@ public class run_ffmpeg
 				out( "transcodeFile(" + fileToTranscode.getMkvFileName() + ")> null ffmpegProbeResult" ) ;
 				continue ;
 			}
-			
+
+			fileToTranscode.processFFmpegProbeResult( ffmpegProbeResult ) ;
 			fileToTranscode.makeDirectories() ;
 			fileToTranscode.setTranscodeInProgress();
-			transcodeFile( fileToTranscode, ffmpegProbeResult ) ;
+			transcodeFile( fileToTranscode ) ;
 			fileToTranscode.setTranscodeComplete();
 			
 			// Free any unused memory or handles
@@ -267,41 +249,6 @@ public class run_ffmpeg
 		makeDirectory( inputFile.getMkvFinalDirectory() ) ;
 		makeDirectory( inputFile.getMp4OutputDirectory() ) ;
 		makeDirectory( inputFile.getMp4FinalDirectory() ) ;
-	}
-
-	/**
-	 * Build a list of ffmpeg mapping options to incorporate any subtitle (.srt) files into the transcode.
-	 * Excludes importing the srt files themselves.
-	 * @param theTranscodeFile
-	 * @return
-	 */
-	public static ImmutableList.Builder< String > buildSRTOptions( TranscodeFile theTranscodeFile )
-	{
-		// "${srtInputFiles[@]}" -map 0:v -map 0:a -map -0:s "${srtMapping[@]}" -copyts
-		ImmutableList.Builder< String > subTitleOptions = new ImmutableList.Builder< String >() ;
-	
-		// Part of my transcode workflow process is to extract .srt files into separate files,
-		// or to extract PGS streams into .sup files and OCR Them.
-		// As such, never use default subtitle streams -- exclude them all explicitly.
-		subTitleOptions.add( "-map", "-0:s" ) ;
-
-		// Check if we found any srt files
-		if( !theTranscodeFile.srtFileList.isEmpty() )
-		{
-			// Now add the mapping for each input file
-			// Note: This assumes the same iteration for this loop as with the input options.
-			// In practice it doesn't matter since each of the SRT input files only has a single input stream.
-			for( int mappingIndex = 1 ; mappingIndex <= theTranscodeFile.srtFileList.size() ; ++mappingIndex )
-			{
-				subTitleOptions.add( "-map", "" + mappingIndex + ":s" ) ;
-				subTitleOptions.add( "-metadata:s:s:" + mappingIndex, "language=eng" ) ;
-			}
-	
-			// Finally, add the options to copy the timestamp and use the mov_text subtitle codec
-			// TODO: May need to update this based on use of other codecs (dvds, etc.)
-			subTitleOptions.add( "-c:s", "mov_text" ) ;
-		}
-		return subTitleOptions ;
 	}
 
 	public static boolean executeCommand( ImmutableList.Builder< String > theCommand )
@@ -659,33 +606,20 @@ public class run_ffmpeg
 		return filesToTranscode ;
 	}
 
-	public static void transcodeFile( TranscodeFile inputFile, FFmpegProbeResult ffmpegProbeResult )
+	public static void transcodeFile( TranscodeFile inputFile )
     {
     	// Precondition: ffmpegProbeResult is not null
     	out( "transcodeFile> Transcoding: " + inputFile ) ;
 
-    	// Note that the audio and subtitle stream mapping works differently from each other.
-    	// Audio streams are left included in the input file, and any that don't fit the transcode style
-    	//  (6.1, 7.2, non-eng, etc.) are *excluded* in the transcode options.
-    	// That is, they are excluded explicitly here.
-    	List< Integer > excludeAudioStreamIndices = ExtractPGSFromMKVs.findExcludedAudioStreamsAsInteger( ffmpegProbeResult.streams ) ;
-
-    	// subtitle streams are expected to already be extracted appropriately.
-    	// As such, our action for subtitles is to explicitly *include* them during the transcode.
-    	ImmutableList.Builder< String > localTranscodeSubTitleOptions = buildSRTOptions( inputFile ) ;
-    	
-//    	out( "transcodeFile> localTranscodeSubTitleOptions: " + localTranscodeSubTitleOptions ) ;
-
-		// Perform the options build in four steps:
+		// Perform the options build by these steps:
 		//  1) Setup ffmpeg basic options
 		//  2) Include source file
-		//  3) Include all other input files (such as .srt)
-    	//  4) Adding default mapping option
-		//  5) Add video transcode options
-		//  6) Add metadata transcode options
-		//  7) Add audio transcode options
-		//  8) Add subtitle transcode options
-		//  9) Add output filename (.mp4)
+    	//  3) Include input SRT file(s)
+    	//  4) Add video transcode options
+		//  5) Add audio transcode options
+		//  6) Add subtitle transcode options
+		//  7) Add metadata transcode options
+		//  8) Add output filename (.mp4)
     	
     	// ffmpegCommand will hold the command to execute ffmpeg
     	ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
@@ -705,32 +639,18 @@ public class run_ffmpeg
 			ffmpegCommand.add( "-i", srtFile.getAbsolutePath() ) ;
 		}
 		
-		//  4) Adding default mapping option
-		ffmpegCommand.add( "-map", "0" ) ;
+		//  4) Add video transcode options
+		ffmpegCommand.addAll( buildVideoTranscodeOptions( inputFile ).build() ) ;
+
+		//  5) Add audio transcode options
+		ffmpegCommand.addAll( buildAudioTranscodeOptions( inputFile ).build() ) ;
 		
-		//  5) Add video transcode options
-		ffmpegCommand.addAll( transcodeOptions.build() ) ;
+		//  6) Add subtitle transcode options
+		ffmpegCommand.addAll( buildSubTitleTranscodeOptions( inputFile ).build() ) ;
 		
-		//  6) Add metadata transcode options
-		ffmpegCommand.add( "-metadata", "title=\"" + inputFile.getMetaDataTitle() + "\"" ) ;
-			
-		//  7) Add audio transcode options
-		for( Integer excludeStreamInteger : excludeAudioStreamIndices )
-		{
-			// Exclude each audio stream that is not permitted.
-			final String excludeStreamString = excludeStreamInteger.toString() ;
-			ffmpegCommand.add( "-map", "-0:" + excludeStreamString ) ;
-		}
+		//  7) Add metadata info
 		
-		// Convert audio to ac3
-		// Still trying to figure out how to handle this. However, for now the streaming device seems to prefer AAC
-		// albeit without 5.1 *shrug*
-//		ffmpegCommand.add( "-c:a", "ac3" ) ;
-		
-		//  8) Add subtitle transcode options
-		ffmpegCommand.addAll( localTranscodeSubTitleOptions.build() ) ;
-		
-		//  9) Add output filename (.mp4)
+		//  8) Add output filename (.mp4)
 		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
 
     	long startTime = System.nanoTime() ;
@@ -761,6 +681,11 @@ public class run_ffmpeg
     			+ " seconds per GB" ) ;
 
     	// Move the MKV file to its final directory
+    	// NOTE: I could easily check the move booleans here and prevent this
+    	// code from executing. However, I have chosen to use those booleans deeper
+    	// in the call tree for testing purposes -- when test mode is enabled, I
+    	// want the code to be executed and the worker threads to output that they
+    	// are working.
     	if( inputFile.getMKVFileShouldMove() )
     	{
     		// moveFile respects the testMode variable
@@ -781,7 +706,122 @@ public class run_ffmpeg
     		moveFile( inputFile.getMp4OutputFileNameWithPath(), inputFile.getMP4FinalOutputFileNameWithPath() ) ;
     	}
     }
+	
+	/**
+	 * Include the options for transcoding
+	 * The standard is that the options strings include no leading or trailing spaces
+	 *  -v yadif=1: de-interlace
+	 *  -copyts: Copies the timestamps into the output file for use by subtitles
+	 *  -vcodec libx264: Use H.264 codec for otuput
+	 *  -crf 17: Set quality; anything better than 17 will not be noticeable
+	 *  -map 0: Copy all streams, including subtitles
+	 *  -movflags +faststart: Include indexing so it's easy to move anywhere in the file during playback
+	 * @param inputFile
+	 * @return
+	 */
+	static ImmutableList.Builder< String > buildVideoTranscodeOptions( TranscodeFile inputFile )
+	{
+		ImmutableList.Builder< String > videoTranscodeOptions = new ImmutableList.Builder<String>() ;
+
+		// Set the basic transcode options
+		videoTranscodeOptions.add( "-map", "0:v" ) ;
+		if( deInterlaceInput )	videoTranscodeOptions.add( "-vf", "yadif=1" ) ;
+		videoTranscodeOptions.add( "-vcodec", "libx264" ) ;
+		videoTranscodeOptions.add( "-crf", "17" ) ;
+		videoTranscodeOptions.add( "-movflags", "+faststart" ) ;
+		videoTranscodeOptions.add( "-metadata", "title=\"" + inputFile.getMetaDataTitle() + "\"" ) ;
+
+		return videoTranscodeOptions ;
+	}
     
+	/**
+	 * Build the audio transcode options.
+	 * The main goal here is to ensure a Stereo stream exists.
+	 * @param inputFile
+	 * @return
+	 */
+	static ImmutableList.Builder< String > buildAudioTranscodeOptions( TranscodeFile inputFile )
+	{
+		/*
+		 * Example syntax:
+		 *  ffmpeg -y -i "%%A" -map 0:v -c:v copy -map 0:a:0? -c:a:0 copy -map 0:a:0? -c:a:1 aac -b:a:1 192k -ac 2
+		 *   -metadata:s:a:1 title="Eng 2.0 Stereo" -map 0:a:1? -c:a:2 copy -map 0:a:2? -c:a:3 copy -map 0:a:3?
+		 *   -c:a:4 copy -map 0:a:4? -c:a:5 copy -map 0:a:5? -c:a:6 copy -map 0:a:6? -c:a:7 copy -map 0:s? -c:s copy
+		 *   "ffmpegOut/%%~nA_Stereo.mkv"
+		 */
+		ImmutableList.Builder< String > audioTranscodeOptions = new ImmutableList.Builder<String>() ;
+
+		// All output audio will be in 
+		if( inputFile.audioHasStereo() )
+		{
+			// No need to add a new audio stream as stereo
+			// Just keep the existing audio streams and convert to AAC
+			audioTranscodeOptions.add( "-map", "0:a" ) ;
+			audioTranscodeOptions.add( "-c:a" , "aac" ) ;
+			return audioTranscodeOptions ;
+		}
+		// Post condition: No stereo stream exists
+		// Build one.
+		
+		// Typically, the first (#0) audio stream is the highest quality
+		// Keep that stream, then copy it into stream #1 as stereo
+		// Then keep the remaining audio streams, offset by one stream number
+		
+		// Keep the first (#0) audio stream and convert it to aac
+		audioTranscodeOptions.add( "-map", "0:a:0" ) ;
+		audioTranscodeOptions.add( "-c:a:0", "aac" ) ;
+		audioTranscodeOptions.add( "-metadata:s:a:1",
+				"title=\"" + inputFile.getAudioStreamAt( 0 ).getTagByName( "title" ) + "\"" ) ;
+		
+		// Copy the first (#0) audio stream into stream #1 as aac stereo (-ac 2)
+		audioTranscodeOptions.add( "-map", "0:a:0" ) ;
+		audioTranscodeOptions.add( "-c:a:1", "aac", "-ac:a:1", "2" ) ;
+		audioTranscodeOptions.add( "-metadata:s:a:1", "title=\"Eng 2.0 Stereo\"" ) ;
+		
+		// Finally, copy the remaining streams as aac into the output, offset by one stream
+		for( int inputStreamNumber = 1, outputStreamNumber = 2 ; inputStreamNumber < inputFile.getNumAudioStreams() ;
+				++inputStreamNumber, ++outputStreamNumber )
+		{
+			audioTranscodeOptions.add( "-map", "0:a:" + inputStreamNumber ) ;
+			audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, "aac" ) ;
+			audioTranscodeOptions.add( "-metadata:s:a:" + outputStreamNumber,
+					"title=\"" + inputFile.getAudioStreamAt( inputStreamNumber ).getTagByName( "title" ) + "\"" ) ;
+		}
+		return audioTranscodeOptions ;
+	}
+	
+	/**
+	 * Build a list of ffmpeg mapping options to incorporate any subtitle (.srt) files into the transcode.
+	 * Excludes importing the srt files themselves.
+	 * @param theTranscodeFile
+	 * @return
+	 */
+	public static ImmutableList.Builder< String > buildSubTitleTranscodeOptions( TranscodeFile theTranscodeFile )
+	{
+		// "${srtInputFiles[@]}" -map 0:v -map 0:a -map -0:s "${srtMapping[@]}" -copyts
+		ImmutableList.Builder< String > subTitleTranscodeOptions = new ImmutableList.Builder< String >() ;
+	
+		// Part of my transcode workflow process is to extract .srt files into separate files,
+		// or to extract PGS streams into .sup files and OCR Them.
+		// As such, never use default subtitle streams -- exclude them all explicitly.
+		subTitleTranscodeOptions.add( "-map", "-0:s" ) ;
+
+		// Now add the mapping for each SRT file
+		// TODO/NOTE: This assumes the same iteration for this loop as with the input options.
+		// In practice it doesn't matter since each of the SRT input files only has a single input stream.
+		for( int mappingIndex = 1 ; mappingIndex <= theTranscodeFile.srtFileList.size() ; ++mappingIndex )
+		{
+			subTitleTranscodeOptions.add( "-map", "" + mappingIndex + ":s" ) ;
+			subTitleTranscodeOptions.add( "-metadata:s:s:" + mappingIndex, "language=eng" ) ;
+			subTitleTranscodeOptions.add( "-metadata:s:s:" + mappingIndex, "title=\"eng\"" ) ;
+		}
+	
+		// Finally, add the options to copy the timestamp and use the mov_text subtitle codec
+		// TODO: May need to update this based on use of other codecs (dvds, etc.)
+		subTitleTranscodeOptions.add( "-c:s", "mov_text" ) ;
+		return subTitleTranscodeOptions ;
+	}
+	
     static String toStringForCommandExecution( final ImmutableList< String > theList )
 	{
 		String retMe = "" ;
