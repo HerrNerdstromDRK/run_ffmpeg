@@ -280,7 +280,12 @@ public class TranscodeFile
 				
 		for( FFmpegStream theInputStream : inputStreams )
 		{
-			if( theInputStream.channel_layout.contains( "stereo" ) )
+			if( null == theInputStream.channel_layout )
+			{
+				// No channel_layout
+				out( "processaudioStreams> No channel_layout field found for file: " + toString() ) ;
+			}
+			else if( theInputStream.channel_layout.contains( "stereo" ) )
 			{
 				setAudioHasStereo( true ) ;
 			}

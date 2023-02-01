@@ -32,10 +32,10 @@ public class run_ffmpeg
 	/// That is, "\\\\yoda\\Backup" is treated different from "X:\Backup"
 
 	/// Directory from which to read the input files to transcode
-	static String mkvInputDirectory = "C:\\Temp\\Weeds" ;
+//	static String mkvInputDirectory = "C:\\Temp\\Weeds" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert - TV Shows" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert" ;
 //	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
@@ -107,7 +107,7 @@ public class run_ffmpeg
 		transcodeSmallToLarge,
 		transcodeLargeToSmall
 	} ;
-	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeSmallToLarge ;
+	static transcodeOrdering transcodeOrder = transcodeOrdering.transcodeLargeToSmall ;
 
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
 	static BufferedWriter logWriter = null ;

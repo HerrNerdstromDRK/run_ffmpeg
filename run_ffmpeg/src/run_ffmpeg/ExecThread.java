@@ -74,7 +74,7 @@ public class ExecThread extends Thread
 		{
 			execList.add( addMe ) ;
 		}
-		run_ffmpeg.out( "ExecThread(" + toString() + "> Added work: " + addMe ) ;
+		run_ffmpeg.out( "ExecThread(" + toString() + ")> Added work: " + addMe ) ;
 	}
 
 	public synchronized void stopRunning()
