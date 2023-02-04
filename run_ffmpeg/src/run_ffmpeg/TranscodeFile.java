@@ -2,6 +2,7 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -23,7 +24,7 @@ public class TranscodeFile
 	protected String mp4FinalDirectory = null ;
 	
 	// List of .srt files corresponding to this TranscodeFile
-	protected ArrayList< File > srtFileList = new ArrayList< File >() ;
+	private ArrayList< File > srtFileList = new ArrayList< File >() ;
 	
 	// Track the ffprobe result for this input file
 	protected FFmpegProbeResult theFFmpegProbeResult = null ;
@@ -51,7 +52,7 @@ public class TranscodeFile
 	protected boolean _audioHasSixPointOne = false ;
 	protected boolean _audioHasSevenPointOne = false ;
 	protected int numAudioStreams = 0 ;
-	protected ArrayList< FFmpegStream > audioStreams = new ArrayList< FFmpegStream >() ;
+	private ArrayList< FFmpegStream > audioStreams = new ArrayList< FFmpegStream >() ;
 
 	public TranscodeFile( final File theMKVFile,
 			final String mkvFinalDirectory,
@@ -308,6 +309,62 @@ public class TranscodeFile
 		}
 	}
 	
+	/**
+	 * Return an ArrayList of FFmpegStreams of audio streams that match the given
+	 * input search string. The searching string will be used in a case insensitive match
+	 * against the audio stream language, or * for all streams.
+	 * @param languageSearch
+	 * @return
+	 */
+	public ArrayList< FFmpegStream > getAudioStreamsByLanguage( final String languageSearch )
+	{
+		ArrayList< FFmpegStream > audioStreamsToReturn = new ArrayList< FFmpegStream >() ;
+		for( FFmpegStream audioStream : audioStreams )
+		{
+			if( languageSearch.equalsIgnoreCase( "*" ) )
+			{
+				// Wildcard search, include all audio streams
+				audioStreamsToReturn.add( audioStream ) ;
+				continue ;
+			}
+			
+			String audioStreamLanguage = audioStream.tags.get( "language" ) ;
+			if( null == audioStreamLanguage )
+			{
+				out( "getAudioStreamsByLanguage> No language tag found for stream: " + audioStream.toString() ) ;
+				audioStreamLanguage = "*" ;
+			}
+
+			if( languageSearch.equalsIgnoreCase( audioStreamLanguage ) )
+			{
+				// Found a match
+				audioStreamsToReturn.add( audioStream ) ;
+			}
+			// else no match
+		} // for( audioStream )
+		return audioStreamsToReturn ;
+	}
+	
+	public String getPrimaryAudioLanguage()
+	{
+		// The audio streams should already be in numerical order, low to high
+		// I have yet to see a movie or show where the primary language was anything
+		// other than the lowest numbered audio stream.
+		if( audioStreams.isEmpty() )
+		{
+			out( "getPrimaryAudioLanguage> Empty audio stream list" ) ;
+			return "EMPTY" ;
+		}
+		final String primaryAudioLanguage = audioStreams.get( 0 ).tags.get( "language" ) ;
+		if( null == primaryAudioLanguage )
+		{
+			// First audio stream has no language
+			out( "getPrimaryAudioLanguage> Empty language for first audio stream" ) ;
+			return "UNKNOWN" ;
+		}
+		return primaryAudioLanguage ;
+	}
+	
 	protected FFmpegStream getAudioStreamAt( int index )
 	{
 		if( (index < 0) || (index >= getNumAudioStreams()) )
@@ -357,7 +414,71 @@ public class TranscodeFile
 		// The MP4 file should move if the output directory is different thank the final directory
 		return (!getMp4OutputDirectory().equalsIgnoreCase( getMp4FinalDirectory() )) ;
 	}
+	
+	public boolean hasForcedSubTitleFile()
+	{
+		for( File srtFile : srtFileList )
+		{
+			if( srtFile.getName().contains( run_ffmpeg.forcedSubTitleFileNameContains ) )
+			{
+				return true ;
+			}
+		}
+		return false ;
+	}
+	
+	public File getForcedSubTitleFile()
+	{
+		File retMe = null ;
+		for( File srtFile : srtFileList )
+		{
+			if( srtFile.getName().contains( run_ffmpeg.forcedSubTitleFileNameContains ) )
+			{
+				retMe = srtFile ;
+				break ;
+			}
+		}
+		return retMe ;
+	}
 
+	/**
+	 * Return the zero-based index of the stream associated with the forced subtitle.
+	 * The stream number is global to all streams in the file.
+	 * Returns -1 if no such forced subtitle stream exists.
+	 * @return
+	 */
+	public int getForcedSubTitleStreamNumber()
+	{
+		// The stream index is captured in the name of the srt file.
+		// First, get the file.
+		File fsbFile = getForcedSubTitleFile() ;
+		if( null == fsbFile )
+		{
+			out( "getForcedSubTitleStreamNumber> Unable to find forced subtitle file for TranscodeFile: " + toString() ) ;
+			return -1 ;
+		}
+		// Post-condition: Found the forced subtitle file.
+//		out( "getForcedSubTitleStreamNumber> Found forced subtitle file (name): " + fsbFile.getName() ) ;
+		// File name should be of the form: "file name[-extra|(year)].forced_subtitle.<num>.srt"
+		// Example: Game Of Thrones - S03E04 - And Now His Watch Is Ended.forced_subtitle.12.srt
+		// Grab the stream id from the second to last token
+		// split() searches by regular expression
+		String[] tokens = fsbFile.getName().split( "\\." ) ;
+		// A properly formed file name with "forced_subtitle" should have (at least?) 4 tokens
+		if( tokens.length < 4 )
+		{
+			out( "getForcedSubTitleStreamNumber> Invalid number of tokens in file name: " + fsbFile.getName()
+			+ ", expected 4 but got: " + tokens.length ) ;
+			return -1 ;
+		}
+		// Post-condition: tokens has at least 4 tokens
+		// We want the second from last
+		String streamNumberString = tokens[ 2 ] ;
+		Integer streamNumberInteger = Integer.parseInt( streamNumberString ) ;
+		
+		return streamNumberInteger.intValue() ;
+	}
+	
 	public static String getPathSeparator()
 	{
 		return run_ffmpeg.getPathSeparator() ;
@@ -393,9 +514,19 @@ public class TranscodeFile
 		setTranscodeStatus( transcodeInProgressFileExtension ) ;
 	}
 	
+	public void unSetTranscodeInProgress()
+	{
+		unSetTranscodeStatus( transcodeInProgressFileExtension ) ;
+	}
+	
 	public void setTranscodeComplete()
 	{
 		setTranscodeStatus( transcodeCompleteFileExtension ) ;
+	}
+	
+	public void unSetTranscodeComplete()
+	{
+		unSetTranscodeStatus( transcodeCompleteFileExtension ) ;
 	}
 	
 	public boolean getTranscodeStatus( final String extensionToCheck )
@@ -406,14 +537,7 @@ public class TranscodeFile
 			out( "getTranscodeStatus(" + extensionToCheck + ")> Found file " + transcodeExtensionFileName ) ;
 			return true ;
 		}
-/*		transcodeCompleteFileName = getMp4OutputFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
-		if( run_ffmpeg.fileExists( transcodeCompleteFileName ) )
-		{
-			out( "getTranscodeStatus(" + extensionToCheck + ")> Found file " + transcodeCompleteFileName ) ;
-			return true ;
-		}
-*/
-		return false ;
+	return false ;
 	}
 	
 	public void setTranscodeStatus( final String extensionToWrite )
@@ -424,18 +548,17 @@ public class TranscodeFile
 		{
 			run_ffmpeg.touchFile( mkvTouchFileName ) ;
 		}
-/* Only place transcode status files in the mkv directory
-		if( !mkvFinalDirectory.equalsIgnoreCase( mp4FinalDirectory ) )
+	}
+	
+	public void unSetTranscodeStatus( final String extensionToWrite )
+	{
+		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
+		out( "unSetTranscodeStatus(" + extensionToWrite + ")> Deleting file: " + mkvTouchFileName ) ;
+		if( !run_ffmpeg.testMode )
 		{
-			final String mp4TouchFileName = getMP4OutputFileNameWithPath().replace( ".mp4", extensionToWrite ) ;
-			out( "setTranscodeStatus(" + extensionToWrite + ")> Touching file: " + mp4TouchFileName ) ;
-			if( !run_ffmpeg.testMode )
-			{
-				run_ffmpeg.touchFile( mp4TouchFileName ) ;
-			}
+			File fileToDelete = new File( mkvTouchFileName ) ;
+			fileToDelete.delete() ;
 		}
-		*/
-		// As a general rule, don't delete any files. It's no big deal if the .in_work file remains
 	}
 	
 	protected File getTheMKVFile() {
@@ -582,6 +705,30 @@ public class TranscodeFile
 		return !srtFileList.isEmpty() ;
 	}
 
+	public int numSRTInputFiles()
+	{
+		return srtFileList.size() ;
+	}
+	
+	public boolean isSRTFileListEmpty()
+	{
+		return srtFileList.isEmpty() ;
+	}
+	
+	public Iterator< File > getSRTFileListIterator()
+	{
+		return srtFileList.iterator() ;
+	}
+	
+	public File getSRTFile( int index )
+	{
+		if( isSRTFileListEmpty() ) return null ;
+		if( index < 0 ) return null ;
+		if( index >= srtFileList.size() ) return null ;
+		File returnFile = srtFileList.get( index ) ;
+		return returnFile ;
+	}
+	
 	public int getNumAudioStreams() {
 		return audioStreams.size() ;
 	}

@@ -12,8 +12,8 @@ import com.google.gson.GsonBuilder;
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
-	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive6\\To Convert\\Fury (2014)" ;
+//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert\\Ip Man 2 (2010)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Directory to which to write .srt files
@@ -23,7 +23,7 @@ public class ExtractPGSFromMKVs
 	static final String mkvWithoutHighEndAudioDestinationDirectory = "D:\\Temp" ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = false ;
+	static boolean testMode = true ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	static final boolean doSubTitleExtract = true ;
