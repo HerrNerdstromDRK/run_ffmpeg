@@ -1,0 +1,34 @@
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Running find... 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Scooby Doo Goes Hollywood (1979) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 02 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 02 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 03 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 03 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 03 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Happy Halloween Scooby-Doo (2020) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Scooby Doo Mask of the Blue Falcon (2012) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: A Pup Named Scooby-Doo, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Be Cool Scooby-Doo, Season: Season 02 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo and Scrappy-Doo (1980), Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo and Scrappy-Doo (1980), Season: Season 06 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo and Scrappy-Doo (1980), Season: Season 06 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo Where Are You, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 03 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Whats New Scooby-Doo, Season: Season 00 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Scooby Doo Goes Hollywood (1979) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Scooby Doo Goes Hollywood (1979) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Scooby Doo Goes Hollywood (1979) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Scooby Doo Mask of the Blue Falcon (2012) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found movie: Happy Halloween Scooby-Doo (2020) 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: A Pup Named Scooby-Doo, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo and Scrappy-Doo (1980), Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo and Scrappy-Doo (1980), Season: Season 06 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo and Scrappy-Doo (1980), Season: Season 06 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Scooby-Doo Where Are You, Season: Season 01 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: The Scooby-Doo Show, Season: Season 03 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Be Cool Scooby-Doo, Season: Season 02 
+[2023-02-07 17:24:47] [INFO   ] buildMovieIndex> Found TV show: Whats New Scooby-Doo, Season: Season 00 
+[2023-02-07 17:24:47] [INFO   ] BuildMovieAndShowIndex> Shutting down. 

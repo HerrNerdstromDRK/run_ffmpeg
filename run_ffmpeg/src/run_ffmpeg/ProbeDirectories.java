@@ -24,38 +24,70 @@ public class ProbeDirectories
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private static final String stopFileName = "C:\\Temp\\stop_probe_directories.txt" ;
-	private static final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
+//	private static final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
 	
 	/// The directories to probe
-	private static final String[] directoriesToProbe = {
+	private static final String[] _directoriesToProbe = {
+			"\\\\yoda\\MP4\\TV Shows",
+			"\\\\yoda\\MP4_2\\TV Shows",
+			"\\\\yoda\\MP4_3\\TV Shows",
+			"\\\\yoda\\MP4_4\\TV Shows",
+			"\\\\yoda\\MP4\\Movies",
+			"\\\\yoda\\MP4_2\\Movies",
+			"\\\\yoda\\MP4_3\\Movies",
+			"\\\\yoda\\MP4_4\\Movies",
 			"\\\\yoda\\MKV_Archive1\\Movies",
 			"\\\\yoda\\MKV_Archive2\\Movies",
 			"\\\\yoda\\MKV_Archive3\\Movies",
 			"\\\\yoda\\MKV_Archive4\\Movies",
+			"\\\\yoda\\MKV_Archive4\\TV Shows",
 			"\\\\yoda\\MKV_Archive5\\Movies",
 			"\\\\yoda\\MKV_Archive6\\Movies",
 			"\\\\yoda\\MKV_Archive7\\Movies",
 			"\\\\yoda\\MKV_Archive8\\Movies",
 			"\\\\yoda\\MKV_Archive9\\Movies",
+			"\\\\yoda\\MKV_Archive1\\TV Shows",
+			"\\\\yoda\\MKV_Archive2\\TV Shows",
+			"\\\\yoda\\MKV_Archive3\\TV Shows",
+			"\\\\yoda\\MKV_Archive5\\TV Shows",
+			"\\\\yoda\\MKV_Archive6\\TV Shows",
+			"\\\\yoda\\MKV_Archive7\\TV Shows",
+			"\\\\yoda\\MKV_Archive8\\TV Shows",
+			"\\\\yoda\\MKV_Archive9\\TV Shows",
 	} ;
 	
 	/// The extensions of the files to probe herein.
-	private static final String[] probeExtensions = {
+	private static final String[] _extensionsToProbe = {
 			".mkv",
 			".mp4"
 	} ;
 	
-	public static void main(String[] args)
+	public ProbeDirectories()
 	{
 		run_ffmpeg.testMode = testMode ;
 		run_ffmpeg.openLogFile( logFileName ) ;
-		
-		out( "main> Probing directories: " + run_ffmpeg.toString( directoriesToProbe ) ) ;
+	}
+	
+	public static void main(String[] args)
+	{
+		ProbeDirectories pd = new ProbeDirectories() ;
+		pd.probeDirectoriesAndUpdateDB() ;
+	}
+	
+	public void probeDirectoriesAndUpdateDB()
+	{
+		probeDirectoriesAndUpdateDB( _directoriesToProbe, _extensionsToProbe ) ;
+	}
+	
+	public void probeDirectoriesAndUpdateDB( final String[] directories, final String[] extensions )
+	{		
+		out( "probeDirectoriesAndUpdateDB> Probing directories: " + run_ffmpeg.toString( directories ) ) ;
 		
 		MoviesAndShowsMongoDB masMDB = new MoviesAndShowsMongoDB() ;
 		MongoCollection< FFmpegProbeResult > probeInfoCollection = masMDB.getProbeInfoCollection() ;
 		
-		for( String directoryToProbe : directoriesToProbe )
+		// Walk through each directory
+		for( String directoryToProbe : directories )
 		{
 			out( "ProbeDirectories.main> Probing directory: " + directoryToProbe ) ;
 			if( run_ffmpeg.stopExecution( stopFileName ) )
@@ -64,7 +96,11 @@ public class ProbeDirectories
 				out( "ProbeDirectories.main> Shutting down due to presence of stop file" ) ;
 				break ;
 			}
-			List< File > filesToProbe = getFilesInDirectoryByExtension( directoryToProbe, probeExtensions ) ;
+			
+			// Find files in this directory to probe
+			List< File > filesToProbe = getFilesInDirectoryByExtension( directoryToProbe, extensions ) ;
+			
+			// Walk through each file in this directory
 			for( File fileToProbe : filesToProbe )
 			{
 				if( run_ffmpeg.stopExecution( stopFileName ) )
@@ -73,6 +109,7 @@ public class ProbeDirectories
 					break ;
 				}
 				
+				// Has the directory already been probed?
 				if( fileAlreadyProbed( probeInfoCollection, fileToProbe ) )
 				{
 					// TODO: && doesn't need a refresh
@@ -82,22 +119,30 @@ public class ProbeDirectories
 				}
 				// Post-condition: File does not currently exist in the database
 
-				// Add it
+				// Probe the file with ffprobe
 				FFmpegProbeResult theResult = ExtractPGSFromMKVs.ffprobeFile( fileToProbe ) ;
 				
 				// Push the probe result into the database.
 				probeInfoCollection.insertOne( theResult ) ;
 			} // for( fileToProbe )
+			
 			// Apparently rapid calls to the database creates a bunch of heap usage
 			// Clear that here to prevent memory problems.
 			System.gc() ;
+			
 		} // for( filesToProbe )
 
-		out( "ProbeDirectories.main> Shutting down..." ) ;
+		out( "probeDirectoriesAndUpdateDB> Shutting down..." ) ;
 		run_ffmpeg.closeLogFile() ;
-		out( "ProbeDirectories.main> Shut down complete." ) ;
+		out( "probeDirectoriesAndUpdateDB> Shut down complete." ) ;
 	}
 
+	/**
+	 * Return true if the given file has already been probed. False otherwise.
+	 * @param probeInfoCollection
+	 * @param fileToProbe
+	 * @return
+	 */
 	public static boolean fileAlreadyProbed( MongoCollection< FFmpegProbeResult > probeInfoCollection, final File fileToProbe )
 	{
 //		out( "fileAlreadyProbed> Looking for filename: " + fileToProbe.getAbsolutePath() ) ;

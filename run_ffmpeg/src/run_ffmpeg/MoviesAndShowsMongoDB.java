@@ -21,6 +21,8 @@ public class MoviesAndShowsMongoDB
 {
 	private MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
+	private final String probeInfoCollectionName = "ProbeInfo" ;
+	private final String movieAndShowInfoCollectionName = "MovieAndShowInfo" ;
 
 	/// File name to which to log activities for this application.
 	static private final String logFileName = "log_extract_pgs.txt" ;
@@ -74,7 +76,7 @@ public class MoviesAndShowsMongoDB
 		persistentMongoClient = new MongoClient( "localhost" , 27017 );
 		
 		// Setup the providers for passing Plain Old Java Objects (POJOs) to and from the database
-		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic(true).build();
+		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build();
 		CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
 
 		// Login to the database
@@ -88,8 +90,15 @@ public class MoviesAndShowsMongoDB
 
 	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
 	{	
-		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection( "ProbeInfo",
+		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
 				FFmpegProbeResult.class ) ;
+		return theCollection ;
+	}
+
+	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
+	{	
+		MongoCollection< MovieAndShowInfo > theCollection = persistentDatabaseHandle.getCollection( movieAndShowInfoCollectionName,
+				MovieAndShowInfo.class ) ;
 		return theCollection ;
 	}
 
