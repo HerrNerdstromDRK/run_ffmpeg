@@ -1,6 +1,7 @@
 package run_ffmpeg;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,27 +10,44 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * Problems to solve:
+ * - Identify which movies/tv shows are missing MKVs
+ * -- Build an inventory algorith to list all movies/tv shows
+ * - Identify which movies/tv shows are missing subtitles
+ * -- Build ffprobe for both input and output
+ * --- Need means to record them
+ * - Identify which movies/tv shows need forced subtitles
+ * - Fix subtitles, audio, metadata for all items, if required
+ * -- Need to know which are broken
+ * -- Need to correlate those back to the MKV files and cross-check
+ * - Build a method to update those movies/tv shows that are misconfigured or missing information
+ * -- Use above database (?) of ffprobe data to analyze deltas
+ * -- Update run_ffmpeg (or other) to fix those items using database inputs
+ * @author Dan
+ *
+ */
+
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
 //	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert\\Ip Man 2 (2010)" ;
+	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive1\\Movies" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
+	/// Set to true to place the output SRT files into the same directory
+	/// in which the input files are found.
+	/// When set to true, the below destination directory will be ignored.
+	static boolean doPlaceSRTFilesInInputDirectory = true ;
+	
 	/// Directory to which to write .srt files
 	static final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
-
-	/// Directory to which to write any .MKV files that have 6.1 or 7.1 sound, but without those streams
-	static final String mkvWithoutHighEndAudioDestinationDirectory = "D:\\Temp" ;
 
 	/// Set testMode to true to prevent mutations
 	static boolean testMode = true ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	static final boolean doSubTitleExtract = true ;
-
-	/// Set to true to extract the 6.1/7.1 audio stream(s) from this file
-	static final boolean doAudioStreamExtract = false ;
 
 	/// File name to which to log activities for this application.
 	static final String logFileName = "log_extract_pgs.txt" ;
@@ -38,24 +56,12 @@ public class ExtractPGSFromMKVs
 	/// next iteration of the main loop.
 	static final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
 
-	static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
-	static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
+	static final String pathToFFMPEG = run_ffmpeg.pathToFFMPEG ;
+	static final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
 	static final String codecNameSubTitleSRTString = "subrip" ;
 	static final String codecTypeAudio = "audio" ;
-
-	/// List of starting Strings for audio stream titles to be excluded from transcoding.
-	static final String[] excludedAudioStreamTitleContains = {
-			"6.1",
-			"7.1"
-	} ;
-	
-	/// List of allowable languages for audio streams
-	static final String[] includedAudioStreamLanguageEquals = {
-			"eng",
-			"en" // I think the protocol is strictly three letters only, but just being cautious here.
-	} ;
 	
 	/// Identify the allowable languages for subtitles.
 	static final String[] allowableSubTitleLanguages = {
@@ -84,13 +90,12 @@ public class ExtractPGSFromMKVs
 		// a TranscodeFile object for each.
 		List< TranscodeFile > filesToProcess = run_ffmpeg.surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory ) ;
 
-	  	// Perform the core work of this application: for each input file, create the appropriate directories,
-	  	// process the file, and move the input and output files (if necessary).
+	  	// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
 			if( run_ffmpeg.stopExecution( stopFileName ) )
 			{
-				out( "main> Stopping execution due to presence of stop file: " + stopFileName ) ;
+				out( "ExtractPGSFromMKVs.main> Stopping execution due to presence of stop file: " + stopFileName ) ;
 				break ;
 			}
 
@@ -109,45 +114,9 @@ public class ExtractPGSFromMKVs
 				extractSubtitles( theFileToProcess, probeResult ) ;
 			}
 			
-			if( doAudioStreamExtract )
-			{
-				extractAudioStreams( theFileToProcess, probeResult ) ;
-			}
-			
 		} // for( fileToSubTitleExtract )
 		out( "main> Exiting..." ) ;
 		run_ffmpeg.closeLogFile() ;
-	}
-
-	/**
-	 * Remove the 6.1/7.1 and non-allowable language audio streams via ffmpeg mapping options and keep everything else.
-	 * @param probeResult
-	 * @param theFile
-	 * @return
-	 */
-	static ImmutableList.Builder<String> buildFFmpegAudioExtractionOptionsString( FFmpegProbeResult probeResult )
-	{
-		// The ffmpegOptionsCommandString will contain only the options to extract audio streams
-		// from the given FFmpegProbeResult
-		// All of the actual ffmpeg command build ("ffmpeg -i ...") happens elsewhere
-		ImmutableList.Builder<String> ffmpegOptionsCommandString = new ImmutableList.Builder<String>();
-	
-		List< Integer > streamsToExclude = findExcludedAudioStreamsAsInteger( probeResult.streams ) ;
-		if( streamsToExclude.isEmpty() )
-		{
-			// Return an empty command list
-			return new ImmutableList.Builder<String>() ;
-		}
-	
-		// At least one stream needs to be removed
-		for( Integer theInteger : streamsToExclude )
-		{
-			ffmpegOptionsCommandString.add( "-map", "-0:" + theInteger ) ;
-		}
-		
-		log( "buildFFmpegAudioExtractionOptionsString> ffmpegOptionsCommandString: "
-				+ run_ffmpeg.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
-		return ffmpegOptionsCommandString ;	
 	}
 
 	static ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
@@ -173,7 +142,13 @@ public class ExtractPGSFromMKVs
 			// Create the .sup filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
-			String outputFileNameWithPath = run_ffmpeg.addPathSeparatorIfNecessary( subTitleStreamExtractDestinationDirectory )
+			String outputPath = subTitleStreamExtractDestinationDirectory ;
+			if( doPlaceSRTFilesInInputDirectory )
+			{
+				// Place the subtitle files in the same directory as the source files
+				outputPath = theFile.getMKVInputPath() ;
+			}
+			String outputFileNameWithPath = run_ffmpeg.addPathSeparatorIfNecessary( outputPath )
 					+ theFile.getMkvFileName().replace( ".mkv", "" ) ;
 	
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
@@ -193,37 +168,6 @@ public class ExtractPGSFromMKVs
 				+ run_ffmpeg.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
 		return ffmpegOptionsCommandString ;	
 	}
-
-	static void extractAudioStreams( TranscodeFile fileToSubTitleExtract, FFmpegProbeResult probeResult )
-		{
-			// Build a set of options for an ffmpeg command based on the JSON input
-			// If no suitable subtitles are found, the options string will be empty
-			ImmutableList.Builder<String> audioExtractionOptionsString =
-					buildFFmpegAudioExtractionOptionsString( probeResult ) ;
-			
-			if( audioExtractionOptionsString.build().isEmpty() )
-			{
-				// Nothing to do
-				return ;
-			}
-			
-			// Otherwise, found an MKV file that needs to have its 6.1/7.1 stream(s) removed
-			ImmutableList.Builder<String> ffmpegCommandList = new ImmutableList.Builder< String >() ;
-			ffmpegCommandList.add( pathToFFMPEG ) ;
-			ffmpegCommandList.add( "-i", fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
-			ffmpegCommandList.add( "-map", "0" ) ;
-			
-			// audioExtractionOptionsString will include the streams to exclude of the form "-map -0:n"
-			ffmpegCommandList.addAll( audioExtractionOptionsString.build() ) ;
-	//		ffmpegCommandList.add( run_ffmpeg.toStringForCommandExecution( audioExtractionOptionsString.build() ) ) ;
-			ffmpegCommandList.add( "-c", "copy" ) ;
-			
-			String outputFileNameWithPath = run_ffmpeg.addPathSeparatorIfNecessary( mkvWithoutHighEndAudioDestinationDirectory )
-					+ fileToSubTitleExtract.getMkvFileName() ;
-			ffmpegCommandList.add( outputFileNameWithPath ) ;
-			
-			run_ffmpeg.executeCommand( ffmpegCommandList ) ;
-		}
 
 	static void extractSubtitles( TranscodeFile fileToSubTitleExtract, FFmpegProbeResult probeResult )
 	{
@@ -248,79 +192,6 @@ public class ExtractPGSFromMKVs
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 	
 		run_ffmpeg.executeCommand( ffmpegSubTitleExtractCommand ) ;
-	}
-
-	/**
-		 * Search for excluded streams in the list of FFmpegStreams.
-		 * Always returns a non-null List, but it may be empty.
-		 * @param inputStreams
-		 * @return
-		 */
-		static List< FFmpegStream > findExcludedAudioStreams( final List< FFmpegStream > inputStreams )
-		{
-			List< FFmpegStream > excludedAudioStreams = new ArrayList< FFmpegStream >() ;
-			
-			// Walk through the list of streams and add the index corresponding to any 6.1 or 7.1
-			// streams to the streamsToExclude list
-			for( FFmpegStream theStream : inputStreams )
-			{
-	//			log( "findExcludedAudioStreams> stream: " + theStream ) ;
-				if( !theStream.codec_type.equalsIgnoreCase( codecTypeAudio ) )
-				{
-					// Not an audio stream
-					// Ignore it (will be included in the output)
-					continue ;
-				}
-				// Post condition: This is an audio stream
-				if( !theStream.tags.containsKey( "title" ) )
-				{
-					out( "findExcludedAudioStreams> Missing \"title\" for audio stream "
-							+ theStream ) ;
-					continue ;
-				}
-				// Post condition: the audio stream has a tag named "title"
-	
-				// Search this audio stream for a title that contains any of the excluded audio stream titles
-				final String titleValueString = theStream.tags.get( "title" ) ;
-				if( isExcludedAudioTitle( titleValueString ) )
-				{
-					// This stream title starts with the excluded audio stream title
-					log( "findExcludedAudioStreams> Found excluded audio title stream: " + theStream ) ;
-	
-					// Record this stream as being excluded
-					excludedAudioStreams.add( theStream ) ;
-				}
-				
-				if( !theStream.tags.containsKey( "language" ) )
-				{
-					out( "findExcludedAudioStreams> Missing \"language\" for audio stream: "
-							+ theStream ) ;
-					continue ;
-				}
-				
-				final String languageValueString = theStream.tags.get( "language" ) ;
-				if( !isAllowableAudioLanguage( languageValueString ) )
-				{
-					log( "findExcludedAudioStreams> Audio language not allowed for audio stream: "
-							+ theStream ) ;
-					// Record this stream as being excluded
-					excludedAudioStreams.add( theStream ) ;
-				}
-				
-			} // for( theStream )
-			return excludedAudioStreams ;
-		}
-
-	static List< Integer > findExcludedAudioStreamsAsInteger( final List< FFmpegStream > inputStreams )
-	{
-		List< FFmpegStream > excludedAudioStreams = findExcludedAudioStreams( inputStreams ) ;
-		List< Integer > excludedAudioStreamsAsInteger = new ArrayList< Integer >() ;
-		for( FFmpegStream theStream : excludedAudioStreams )
-		{
-			Integer streamIndex = Integer.valueOf( theStream.index ) ;
-			excludedAudioStreamsAsInteger.add( streamIndex ) ;
-		}
-		return excludedAudioStreamsAsInteger ;
 	}
 
 	/**
@@ -376,7 +247,12 @@ public class ExtractPGSFromMKVs
 	 */
 	public static FFmpegProbeResult ffprobeFile( TranscodeFile theFile )
 	{
-		log( "ffprobeFile> Processing: " + theFile.getMkvFileName() ) ;
+		return ffprobeFile( new File( theFile.getMKVFileNameWithPath() ) ) ;
+	}
+	
+	public static FFmpegProbeResult ffprobeFile( File theFile )
+	{	
+		log( "ffprobeFile> Processing: " + theFile.getAbsolutePath() ) ;
 		FFmpegProbeResult result = null ;
 
 		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
@@ -392,17 +268,16 @@ public class ExtractPGSFromMKVs
 		ffprobeExecuteCommand.add( "-print_format", "json" ) ;
 
 		// Finally, add the input file
-		ffprobeExecuteCommand.add( "-i", theFile.getMKVFileNameWithPath() ) ;
+		ffprobeExecuteCommand.add( "-i", theFile.getAbsolutePath() ) ;
 
 		// Build the GSON parser for the JSON input
 		GsonBuilder builder = new GsonBuilder(); 
 		builder.setPrettyPrinting(); 
-
 		Gson gson = builder.create();
 
 		try
 		{
-			Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
+			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 			String ffprobeExecuteCommandString = run_ffmpeg.toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
 			out( "ffprobeFile> Execute ffprobe command: " + ffprobeExecuteCommandString ) ;
 
@@ -421,13 +296,17 @@ public class ExtractPGSFromMKVs
 			
 			if( process.exitValue() != 0 )
 			{
-				out( "ffprobeFile> Error running ffprobe on file " + theFile.getMkvFileName() + "; exitValue: " + process.exitValue() ) ;
+				out( "ffprobeFile> Error running ffprobe on file " + theFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
 				result = null ; // already null, but just for clarity
 			}
 			else
 			{
 				// Deserialize the JSON streams info from this file
 				result = gson.fromJson(inputBuffer, FFmpegProbeResult.class);
+				// TODO: Ensure consistent file path naming using \\yoda as start
+				result.setFilename(theFile.getAbsolutePath());
+				result.setProbeTime(System.currentTimeMillis());
+				result.setSize(theFile.length());
 			}
 		}
 		catch( Exception theException )
@@ -437,20 +316,6 @@ public class ExtractPGSFromMKVs
 		return result ;
 	}
 
-	static boolean isAllowableAudioLanguage( final String audioLanguage )
-	{
-		for( String allowableLanguage : includedAudioStreamLanguageEquals )
-		{
-			if( allowableLanguage.equalsIgnoreCase( audioLanguage ) )
-			{
-				// Found an allowable language
-				return true ;
-			}
-		}
-		// No allowable language found
-		return false ;
-	}
-
 	static boolean isAllowableSubTitleLanguage( final String audioLanguage )
 	{
 		for( String allowableLanguage : allowableSubTitleLanguages )
@@ -458,20 +323,6 @@ public class ExtractPGSFromMKVs
 			if( allowableLanguage.equalsIgnoreCase( audioLanguage ) )
 			{
 				// Found an allowable language
-				return true ;
-			}
-		}
-		// No allowable language found
-		return false ;
-	}
-
-	static boolean isExcludedAudioTitle( final String audioTitle )
-	{
-		for( String excludedTitle : excludedAudioStreamTitleContains )
-		{
-			if( audioTitle.contains( excludedTitle ) )
-			{
-				// Found an allowable true
 				return true ;
 			}
 		}
@@ -507,15 +358,14 @@ public class ExtractPGSFromMKVs
 		return false ;
 	}
 	
-	static void out( final String outputMe )
+	static synchronized void out( final String outputMe )
 	{
 		run_ffmpeg.out( outputMe ) ;
 	}
 	
-	static void log( final String logMe )
+	static synchronized void log( final String logMe )
 	{
 		run_ffmpeg.log( logMe ) ;
 	}
-	
 
 }

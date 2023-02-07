@@ -348,8 +348,8 @@ public class TranscodeFile
 	public String getPrimaryAudioLanguage()
 	{
 		// The audio streams should already be in numerical order, low to high
-		// I have yet to see a movie or show where the primary language was anything
-		// other than the lowest numbered audio stream.
+		// NOTE: This assumes the primary language will be the first audio stream,
+		//  although this is not guaranteed.
 		if( audioStreams.isEmpty() )
 		{
 			out( "getPrimaryAudioLanguage> Empty audio stream list" ) ;
@@ -668,6 +668,10 @@ public class TranscodeFile
 		return getTheMKVFile().getAbsolutePath() ;
 	}
 
+	public String getMKVInputPath() {
+		return getTheMKVFile().getParent() ;
+	}
+	
 	public boolean audioHasStereo() {
 		return _audioHasStereo;
 	}

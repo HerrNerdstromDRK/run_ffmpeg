@@ -130,10 +130,16 @@ public class run_ffmpeg
 		// Transcode the primary language audio streams, plus english. This is intended for foreign language movies
 		// such as Chinese martial arts movies. In those cases, I tend to use the foreign language audio with
 		// english subtitles, but also want the option of english audio.
-		audioStreamPrimaryPlusEnglish
+		audioStreamPrimaryPlusEnglish,
+		
+		// Transcode by including all languages listed in an array of language names
+		audioStreamsByName
 	} ;
-	static final audioStreamTranscodeOptionsType audioStreamTranscodeOptions = audioStreamTranscodeOptionsType.audioStreamAll ;
+	static final audioStreamTranscodeOptionsType audioStreamTranscodeOptions = audioStreamTranscodeOptionsType.audioStreamsByName ;
 
+	/// The array of language types to include under audioStreamsByName option above
+	static final String[] audioStreamsByNameArray = { "eng", "en" } ;
+	
 	/// The transcode library to use for audio transcodes. libfdk is the highest quality, with aac as the second highest quality.
 	static final String audioTranscodeLibrary = "aac" ;
 	
@@ -507,6 +513,7 @@ public class run_ffmpeg
 	{
 		try
 		{
+			System.out.println( "openLogFile> Opening log file: " + fileName ) ;
 			logWriter = new BufferedWriter( new FileWriter( fileName ) ) ;
 		}
 		catch( Exception theException )
@@ -545,7 +552,7 @@ public class run_ffmpeg
     	out( "*** logWriterFileName: " + logWriterFileName + " ***" ) ;
     	out( "*** useFileNameAsTitle: " + useFileNameAsTitle + " ***" ) ;
     	out( "*** stopFileName: " + stopFileName + " ***" ) ;
-    	out( "*** transcodeExtensions: " + transcodeExtensions + " ***" ) ;
+    	out( "*** transcodeExtensions: " + toString( transcodeExtensions ) + " ***" ) ;
     	out( "*** moveMKVAndMP4InParallel: " + moveMKVAndMP4InParallel + " ***" ) ;
     	out( "*** forcedSubTitleFileNameContains: " + forcedSubTitleFileNameContains + " ***" ) ;
     	out( "*** audioTranscodeLibrary: " + audioTranscodeLibrary + " ***" ) ;
@@ -558,6 +565,10 @@ public class run_ffmpeg
     	else if( audioStreamTranscodeOptions == audioStreamTranscodeOptionsType.audioStreamPrimaryPlusEnglish )
     	{
     		audioStreamTranscodeOptionsString = "audioStreamPrimaryPlusEnglish" ;
+    	}
+    	else if( audioStreamTranscodeOptions == audioStreamTranscodeOptionsType.audioStreamsByName )
+    	{
+    		audioStreamTranscodeOptionsString = "audioStreamsByName: " + toString( audioStreamsByNameArray ) ;
     	}
     	out( "*** audioStreamTranscodeOptions: " + audioStreamTranscodeOptionsString + " ***" ) ;
     	out( "" ) ;
@@ -897,19 +908,32 @@ public class run_ffmpeg
 		else if( audioStreamTranscodeOptionsType.audioStreamEnglishOnly == audioStreamTranscodeOptions )
 		{
 			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "eng" ) ) ;
+			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "en" ) ) ;
 		}
 		else if( audioStreamTranscodeOptionsType.audioStreamPrimaryPlusEnglish == audioStreamTranscodeOptions )
 		{
 			// Add the primary language first, then English
-			// Most times the primary language type will be English
+			// Often the primary language type will be English
 			final String primaryAudioLanguage = inputFile.getPrimaryAudioLanguage() ;
 			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( primaryAudioLanguage ) ) ;
-			if( !primaryAudioLanguage.equalsIgnoreCase( "eng" ) )
+			if( !primaryAudioLanguage.equalsIgnoreCase( "eng" ) && !primaryAudioLanguage.equalsIgnoreCase( "en" ) )
 			{
 				// Primary language is other than english
 				// Add english to the list (after the primary)
 				audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "eng" ) ) ;
+				audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "en" ) ) ;
 			}
+		}
+		else if( audioStreamTranscodeOptionsType.audioStreamsByName == audioStreamTranscodeOptions )
+		{
+			for( String languageName : audioStreamsByNameArray )
+			{
+				audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( languageName ) ) ;
+			}
+		}
+		else
+		{
+			out( "buildAudioTranscodeOptions> Unknown audioStreamTranscode option: " + audioStreamTranscodeOptions ) ;
 		}
 		// Post condition: audioStreamsToTranscode now has the full list of audio streams to transcode into
 		// the output file.
@@ -1071,4 +1095,15 @@ public class run_ffmpeg
 		}
 	}
 
+	static String toString( final String[] inputArray )
+	{
+		String retMe = "{" ;
+		for( String theInput : inputArray )
+		{
+			retMe += "[" + theInput + "]" ;
+		}
+		retMe += "}" ;
+		return retMe ;
+	}
+	
 } // run_ffmpeg

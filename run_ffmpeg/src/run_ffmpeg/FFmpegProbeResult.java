@@ -4,46 +4,111 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bson.types.ObjectId;
+
 import com.google.common.collect.ImmutableList;
 
-public class FFmpegProbeResult {
-	  public FFmpegError error;
-	  public FFmpegFormat format;
-	  public List<FFmpegStream> streams;
-	  public List<FFmpegChapter> chapters;
+/**
+ * Store the data returned from an ffprobe invocation.
+ * @author Dan
+ */
+public class FFmpegProbeResult
+{
+	/// This object's id in the database.
+	private ObjectId id ;
+	
+	/// The file being probed.
+	private String filename = null ;
+	
+	/// The time, in ms since 1-Jan-1970, of this probe
+	private long probeTime = 0 ;
+	
+	/// Size of the file in bytes
+	private long size = 0 ;
+	
+	/// Store any error state
+	public FFmpegError error = null ;
 
-	  public FFmpegError getError() {
-	    return error;
-	  }
+	/// Store the format of the file
+	public FFmpegFormat format = null ;
 
-	  public boolean hasError() {
-	    return error != null;
-	  }
+	/// Store the streams
+	public List< FFmpegStream > streams = null ;
 
-	  public FFmpegFormat getFormat() {
-	    return format;
-	  }
+	/// The chapters
+	public List< FFmpegChapter > chapters = null ;
 
-	  public List<FFmpegStream> getStreams() {
-	    if (streams == null) return Collections.emptyList();
-	    return ImmutableList.copyOf(streams);
-	  }
-	  
-	  public List< FFmpegStream > getStreamsByCodecType( final String searchType )
-	  {
+	public FFmpegError getError() {
+		return error;
+	}
+
+	public boolean hasError() {
+		return error != null;
+	}
+
+	public FFmpegFormat getFormat() {
+		return format;
+	}
+
+	/**
+	 * Return a copy of the streams.
+	 * @return
+	 */
+	public List< FFmpegStream > getStreams()
+	{
+		if (streams == null) return Collections.emptyList();
+		return ImmutableList.copyOf( streams );
+	}
+
+	/**
+	 * Return a copy of each stream matching the given codec_type.
+	 * @param searchType
+	 * @return
+	 */
+	public List< FFmpegStream > getStreamsByCodecType( final String searchType )
+	{
 		List< FFmpegStream > returnMe = new ArrayList< FFmpegStream >() ;
 		for( FFmpegStream theInputStream : getStreams() )
 		{
-				if( theInputStream.codec_type.equalsIgnoreCase(searchType) )
-				{
-					returnMe.add( theInputStream ) ;
-				}
+			if( theInputStream.codec_type.equalsIgnoreCase(searchType) )
+			{
+				returnMe.add( theInputStream ) ;
+			}
 		}		  
 		return returnMe ;
-	  }
-
-	  public List<FFmpegChapter> getChapters() {
-	    if (chapters == null) return Collections.emptyList();
-	    return ImmutableList.copyOf(chapters);
-	  }
 	}
+
+	/**
+	 * Return a copy of the chapters.
+	 * @return
+	 */
+	public List< FFmpegChapter > getChapters()
+	{
+		if (chapters == null) return Collections.emptyList();
+		return ImmutableList.copyOf(chapters);
+	}
+
+	public String getFilename() {
+		return filename;
+	}
+
+	public void setFilename(String filename) {
+		this.filename = filename;
+	}
+
+	public long getProbeTime() {
+		return probeTime;
+	}
+
+	public void setProbeTime(long probeTime) {
+		this.probeTime = probeTime;
+	}
+
+	public long getSize() {
+		return size;
+	}
+
+	public void setSize(long size) {
+		this.size = size;
+	}
+}
