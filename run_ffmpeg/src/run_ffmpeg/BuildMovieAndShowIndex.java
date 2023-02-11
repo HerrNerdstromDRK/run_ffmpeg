@@ -16,6 +16,10 @@ import com.mongodb.client.model.Filters;
  *  correlate those to individual movies and tv shows. Each of those will be
  *  added/updated in the database to support future activities (matching,
  *  identifying missing files, statistics, work actions, etc.).
+ * Database collections:
+ *  ProbeInfo: One entry for each mkv or mp4 file. Includes the FFmpegProbeResult for each.
+ *  MovieAndShowInfo: Information about a single movie or TV show. Includes attached MovieAndShowInfo
+ *   entry for each. Each MovieAndShowInfo includes a list of known mp4 and mkv files.
  * @author Dan
  *
  */
@@ -33,7 +37,7 @@ public class BuildMovieAndShowIndex
 	
 	public BuildMovieAndShowIndex()
 	{
-		log = Common.setupLogger( logFileName ) ;
+		log = Common.setupLogger( logFileName, BuildMovieAndShowIndex.class.getName() ) ;
 	}
 	
 	public static void main( String[] args )
@@ -53,22 +57,26 @@ public class BuildMovieAndShowIndex
 		MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		
 		// First, let's pull the mkv file info
-		Bson mp4A = Filters.regex( "filename", ".*Scooby.*" ) ;
-		log.info( "buildMovieIndex> Running find..." ) ;
+		Bson mp4A = Filters.regex( "filename", ".*" ) ;
+		log.info( "Running find..." ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;
 
 		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 		while( probeInfoFindResultIterator.hasNext() )
 		{
-			File theFile = new File( probeInfoFindResultIterator.next().getFilename() ) ;
+			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			File theFile = new File( probeResult.getFilename() ) ;
 			if( theFile.getParent().contains( "Season " ) )
 			{
 				// TV Show
-				final String tvShowName = theFile.getParentFile().getParentFile().getName() ;
-				final String tvShowSeasonName = theFile.getParentFile().getName() ;
-				log.info( "buildMovieIndex> Found TV show: " + tvShowName + ", Season: " + tvShowSeasonName ) ;
+				// TV show names will be stored by combining the name of the show with the season
+				// For example: "Californication_Season 01"
+				final String tvShowName = theFile.getParentFile().getParentFile().getName()
+						+ "_"
+						+ theFile.getParentFile().getName() ;
+				log.info( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
 				
-				processEntry( tvShowMap, tvShowName, tvShowSeasonName, theFile ) ;
+				addEntryToMap( tvShowMap, tvShowName, probeResult, theFile ) ;
 			}
 			else if( theFile.getParent().contains( "(" ) )
 			{
@@ -76,53 +84,66 @@ public class BuildMovieAndShowIndex
 				// The formal should be like this:
 				// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
 				final String movieName = theFile.getParentFile().getName() ;
-				log.info( "buildMovieIndex> Found movie: " + movieName ) ;
+				log.info( "Found movie: " + movieName ) ;
 				// movieName should be of the form "Transformers (2007)"
-				processEntry( movieMap, movieName, null, theFile ) ;
+				addEntryToMap( movieMap, movieName, probeResult, theFile ) ;
 			}
 			else
 			{
-				log.warning( "buildMovieIndex> Parse error for file: " + theFile.getAbsolutePath() ) ;
+				log.warning( "Parse error for file: " + theFile.getAbsolutePath() ) ;
 			}
 		} // while( iterator.hasNext() )
 		
+		// Done reading the mkv and mp4 files from the database.
+		// Sort through each movie and tv show to find matching filenames.
+		correlateFiles( movieMap ) ;
+		correlateFiles( tvShowMap ) ;
+		
 //		mkvProbeInfoFindIterator.forEachRemaining( entry -> log.info( "BuildMovieAndShowIndex> entry: " + entry.getFilename() ) ) ;
-		log.info( "BuildMovieAndShowIndex> Shutting down." ) ;
+		log.info( "Shutting down." ) ;
+	}
+	
+	private void correlateFiles( Map< String, MovieAndShowInfo > probeMap )
+	{
+		// Iterate through all items in the probeMap and invoke each correlation method
+		// Note that the items in the probeMap should be unique
+		for( Map.Entry< String, MovieAndShowInfo > set : probeMap.entrySet() )
+		{
+			String movieOrShowName = set.getKey() ;
+			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
+			movieAndShowInfo.correlateProbeResults() ;
+		}
 	}
 	
 	/**
-	 * Handle the discovery of a file in the database. This could be either a tv show entry or movie entry.
+	 * Place the tv show or movie file into the given storageMap. This could be either a tv show entry or movie entry.
 	 * @param storageMap: Place to store the movie or tv show
 	 * @param movieOrTVShowName: The name of the movie or tv show. Will always be non-null
 	 * @param tvShowSeasonName: Null if the entry is a movie; a season name if tv.
 	 * @param theFile
 	 */
-	private void processEntry( Map< String, MovieAndShowInfo > storageMap,
+	private void addEntryToMap( Map< String, MovieAndShowInfo > storageMap,
 			final String movieOrTVShowName,
-			final String tvShowSeasonName,
+			final FFmpegProbeResult probeResult,
 			final File theFile )
 	{
 		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
+
 		MovieAndShowInfo mapEntry = storageMap.get( movieOrTVShowName ) ;
 		if( null == mapEntry )
 		{
 			// Not already in the storageMap
-			mapEntry = new MovieAndShowInfo( movieOrTVShowName ) ;
-			if( tvShowSeasonName != null )
-			{
-				// It's a tv show
-				mapEntry.setSeasonName( tvShowSeasonName ) ;
-			}
+			mapEntry = new MovieAndShowInfo( movieOrTVShowName, log ) ;
 			storageMap.put( movieOrTVShowName, mapEntry ) ;
 		}
 		// Post condition: theShow is non-null and exists in the storageMap.
 		if( isMP4 )
 		{
-			mapEntry.addMP4File( theFile.getAbsolutePath() ) ;
+			mapEntry.addMP4File( probeResult ) ;
 		}
 		else
 		{
-			mapEntry.addMKVFile( theFile.getAbsolutePath() ) ;
+			mapEntry.addMKVFile( probeResult ) ;
 		}
 	}
 	

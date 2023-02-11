@@ -15,7 +15,10 @@ import com.google.common.collect.ImmutableList;
 public class FFmpegProbeResult
 {
 	/// This object's id in the database.
-	private ObjectId id ;
+	private ObjectId _id ;
+	
+	/// The object's id as a String
+	private String idString = null ;
 	
 	/// The file being probed.
 	private String filename = null ;
@@ -111,4 +114,23 @@ public class FFmpegProbeResult
 	public void setSize(long size) {
 		this.size = size;
 	}
+	
+	public String getIDString()
+	{
+		if( null == idString )
+		{
+			idString = _id.toString() ;
+		}
+		return idString ;
+	}
+	
+	public String toString()
+	{
+		String retMe = "{filename: " + getFilename()
+		+ ",streams.size: " + streams.size()
+//		+ ",chapters.size: " + chapters.size()
+		+ "}" ;
+		return retMe ;
+	}
+	
 }
