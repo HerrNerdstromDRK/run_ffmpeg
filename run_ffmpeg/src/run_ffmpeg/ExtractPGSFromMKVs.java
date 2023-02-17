@@ -3,14 +3,9 @@ package run_ffmpeg;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -37,7 +32,8 @@ public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
 	//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
-	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive1\\Movies\\Showtime (2002)" ;
+//	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive1" ;
+	private String mkvInputDirectory = "E:\\Movies" ;
 	//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Set to true to place the output SRT files into the same directory
@@ -49,7 +45,7 @@ public class ExtractPGSFromMKVs
 	private final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	private final boolean doSubTitleExtract = true ;
@@ -69,6 +65,7 @@ public class ExtractPGSFromMKVs
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
 	static final String codecNameSubTitleSRTString = "subrip" ;
+	static final String codecNameSubTitleDVDSubString = "dvd_subtitle" ;
 	static final String codecTypeAudio = "audio" ;
 
 	/// Identify the allowable languages for subtitles.
@@ -81,7 +78,8 @@ public class ExtractPGSFromMKVs
 	/// This will mostly be used when selecting which streams to extract as separate files.
 	static final String[] extractableSubTitleCodecNames = {
 			codecNameSubTitlePGSString,
-			codecNameSubTitleSRTString
+			codecNameSubTitleSRTString,
+			codecNameSubTitleDVDSubString
 	} ;
 
 	/// The list of subtitle code names that should be left in any files to be transcoded directly
@@ -356,20 +354,6 @@ public class ExtractPGSFromMKVs
 	static boolean isExtractableSubTitleCodecName( final String stCodeName )
 	{
 		for( String allowableCodecName : extractableSubTitleCodecNames )
-		{
-			if( allowableCodecName.equalsIgnoreCase( stCodeName ) )
-			{
-				// Found an allowable code name
-				return true ;
-			}
-		}
-		// No allowable code name found
-		return false ;
-	}
-
-	static boolean isTranscodeableSubTitleCodecName( final String stCodeName )
-	{
-		for( String allowableCodecName : transcodeableSubTitleCodecNames )
 		{
 			if( allowableCodecName.equalsIgnoreCase( stCodeName ) )
 			{
