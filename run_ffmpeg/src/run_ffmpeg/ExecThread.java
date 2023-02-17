@@ -2,17 +2,20 @@ package run_ffmpeg;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class ExecThread extends Thread
 {
 	protected String threadName = "Unnamed Thread" ;
 	private List< ThreadAction > execList = new ArrayList< >() ;
+	private transient Logger log = null ;
 
 	private boolean keepRunning = true ;
 
 	public ExecThread( String _threadName )
 	{
 		threadName = _threadName ;
+		log = run_ffmpeg.getLogger() ;
 	}
 	
 	@Override
@@ -46,11 +49,11 @@ public class ExecThread extends Thread
 					++numCommands ;
 				}
 			} // while( keepRunning )
-			run_ffmpeg.out( "ExecThread(" + toString() + ").run> Shutting down after executing " + numCommands + " command(s)" ) ;
+			log.info( toString() + " Shutting down after executing " + numCommands + " command(s)" ) ;
 		}
 		catch( Exception theException )
 		{
-			run_ffmpeg.out( "ExecThread(" + toString() + ").run> Exception: " + theException ) ;
+			log.info( toString() + " Exception: " + theException ) ;
 		}
 	}
 
@@ -74,7 +77,7 @@ public class ExecThread extends Thread
 		{
 			execList.add( addMe ) ;
 		}
-		run_ffmpeg.out( "ExecThread(" + toString() + ")> Added work: " + addMe ) ;
+		log.info( toString() + " Added work: " + addMe ) ;
 	}
 
 	public synchronized void stopRunning()

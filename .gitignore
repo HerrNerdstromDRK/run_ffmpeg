@@ -2,3 +2,7 @@
 /bin/
 /log.txt
 /db_connect_info.txt
+/build_movie_and_show_index.txt
+/log_extract_pgs.txt
+/log_movies_and_shows_mongodb.txt
+/log_probe_directories.txt

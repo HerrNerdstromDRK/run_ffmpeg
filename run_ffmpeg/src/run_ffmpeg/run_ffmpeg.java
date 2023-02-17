@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import com.google.common.collect.ImmutableList;
@@ -35,15 +36,15 @@ public class run_ffmpeg
 //	static String mkvInputDirectory = "C:\\Temp\\Game Of Thrones" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert - TV Shows" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\Movies\\Ip Man 2 (2010)" ;
+//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\Movies\\Ip Man 2 (2010)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert" ;
-//	static String mkvInputDirectory = "\\\\yoda\\Videos\\Videos\\Other Videos" ;
+	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\drive-download-20230211T202934Z-001" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
 	/// Directory to which to move MKV files for storage
-//	static String mkvFinalDirectory = mkvInputDirectory ;
+	static String mkvFinalDirectory = mkvInputDirectory ;
 //	static String mkvFinalDirectory = "C:\\Temp\\The Americans" ;
-	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\Movies" ;
+//	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\Movies" ;
 //	static String mkvFinalDirectory = "\\\\yoda\\MKV_Archive9\\TV Shows" ;
 //	static String mkvArchiveDirectory = "\\\\yoda\\Backup\\Ali Backup\\Karate Pictures" ;
 //	static String mkvArchiveDirectory = "F:/MKV" ;
@@ -60,13 +61,13 @@ public class run_ffmpeg
 //	static String mp4FinalDirectory = mp4OutputDirectory ;
 //	static String mp4FinalDirectory = mkvInputDirectory ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MKV_Archive8\\To Convert - TV Shows\\Band Of Brothers\\Season 01" ;
-	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
-//	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
+//	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\Movies" ;
+	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
 	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
 	/// Note that testMode supersedes doMove
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to move the mp4/mkv/srt files to the destination
 	static boolean doMoveMP4 = false ;
@@ -147,13 +148,14 @@ public class run_ffmpeg
 	static final boolean addAudioStereoStream = true ;
 	
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
-	static BufferedWriter logWriter = null ;
-	static final String logWriterFileName = "log.txt" ;
+	/// Setup the logging subsystem
+	private static final String logFileName = "log.txt" ;
+	private static Logger log =  Common.setupLogger( logFileName, "run_ffmpeg" ) ;
 
 	/// In most cases, the included algorithm is smart enough to extract the metadata title from the
 	/// name of the file. But in some cases, such as with home movies, the filenames are inconsistent. In those
 	/// cases, just use the filename as the title.
-	static boolean useFileNameAsTitle = false ;
+	static boolean useFileNameAsTitle = true ;
 
 	/// When a file named stopFileName exists (including directory), then stop the application at the next
 	/// possible time (after the current transcode and move).
@@ -165,7 +167,6 @@ public class run_ffmpeg
     public static void main(String[] args)
 	{
 		numFormat.setMaximumFractionDigits( 2 ) ;
-		openLogFile() ;
     	outputConfigurationHeader() ;
 				
 		if( moveMKVAndMP4InParallel )
@@ -195,7 +196,10 @@ public class run_ffmpeg
 		// a TranscodeFile object for each.
 		List< TranscodeFile > filesToTranscode = surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory ) ;
 		List< TranscodeFile > filesToTranscodeInOrder = orderFilesToTranscode( filesToTranscode ) ;
-		out( filesToTranscodeInOrder ) ;
+		for( TranscodeFile fileToTranscode : filesToTranscodeInOrder )
+		{
+			log.fine( fileToTranscode.toString() ) ;
+		}
 		
 	  	final long startTime = System.nanoTime() ;
 
@@ -213,15 +217,15 @@ public class run_ffmpeg
 			{
 				// The mp4 file already exists and we are not overwriting it.
 				// Skip this loop and move to the next file.
-				out( "main> Input file (" + fileToTranscode.getMkvFileName() + ") already has an mp4 equivalent. Skipping transcode." ) ;
+				log.info( "Input file (" + fileToTranscode.getMkvFileName() + ") already has an mp4 equivalent. Skipping transcode." ) ;
 				continue ;
 			}
 			
 			// Probe the file's streams
-			FFmpegProbeResult ffmpegProbeResult = ExtractPGSFromMKVs.ffprobeFile( fileToTranscode ) ;
+			FFmpegProbeResult ffmpegProbeResult = ExtractPGSFromMKVs.ffprobeFile( fileToTranscode, log ) ;
 			if( null == ffmpegProbeResult )
 			{
-				out( "transcodeFile(" + fileToTranscode.getMkvFileName() + ")> null ffmpegProbeResult" ) ;
+				log.info( "transcodeFile(" + fileToTranscode.getMkvFileName() + ")> null ffmpegProbeResult" ) ;
 				continue ;
 			}
 
@@ -242,10 +246,10 @@ public class run_ffmpeg
 			// Free any unused memory or handles
 			System.gc() ;
 		}
-		out( "main> Shutting down..." ) ;
+		log.info( "Shutting down..." ) ;
 		try
 		{
-			out( "main> Waiting for worker threads to finish" ) ;
+			log.info( "Waiting for worker threads to finish" ) ;
 			
 			// After the last file is transcoded, the workerThread(s) will perform two move functions
 			// Wait for the workerThreads work queue to become empty
@@ -260,24 +264,23 @@ public class run_ffmpeg
 				// Gracefully shutdown the worker thread
 		    	workerThread.stopRunning() ;
 				workerThread.join() ;
-				out( "main> Successfully shut down workerThread: " + workerThread.toString() ) ;
+				log.info( "Successfully shut down workerThread: " + workerThread.toString() ) ;
 			}
 		}
 		catch( Exception theException )
 		{
-			out( "main> Exception joining with workerThread: " + theException ) ;
+			log.info( "Exception joining with workerThread: " + theException ) ;
 		}
 
 		final long endTime = System.nanoTime() ;
 		final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 
-    	out( "main> Total elapsed time: "
+		log.info( "Total elapsed time: "
     			+ numFormat.format( timeElapsedInSeconds )
     			+ " seconds, "
     			+ numFormat.format( timeElapsedInSeconds / 60.0 )
     			+ " minutes" ) ;
 
-		closeLogFile() ;
 	} // main()
 
     public static String addPathSeparatorIfNecessary( String inputPath )
@@ -311,7 +314,7 @@ public class run_ffmpeg
 	 */
 	public static boolean executeCommand( final String theCommand )
 	{
-		out( "executeCommand> " + theCommand ) ;
+		log.info( "theCommand: " + theCommand ) ;
 		boolean retMe = true ;
 		
 		// Only execute the command if we are NOT in test mode
@@ -326,27 +329,27 @@ public class run_ffmpeg
 				String line = null ;
 				while( (line = errorStreamReader.readLine()) != null )
 				{
-	
-					out( "executeCommand> ErrorStream: " + line ) ;
+
+					log.info( "ErrorStream: " + line ) ;
 				}
 				
 				if( process.exitValue() != 0 )
 				{
 					// Error occurred
-					out( "executeCommand> Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
+					log.info( "Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
 					retMe = false ;
 				}
 			}
 			catch( Exception theException )
 			{
 				retMe = false ;
-				out( "executeCommand> Exception: " + theException + " for command: " + theCommand ) ;
+				log.info( "Exception: " + theException + " for command: " + theCommand ) ;
 			}
 		}
 		return retMe ;
 	}
 
-	static boolean fileExists( final String fileNameWithPath )
+	public static boolean fileExists( final String fileNameWithPath )
 	{
 		final File theFile = new File( fileNameWithPath ) ;
 		return theFile.exists() ;
@@ -372,7 +375,7 @@ public class run_ffmpeg
 		} // try()
 		catch( Exception theException )
 		{
-			out( "getFilesInDirectoryWithExtension (" + directoryPath + ")> Exception: " + theException ) ;
+			log.info( " (" + directoryPath + ")> Exception: " + theException ) ;
 		}
 		return filesInDirectoryWithExtension ;
 	}
@@ -420,14 +423,18 @@ public class run_ffmpeg
     		List< File > filesByExtension = getFilesInDirectoryWithExtension( inputDirectory.getAbsolutePath(), extension ) ;
     		for( File theFile : filesByExtension )
     		{
-    			TranscodeFile newTranscodeFile = new TranscodeFile( theFile, mkvFinalDirectory, mp4OutputDirectory, mp4FinalDirectory ) ;
+    			TranscodeFile newTranscodeFile = new TranscodeFile( theFile,
+    					mkvFinalDirectory,
+    					mp4OutputDirectory,
+    					mp4FinalDirectory,
+    					log ) ;
     			transcodeFilesInDirectory.add( newTranscodeFile ) ;
     		}
     	}
     	return transcodeFilesInDirectory ;
     }
 
-    static boolean hasInputFileInDirectory( final File theDirectory )
+    public static boolean hasInputFileInDirectory( final File theDirectory )
 	{
 		for( String extension : transcodeExtensions )
 		{
@@ -457,23 +464,23 @@ public class run_ffmpeg
 			File directoryFile = new File( directoryName ) ;
 			if( !directoryFile.exists() )
 			{
-				out( "makeDirectory> Making directory structure: " + directoryName ) ;
+				log.info( "Making directory structure: " + directoryName ) ;
 				if( !testMode && !directoryFile.mkdirs() )
 				{
-					out( "makeDirectory> Unable to mkdirs (" + directoryName + ")" ) ;
+					log.info( "Unable to mkdirs (" + directoryName + ")" ) ;
 				}
 			}
 
 		}
 		catch( Exception theException )
 		{
-			out( "makeDirectory> Exception: (\"" + directoryName + "\"): " + theException.toString() ) ;
+			log.info( "Exception: (\"" + directoryName + "\"): " + theException.toString() ) ;
 		}
 	}
 
     public static void moveFile( final String sourceFileName, final String destinationFileName )
 	{
-    	out( "moveFile> Moving file " + sourceFileName + " to " + destinationFileName ) ;
+    	log.info( "Moving file " + sourceFileName + " to " + destinationFileName ) ;
     	
     	// Set the move variable based on the type of file being moved
 		boolean doMove = false ;
@@ -482,7 +489,7 @@ public class run_ffmpeg
 		else if( sourceFileName.endsWith( ".srt" ) ) doMove = doMoveSRT ;
 		else
 		{
-			out( "moveFile> Unable to find move boolean for input file: " + sourceFileName ) ;
+			log.info( "Unable to find move boolean for input file: " + sourceFileName ) ;
 		}
 
 		// Execute the move if the destination file doesn't already exits
@@ -504,41 +511,22 @@ public class run_ffmpeg
 	    }
 	}
 
-	static void openLogFile()
-	{
-		openLogFile( logWriterFileName ) ;
-	}
-
-	static void openLogFile( final String fileName )
-	{
-		try
-		{
-			System.out.println( "openLogFile> Opening log file: " + fileName ) ;
-			logWriter = new BufferedWriter( new FileWriter( fileName ) ) ;
-		}
-		catch( Exception theException )
-		{
-			logWriter = null ;
-			out( "openLogFile> Exception opening logWriter: " + theException ) ;
-		}
-	}
-
 	static void outputConfigurationHeader()
 	{
-    	out( "" ) ;
-    	out( "*** Configuration ***" ) ;
-    	out( "*** mkvInputDirectory: " + mkvInputDirectory + " ***" ) ;
-    	out( "*** mkvFinalDirectory: " + mkvFinalDirectory + " ***" ) ;
-    	out( "*** mp4OutputDirectory: " + mp4OutputDirectory + " ***" ) ;
-    	out( "*** mp4FinalDirectory: " + mp4FinalDirectory + " ***" ) ;
-    	out( "*** testMode: " + testMode + " ***" ) ;
-    	out( "*** doMoveMP4: " + doMoveMP4 + " ***" ) ;
-    	out( "*** doMoveMKV: " + doMoveMKV + " ***" ) ;
-    	out( "*** doMoveSRT: " + doMoveSRT + " ***" ) ;
-    	out( "*** doTranscodeVideo: " + doTranscodeVideo + " ***" ) ;
-    	out( "*** isWindows: " + isWindows + " ***" ) ;
-    	out( "*** pathToFFMPEG: " + pathToFFMPEG + " ***" ) ;
-    	out( "*** pathToFFPROBE: " + pathToFFPROBE + " ***" ) ;
+		log.info( "" ) ;
+		log.info( "*** Configuration ***" ) ;
+		log.info( "*** mkvInputDirectory: " + mkvInputDirectory + " ***" ) ;
+		log.info( "*** mkvFinalDirectory: " + mkvFinalDirectory + " ***" ) ;
+		log.info( "*** mp4OutputDirectory: " + mp4OutputDirectory + " ***" ) ;
+    	log.info( "*** mp4FinalDirectory: " + mp4FinalDirectory + " ***" ) ;
+    	log.info( "*** testMode: " + testMode + " ***" ) ;
+    	log.info( "*** doMoveMP4: " + doMoveMP4 + " ***" ) ;
+    	log.info( "*** doMoveMKV: " + doMoveMKV + " ***" ) ;
+    	log.info( "*** doMoveSRT: " + doMoveSRT + " ***" ) ;
+    	log.info( "*** doTranscodeVideo: " + doTranscodeVideo + " ***" ) ;
+    	log.info( "*** isWindows: " + isWindows + " ***" ) ;
+    	log.info( "*** pathToFFMPEG: " + pathToFFMPEG + " ***" ) ;
+    	log.info( "*** pathToFFPROBE: " + pathToFFPROBE + " ***" ) ;
     	String transcodeOrderString = "transcodeByDirectory" ;
     	if( transcodeOrder == transcodeOrderingType.transcodeSmallToLarge )
     	{
@@ -548,15 +536,15 @@ public class run_ffmpeg
     	{
     		transcodeOrderString = "transcodeLargeToSmall" ;
     	}
-    	out( "*** transcodeOrder: " + transcodeOrderString + " ***" ) ;
-    	out( "*** logWriterFileName: " + logWriterFileName + " ***" ) ;
-    	out( "*** useFileNameAsTitle: " + useFileNameAsTitle + " ***" ) ;
-    	out( "*** stopFileName: " + stopFileName + " ***" ) ;
-    	out( "*** transcodeExtensions: " + toString( transcodeExtensions ) + " ***" ) ;
-    	out( "*** moveMKVAndMP4InParallel: " + moveMKVAndMP4InParallel + " ***" ) ;
-    	out( "*** forcedSubTitleFileNameContains: " + forcedSubTitleFileNameContains + " ***" ) ;
-    	out( "*** audioTranscodeLibrary: " + audioTranscodeLibrary + " ***" ) ;
-    	out( "*** addAudioStereoStream: " + addAudioStereoStream + " ***" ) ;
+    	log.info( "*** transcodeOrder: " + transcodeOrderString + " ***" ) ;
+    	log.info( "*** logFileName: " + logFileName + " ***" ) ;
+    	log.info( "*** useFileNameAsTitle: " + useFileNameAsTitle + " ***" ) ;
+    	log.info( "*** stopFileName: " + stopFileName + " ***" ) ;
+    	log.info( "*** transcodeExtensions: " + toString( transcodeExtensions ) + " ***" ) ;
+    	log.info( "*** moveMKVAndMP4InParallel: " + moveMKVAndMP4InParallel + " ***" ) ;
+    	log.info( "*** forcedSubTitleFileNameContains: " + forcedSubTitleFileNameContains + " ***" ) ;
+    	log.info( "*** audioTranscodeLibrary: " + audioTranscodeLibrary + " ***" ) ;
+    	log.info( "*** addAudioStereoStream: " + addAudioStereoStream + " ***" ) ;
     	String audioStreamTranscodeOptionsString = "audioStreamAll" ;
     	if( audioStreamTranscodeOptions == audioStreamTranscodeOptionsType.audioStreamEnglishOnly )
     	{
@@ -570,55 +558,9 @@ public class run_ffmpeg
     	{
     		audioStreamTranscodeOptionsString = "audioStreamsByName: " + toString( audioStreamsByNameArray ) ;
     	}
-    	out( "*** audioStreamTranscodeOptions: " + audioStreamTranscodeOptionsString + " ***" ) ;
-    	out( "" ) ;
+    	log.info( "*** audioStreamTranscodeOptions: " + audioStreamTranscodeOptionsString + " ***" ) ;
+    	log.info( "" ) ;
    	}
-	
-	static void closeLogFile()
-	{
-		try
-		{
-			if( logWriter != null )
-			{
-				logWriter.close() ;
-			}
-		}
-		catch( Exception theException )
-		{
-			out( "closeLogFile> Exception closing logWriter: " + theException ) ;
-		}
-		logWriter = null ;
-	}
-
-	static synchronized void log( final String logMe )
-	{
-		if( logWriter != null )
-		{
-			try
-			{
-				logWriter.write( logMe ) ;
-				logWriter.newLine() ;
-			}
-			catch( Exception theException )
-			{
-				System.out.println( "log> Unable to write to logWriter: " + theException ) ;
-			}
-		}
-	}
-	
-	static synchronized void out( final String outputMe )
-	{
-		System.out.println( outputMe ) ;
-		log( outputMe ) ;
-	}
-
-	static synchronized void out( final List< TranscodeFile > theFiles )
-	{
-		for( TranscodeFile theFile : theFiles )
-		{
-			out( theFile.toString() ) ;
-		}
-	}
 
 	public static List< TranscodeFile > orderFilesToTranscode( final List< TranscodeFile > theFiles )
 	{
@@ -695,7 +637,7 @@ public class run_ffmpeg
 		File inputDirectoryFile = new File( inputDirectory ) ;
 		if( !inputDirectoryFile.exists() )
 		{
-			out( "surveyInputDirectoryAndBuildTranscodeFiles> inputDirectory does not exist: " + inputDirectory ) ;
+			log.warning( "inputDirectory does not exist: " + inputDirectory ) ;
 			return filesToTranscode ;
 		}
 	
@@ -707,7 +649,7 @@ public class run_ffmpeg
 	public static boolean transcodeFile( TranscodeFile inputFile )
     {
     	// Precondition: ffmpegProbeResult is not null
-    	out( "transcodeFile> Transcoding: " + inputFile ) ;
+    	log.info( "transcodeFile> Transcoding: " + inputFile ) ;
 
 		// Perform the options build by these steps:
 		//  1) Setup ffmpeg basic options
@@ -756,15 +698,15 @@ public class run_ffmpeg
 		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
 
     	long startTime = System.nanoTime() ;
-    	out( toStringForCommandExecution( ffmpegCommand.build() ) ) ;
+    	log.info( toStringForCommandExecution( ffmpegCommand.build() ) ) ;
 
-		out( "transcodeFile> Executing command: " + toStringForCommandExecution( ffmpegCommand.build() ) ) ;
+		log.info( "transcodeFile> Executing command: " + toStringForCommandExecution( ffmpegCommand.build() ) ) ;
 
     	// Only execute the transcode if testMode is false
     	boolean executeSuccess = testMode ? true : executeCommand( ffmpegCommand ) ;
     	if( !executeSuccess )
     	{
-    		out( "transcodeFile> Error in execute command" ) ;
+    		log.info( "transcodeFile> Error in execute command" ) ;
     		// Do not move any files since the transcode failed
     		return false ;
     	}
@@ -772,7 +714,7 @@ public class run_ffmpeg
     	long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 
     	double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
-    	out( "transcodeFile> Elapsed time to transcode "
+    	log.info( "transcodeFile> Elapsed time to transcode "
     			+ inputFile.getMkvFileName()
     			+ ": "
     			+ numFormat.format( timeElapsedInSeconds )
@@ -867,7 +809,7 @@ public class run_ffmpeg
 		{
 			if( inputFile.hasForcedSubTitleFile() )
 			{
-				out( "buildVideoTranscodeOptions> Video transcode is disabled while forced subtitles exist. This will"
+				log.info( "buildVideoTranscodeOptions> Video transcode is disabled while forced subtitles exist. This will"
 						+ " probably generate an ffmpeg error" ) ;
 			}
 		}
@@ -933,7 +875,7 @@ public class run_ffmpeg
 		}
 		else
 		{
-			out( "buildAudioTranscodeOptions> Unknown audioStreamTranscode option: " + audioStreamTranscodeOptions ) ;
+			log.info( "buildAudioTranscodeOptions> Unknown audioStreamTranscode option: " + audioStreamTranscodeOptions ) ;
 		}
 		// Post condition: audioStreamsToTranscode now has the full list of audio streams to transcode into
 		// the output file.
@@ -1039,7 +981,7 @@ public class run_ffmpeg
 				theSRTFileName = theSRTFileName.replace( "[", "\\[" ) ;
 				theSRTFileName = theSRTFileName.replace( "]", "\\]" ) ;
 
-				out( "buildSubTitleTranscodeOptions> Found forced subtitle, heSRTFileName after replace(): " + theSRTFileName ) ;
+				log.info( "buildSubTitleTranscodeOptions> Found forced subtitle, heSRTFileName after replace(): " + theSRTFileName ) ;
 				subTitleTranscodeOptions.add( "-vf", "\"subtitles=\'" + theSRTFileName + "\'\"" ) ;
 			}
 		} // for ( forced sub titles )
@@ -1091,7 +1033,7 @@ public class run_ffmpeg
 		}
 		catch( Exception e )
 		{
-			run_ffmpeg.out( "TranscodeFile.touchFile> Exception for file " + fileName + ": " + e ) ;
+			run_ffmpeg.log.info( "TranscodeFile.touchFile> Exception for file " + fileName + ": " + e ) ;
 		}
 	}
 
@@ -1104,6 +1046,11 @@ public class run_ffmpeg
 		}
 		retMe += "}" ;
 		return retMe ;
+	}
+	
+	static Logger getLogger()
+	{
+		return log ;
 	}
 	
 } // run_ffmpeg

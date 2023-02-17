@@ -3,8 +3,14 @@ package run_ffmpeg;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
@@ -27,34 +33,36 @@ import com.google.gson.GsonBuilder;
  * @author Dan
  *
  */
-
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
-//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
-	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive1\\Movies" ;
-//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
+	//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
+	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive1\\Movies\\Showtime (2002)" ;
+	//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Set to true to place the output SRT files into the same directory
 	/// in which the input files are found.
 	/// When set to true, the below destination directory will be ignored.
-	static boolean doPlaceSRTFilesInInputDirectory = true ;
-	
+	private boolean doPlaceSRTFilesInInputDirectory = true ;
+
 	/// Directory to which to write .srt files
-	static final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
+	private final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
 
 	/// Set testMode to true to prevent mutations
 	static boolean testMode = true ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
-	static final boolean doSubTitleExtract = true ;
+	private final boolean doSubTitleExtract = true ;
+
+	/// Setup the logging subsystem
+	private transient Logger log = null ;
 
 	/// File name to which to log activities for this application.
-	static final String logFileName = "log_extract_pgs.txt" ;
+	private final String logFileName = "log_extract_pgs.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	static final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
+	private final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
 
 	static final String pathToFFMPEG = run_ffmpeg.pathToFFMPEG ;
 	static final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
@@ -62,13 +70,13 @@ public class ExtractPGSFromMKVs
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
 	static final String codecNameSubTitleSRTString = "subrip" ;
 	static final String codecTypeAudio = "audio" ;
-	
+
 	/// Identify the allowable languages for subtitles.
 	static final String[] allowableSubTitleLanguages = {
 			"eng",
 			"en"
 	} ;
-	
+
 	/// These subtitle codec names to be extracted.
 	/// This will mostly be used when selecting which streams to extract as separate files.
 	static final String[] extractableSubTitleCodecNames = {
@@ -80,65 +88,80 @@ public class ExtractPGSFromMKVs
 	static final String[] transcodeableSubTitleCodecNames = {
 			codecNameSubTitleSRTString
 	} ;
-	
+
+	public ExtractPGSFromMKVs()
+	{
+		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		run_ffmpeg.testMode = testMode ;
+	}
+
 	public static void main(String[] args)
 	{
-		run_ffmpeg.testMode = testMode ;
-		run_ffmpeg.openLogFile( logFileName ) ;
+		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
+		extractPGS.run() ;
+	}
 
+	public void run()
+	{
 		// First, survey the input directory for files to process, and build
 		// a TranscodeFile object for each.
 		List< TranscodeFile > filesToProcess = run_ffmpeg.surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory ) ;
 
-	  	// Perform the core work of this application
+		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
 			if( run_ffmpeg.stopExecution( stopFileName ) )
 			{
-				out( "ExtractPGSFromMKVs.main> Stopping execution due to presence of stop file: " + stopFileName ) ;
+				log.info( "Stopping execution due to presence of stop file: " + stopFileName ) ;
 				break ;
+			}
+
+			// Skip this file if a .srt file exists in its directory
+			if( theFileToProcess.hasSRTInputFiles() )
+			{
+				log.info( "Skipping file due to presenece of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
+				continue ;
 			}
 
 			// Look for usable subtitle streams in the file and retrieve a list of options
 			// for an ffmpeg extract command
-			FFmpegProbeResult probeResult = ffprobeFile( theFileToProcess ) ;
+			FFmpegProbeResult probeResult = ffprobeFile( theFileToProcess, log ) ;
 			if( null == probeResult )
 			{
 				// Unable to ffprobe the file
-				out( "ExtractPGSFromMKVs.main> Error probing file: \"" + theFileToProcess.getMKVFileNameWithPath() + "\"" ) ;
+				log.warning( "Error probing file: \"" + theFileToProcess.getMKVFileNameWithPath() + "\"" ) ;
 				continue ;
 			}
-			
+
 			if( doSubTitleExtract )
 			{
 				extractSubtitles( theFileToProcess, probeResult ) ;
 			}
-			
+
 		} // for( fileToSubTitleExtract )
-		out( "main> Exiting..." ) ;
-		run_ffmpeg.closeLogFile() ;
+		log.info( "Complete." ) ;
 	}
 
-	static ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
+	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
 			TranscodeFile theFile )
 	{
 		// The ffmpegOptionsCommandString will contain only the options to extract subtitles
 		// from the given FFmpegProbeResult
 		// All of the actual ffmpeg command build ("ffmpeg -i ...") happens elsewhere
 		ImmutableList.Builder<String> ffmpegOptionsCommandString = new ImmutableList.Builder<String>();
-	
+
 		// includedSubTitleStreams will include only allowable subtitle streams to extract
 		List< FFmpegStream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
 		for( FFmpegStream stStream : extractableSubTitleStreams )
 		{
 			final int streamIndex = stStream.index ;
-	
+
 			// So far, I know of two subtitle types I can work with: pgs and srt
 			// -map 0:$streamNumber -c:s copy "$supFileName"
-	
+
 			// Found PGS or SRT stream
 			ffmpegOptionsCommandString.add( "-map", "0:" + streamIndex ) ;
-	
+
 			// Create the .sup filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
@@ -150,7 +173,7 @@ public class ExtractPGSFromMKVs
 			}
 			String outputFileNameWithPath = run_ffmpeg.addPathSeparatorIfNecessary( outputPath )
 					+ theFile.getMkvFileName().replace( ".mkv", "" ) ;
-	
+
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
 			outputFileNameWithPath += "." + streamIndex ;
 			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
@@ -162,20 +185,20 @@ public class ExtractPGSFromMKVs
 				outputFileNameWithPath += ".srt" ;
 			}
 			ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
-	
+
 		}
-		log( "buildFFmpegSubTitleExtractionOptionsString> ffmpegOptionsCommandString: "
-				+ run_ffmpeg.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
+//		log.info( "ffmpegOptionsCommandString: "
+//				+ run_ffmpeg.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
 		return ffmpegOptionsCommandString ;	
 	}
 
-	static void extractSubtitles( TranscodeFile fileToSubTitleExtract, FFmpegProbeResult probeResult )
+	public void extractSubtitles( TranscodeFile fileToSubTitleExtract, FFmpegProbeResult probeResult )
 	{
 		// Build a set of options for an ffmpeg command based on the JSON input
 		// If no suitable subtitles are found, the options string will be empty
 		ImmutableList.Builder<String> subTitleExtractionOptionsString =
 				buildFFmpegSubTitleExtractionOptionsString( probeResult, fileToSubTitleExtract ) ;
-						
+
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
 		if( subTitleExtractionOptionsString.build().isEmpty() )
 		{
@@ -183,14 +206,14 @@ public class ExtractPGSFromMKVs
 			// Skip this file
 			return ;
 		}
-		
+
 		// Build the ffmpeg command
 		ImmutableList.Builder<String> ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
 		ffmpegSubTitleExtractCommand.add( pathToFFMPEG ) ;
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
 		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
-	
+
 		run_ffmpeg.executeCommand( ffmpegSubTitleExtractCommand ) ;
 	}
 
@@ -201,21 +224,21 @@ public class ExtractPGSFromMKVs
 	 * @param probeResult
 	 * @return
 	 */
-	static List< FFmpegStream > findExtractableSubTitleStreams( FFmpegProbeResult probeResult )
+	public List< FFmpegStream > findExtractableSubTitleStreams( FFmpegProbeResult probeResult )
 	{
 		List< FFmpegStream > extractableSubTitleStreams = new ArrayList< FFmpegStream >() ;
-		
+
 		for( FFmpegStream theStream : probeResult.streams )
 		{
-			log( "findExtractableSubTitleStreams> Checking stream: " + theStream ) ;
+			log.fine( "Checking stream: " + theStream ) ;
 			if( !theStream.codec_type.equals( codecTypeSubTitleNameString ) )
 			{
 				// Not a subtitle stream
-				log( "findIncludedSubTitleStreams> Ignoring stream: " + theStream ) ;
+				log.fine( "Ignoring stream: " + theStream ) ;
 				continue ;
 			}
 			// Post condition: theStream is a subtitle stream
-	
+
 			// Check for a language tag
 			if( theStream.tags.containsKey( "language" ) )
 			{
@@ -223,17 +246,17 @@ public class ExtractPGSFromMKVs
 				if( !isAllowableLanguage )
 				{
 					// Has a language tag, but it is not allowable
-					log( "findExtractableSubTitleStreams> Found subtitle with language tag but NOT allowable: "
+					log.fine( "Found subtitle with language tag but NOT allowable: "
 							+ theStream.tags.get( "language" ) ) ;
 					continue ;
 				}
 			}
 			// Post condition: this is a subtitle stream with an allowable language
-	
+
 			if( isExtractableSubTitleCodecName( theStream.codec_name ) )
 			{
 				// Found allowable subtitle type
-				log( "findExtractableSubTitleStreams> Found allowable subtitle stream: " + theStream ) ;
+				log.info( "Found allowable subtitle stream: " + theStream ) ;
 				extractableSubTitleStreams.add( theStream ) ;
 			}
 		} // for( stream )
@@ -245,14 +268,14 @@ public class ExtractPGSFromMKVs
 	 * If an error occurs, return null. 
 	 * Otherwise, return the FFmpegProbeResult from the ffprobe.
 	 */
-	public static FFmpegProbeResult ffprobeFile( TranscodeFile theFile )
+	public static FFmpegProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
 	{
-		return ffprobeFile( new File( theFile.getMKVFileNameWithPath() ) ) ;
+		return ffprobeFile( new File( theFile.getMKVFileNameWithPath() ), log ) ;
 	}
-	
-	public static FFmpegProbeResult ffprobeFile( File theFile )
+
+	public static FFmpegProbeResult ffprobeFile( File theFile, Logger log )
 	{	
-		log( "ffprobeFile> Processing: " + theFile.getAbsolutePath() ) ;
+		log.info( "Processing: " + theFile.getAbsolutePath() ) ;
 		FFmpegProbeResult result = null ;
 
 		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
@@ -279,7 +302,7 @@ public class ExtractPGSFromMKVs
 		{
 			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 			String ffprobeExecuteCommandString = run_ffmpeg.toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
-			out( "ffprobeFile> Execute ffprobe command: " + ffprobeExecuteCommandString ) ;
+			log.info( "Execute ffprobe command: " + ffprobeExecuteCommandString ) ;
 
 			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommandString ) ;
 
@@ -289,14 +312,14 @@ public class ExtractPGSFromMKVs
 			String inputBuffer = "" ;
 			while( (inputLine = inputStreamReader.readLine()) != null )
 			{
-				log( "processFile:" + lineNumber + "> " + inputLine ) ;
+				log.fine( "" + lineNumber + "> " + inputLine ) ;
 				inputBuffer += inputLine ;
 				++lineNumber ;
 			}
-			
+
 			if( process.exitValue() != 0 )
 			{
-				out( "ffprobeFile> Error running ffprobe on file " + theFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
+				log.warning( "Error running ffprobe on file " + theFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
 				result = null ; // already null, but just for clarity
 			}
 			else
@@ -357,15 +380,4 @@ public class ExtractPGSFromMKVs
 		// No allowable code name found
 		return false ;
 	}
-	
-	static synchronized void out( final String outputMe )
-	{
-		run_ffmpeg.out( outputMe ) ;
-	}
-	
-	static synchronized void log( final String logMe )
-	{
-		run_ffmpeg.log( logMe ) ;
-	}
-
 }

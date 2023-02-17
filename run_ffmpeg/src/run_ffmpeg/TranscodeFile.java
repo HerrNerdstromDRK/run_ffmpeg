@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 /**
  * Represent a file to be transcoded, including all of its output paths.
@@ -22,6 +23,7 @@ public class TranscodeFile
 	protected String mkvFinalDirectory = null ;
 	protected String mp4OutputDirectory = null ;
 	protected String mp4FinalDirectory = null ;
+	private transient Logger log = null ;
 	
 	// List of .srt files corresponding to this TranscodeFile
 	private ArrayList< File > srtFileList = new ArrayList< File >() ;
@@ -57,7 +59,8 @@ public class TranscodeFile
 	public TranscodeFile( final File theMKVFile,
 			final String mkvFinalDirectory,
 			final String mp4OutputDirectory,
-			final String mp4FinalDirectory )
+			final String mp4FinalDirectory,
+			Logger log )
 	{
 		assert( theMKVFile != null ) ;
 		assert( theMKVFile.exists() ) ;
@@ -70,7 +73,8 @@ public class TranscodeFile
 		this.mkvFinalDirectory = run_ffmpeg.addPathSeparatorIfNecessary( mkvFinalDirectory ) ;
 		this.mp4OutputDirectory = run_ffmpeg.addPathSeparatorIfNecessary( mp4OutputDirectory ) ;
 		this.mp4FinalDirectory = run_ffmpeg.addPathSeparatorIfNecessary( mp4FinalDirectory ) ;
-
+		this.log = log ;
+		
 		buildPaths() ;
 		buildSRTFileList() ;
 	}
@@ -94,7 +98,7 @@ public class TranscodeFile
 		if( theMKVFile.getParent().contains( "Season " ) )
 		{
 			// TV Show
-			out( "TranscodeFile.buildPaths> Found tv show file: " + getTheMKVFile().toString() ) ;
+			log.fine( "Found tv show file: " + getTheMKVFile().toString() ) ;
 			setTVShow() ;
 
 			setTvShowName( getTheMKVFile().getParentFile().getParentFile().getName() ) ;
@@ -103,7 +107,7 @@ public class TranscodeFile
 		else if( theMKVFile.getParent().contains( "(" ) )
 		{
 			// Movie
-			out( "TranscodeFile.buildPaths> Found movie file: " + getTheMKVFile().toString() ) ;
+			log.fine( "Found movie file: " + getTheMKVFile().toString() ) ;
 
 			// The formal should be like this:
 			// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
@@ -113,7 +117,7 @@ public class TranscodeFile
 		else
 		{
 			// Other Videos
-			out( "TranscodeFile.buildPaths> Found Other Videos file: " + getTheMKVFile().toString() ) ;
+			log.fine( "Found Other Videos file: " + getTheMKVFile().toString() ) ;
 			setOtherVideo( true ) ;
 
 			// Treat this as a movie in most respects, except the path
@@ -157,7 +161,7 @@ public class TranscodeFile
     		if( searchFileName.matches( fileNameSearchString ) )
     		{
     			// Found a matching .srt file
-//    			run_ffmpeg.log( "buildSRTFileList> searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchString ) ;
+    			log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchString ) ;
     			srtFileList.add( searchFile ) ;
     		}
     	}
@@ -284,7 +288,7 @@ public class TranscodeFile
 			if( null == theInputStream.channel_layout )
 			{
 				// No channel_layout
-				out( "processaudioStreams> No channel_layout field found for file: " + toString() ) ;
+				log.info( "processaudioStreams> No channel_layout field found for file: " + toString() ) ;
 			}
 			else if( theInputStream.channel_layout.contains( "stereo" ) )
 			{
@@ -304,7 +308,7 @@ public class TranscodeFile
 			}
 			else
 			{
-				out( "TranscodeFile.processAudioStreams> Unknown channel_layout: " + theInputStream.channel_layout ) ;
+				log.warning( "TranscodeFile.processAudioStreams> Unknown channel_layout: " + theInputStream.channel_layout ) ;
 			}
 		}
 	}
@@ -331,7 +335,7 @@ public class TranscodeFile
 			String audioStreamLanguage = audioStream.tags.get( "language" ) ;
 			if( null == audioStreamLanguage )
 			{
-				out( "getAudioStreamsByLanguage> No language tag found for stream: " + audioStream.toString() ) ;
+				log.info( "No language tag found for stream: " + audioStream.toString() ) ;
 				audioStreamLanguage = "*" ;
 			}
 
@@ -352,14 +356,14 @@ public class TranscodeFile
 		//  although this is not guaranteed.
 		if( audioStreams.isEmpty() )
 		{
-			out( "getPrimaryAudioLanguage> Empty audio stream list" ) ;
+			log.warning( "Empty audio stream list" ) ;
 			return "EMPTY" ;
 		}
 		final String primaryAudioLanguage = audioStreams.get( 0 ).tags.get( "language" ) ;
 		if( null == primaryAudioLanguage )
 		{
 			// First audio stream has no language
-			out( "getPrimaryAudioLanguage> Empty language for first audio stream" ) ;
+			log.info( "Empty language for first audio stream" ) ;
 			return "UNKNOWN" ;
 		}
 		return primaryAudioLanguage ;
@@ -454,7 +458,7 @@ public class TranscodeFile
 		File fsbFile = getForcedSubTitleFile() ;
 		if( null == fsbFile )
 		{
-			out( "getForcedSubTitleStreamNumber> Unable to find forced subtitle file for TranscodeFile: " + toString() ) ;
+			log.warning( "Unable to find forced subtitle file for TranscodeFile: " + toString() ) ;
 			return -1 ;
 		}
 		// Post-condition: Found the forced subtitle file.
@@ -467,7 +471,7 @@ public class TranscodeFile
 		// A properly formed file name with "forced_subtitle" should have (at least?) 4 tokens
 		if( tokens.length < 4 )
 		{
-			out( "getForcedSubTitleStreamNumber> Invalid number of tokens in file name: " + fsbFile.getName()
+			log.warning( "Invalid number of tokens in file name: " + fsbFile.getName()
 			+ ", expected 4 but got: " + tokens.length ) ;
 			return -1 ;
 		}
@@ -482,11 +486,6 @@ public class TranscodeFile
 	public static String getPathSeparator()
 	{
 		return run_ffmpeg.getPathSeparator() ;
-	}
-
-	public static void out( final String writeMe )
-	{
-		run_ffmpeg.out( writeMe ) ;
 	}
 
 	public void setTVShow()
@@ -534,7 +533,7 @@ public class TranscodeFile
 		String transcodeExtensionFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
 		if( run_ffmpeg.fileExists( transcodeExtensionFileName ))
 		{
-			out( "getTranscodeStatus(" + extensionToCheck + ")> Found file " + transcodeExtensionFileName ) ;
+			log.fine( extensionToCheck + "> Found file " + transcodeExtensionFileName ) ;
 			return true ;
 		}
 	return false ;
@@ -543,7 +542,7 @@ public class TranscodeFile
 	public void setTranscodeStatus( final String extensionToWrite )
 	{
 		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
-		out( "setTranscodeStatus(" + extensionToWrite + ")> Touching file: " + mkvTouchFileName ) ;
+		log.fine( extensionToWrite + "> Touching file: " + mkvTouchFileName ) ;
 		if( !run_ffmpeg.testMode )
 		{
 			run_ffmpeg.touchFile( mkvTouchFileName ) ;
@@ -553,7 +552,7 @@ public class TranscodeFile
 	public void unSetTranscodeStatus( final String extensionToWrite )
 	{
 		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
-		out( "unSetTranscodeStatus(" + extensionToWrite + ")> Deleting file: " + mkvTouchFileName ) ;
+		log.info( extensionToWrite + "> Deleting file: " + mkvTouchFileName ) ;
 		if( !run_ffmpeg.testMode )
 		{
 			File fileToDelete = new File( mkvTouchFileName ) ;

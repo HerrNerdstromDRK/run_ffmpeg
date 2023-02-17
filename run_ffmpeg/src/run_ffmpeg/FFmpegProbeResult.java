@@ -18,7 +18,7 @@ public class FFmpegProbeResult
 	private ObjectId _id ;
 	
 	/// The object's id as a String
-	private String idString = null ;
+//	private transient String idString = null ;
 	
 	/// The file being probed.
 	private String filename = null ;
@@ -115,14 +115,14 @@ public class FFmpegProbeResult
 		this.size = size;
 	}
 	
-	public String getIDString()
-	{
-		if( null == idString )
-		{
-			idString = _id.toString() ;
-		}
-		return idString ;
-	}
+//	public String getIDString()
+//	{
+//		if( null == idString )
+//		{
+//			idString = _id.toString() ;
+//		}
+//		return idString ;
+//	}
 	
 	public String toString()
 	{

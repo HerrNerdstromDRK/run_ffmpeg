@@ -4,13 +4,14 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.logging.Logger;
 
 public class MoveFileThreadAction extends ThreadAction
 {
-
-	String sourceFileName = null ;
-	String destinationFileName = null ;
-
+	public String sourceFileName = null ;
+	public String destinationFileName = null ;
+	private transient Logger log = null ;
+	
 	public boolean isTestMode()
 	{
 		return run_ffmpeg.testMode ;
@@ -20,12 +21,13 @@ public class MoveFileThreadAction extends ThreadAction
 	{
 		this.sourceFileName = sourceFileName ;
 		this.destinationFileName = destinationFileName ;
+		log = run_ffmpeg.getLogger() ;
 	}
 
 	@Override
 	public void doAction()
 	{
-		out( "MoveFileThreadAction.doAction> " + toString() ) ;
+		log.info( toString() ) ;
 
 		File sourceFile = new File( sourceFileName ) ;
 		Path sourcePath = Paths.get( sourceFile.getParent() ) ;
@@ -37,7 +39,7 @@ public class MoveFileThreadAction extends ThreadAction
 		{
 			if( !Files.exists( sourcePath ) )
 			{
-				out( "MoveFileThreadAction.doAction> sourcePath does not exist: " + sourcePath
+				log.warning( "sourcePath does not exist: " + sourcePath
 						+ " " + toString() ) ;
 				if( !isTestMode() )
 				{
@@ -47,7 +49,7 @@ public class MoveFileThreadAction extends ThreadAction
 
 			if( !Files.exists( destinationPath ) )
 			{
-				out( "MoveFileThreadAction.doAction> destinationPath does not exist: " + destinationPath
+				log.warning( "destinationPath does not exist: " + destinationPath
 						+ " " + toString() ) ;
 				if( !isTestMode() )
 				{
@@ -69,7 +71,7 @@ public class MoveFileThreadAction extends ThreadAction
 					final double fileLengthInMB = fileLength / 1e6 ;
 					final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
 					
-			    	out( "MoveFileThreadAction.doAction> Success; Total elapsed time: "
+					log.info( "Success; Total elapsed time: "
 			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds )
 			    			+ " seconds, "
 			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds / 60.0 )
@@ -79,19 +81,14 @@ public class MoveFileThreadAction extends ThreadAction
 				}
 				else
 				{
-					out( "MoveFileThreadAction.doAction> Failed: " + toString() ) ;
+					log.info( "Failed: " + toString() ) ;
 				}
 			}
 		}
 		catch( Exception theException )
 		{
-			out( "MoveFileThreadAction.doAction> Exception: " + theException.toString() ) ;
+			log.warning( "Exception: " + theException.toString() ) ;
 		}
-	}
-
-	public static void out( final String writeMe )
-	{
-		run_ffmpeg.out( writeMe ) ;
 	}
 
 	@Override

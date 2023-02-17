@@ -8,6 +8,8 @@ import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
+import java.util.logging.Logger;
+
 import com.mongodb.MongoClient; 
 import com.mongodb.MongoCredential;  
 
@@ -19,13 +21,20 @@ import com.mongodb.MongoCredential;
  */
 public class MoviesAndShowsMongoDB
 {
+	/// Setup the logging subsystem
+	private transient Logger log = null ;
+	
 	private MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
-	private final String probeInfoCollectionName = "ProbeInfo" ;
-	private final String movieAndShowInfoCollectionName = "MovieAndShowInfo" ;
+	private final String databaseName = "MoviesAndShows" ;
+	private final String probeInfoCollectionName = "probeinfo" ;
+	private final String movieAndShowInfoCollectionName = "movieandshowinfo" ;
+	private final String missingFileCollectionName = "missingfiles" ;
+	private final String hDMoviesAndShowsCollectionName = "hdmoviesandshows" ;
+	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
 
 	/// File name to which to log activities for this application.
-	static private final String logFileName = "log_extract_pgs.txt" ;
+	static private final String logFileName = "log_movies_and_shows_mongodb.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
@@ -42,7 +51,7 @@ public class MoviesAndShowsMongoDB
 	public MoviesAndShowsMongoDB()
 	{
 		run_ffmpeg.testMode = testMode ;
-		run_ffmpeg.openLogFile( logFileName ) ;
+		Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		loginAndConfigureDatabase() ;
 	}
 
@@ -85,9 +94,33 @@ public class MoviesAndShowsMongoDB
 		System.out.println("loginToDatabase> Connected to the database successfully" );  
 
 		// Configure the database to use the POJO provider and retrieve the handle
-		persistentDatabaseHandle = persistentMongoClient.getDatabase( "MoviesAndShows" ).withCodecRegistry( pojoCodecRegistry ) ;
+		persistentDatabaseHandle = persistentMongoClient.getDatabase( databaseName ).withCodecRegistry( pojoCodecRegistry ) ;
 	}
 
+	public MongoCollection< HDorSDFile > getHDMoviesAndShowsCollection()
+	{
+		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( hDMoviesAndShowsCollectionName,
+				HDorSDFile.class ) ;
+		return theCollection ;
+	}
+	
+	public void dropHDMoviesAndShowCollection()
+	{
+		getHDMoviesAndShowsCollection().drop() ;
+	}
+	
+	public MongoCollection< HDorSDFile > getSDMoviesAndShowsCollection()
+	{
+		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( sDMoviesAndShowsCollectionName,
+				HDorSDFile.class ) ;
+		return theCollection ;
+	}
+	
+	public void dropSDMoviesAndShowCollection()
+	{
+		getSDMoviesAndShowsCollection().drop() ;
+	}
+	
 	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
 	{	
 		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
@@ -95,11 +128,33 @@ public class MoviesAndShowsMongoDB
 		return theCollection ;
 	}
 
+	public void dropProbeInfoCollection()
+	{
+		getProbeInfoCollection().drop() ;
+	}
+	
 	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
 	{	
 		MongoCollection< MovieAndShowInfo > theCollection = persistentDatabaseHandle.getCollection( movieAndShowInfoCollectionName,
 				MovieAndShowInfo.class ) ;
 		return theCollection ;
+	}
+	
+	public void dropMovieAndShowInfoCollection()
+	{
+		getMovieAndShowInfoCollection().drop() ;
+	}
+	
+	public MongoCollection< MissingFile > getMissingFileCollection()
+	{	
+		MongoCollection< MissingFile > theCollection = persistentDatabaseHandle.getCollection( missingFileCollectionName,
+				MissingFile.class ) ;
+		return theCollection ;
+	}
+	
+	public void dropMissingFileCollection()
+	{
+		getMissingFileCollection().drop() ;
 	}
 
 	/*
@@ -130,15 +185,4 @@ public class MoviesAndShowsMongoDB
 			}
 	   } 
 	 */
-
-	static void out( final String outputMe )
-	{
-		run_ffmpeg.out( outputMe ) ;
-	}
-
-	static void log( final String logMe )
-	{
-		run_ffmpeg.log( logMe ) ;
-	}
-
 }
