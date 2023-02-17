@@ -26,7 +26,8 @@ public class TranscodeFile
 	private transient Logger log = null ;
 	
 	// List of .srt files corresponding to this TranscodeFile
-	private ArrayList< File > srtFileList = new ArrayList< File >() ;
+	private List< File > srtFileList = null ;
+	private List< File > supFileList = null ;
 	
 	// Track the ffprobe result for this input file
 	protected FFmpegProbeResult theFFmpegProbeResult = null ;
@@ -76,7 +77,8 @@ public class TranscodeFile
 		this.log = log ;
 		
 		buildPaths() ;
-		buildSRTFileList() ;
+		srtFileList = buildSubTitleFileList( "srt" ) ;
+		supFileList = buildSubTitleFileList( "sup" ) ;
 	}
 
 	private void buildPaths()
@@ -139,7 +141,7 @@ public class TranscodeFile
 		}
 	}
 
-	protected void buildSRTFileList()
+	protected List< File > buildSubTitleFileList( final String extension )
 	{
 	   	// fileNameSearchString is the wildcard/regex search string for the file name (no path)
     	String fileNameSearchString = getTheMKVFile().getName() ;
@@ -148,23 +150,25 @@ public class TranscodeFile
     	// Replace any ( or ) as those seem to confuse the regex; this is probably the wrong way
     	// handle this problem, but hopefully it works.
     	fileNameSearchString = fileNameSearchString.replace( "(", "" ).replace( ")", "" ) ;
-    	fileNameSearchString += "(.*).srt" ;
+    	fileNameSearchString += "(.*)." + extension ;
 
     	// searchDirectory is the directory in which to search for files that match the fileNameSearchString
     	String searchDirectory = getTheMKVFile().getParent() ;
 
     	// Now search for any file that starts with the fileNameWithPath and ends with .srt
-    	File[] filesInDirectory = (new File( searchDirectory )).listFiles();
+    	File[] filesInDirectory = (new File( searchDirectory )).listFiles() ;
+    	List< File > theFileList = new ArrayList< File >() ;
     	for( File searchFile : filesInDirectory )
     	{
     		String searchFileName = searchFile.getName().replace( "(", "" ).replace( ")", "" ) ;
     		if( searchFileName.matches( fileNameSearchString ) )
     		{
-    			// Found a matching .srt file
+    			// Found a matching subtitle file
     			log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchString ) ;
-    			srtFileList.add( searchFile ) ;
+    			theFileList.add( searchFile ) ;
     		}
     	}
+    	return theFileList ;
 	}
 	
 	protected String buildFinalDirectoryPath( final File inputFile, String inputDirectory )
@@ -708,6 +712,11 @@ public class TranscodeFile
 		return !srtFileList.isEmpty() ;
 	}
 
+	public boolean hasSUPInputFiles()
+	{
+		return !supFileList.isEmpty() ;
+	}
+	
 	public int numSRTInputFiles()
 	{
 		return srtFileList.size() ;

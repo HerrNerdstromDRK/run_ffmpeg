@@ -78,8 +78,8 @@ public class ExtractPGSFromMKVs
 	/// This will mostly be used when selecting which streams to extract as separate files.
 	static final String[] extractableSubTitleCodecNames = {
 			codecNameSubTitlePGSString,
-			codecNameSubTitleSRTString,
-			codecNameSubTitleDVDSubString
+			codecNameSubTitleSRTString
+//			codecNameSubTitleDVDSubString
 	} ;
 
 	/// The list of subtitle code names that should be left in any files to be transcoded directly
@@ -115,7 +115,7 @@ public class ExtractPGSFromMKVs
 			}
 
 			// Skip this file if a .srt file exists in its directory
-			if( theFileToProcess.hasSRTInputFiles() )
+			if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 			{
 				log.info( "Skipping file due to presenece of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
 				continue ;
