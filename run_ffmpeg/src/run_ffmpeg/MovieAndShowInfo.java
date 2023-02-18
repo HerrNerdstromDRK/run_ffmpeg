@@ -19,6 +19,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	/// Will likely include the year, as in Plex format.
 	/// Example: Godzilla King of the Monsters (2019)
 	public String name = null ;
+	public boolean isMissingFile = false ;
 	public List< CorrelatedFile > correlatedFilesList = null ;
 
 	/// If this is a TV show, then seasonName will contain the name of the season ("Season 04")
@@ -56,123 +57,16 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		for( Map.Entry< String, CorrelatedFile > entrySet : correlatedFiles.entrySet() )
 		{
 			CorrelatedFile theCorrelatedFile = entrySet.getValue() ;
+			if( theCorrelatedFile.isMissingFile() )
+			{
+				isMissingFile = true ;
+			}
+			theCorrelatedFile.normalizeMKVAndMP4Files() ;
 			correlatedFilesList.add( theCorrelatedFile ) ;
 		}
 		Collections.sort( correlatedFilesList ) ;
 	}
-	
-	/**
-	 * Walk through all mp4 and mkv entries to establish correlations between each.
-	 */
-	/*
-	public List< MissingFile > reportMissingFiles()
-	{
-		// Possible that one mkv file will correlate to two mp4 files by mistake.
-		// The opposite is also possible.
-		// Therefore, establish a structure that permits multiple correlations for each file.
-		// This will be used to identify errors.
-		// TODO: Move this to addMKVFile/addMP4File
-		List< MissingFile > missingFiles = new ArrayList< MissingFile >() ;
 
-		// Look for missing or duplicated entries.
-		for( Map.Entry< String, CorrelatedFile > set : correlatedFiles.entrySet() )
-		{
-			final String fileName = set.getKey() ;
-			final CorrelatedFile correlatedFile = set.getValue() ;
-			
-			// First, look for missing mkv files
-			{
-				MissingFile theMissingFile = null ;
-
-				if( correlatedFile.mkvFiles.isEmpty() )
-				{
-					// The fact that mkvFiles is empty means that a CorrelatedFile exists with at least
-					// one mp4 entry. Be sure to output the mp4 file here.
-					theMissingFile = recordMissingFile( correlatedFile, correlatedFile.mp4Files.firstElement() ) ;
-					log.warning( "Empty mkvFiles for entry: " + fileName
-							+ ", mp4Files: " + correlatedFile.mp4Files.toString() ) ;
-				}
-				if( theMissingFile != null )
-				{
-					missingFiles.add( theMissingFile ) ;
-				}
-			}
-
-			// TODO
-			//			else if( correlatedFile.mkvFiles.size() > 1 )
-			//			{
-			//				log.warning( "More than one mkv file for entry: " + correlatedFile.mkvFiles.toString() ) ;
-			//			}
-			//			else
-			//			{
-			////				log.info( "Good MKV correlation for entry: " + fileName ) ;
-			//			}
-
-			// Next, look for missing mp4 files.
-			{
-				MissingFile theMissingFile = null ;
-				if( correlatedFile.mp4Files.isEmpty() )
-				{
-					// The fact that mp4Files is empty means that a CorrelatedFile exists with at least
-					// one mkv entry. Be sure to output the mkv file here.
-					log.warning( "Empty mp4Files for entry: " + fileName
-							+ ", mkvFiles: " + correlatedFile.mkvFiles.toString() ) ;
-					theMissingFile = recordMissingFile( correlatedFile, correlatedFile.mkvFiles.firstElement() ) ;
-				}
-				if( theMissingFile != null )
-				{
-					missingFiles.add( theMissingFile ) ;
-				}
-			}
-			// TODO
-			//			else if( correlatedFile.mp4Files.size() > 1 )
-			//			{
-			//				log.warning( "More than one mp4 file for entry: " + correlatedFile.mp4Files.toString() ) ;
-			//			}
-			//			else
-			//			{
-			////				log.info( "correlateProbeResults> Good MP4 correlation for entry: " + fileName ) ;
-			//			}
-
-		} // for ( correlatedFiles )
-		return missingFiles ;
-	}
-*/
-	/*
-	private MissingFile recordMissingFile( CorrelatedFile correlatedFile, FFmpegProbeResult residentFileProbeResult )
-	{
-		// Create a new MissingFile instance to record that a file is missing
-		MissingFile theMissingFile = new MissingFile() ;
-
-		// Assign it the movie or show name
-		theMissingFile.movieOrShowName = name ;
-
-		// Get some details
-		// Start with the File associated with the first item in the list of files that are present
-		File networkFile = new File( residentFileProbeResult.getFilename() ) ;
-
-		// Strip away the actual filename and store the path to the movie or show
-		theMissingFile.pathToMovieOrShow = networkFile.getParent() ;
-
-		// Keep just the file name without extension
-		String fileNameWithoutPath = networkFile.getName() ;
-		theMissingFile.residentFileName = fileNameWithoutPath ;
-		String missingExtension = ".mp4" ;
-		String presentExtension = ".mkv" ;
-
-		// If the .mp4 file is missing, then a .mkv file will be passed as the residentFileProbeResult
-		if( residentFileProbeResult.getFilename().contains( ".mp4" ) )
-		{
-			// Missing mkv file.
-			missingExtension = ".mkv" ;
-			presentExtension = ".mp4" ;
-		}
-		theMissingFile.missingFileName = fileNameWithoutPath.replace( presentExtension, missingExtension ) ;
-
-		return theMissingFile ;
-	}
-*/
-	
 	/**
 	 * Return the largest file in this MovieAndShowInfo. It could be an mkv or mp4.
 	 * Returns null if nothing found, although this shouldn't happen.
@@ -214,8 +108,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public void addMKVFile( FFmpegProbeResult mkvProbeResult )
 	{
-		//		for( FFmpegProbeResult mkvFile : mkvFilesByProbeResult )
-		//		{
 		// Use on the file name, without the path or extension
 		String fileName = (new File( mkvProbeResult.getFilename() )).getName().replace( ".mkv", "" ) ;
 
@@ -229,8 +121,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		}
 		correlatedFile.addMKVFile( mkvProbeResult ) ;
 		mkvFilesByProbeResult.add( mkvProbeResult ) ;
-		//		}
-		//		mkvFilesByProbeResult.add( mkvProbeResult ) ;
 	}
 
 	/**
@@ -239,8 +129,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public void addMP4File( FFmpegProbeResult mp4ProbeResult )
 	{
-		//		for( FFmpegProbeResult mp4File : mp4FilesByProbeResult )
-		//		{
 		// Use on the file name, without the path or extension
 		String fileName = (new File( mp4ProbeResult.getFilename() )).getName().replace( ".mp4", "" ) ;
 
@@ -254,8 +142,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		}
 		correlatedFile.addMP4File( mp4ProbeResult ) ;
 		mp4FilesByProbeResult.add( mp4ProbeResult ) ;
-		//		}
-		//		mp4FilesByProbeResult.add( mp4ProbeResult ) ;
 	}
 
 	public String getName()

@@ -41,7 +41,6 @@ public class BuildMovieAndShowIndex
 	private MoviesAndShowsMongoDB masMDB = null ;
 	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 	private MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
-	private MongoCollection< MissingFile > missingFileCollection = null ;
 	private MongoCollection< HDorSDFile > hDMoviesAndShowsCollection = null ;
 	private MongoCollection< HDorSDFile > sDMoviesAndShowsCollection = null ;
 	
@@ -58,7 +57,6 @@ public class BuildMovieAndShowIndex
 		// Retrieve the db collections.
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
-		missingFileCollection = masMDB.getMissingFileCollection() ;
 		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
 		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
 	}
@@ -69,7 +67,6 @@ public class BuildMovieAndShowIndex
 		bmasi.resetCollections() ;
 		bmasi.buildMovieIndex() ;
 		bmasi.recordMovieAndShowInfo() ;
-//		bmasi.findAndRecordMissingFiles() ;
 		bmasi.findAndRecordHDandSDMoviesAndShows() ;
 	}
 
@@ -80,8 +77,6 @@ public class BuildMovieAndShowIndex
 	private void resetCollections()
 	{
 		log.info( "Resetting collections..." ) ;
-		masMDB.dropMissingFileCollection() ;
-		missingFileCollection = masMDB.getMissingFileCollection() ;
 
 		masMDB.dropMovieAndShowInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
@@ -212,7 +207,7 @@ public class BuildMovieAndShowIndex
 		log.info( "Building movie index..." ) ;
 		
 		// First, let's pull the mkv file info
-		Bson mp4A = Filters.regex( "filename", ".*Pearl Harbor.*" ) ;
+		Bson mp4A = Filters.regex( "filename", ".*" ) ;
 		log.info( "Running find..." ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;
 
@@ -249,45 +244,6 @@ public class BuildMovieAndShowIndex
 			}
 		} // while( iterator.hasNext() )
 		log.info( "Done building movie index." ) ;
-	}
-	
-	/**
-	 * This method will look through the movieMap and tvShowMap and look for missing mkv or mp4 files.
-	 * It will write any missing files to the database.
-	 */
-	private void findAndRecordMissingFiles()
-	{
-		log.info( "Retrieving all missing files..." ) ;
-		// Done reading the mkv and mp4 files from the database.
-		// Sort through each movie and tv show to find matching filenames.
-		List< MissingFile > missingFiles = correlateFiles( movieMap ) ;
-		missingFiles.addAll( correlateFiles( tvShowMap ) ) ;
-
-		// Now have all of the missing files.
-		// Store them in the collection
-		log.info( "Writing missing files to database" ) ;
-		missingFileCollection.insertMany( missingFiles ) ;
-		
-		log.info( "Done retrieving missing files." ) ;
-	}
-	
-	/**
-	 * Helper method for findAndRecordMissingFiles().
-	 * @param probeMap
-	 * @return
-	 */
-	private List< MissingFile > correlateFiles( Map< String, MovieAndShowInfo > probeMap )
-	{
-		List< MissingFile > missingFiles = new ArrayList< MissingFile >() ;
-		// Iterate through all items in the probeMap and invoke each correlation method
-		// Note that the items in the probeMap should be unique
-		for( Map.Entry< String, MovieAndShowInfo > set : probeMap.entrySet() )
-		{
-//			String movieOrShowName = set.getKey() ;
-			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
-//			missingFiles.addAll( movieAndShowInfo.reportMissingFiles() ) ;
-		}
-		return missingFiles ;
 	}
 	
 	/**
