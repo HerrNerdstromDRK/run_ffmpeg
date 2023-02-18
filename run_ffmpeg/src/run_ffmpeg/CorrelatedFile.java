@@ -1,12 +1,19 @@
 package run_ffmpeg;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CorrelatedFile
+public class CorrelatedFile implements Comparable< CorrelatedFile >
 {
 public String fileName = null ;
-public Vector< FFmpegProbeResult > mkvFiles = new Vector< FFmpegProbeResult >() ;
-public Vector< FFmpegProbeResult > mp4Files = new Vector< FFmpegProbeResult >() ;
+
+/// These next two record the mkv and mp4 files names and are populated
+/// exclusively when the database needs to record this CorrelatedFile.
+public List< String > mkvFilesByName = new ArrayList< String >() ;
+public List< String > mp4FilesByName = new ArrayList< String >() ;
+
+private transient List< FFmpegProbeResult > mkvFilesByProbe = new ArrayList< FFmpegProbeResult >() ;
+private transient List< FFmpegProbeResult > mp4FilesByProbe = new ArrayList< FFmpegProbeResult >() ;
 
 public CorrelatedFile( String fileName )
 {
@@ -17,16 +24,34 @@ public String toString()
 {
 	String retMe = "{fileName:" + fileName
 			+ "," ;
-	for( FFmpegProbeResult probeResult : mkvFiles )
+	for( String probeResult : mkvFilesByName )
 	{
-		retMe += probeResult.toString() + "," ;
+		retMe += probeResult + "," ;
 	}
-	for( FFmpegProbeResult probeResult : mp4Files )
+	for( String probeResult : mp4FilesByName )
 	{
-		retMe += probeResult.toString() + "," ;
+		retMe += probeResult + "," ;
 	}
 	retMe += "}" ;
 	return retMe ;
+}
+
+public void addMKVFile( FFmpegProbeResult theMKVFileProbeResult )
+{
+	mkvFilesByProbe.add( theMKVFileProbeResult ) ;
+	mkvFilesByName.add( theMKVFileProbeResult.getFilename() ) ;
+}
+
+public void addMP4File( FFmpegProbeResult theMKVFileProbeResult )
+{
+	mp4FilesByProbe.add( theMKVFileProbeResult ) ;
+	mp4FilesByName.add(theMKVFileProbeResult.getFilename() ) ;
+}
+
+@Override
+public int compareTo( CorrelatedFile rhs )
+{
+	return fileName.compareTo( rhs.fileName ) ;
 }
 
 }

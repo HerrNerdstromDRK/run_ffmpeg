@@ -28,7 +28,7 @@ public class MoviesAndShowsMongoDB
 	private MongoDatabase persistentDatabaseHandle = null ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
-	private final String movieAndShowInfoCollectionName = "movieandshowinfo" ;
+	private final String movieAndShowInfoCollectionName = "movieandshowinfos" ;
 	private final String missingFileCollectionName = "missingfiles" ;
 	private final String hDMoviesAndShowsCollectionName = "hdmoviesandshows" ;
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;

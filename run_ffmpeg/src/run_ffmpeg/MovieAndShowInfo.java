@@ -2,6 +2,7 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,39 +13,58 @@ import java.util.logging.Logger;
  * @author Dan
  *
  */
-public class MovieAndShowInfo
+public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 {
-	/// Setup the logging subsystem
-	private transient Logger log = null ;
-
 	/// The name of the movie.
 	/// Will likely include the year, as in Plex format.
 	/// Example: Godzilla King of the Monsters (2019)
-	private String name = null ;
+	public String name = null ;
+	public List< CorrelatedFile > correlatedFilesList = null ;
 
 	/// If this is a TV show, then seasonName will contain the name of the season ("Season 04")
 	/// If a movie, then seasonName will be null.
 	//	private String seasonName = null ;
 
 	/// The source (.mkv) files for this movie and its subordinate extras.
-	private List< FFmpegProbeResult > mkvFilesByProbeResult = new ArrayList< FFmpegProbeResult >() ; 
+	private transient List< FFmpegProbeResult > mkvFilesByProbeResult = new ArrayList< FFmpegProbeResult >() ; 
 
 	/// Same, but for the mp4 files
-	private List< FFmpegProbeResult > mp4FilesByProbeResult = new ArrayList< FFmpegProbeResult >() ;
+	private transient List< FFmpegProbeResult > mp4FilesByProbeResult = new ArrayList< FFmpegProbeResult >() ;
 
 	/// Store the files that have been correlated, indexed by filename
-	private Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
-
+	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
+	
+	/// Setup the logging subsystem
+	private transient Logger log = null ;
+	
 	/// Constructor for a movie
 	public MovieAndShowInfo( final String name, Logger log )
 	{
 		this.name = name ;
 		this.log = log ;
 	}
-
+	
+	@Override
+	public int compareTo( MovieAndShowInfo rhs )
+	{
+		return name.compareTo( rhs.name ) ;
+	}
+	
+	public void makeReadyCorrelatedFilesList()
+	{
+		correlatedFilesList = new ArrayList< CorrelatedFile >() ;
+		for( Map.Entry< String, CorrelatedFile > entrySet : correlatedFiles.entrySet() )
+		{
+			CorrelatedFile theCorrelatedFile = entrySet.getValue() ;
+			correlatedFilesList.add( theCorrelatedFile ) ;
+		}
+		Collections.sort( correlatedFilesList ) ;
+	}
+	
 	/**
 	 * Walk through all mp4 and mkv entries to establish correlations between each.
 	 */
+	/*
 	public List< MissingFile > reportMissingFiles()
 	{
 		// Possible that one mkv file will correlate to two mp4 files by mistake.
@@ -117,7 +137,8 @@ public class MovieAndShowInfo
 		} // for ( correlatedFiles )
 		return missingFiles ;
 	}
-
+*/
+	/*
 	private MissingFile recordMissingFile( CorrelatedFile correlatedFile, FFmpegProbeResult residentFileProbeResult )
 	{
 		// Create a new MissingFile instance to record that a file is missing
@@ -150,7 +171,8 @@ public class MovieAndShowInfo
 
 		return theMissingFile ;
 	}
-
+*/
+	
 	/**
 	 * Return the largest file in this MovieAndShowInfo. It could be an mkv or mp4.
 	 * Returns null if nothing found, although this shouldn't happen.
@@ -205,7 +227,7 @@ public class MovieAndShowInfo
 			correlatedFile = new CorrelatedFile( fileName ) ;
 			correlatedFiles.put( fileName,  correlatedFile ) ;
 		}
-		correlatedFile.mkvFiles.add( mkvProbeResult ) ;
+		correlatedFile.addMKVFile( mkvProbeResult ) ;
 		mkvFilesByProbeResult.add( mkvProbeResult ) ;
 		//		}
 		//		mkvFilesByProbeResult.add( mkvProbeResult ) ;
@@ -230,7 +252,7 @@ public class MovieAndShowInfo
 			correlatedFile = new CorrelatedFile( fileName ) ;
 			correlatedFiles.put( fileName,  correlatedFile ) ;
 		}
-		correlatedFile.mp4Files.add( mp4ProbeResult ) ;
+		correlatedFile.addMP4File( mp4ProbeResult ) ;
 		mp4FilesByProbeResult.add( mp4ProbeResult ) ;
 		//		}
 		//		mp4FilesByProbeResult.add( mp4ProbeResult ) ;

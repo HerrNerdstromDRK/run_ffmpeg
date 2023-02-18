@@ -68,7 +68,8 @@ public class BuildMovieAndShowIndex
 		BuildMovieAndShowIndex bmasi = new BuildMovieAndShowIndex() ;
 		bmasi.resetCollections() ;
 		bmasi.buildMovieIndex() ;
-		bmasi.findAndRecordMissingFiles() ;
+		bmasi.recordMovieAndShowInfo() ;
+//		bmasi.findAndRecordMissingFiles() ;
 		bmasi.findAndRecordHDandSDMoviesAndShows() ;
 	}
 
@@ -90,7 +91,41 @@ public class BuildMovieAndShowIndex
 
 		masMDB.dropSDMoviesAndShowCollection() ;
 		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
+		
+		masMDB.dropMovieAndShowInfoCollection() ;
+		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
+		
 		log.info( "Done resetting collections." ) ;
+	}
+	
+	private void recordMovieAndShowInfo()
+	{
+		log.info( "Recording movies..." ) ;
+		recordMoviesAndShowsWithInputMap( movieMap ) ;
+		log.info( "Done recording movies." ) ;
+
+		log.info( "Recording TV shows..." ) ;
+		recordMoviesAndShowsWithInputMap( tvShowMap ) ;
+		log.info( "Done recordingTV Shows." ) ;
+	}
+	
+	private void recordMoviesAndShowsWithInputMap( final Map< String, MovieAndShowInfo > inputMap )
+	{
+		if( inputMap.isEmpty() )
+		{
+			return ;
+		}
+		
+		List< MovieAndShowInfo > moviesAndShowsInfo = new ArrayList< MovieAndShowInfo >() ;
+		for( Map.Entry< String, MovieAndShowInfo > set : inputMap.entrySet() )
+		{
+//			String movieOrShowName = set.getKey() ;
+			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
+			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
+			moviesAndShowsInfo.add( movieAndShowInfo ) ;
+		}
+		Collections.sort( moviesAndShowsInfo ) ;
+		movieAndShowInfoCollection.insertMany( moviesAndShowsInfo ) ;
 	}
 	
 	/**
@@ -177,7 +212,7 @@ public class BuildMovieAndShowIndex
 		log.info( "Building movie index..." ) ;
 		
 		// First, let's pull the mkv file info
-		Bson mp4A = Filters.regex( "filename", ".*" ) ;
+		Bson mp4A = Filters.regex( "filename", ".*Pearl Harbor.*" ) ;
 		log.info( "Running find..." ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;
 
@@ -250,7 +285,7 @@ public class BuildMovieAndShowIndex
 		{
 //			String movieOrShowName = set.getKey() ;
 			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
-			missingFiles.addAll( movieAndShowInfo.reportMissingFiles() ) ;
+//			missingFiles.addAll( movieAndShowInfo.reportMissingFiles() ) ;
 		}
 		return missingFiles ;
 	}
