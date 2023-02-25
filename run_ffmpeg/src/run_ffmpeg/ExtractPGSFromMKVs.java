@@ -32,8 +32,8 @@ public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
 	//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
-//	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive1" ;
-	private String mkvInputDirectory = "E:\\Movies" ;
+//	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive3\\Movies\\Forgetting Sarah Marshall (2008)" ;
+	private String mkvInputDirectory = "D:\\Temp\\Cloudy (2001)" ;
 	//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Set to true to place the output SRT files into the same directory
@@ -45,7 +45,7 @@ public class ExtractPGSFromMKVs
 	private final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = false ;
+	static boolean testMode = true ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	private final boolean doSubTitleExtract = true ;

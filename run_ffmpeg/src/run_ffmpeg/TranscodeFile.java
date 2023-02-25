@@ -143,14 +143,28 @@ public class TranscodeFile
 
 	protected List< File > buildSubTitleFileList( final String extension )
 	{
+		// Find files that match the mkv file name with srt or sup files
+		// the mkv file name should be like: "Movie name [Unrated] (2001).mkv" where "[Unrated]" may or may
+		//  not exist.
+		// srt files for that file will look like: "Movie name [Unrated] (2001).#.srt" where # is
+		//  a number written as digits (3 not three).
+		// Also look for "Movie name [Unrated] (2001).sup" as match
+		
 	   	// fileNameSearchString is the wildcard/regex search string for the file name (no path)
-    	String fileNameSearchString = getTheMKVFile().getName() ;
-    	fileNameSearchString = fileNameSearchString.substring( 0, fileNameSearchString.lastIndexOf( '.' ) ) ;
+		// Retrieve the filename and remove the extension.
+		// --> Movie name [Unrated] (2001).
+    	String fileNameSearchRegex = getTheMKVFile().getName() ;
+    	fileNameSearchRegex = fileNameSearchRegex.substring( 0, fileNameSearchRegex.lastIndexOf( '.' ) ) ;
     	
     	// Replace any ( or ) as those seem to confuse the regex; this is probably the wrong way
     	// handle this problem, but hopefully it works.
-    	fileNameSearchString = fileNameSearchString.replace( "(", "" ).replace( ")", "" ) ;
-    	fileNameSearchString += "(.*)." + extension ;
+    	// Wrap the file name in /'s to make it a string literal match
+    	fileNameSearchRegex = fileNameSearchRegex + "\\." ;
+    	fileNameSearchRegex = fileNameSearchRegex.replace( "(", "\\(" ).replace( ")", "\\)" ) ;
+    	fileNameSearchRegex = fileNameSearchRegex.replace( "[", "\\[" ).replace( "]", "\\]" ) ;
+    	
+    	// Add search parameter for digit character class
+    	fileNameSearchRegex += "[0-9]+\\." + extension ;
 
     	// searchDirectory is the directory in which to search for files that match the fileNameSearchString
     	String searchDirectory = getTheMKVFile().getParent() ;
@@ -160,11 +174,11 @@ public class TranscodeFile
     	List< File > theFileList = new ArrayList< File >() ;
     	for( File searchFile : filesInDirectory )
     	{
-    		String searchFileName = searchFile.getName().replace( "(", "" ).replace( ")", "" ) ;
-    		if( searchFileName.matches( fileNameSearchString ) )
+    		String searchFileName = searchFile.getName() ;
+    		if( searchFileName.matches( fileNameSearchRegex ) )
     		{
     			// Found a matching subtitle file
-    			log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchString ) ;
+    			log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchRegex ) ;
     			theFileList.add( searchFile ) ;
     		}
     	}
