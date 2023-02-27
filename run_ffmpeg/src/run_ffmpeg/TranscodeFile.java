@@ -25,9 +25,10 @@ public class TranscodeFile
 	protected String mp4FinalDirectory = null ;
 	private transient Logger log = null ;
 	
-	// List of .srt files corresponding to this TranscodeFile
+	// List of subtitle files corresponding to this TranscodeFile
 	private List< File > srtFileList = null ;
 	private List< File > supFileList = null ;
+	private List< File > dvdSubTitleFileList = null ;
 	
 	// Track the ffprobe result for this input file
 	protected FFmpegProbeResult theFFmpegProbeResult = null ;
@@ -79,6 +80,7 @@ public class TranscodeFile
 		buildPaths() ;
 		srtFileList = buildSubTitleFileList( "srt" ) ;
 		supFileList = buildSubTitleFileList( "sup" ) ;
+		dvdSubTitleFileList = buildSubTitleFileList( "dvd_subtitle" ) ;
 	}
 
 	private void buildPaths()
@@ -156,10 +158,10 @@ public class TranscodeFile
     	String fileNameSearchRegex = getTheMKVFile().getName() ;
     	fileNameSearchRegex = fileNameSearchRegex.substring( 0, fileNameSearchRegex.lastIndexOf( '.' ) ) ;
     	
-    	// Replace any ( or ) as those seem to confuse the regex; this is probably the wrong way
-    	// handle this problem, but hopefully it works.
-    	// Wrap the file name in /'s to make it a string literal match
+    	// Add the trailing period after the file name as a literal
     	fileNameSearchRegex = fileNameSearchRegex + "\\." ;
+    	
+    	// Replace special regex characters with their literal equivalents
     	fileNameSearchRegex = fileNameSearchRegex.replace( "(", "\\(" ).replace( ")", "\\)" ) ;
     	fileNameSearchRegex = fileNameSearchRegex.replace( "[", "\\[" ).replace( "]", "\\]" ) ;
     	
@@ -729,6 +731,11 @@ public class TranscodeFile
 	public boolean hasSUPInputFiles()
 	{
 		return !supFileList.isEmpty() ;
+	}
+	
+	public boolean hasDVDSubTitleInputFile()
+	{
+		return !dvdSubTitleFileList.isEmpty() ;
 	}
 	
 	public int numSRTInputFiles()

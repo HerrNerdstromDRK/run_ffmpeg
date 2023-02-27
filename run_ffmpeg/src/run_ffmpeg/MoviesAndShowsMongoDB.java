@@ -29,7 +29,6 @@ public class MoviesAndShowsMongoDB
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
 	private final String movieAndShowInfoCollectionName = "movieandshowinfos" ;
-	private final String missingFileCollectionName = "missingfiles" ;
 	private final String hDMoviesAndShowsCollectionName = "hdmoviesandshows" ;
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
 
@@ -51,7 +50,7 @@ public class MoviesAndShowsMongoDB
 	public MoviesAndShowsMongoDB()
 	{
 		run_ffmpeg.testMode = testMode ;
-		Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		loginAndConfigureDatabase() ;
 	}
 
@@ -91,7 +90,7 @@ public class MoviesAndShowsMongoDB
 		// Login to the database
 		MongoCredential credential = MongoCredential.createCredential("dan", "MoviesAndShows", 
 				"BqQyH2r5xJuNu2A".toCharArray()); 
-		System.out.println("loginToDatabase> Connected to the database successfully" );  
+		log.info("Connected to the database successfully" );  
 
 		// Configure the database to use the POJO provider and retrieve the handle
 		persistentDatabaseHandle = persistentMongoClient.getDatabase( databaseName ).withCodecRegistry( pojoCodecRegistry ) ;
@@ -99,6 +98,7 @@ public class MoviesAndShowsMongoDB
 
 	public MongoCollection< HDorSDFile > getHDMoviesAndShowsCollection()
 	{
+		log.fine( "Getting HDMoviesAndShowsCollection" )  ;
 		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( hDMoviesAndShowsCollectionName,
 				HDorSDFile.class ) ;
 		return theCollection ;
@@ -106,11 +106,13 @@ public class MoviesAndShowsMongoDB
 	
 	public void dropHDMoviesAndShowCollection()
 	{
+		log.info( "Dropping HDMoviesAndShowsCollection" )  ;
 		getHDMoviesAndShowsCollection().drop() ;
 	}
 	
 	public MongoCollection< HDorSDFile > getSDMoviesAndShowsCollection()
 	{
+		log.fine( "Getting SDMoviesAndShowsCollection" )  ;
 		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( sDMoviesAndShowsCollectionName,
 				HDorSDFile.class ) ;
 		return theCollection ;
@@ -118,11 +120,13 @@ public class MoviesAndShowsMongoDB
 	
 	public void dropSDMoviesAndShowCollection()
 	{
+		log.info( "Dropping SDMoviesAndShowsCollection" )  ;
 		getSDMoviesAndShowsCollection().drop() ;
 	}
 	
 	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
 	{	
+		log.fine( "Getting probeInfoCollection" )  ;
 		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
 				FFmpegProbeResult.class ) ;
 		return theCollection ;
@@ -130,11 +134,13 @@ public class MoviesAndShowsMongoDB
 
 	public void dropProbeInfoCollection()
 	{
+		log.info( "Dropping probeInfoCollection" )  ;
 		getProbeInfoCollection().drop() ;
 	}
 	
 	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
 	{	
+		log.fine( "Getting movieAndShowInfoCollectionName" )  ;
 		MongoCollection< MovieAndShowInfo > theCollection = persistentDatabaseHandle.getCollection( movieAndShowInfoCollectionName,
 				MovieAndShowInfo.class ) ;
 		return theCollection ;
@@ -142,19 +148,8 @@ public class MoviesAndShowsMongoDB
 	
 	public void dropMovieAndShowInfoCollection()
 	{
+		log.info( "Dropping movieAndShowInfoCollectionName" )  ;
 		getMovieAndShowInfoCollection().drop() ;
-	}
-	
-	public MongoCollection< MissingFile > getMissingFileCollection()
-	{	
-		MongoCollection< MissingFile > theCollection = persistentDatabaseHandle.getCollection( missingFileCollectionName,
-				MissingFile.class ) ;
-		return theCollection ;
-	}
-	
-	public void dropMissingFileCollection()
-	{
-		getMissingFileCollection().drop() ;
 	}
 
 	/*

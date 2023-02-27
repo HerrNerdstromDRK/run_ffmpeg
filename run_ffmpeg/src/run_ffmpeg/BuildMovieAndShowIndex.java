@@ -87,12 +87,14 @@ public class BuildMovieAndShowIndex
 		masMDB.dropSDMoviesAndShowCollection() ;
 		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
 		
-		masMDB.dropMovieAndShowInfoCollection() ;
-		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
-		
 		log.info( "Done resetting collections." ) ;
 	}
 	
+	/**
+	 * Build a correlated files list for each entry in the movieMap and tvShowMap and store them all into
+	 *  the database movieAndShowInfoCollection.
+	 * @param inputMap
+	 */
 	private void recordMovieAndShowInfo()
 	{
 		log.info( "Recording movies..." ) ;
@@ -104,6 +106,11 @@ public class BuildMovieAndShowIndex
 		log.info( "Done recordingTV Shows." ) ;
 	}
 	
+	/**
+	 * Build a correlated files list for each entry in the inputMap and store them all into
+	 *  the database movieAndShowInfoCollection.
+	 * @param inputMap
+	 */
 	private void recordMoviesAndShowsWithInputMap( final Map< String, MovieAndShowInfo > inputMap )
 	{
 		if( inputMap.isEmpty() )
@@ -124,7 +131,8 @@ public class BuildMovieAndShowIndex
 	}
 	
 	/**
-	 * Front end method to get around the static call from main().
+	 * Build two lists sd and hd movies and shows and place them
+	 * into the database.
 	 */
 	private void findAndRecordHDandSDMoviesAndShows()
 	{
@@ -138,7 +146,7 @@ public class BuildMovieAndShowIndex
 	}
 	
 	/**
-	 * Find and record to the database the HD and SD files from each movie or show.
+	 * Find and record to the database the HD and SD files from item in the inputMap.
 	 * @param inputMap
 	 */
 	private void findAndRecordHDandSDMoviesAndShowsWithInputMap( Map< String, MovieAndShowInfo > inputMap )
@@ -198,15 +206,16 @@ public class BuildMovieAndShowIndex
 
 	/**
 	 * The purpose of this method is to build a single Movie or TV Show (MovieAndShowInfo instance)
-	 * for each movie or tv show. The method will populate the movieMap and tvShowMap with the
-	 * resulting information, including to add all mp4 and mkv fiels to each movie or tv show.
-	 * TODO: Write the entries to the database?
+	 *  for each movie or tv show. The method will populate the movieMap and tvShowMap with the
+	 *  resulting information, including to add all mp4 and mkv files to each movie or tv show.
+	 * This method only populates the movieMap and tvShowMap, but does NOT write anything
+	 *  to the database.
 	 */
 	private void buildMovieIndex()
 	{
 		log.info( "Building movie index..." ) ;
 		
-		// First, let's pull the mkv file info
+		// First, let's pull the info from the probeInfoCollection
 		Bson mp4A = Filters.regex( "filename", ".*" ) ;
 		log.info( "Running find..." ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;

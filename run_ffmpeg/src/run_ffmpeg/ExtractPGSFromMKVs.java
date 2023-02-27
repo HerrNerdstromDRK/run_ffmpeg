@@ -26,26 +26,25 @@ import com.google.gson.GsonBuilder;
  * -- Use above database (?) of ffprobe data to analyze deltas
  * -- Update run_ffmpeg (or other) to fix those items using database inputs
  * @author Dan
- *
  */
 public class ExtractPGSFromMKVs
 {
 	/// Directory from which to read MKV files
 	//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
-//	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive3\\Movies\\Forgetting Sarah Marshall (2008)" ;
-	private String mkvInputDirectory = "D:\\Temp\\Cloudy (2001)" ;
+	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\Movies" ;
+//	private String mkvInputDirectory = "D:\\Temp\\Big Bang" ;
 	//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Set to true to place the output SRT files into the same directory
 	/// in which the input files are found.
 	/// When set to true, the below destination directory will be ignored.
-	private boolean doPlaceSRTFilesInInputDirectory = true ;
+	private boolean doPlaceSubTitleFilesInInputDirectory = true ;
 
 	/// Directory to which to write .srt files
 	private final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = true ;
+	static boolean testMode = false ;
 
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	private final boolean doSubTitleExtract = true ;
@@ -66,7 +65,6 @@ public class ExtractPGSFromMKVs
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
 	static final String codecNameSubTitleSRTString = "subrip" ;
 	static final String codecNameSubTitleDVDSubString = "dvd_subtitle" ;
-	static final String codecTypeAudio = "audio" ;
 
 	/// Identify the allowable languages for subtitles.
 	static final String[] allowableSubTitleLanguages = {
@@ -78,13 +76,8 @@ public class ExtractPGSFromMKVs
 	/// This will mostly be used when selecting which streams to extract as separate files.
 	static final String[] extractableSubTitleCodecNames = {
 			codecNameSubTitlePGSString,
-			codecNameSubTitleSRTString
-//			codecNameSubTitleDVDSubString
-	} ;
-
-	/// The list of subtitle code names that should be left in any files to be transcoded directly
-	static final String[] transcodeableSubTitleCodecNames = {
-			codecNameSubTitleSRTString
+			codecNameSubTitleSRTString,
+			codecNameSubTitleDVDSubString
 	} ;
 
 	public ExtractPGSFromMKVs()
@@ -164,7 +157,7 @@ public class ExtractPGSFromMKVs
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
 			String outputPath = subTitleStreamExtractDestinationDirectory ;
-			if( doPlaceSRTFilesInInputDirectory )
+			if( doPlaceSubTitleFilesInInputDirectory )
 			{
 				// Place the subtitle files in the same directory as the source files
 				outputPath = theFile.getMKVInputPath() ;
@@ -174,7 +167,8 @@ public class ExtractPGSFromMKVs
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
 			outputFileNameWithPath += "." + streamIndex ;
-			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
+			if( stStream.codec_name.equals( codecNameSubTitlePGSString )
+					|| stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
 			{
 				outputFileNameWithPath += ".sup" ;
 			}
@@ -182,8 +176,15 @@ public class ExtractPGSFromMKVs
 			{
 				outputFileNameWithPath += ".srt" ;
 			}
-			ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
-
+			if( stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
+			{
+				ffmpegOptionsCommandString.add( "-c:s", "dvdsub" ) ;
+				ffmpegOptionsCommandString.add( "-f", "rawvideo", outputFileNameWithPath ) ;
+			}
+			else
+			{
+				ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
+			}
 		}
 //		log.info( "ffmpegOptionsCommandString: "
 //				+ run_ffmpeg.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;

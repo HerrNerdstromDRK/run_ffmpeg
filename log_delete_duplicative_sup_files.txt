@@ -1,2 +1,13 @@
-[20230224.1708] [INFO   ] DeleteDuplicativeSUPFiles.run> Found 441 .sup file(s) 
-[20230224.1708] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleted 0 .sup file(s) 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Found 11 .sup file(s) 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\Underworld Unrated Extended Cut (2003)\Underworld Unrated Extended Cut (2003).7.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\Underworld Unrated Extended Cut (2003)\Underworld Unrated Extended Cut (2003).8.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\Underworld Unrated Extended Cut (2003)\Visual Effects-behindthescenes.2.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Apocalypse (2016)\Gag Reel-behindthescenes.2.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Apocalypse (2016)\Mutants Growing Up-behindthescenes.2.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Apocalypse (2016)\Period Films-behindthescenes.2.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Apocalypse (2016)\The Four Horsemen-behindthescenes.2.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Apocalypse (2016)\Time in Bottle-behindthescenes.2.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Days of Future Past (2014)\Double Take-behindthescenes.3.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Days of Future Past (2014)\Gag Reel-behindthescenes.3.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive1\Movies\X-Men Days of Future Past (2014)\Sentinels-behindthescenes.3.srt 
+[20230226.1623] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleted 11 .sup file(s) 
