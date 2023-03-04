@@ -36,7 +36,7 @@ public class BuildMovieAndShowIndex
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	private static final String stopFileName = "C:\\Temp\\stop_build_movie_and_show_index.txt" ;
+//	private static final String stopFileName = "C:\\Temp\\stop_build_movie_and_show_index.txt" ;
 	
 	private MoviesAndShowsMongoDB masMDB = null ;
 	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
@@ -230,12 +230,14 @@ public class BuildMovieAndShowIndex
 				// TV Show
 				// TV show names will be stored by combining the name of the show with the season
 				// For example: "Californication_Season 01"
-				final String tvShowName = theFile.getParentFile().getParentFile().getName()
-						+ "_"
-						+ theFile.getParentFile().getName() ;
+				final String tvShowNameStrict = theFile.getParentFile().getParentFile().getName() ;
+				final String tvShowSeasonName = theFile.getParentFile().getName() ;
+				final String tvShowName = tvShowNameStrict + "_" + tvShowSeasonName ;
 				log.fine( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
 				
-				addEntryToMap( tvShowMap, tvShowName, probeResult, theFile ) ;
+				MovieAndShowInfo entry = addEntryToMap( tvShowMap, tvShowName, probeResult, theFile ) ;
+				entry.setTVShowName( tvShowNameStrict ) ;
+				entry.setTVShowSeasonName( tvShowSeasonName ) ;
 			}
 			else if( theFile.getParent().contains( "(" ) )
 			{
@@ -263,7 +265,7 @@ public class BuildMovieAndShowIndex
 	 * @param tvShowSeasonName: Null if the entry is a movie; a season name if tv.
 	 * @param theFile
 	 */
-	private void addEntryToMap( Map< String, MovieAndShowInfo > storageMap,
+	private MovieAndShowInfo addEntryToMap( Map< String, MovieAndShowInfo > storageMap,
 			final String movieOrTVShowName,
 			final FFmpegProbeResult probeResult,
 			final File theFile )
@@ -287,6 +289,7 @@ public class BuildMovieAndShowIndex
 		{
 			mapEntry.addMKVFile( probeResult ) ;
 		}
+		return mapEntry ;
 	}
 	
 }

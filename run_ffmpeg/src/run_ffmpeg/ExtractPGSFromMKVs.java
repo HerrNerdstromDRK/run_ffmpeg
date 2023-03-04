@@ -1,15 +1,9 @@
 package run_ffmpeg;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
-
 import com.google.common.collect.ImmutableList;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * Problems to solve:
@@ -43,14 +37,14 @@ public class ExtractPGSFromMKVs
 	/// Directory to which to write .srt files
 	private final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
 
-	/// Set testMode to true to prevent mutations
-	static boolean testMode = false ;
-
 	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
 	private final boolean doSubTitleExtract = true ;
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
+	
+	private transient Common common = null ;
+	private transient TranscodeCommon transcodeCommon = null ;
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_extract_pgs.txt" ;
@@ -59,8 +53,6 @@ public class ExtractPGSFromMKVs
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
 
-	static final String pathToFFMPEG = run_ffmpeg.pathToFFMPEG ;
-	static final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
 	static final String codecNameSubTitleSRTString = "subrip" ;
@@ -83,7 +75,8 @@ public class ExtractPGSFromMKVs
 	public ExtractPGSFromMKVs()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		run_ffmpeg.testMode = testMode ;
+		common = new Common( log ) ;
+		transcodeCommon = new TranscodeCommon( log, common, mkvInputDirectory, "", "", "" ) ;
 	}
 
 	public static void main(String[] args)
@@ -96,12 +89,13 @@ public class ExtractPGSFromMKVs
 	{
 		// First, survey the input directory for files to process, and build
 		// a TranscodeFile object for each.
-		List< TranscodeFile > filesToProcess = run_ffmpeg.surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory ) ;
+		List< TranscodeFile > filesToProcess = transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory,
+				transcodeCommon.getTranscodeExtensions() ) ;
 
 		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
-			if( run_ffmpeg.stopExecution( stopFileName ) )
+			if( common.shouldStopExecution( stopFileName ) )
 			{
 				log.info( "Stopping execution due to presence of stop file: " + stopFileName ) ;
 				break ;
@@ -116,7 +110,7 @@ public class ExtractPGSFromMKVs
 
 			// Look for usable subtitle streams in the file and retrieve a list of options
 			// for an ffmpeg extract command
-			FFmpegProbeResult probeResult = ffprobeFile( theFileToProcess, log ) ;
+			FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess, log ) ;
 			if( null == probeResult )
 			{
 				// Unable to ffprobe the file
@@ -162,7 +156,7 @@ public class ExtractPGSFromMKVs
 				// Place the subtitle files in the same directory as the source files
 				outputPath = theFile.getMKVInputPath() ;
 			}
-			String outputFileNameWithPath = run_ffmpeg.addPathSeparatorIfNecessary( outputPath )
+			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputPath )
 					+ theFile.getMkvFileName().replace( ".mkv", "" ) ;
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
@@ -208,12 +202,12 @@ public class ExtractPGSFromMKVs
 
 		// Build the ffmpeg command
 		ImmutableList.Builder<String> ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
-		ffmpegSubTitleExtractCommand.add( pathToFFMPEG ) ;
+		ffmpegSubTitleExtractCommand.add( Common.getPathToFFmpeg() ) ;
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
 		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
-		run_ffmpeg.executeCommand( ffmpegSubTitleExtractCommand ) ;
+		common.executeCommand( ffmpegSubTitleExtractCommand ) ;
 	}
 
 	/**
@@ -260,82 +254,6 @@ public class ExtractPGSFromMKVs
 			}
 		} // for( stream )
 		return extractableSubTitleStreams ;
-	}
-
-	/**
-	 * Run ffprobe on the given file.
-	 * If an error occurs, return null. 
-	 * Otherwise, return the FFmpegProbeResult from the ffprobe.
-	 */
-	public static FFmpegProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
-	{
-		return ffprobeFile( new File( theFile.getMKVFileNameWithPath() ), log ) ;
-	}
-
-	public static FFmpegProbeResult ffprobeFile( File theFile, Logger log )
-	{	
-		log.info( "Processing: " + theFile.getAbsolutePath() ) ;
-		FFmpegProbeResult result = null ;
-
-		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
-		ffprobeExecuteCommand.add( pathToFFPROBE ) ;
-
-		// Add option "-v quiet" to suppress the normal ffprobe output
-		ffprobeExecuteCommand.add( "-v", "quiet" ) ;
-
-		// Instruct ffprobe to show streams
-		ffprobeExecuteCommand.add( "-show_streams" ) ;
-
-		// Instruct ffprobe to return result as json
-		ffprobeExecuteCommand.add( "-print_format", "json" ) ;
-
-		// Finally, add the input file
-		ffprobeExecuteCommand.add( "-i", theFile.getAbsolutePath() ) ;
-
-		// Build the GSON parser for the JSON input
-		GsonBuilder builder = new GsonBuilder(); 
-		builder.setPrettyPrinting(); 
-		Gson gson = builder.create();
-
-		try
-		{
-			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
-			String ffprobeExecuteCommandString = run_ffmpeg.toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
-			log.info( "Execute ffprobe command: " + ffprobeExecuteCommandString ) ;
-
-			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommandString ) ;
-
-			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
-			int lineNumber = 1 ;
-			String inputLine = null ;
-			String inputBuffer = "" ;
-			while( (inputLine = inputStreamReader.readLine()) != null )
-			{
-				log.fine( "" + lineNumber + "> " + inputLine ) ;
-				inputBuffer += inputLine ;
-				++lineNumber ;
-			}
-
-			if( process.exitValue() != 0 )
-			{
-				log.warning( "Error running ffprobe on file " + theFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
-				result = null ; // already null, but just for clarity
-			}
-			else
-			{
-				// Deserialize the JSON streams info from this file
-				result = gson.fromJson(inputBuffer, FFmpegProbeResult.class);
-				// TODO: Ensure consistent file path naming using \\yoda as start
-				result.setFilename(theFile.getAbsolutePath());
-				result.setProbeTime(System.currentTimeMillis());
-				result.setSize(theFile.length());
-			}
-		}
-		catch( Exception theException )
-		{
-			theException.printStackTrace() ;
-		}
-		return result ;
 	}
 
 	static boolean isAllowableSubTitleLanguage( final String audioLanguage )

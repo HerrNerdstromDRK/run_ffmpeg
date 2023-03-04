@@ -12,17 +12,19 @@ public class DeleteDuplicativeSUPFiles
 {
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
+	private transient Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_delete_duplicative_sup_files.txt" ;
 	
-	private static final String mkvInputDirectory = "\\\\yoda\\MKV_Archive3\\Movies" ;
+	private static final String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\Movies" ;
 	private static final String supExtension = "sup" ;
 	private static final String srtExtension = "srt" ;
 	
 	public DeleteDuplicativeSUPFiles()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		common = new Common( log ) ;
 	}
 	
 	public static void main( String[] args )
@@ -39,7 +41,7 @@ public class DeleteDuplicativeSUPFiles
 			log.warning( "mkvInputDirectoryFile is not a directory: " + mkvInputDirectoryFile ) ;
 			return ;
 		}
-		List< File > supFilesByExtension = run_ffmpeg.getFilesInDirectoryWithExtension( mkvInputDirectoryFile.getAbsolutePath(),
+		List< File > supFilesByExtension = common.getFilesInDirectoryByExtension( mkvInputDirectoryFile.getAbsolutePath(),
 				supExtension ) ;
 		log.info( "Found " + supFilesByExtension.size() + " .sup file(s)" ) ;
 		

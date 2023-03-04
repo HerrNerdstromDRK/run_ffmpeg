@@ -21,13 +21,16 @@ public class FFmpegProbeResult
 //	private transient String idString = null ;
 	
 	/// The file being probed.
-	private String filename = null ;
+	public String filename = null ;
 	
 	/// The time, in ms since 1-Jan-1970, of this probe
-	private long probeTime = 0 ;
+	public long probeTime = 0 ;
 	
 	/// Size of the file in bytes
-	private long size = 0 ;
+	public long size = 0 ;
+	
+	/// The time this file was last modified
+	public long lastModified = 0 ;
 	
 	/// Store any error state
 	public FFmpegError error = null ;
@@ -131,6 +134,14 @@ public class FFmpegProbeResult
 //		+ ",chapters.size: " + chapters.size()
 		+ "}" ;
 		return retMe ;
+	}
+
+	public long getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(long lastModified) {
+		this.lastModified = lastModified;
 	}
 	
 }

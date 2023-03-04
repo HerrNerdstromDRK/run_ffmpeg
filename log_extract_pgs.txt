@@ -27548,3 +27548,5 @@
 [20230226.1805] [FINE   ] ExtractPGSFromMKVs.findExtractableSubTitleStreams> Found subtitle with language tag but NOT allowable: spa 
 [20230226.1805] [FINE   ] ExtractPGSFromMKVs.findExtractableSubTitleStreams> Checking stream: {11,hdmv_pgs_subtitle,subtitle,por} 
 [20230226.1805] [FINE   ] ExtractPGSFromMKVs.findExtractableSubTitleStreams> Found subtitle with language tag but NOT allowable: por 
+[20230226.1824] [INFO   ] ExtractPGSFromMKVs.run> Stopping execution due to presence of stop file: C:\Temp\stop_pgs.txt 
+[20230226.1824] [INFO   ] ExtractPGSFromMKVs.run> Complete. 

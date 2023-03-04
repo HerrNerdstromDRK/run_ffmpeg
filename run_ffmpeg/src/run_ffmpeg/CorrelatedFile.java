@@ -35,6 +35,9 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	{
 		this.fileName = fileName ;
 	}
+	
+	public CorrelatedFile()
+	{}
 
 	/**
 	 * Return true if this CorrelatedFile is missing a file.

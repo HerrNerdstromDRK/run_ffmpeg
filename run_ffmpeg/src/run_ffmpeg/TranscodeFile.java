@@ -24,6 +24,8 @@ public class TranscodeFile
 	protected String mp4OutputDirectory = null ;
 	protected String mp4FinalDirectory = null ;
 	private transient Logger log = null ;
+	private transient Common common = null ;
+	private transient TranscodeCommon transcodeCommon = null ;
 	
 	// List of subtitle files corresponding to this TranscodeFile
 	private List< File > srtFileList = null ;
@@ -62,7 +64,8 @@ public class TranscodeFile
 			final String mkvFinalDirectory,
 			final String mp4OutputDirectory,
 			final String mp4FinalDirectory,
-			Logger log )
+			Logger log,
+			TranscodeCommon transcodeCommon )
 	{
 		assert( theMKVFile != null ) ;
 		assert( theMKVFile.exists() ) ;
@@ -72,10 +75,12 @@ public class TranscodeFile
 		assert( mp4FinalDirectory != null ) ;
 
 		this.theMKVFile = theMKVFile ;
-		this.mkvFinalDirectory = run_ffmpeg.addPathSeparatorIfNecessary( mkvFinalDirectory ) ;
-		this.mp4OutputDirectory = run_ffmpeg.addPathSeparatorIfNecessary( mp4OutputDirectory ) ;
-		this.mp4FinalDirectory = run_ffmpeg.addPathSeparatorIfNecessary( mp4FinalDirectory ) ;
 		this.log = log ;
+		common = new Common( log ) ;
+		this.mkvFinalDirectory = common.addPathSeparatorIfNecessary( mkvFinalDirectory ) ;
+		this.mp4OutputDirectory = common.addPathSeparatorIfNecessary( mp4OutputDirectory ) ;
+		this.mp4FinalDirectory = common.addPathSeparatorIfNecessary( mp4FinalDirectory ) ;
+		this.transcodeCommon = transcodeCommon ;
 		
 		buildPaths() ;
 		srtFileList = buildSubTitleFileList( "srt" ) ;
@@ -89,7 +94,7 @@ public class TranscodeFile
 		// Just walk through each here, replacing it with mp4
 		// Note that this is safe since the run_ffmpeg.transcodeExtensions
 		// array includes the periods (".mkv", ".MOV", etc)
-		for( String theExtension : run_ffmpeg.transcodeExtensions )
+		for( String theExtension : transcodeCommon.getTranscodeExtensions() )
 		{
 			if( theMKVFile.getName().contains( theExtension ) )
 			{
@@ -204,13 +209,13 @@ public class TranscodeFile
 			else if( inputDirectory.contains( getTvShowName() ) )
 			{
 				// TV show name is included, but not the season
-				finalDirectoryPath += getTvShowSeasonName() + getPathSeparator() ;
+				finalDirectoryPath += getTvShowSeasonName() + common.getPathSeparator() ;
 			}
 			else
 			{
 				// Neither tv show nor season name is included
-				finalDirectoryPath += getTvShowName() + getPathSeparator()
-				+ getTvShowSeasonName() + getPathSeparator() ;
+				finalDirectoryPath += getTvShowName() + common.getPathSeparator()
+				+ getTvShowSeasonName() + common.getPathSeparator() ;
 			}
 		}
 		else
@@ -227,7 +232,7 @@ public class TranscodeFile
 			{
 				// Does not include movie directory in the path
 				setMovieName( getTheMKVFile().getParentFile().getName().replace( "7.1 ", "" ).replace( "6.1 ", "" ) ) ;
-				finalDirectoryPath += getMovieName() + getPathSeparator() ;
+				finalDirectoryPath += getMovieName() + common.getPathSeparator() ;
 			}
 		} // if( isTVShow() )
 		return finalDirectoryPath ;
@@ -276,9 +281,9 @@ public class TranscodeFile
 
 	public void makeDirectories()
 	{
-		run_ffmpeg.makeDirectory( getMkvFinalDirectory() ) ;
-		run_ffmpeg.makeDirectory( getMp4OutputDirectory() ) ;
-		run_ffmpeg.makeDirectory( getMp4FinalDirectory() ) ;
+		common.makeDirectory( getMkvFinalDirectory() ) ;
+		common.makeDirectory( getMp4OutputDirectory() ) ;
+		common.makeDirectory( getMp4FinalDirectory() ) ;
 	}
 
 	public void processFFmpegProbeResult( FFmpegProbeResult _theFFmpegProbeResult )
@@ -292,10 +297,10 @@ public class TranscodeFile
 	protected void processVideoStreams( List< FFmpegStream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type video
-		for( FFmpegStream theInputStream : inputStreams )
-		{
-			
-		}
+//		for( FFmpegStream theInputStream : inputStreams )
+//		{
+//			
+//		}
 	}
 	
 	protected void processAudioStreams( List< FFmpegStream > inputStreams )
@@ -401,10 +406,10 @@ public class TranscodeFile
 	protected void processSubTitleStreams( List< FFmpegStream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type subtitle
-		for( FFmpegStream theInputStream : inputStreams )
-		{
-			
-		}
+//		for( FFmpegStream theInputStream : inputStreams )
+//		{
+//			
+//		}
 	}
 
 	public String getMKVFileNameWithPath()
@@ -443,7 +448,7 @@ public class TranscodeFile
 	{
 		for( File srtFile : srtFileList )
 		{
-			if( srtFile.getName().contains( run_ffmpeg.forcedSubTitleFileNameContains ) )
+			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
 			{
 				return true ;
 			}
@@ -456,7 +461,7 @@ public class TranscodeFile
 		File retMe = null ;
 		for( File srtFile : srtFileList )
 		{
-			if( srtFile.getName().contains( run_ffmpeg.forcedSubTitleFileNameContains ) )
+			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
 			{
 				retMe = srtFile ;
 				break ;
@@ -502,11 +507,6 @@ public class TranscodeFile
 		
 		return streamNumberInteger.intValue() ;
 	}
-	
-	public static String getPathSeparator()
-	{
-		return run_ffmpeg.getPathSeparator() ;
-	}
 
 	public void setTVShow()
 	{
@@ -551,7 +551,7 @@ public class TranscodeFile
 	public boolean getTranscodeStatus( final String extensionToCheck )
 	{
 		String transcodeExtensionFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
-		if( run_ffmpeg.fileExists( transcodeExtensionFileName ))
+		if( common.fileExists( transcodeExtensionFileName ))
 		{
 			log.fine( extensionToCheck + "> Found file " + transcodeExtensionFileName ) ;
 			return true ;
@@ -563,9 +563,9 @@ public class TranscodeFile
 	{
 		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
 		log.fine( extensionToWrite + "> Touching file: " + mkvTouchFileName ) ;
-		if( !run_ffmpeg.testMode )
+		if( !common.getTestMode() )
 		{
-			run_ffmpeg.touchFile( mkvTouchFileName ) ;
+			common.touchFile( mkvTouchFileName ) ;
 		}
 	}
 	
@@ -573,7 +573,7 @@ public class TranscodeFile
 	{
 		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
 		log.info( extensionToWrite + "> Deleting file: " + mkvTouchFileName ) ;
-		if( !run_ffmpeg.testMode )
+		if( !common.getTestMode() )
 		{
 			File fileToDelete = new File( mkvTouchFileName ) ;
 			fileToDelete.delete() ;

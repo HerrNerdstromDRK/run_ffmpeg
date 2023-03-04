@@ -1,11 +1,9 @@
 package run_ffmpeg;
 
 import java.io.File;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import com.mongodb.client.FindIterable;
@@ -19,23 +17,23 @@ import com.mongodb.client.model.Filters;
  */
 public class ProbeDirectories
 {
-	/// Set testMode to true to prevent mutations
-	/// Mostly used to interact with run_ffmpeg
-	private static boolean testMode = true ;
-
 	/// Setup the logging subsystem
-	private Logger log = null ;
-	
+	private transient Logger log = null ;
+	private transient Common common = null ;
+
+	private transient MoviesAndShowsMongoDB masMDB = null ;
+	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+
 	/// File name to which to log activities for this application.
-	private static final String logFileName = "log_probe_directories.txt" ;
+	private final String logFileName = "log_probe_directories.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_probe_directories.txt" ;
-//	private final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
-	
+	//	private final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
+
 	/// The directories to probe
-	private final String[] _directoriesToProbe = {
+	private final String[] directoriesToProbe = {
 			"\\\\yoda\\MP4\\Movies",
 			"\\\\yoda\\MP4_2\\Movies",
 			"\\\\yoda\\MP4_3\\Movies",
@@ -63,96 +61,151 @@ public class ProbeDirectories
 			"\\\\yoda\\MKV_Archive8\\TV Shows",
 			"\\\\yoda\\MKV_Archive9\\TV Shows",
 	} ;
-	
+
 	/// The extensions of the files to probe herein.
-	private final String[] _extensionsToProbe = {
+	private final String[] extensionsToProbe = {
 			".mkv",
 			".mp4"
 	} ;
-	
+
 	public ProbeDirectories()
 	{
-		run_ffmpeg.testMode = testMode ;
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		common = new Common( log ) ;
+
+		masMDB = new MoviesAndShowsMongoDB() ;
+		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
-	
+
+	public ProbeDirectories( Logger log,
+			Common common,
+			MoviesAndShowsMongoDB masMDB,
+			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+	{
+		this.log = log ;
+		this.common = common ;
+		this.masMDB = masMDB ;
+		this.probeInfoCollection = probeInfoCollection ;
+	}
+
 	public static void main(String[] args)
 	{
 		ProbeDirectories pd = new ProbeDirectories() ;
 		pd.probeDirectoriesAndUpdateDB() ;
 	}
-	
+
 	public void probeDirectoriesAndUpdateDB()
 	{
-		NumberFormat numFormat = NumberFormat.getInstance( new Locale( "en", "US" ) ) ;
-		numFormat.setMaximumFractionDigits( 2 ) ;
 		final long startTime = System.nanoTime() ;
-
-		probeDirectoriesAndUpdateDB( _directoriesToProbe, _extensionsToProbe ) ;
-		
+		probeDirectoriesAndUpdateDB( directoriesToProbe, extensionsToProbe ) ;
 		final long endTime = System.nanoTime() ;
-		final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-    	log.info( "Total elapsed time: "
-    			+ numFormat.format( timeElapsedInSeconds )
-    			+ " seconds, "
-    			+ numFormat.format( timeElapsedInSeconds / 60.0 )
-    			+ " minutes" ) ;
+
+		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
 	}
-	
+
 	public void probeDirectoriesAndUpdateDB( final String[] directories, final String[] extensions )
 	{		
-		log.info( "Probing directories: " + run_ffmpeg.toString( directories ) ) ;
-		
-		MoviesAndShowsMongoDB masMDB = new MoviesAndShowsMongoDB() ;
-		MongoCollection< FFmpegProbeResult > probeInfoCollection = masMDB.getProbeInfoCollection() ;
-		
+		log.info( "Probing directories: " + common.toString( directories ) ) ;
+
 		// Walk through each directory
 		for( String directoryToProbe : directories )
 		{
 			log.info( "Probing directory: " + directoryToProbe ) ;
-			if( run_ffmpeg.stopExecution( stopFileName ) )
+			if( common.shouldStopExecution( stopFileName ) )
 			{
 				// Stop running
 				log.info( "Shutting down due to presence of stop file" ) ;
 				break ;
 			}
-			
+
 			// Find files in this directory to probe
-			List< File > filesToProbe = getFilesInDirectoryByExtension( directoryToProbe, extensions ) ;
-			
+			List< File > filesToProbe = common.getFilesInDirectoryByExtension( directoryToProbe, extensions ) ;
+
 			// Walk through each file in this directory
 			for( File fileToProbe : filesToProbe )
 			{
-				if( run_ffmpeg.stopExecution( stopFileName ) )
+				if( common.shouldStopExecution( stopFileName ) )
 				{
 					// Stop running
 					break ;
 				}
-				
-				// Has the directory already been probed?
-				if( fileAlreadyProbed( probeInfoCollection, fileToProbe ) )
-				{
-					// TODO: && doesn't need a refresh
-					// No need to probe again, continue to the next file.
-					log.info( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
-					continue ;
-				}
-				// Post-condition: File does not currently exist in the database
 
-				// Probe the file with ffprobe
-				FFmpegProbeResult theResult = ExtractPGSFromMKVs.ffprobeFile( fileToProbe, log ) ;
-				
-				// Push the probe result into the database.
-				probeInfoCollection.insertOne( theResult ) ;
+				probeFileAndUpdateDB( fileToProbe ) ;
 			} // for( fileToProbe )
-			
+
 			// Apparently rapid calls to the database creates a bunch of heap usage
 			// Clear that here to prevent memory problems.
 			System.gc() ;
-			
+
 		} // for( filesToProbe )
 
-		log.info( "Shutting down...complete" ) ;
+		log.info( "Shutdown complete" ) ;
+	}
+
+	public void probeFileAndUpdateDB( File fileToProbe )
+	{
+		// Has the directory already been probed?
+		FFmpegProbeResult probeResult = fileAlreadyProbed( probeInfoCollection, fileToProbe ) ;
+		if( (probeResult != null) && !needsRefresh( fileToProbe, probeResult ) )
+		{
+			// No need to probe again, continue to the next file.
+			log.info( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
+			return ;
+		}
+		// Post-condition: File does not currently exist in the database
+		log.info( "Probing " + fileToProbe.getAbsolutePath() ) ;
+
+		// Handle the special case that this is a missing file substitute
+		if( fileToProbe.getName().contains( common.getMissingFilePreExtension() ) )
+		{
+			// Missing file. Do not probe directly
+			log.info( "Found missing file: " + fileToProbe.getAbsolutePath() );
+			probeResult = new FFmpegProbeResult() ;
+			probeResult.filename = fileToProbe.getName() ;
+			probeResult.chapters = new ArrayList< FFmpegChapter >() ;
+			probeResult.error = new FFmpegError() ;
+			probeResult.format = new FFmpegFormat() ;
+			probeResult.streams = new ArrayList< FFmpegStream >() ;
+		}
+		else
+		{
+			// Probe the file with ffprobe
+			probeResult = common.ffprobeFile( fileToProbe, log ) ;
+		}
+
+		// Push the probe result into the database.
+		probeInfoCollection.insertOne( probeResult ) ;
+	}
+
+	/**
+	 * Return true if the probe result needs to be updated in the database.
+	 * This occurs when the file:
+	 *  - Exists in the database (pre-condition to call this method).
+	 *  - Size has changed
+	 *  - Has been updated since last probe
+	 * @param fileToProbe
+	 * @param probeResult
+	 * @return
+	 */
+	public boolean needsRefresh( File fileToProbe, FFmpegProbeResult probeResult )
+	{
+		// Check for the special case of a missing file.
+		if( fileToProbe.getName().contains( common.getMissingFilePreExtension() ) )
+		{
+			// Special files never need a refres.
+			return false ;
+		}
+		
+		if( fileToProbe.length() != probeResult.size )
+		{
+			// Size has changed
+			return true ;
+		}
+		if( fileToProbe.lastModified() > probeResult.getLastModified() )
+		{
+			return true ;
+		}
+		return false ;
 	}
 
 	/**
@@ -161,9 +214,10 @@ public class ProbeDirectories
 	 * @param fileToProbe
 	 * @return
 	 */
-	public static boolean fileAlreadyProbed( MongoCollection< FFmpegProbeResult > probeInfoCollection, final File fileToProbe )
+	public FFmpegProbeResult fileAlreadyProbed( MongoCollection< FFmpegProbeResult > probeInfoCollection, final File fileToProbe )
 	{
-//		out( "fileAlreadyProbed> Looking for filename: " + fileToProbe.getAbsolutePath() ) ;
+		//		out( "fileAlreadyProbed> Looking for filename: " + fileToProbe.getAbsolutePath() ) ;
+		FFmpegProbeResult theProbeResult = null ;
 		FindIterable< FFmpegProbeResult > findResult =
 				probeInfoCollection.find( Filters.eq( "filename", fileToProbe.getAbsolutePath() ) ) ;
 
@@ -171,32 +225,12 @@ public class ProbeDirectories
 		if( findIterator.hasNext() )
 		{
 			// Found the item in the database.
-//			out( "fileAlreadyProbed> Found FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
-			return true ;
+			theProbeResult = findIterator.next() ;
+			//			out( "fileAlreadyProbed> Found FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
 		}
-		
-//		out( "fileAlreadyProbed> Unable to find FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
-		return false ;
+
+		//		out( "fileAlreadyProbed> Unable to find FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
+		return theProbeResult ;
 	}
-	
-    public static List< File > getFilesInDirectoryByExtension( final String inputDirectory, final String[] inputExtensions )
-    {
-    	List< File > filesInDirectory = new ArrayList< >() ;
-    	for( String extension : inputExtensions )
-    	{
-    		filesInDirectory.addAll( run_ffmpeg.getFilesInDirectoryWithExtension( inputDirectory, extension ) ) ;
-    	}
-    	return filesInDirectory ;
-    }
-
-	/**
-	 * Sample code
-	 */
-
-	/*
-	       for (String name : database.listCollectionNames()) { 
-         System.out.println(name); 
-      } 
-	 */
 
 }

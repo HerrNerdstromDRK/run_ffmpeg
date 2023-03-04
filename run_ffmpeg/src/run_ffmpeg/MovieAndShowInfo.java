@@ -29,6 +29,10 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	/// Example: Godzilla King of the Monsters (2019)
 	public String movieOrShowName = null ;
 	
+	/// These two variables are only populated if this is a tv show
+	public String TVShowName = "" ;
+	public String TVShowSeasonName = "" ;
+	
 	/// Set to true if this movie or show is missing at least one mkv or mp4 file
 	public boolean isMissingFile = false ;
 
@@ -46,14 +50,17 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
 	
 	/// Setup the logging subsystem
-	private transient Logger log = null ;
+//	private transient Logger log = null ;
 	
 	/// Constructor for a movie
 	public MovieAndShowInfo( final String movieOrShowName, Logger log )
 	{
 		this.movieOrShowName = movieOrShowName ;
-		this.log = log ;
+//		this.log = log ;
 	}
+	
+	public MovieAndShowInfo()
+	{}
 	
 	@Override
 	public int compareTo( MovieAndShowInfo rhs )
@@ -181,9 +188,35 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return movieOrShowName ;
 	}
 
+	public String getTVShowName() {
+		return TVShowName;
+	}
+
+	public void setTVShowName(String tVShowName) {
+		TVShowName = tVShowName;
+	}
+
+	public String getTVShowSeasonName() {
+		return TVShowSeasonName;
+	}
+
+	public void setTVShowSeasonName(String tVShowSeasonName) {
+		TVShowSeasonName = tVShowSeasonName;
+	}
+
+	public boolean isTVShow()
+	{
+		return !getTVShowSeasonName().isBlank() ;
+	}
+
 	public String toString()
 	{
 		String retMe = "{name: " + getMovieOrShowName()
+		+ ",mkvLongPath:" + mkvLongPath
+		+ ",mp4LongPath:" + mp4LongPath
+		+ ",TVShowName:" + getTVShowName()
+		+ ",TVShowSeasonName:" + getTVShowSeasonName()
+		+ ",isMissingFile:" + isMissingFile
 		+ ",mkv:[" ;
 		for( FFmpegProbeResult mkvFileProbeResult : mkvFilesByProbeResult )
 		{
@@ -204,5 +237,5 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		retMe += "}" ;
 		return retMe ;
 	}
-
+	
 }

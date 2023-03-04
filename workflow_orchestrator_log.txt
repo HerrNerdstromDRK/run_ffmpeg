@@ -1,0 +1,37 @@
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Starting threads... 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Starting thread makeFakeMKVFileThread... 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Started 1 thread(s) 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Gag Reel 2-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Gag Reel 2-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Gag Reel 2-behindthescenes.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Gag Reel-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Gag Reel-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Gag Reel-behindthescenes.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Improv-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Improv-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Improv-behindthescenes.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Not Funny-other,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Not Funny-other,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Not Funny-other.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Prison Scene-scene,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Prison Scene-scene,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Prison Scene-scene.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Zook and McQuaid Scout Reel-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Zook and McQuaid Scout Reel-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Zook and McQuaid Scout Reel-behindthescenes.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),2005-other,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),2005-other,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\2005-other.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),22 Jump Street (2014),true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),22 Jump Street (2014),true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\22 Jump Street (2014).missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Got job: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Car Chases-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> Found movieAndShowInfo: {(empty),\\yoda\MP4_2\Movies\22 Jump Street (2014),640288826736bd56874be755,22 Jump Street (2014),(none),Car Chases-behindthescenes,true,false} 
+[2023033.1828] [INFO   ] WorkflowStageThread_MakeFakeMKVFiles.doAction> missingMKVFileNameWithPath: \\yoda\MKV_Archive1\Movies_Missing\22 Jump Street (2014)\Car Chases-behindthescenes.missing_file.mkv 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Stopping threads... 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Stopped 1 thread(s) 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Joining threads... 
+[2023033.1828] [INFO   ] WorkflowStageThread.run> makeFakeMKVFileThread shut down. 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Joined thread: makeFakeMKVFileThread 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Joined 1 thread(s) 
+[2023033.1828] [INFO   ] WorkflowOrchestrator.runThreads> Program shut down complete. 
