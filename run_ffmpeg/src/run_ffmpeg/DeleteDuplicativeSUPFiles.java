@@ -17,7 +17,6 @@ public class DeleteDuplicativeSUPFiles
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_delete_duplicative_sup_files.txt" ;
 	
-	private static final String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\Movies" ;
 	private static final String supExtension = "sup" ;
 	private static final String srtExtension = "srt" ;
 	
@@ -30,10 +29,19 @@ public class DeleteDuplicativeSUPFiles
 	public static void main( String[] args )
 	{
 		DeleteDuplicativeSUPFiles ddsf = new DeleteDuplicativeSUPFiles() ;
-		ddsf.run( mkvInputDirectory ) ;
+		ddsf.runAll() ;
+	}
+
+	public void runAll()
+	{
+		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
+		for( String folderName : allFolders )
+		{
+			runOne( folderName ) ;
+		}
 	}
 	
-	public void run( final String mkvInputDirectory )
+	public void runOne( final String mkvInputDirectory )
 	{
 		File mkvInputDirectoryFile = new File( mkvInputDirectory ) ;
 		if( !mkvInputDirectoryFile.isDirectory() )
@@ -41,19 +49,19 @@ public class DeleteDuplicativeSUPFiles
 			log.warning( "mkvInputDirectoryFile is not a directory: " + mkvInputDirectoryFile ) ;
 			return ;
 		}
-		List< File > supFilesByExtension = common.getFilesInDirectoryByExtension( mkvInputDirectoryFile.getAbsolutePath(),
-				supExtension ) ;
+		
+		List< File > supFilesByExtension = common.getFilesInDirectoryByExtension( mkvInputDirectory, supExtension ) ;
 		log.info( "Found " + supFilesByExtension.size() + " .sup file(s)" ) ;
 		
 		int numDuplicativeSupFiles = 0 ;
 		for( File supFile : supFilesByExtension )
 		{
-//			log.info( "supFile: " + supFile.toString() ) ;
+			log.fine( "supFile: " + supFile.toString() ) ;
 			final String srtFileNameWithPath = supFile.getAbsolutePath().replace( "." + supExtension, "." + srtExtension ) ;
 			File srtFileWithPath = new File( srtFileNameWithPath ) ;
 			if( srtFileWithPath.exists() )
 			{
-				log.info( "Deleting .sup file: " + srtFileNameWithPath ) ;
+				log.info( "Deleting .sup file associated with srtFile: " + srtFileNameWithPath ) ;
 				++numDuplicativeSupFiles ;
 				
 				// Delete the .sup file
