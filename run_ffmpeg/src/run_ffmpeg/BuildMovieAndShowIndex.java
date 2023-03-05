@@ -113,7 +113,7 @@ public class BuildMovieAndShowIndex
 	}
 
 	/**
-<<<<<<< HEAD
+
 	 * The purpose of this method is to build a single Movie or TV Show (MovieAndShowInfo instance)
 	 *  for each movie or tv show. The method will populate the movieMap and tvShowMap with the
 	 *  resulting information, including to add all mp4 and mkv files to each movie or tv show.
