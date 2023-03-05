@@ -87,53 +87,13 @@ public class BuildMovieAndShowIndex
 			final FFmpegProbeResult probeResult,
 			final File theFile )
 	{
-<<<<<<< HEAD
 		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
-=======
-		log.info( "Resetting collections..." ) ;
-
-		masMDB.dropMovieAndShowInfoCollection() ;
-		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
-		
-		masMDB.dropHDMoviesAndShowCollection() ;
-		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
-
-		masMDB.dropSDMoviesAndShowCollection() ;
-		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
-		
-		log.info( "Done resetting collections." ) ;
-	}
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	
-<<<<<<< HEAD
+
 		MovieAndShowInfo mapEntry = storageMap.get( movieOrTVShowName ) ;
 		if( null == mapEntry )
-=======
-	/**
-	 * Build a correlated files list for each entry in the movieMap and tvShowMap and store them all into
-	 *  the database movieAndShowInfoCollection.
-	 * @param inputMap
-	 */
-	private void recordMovieAndShowInfo()
-	{
-		log.info( "Recording movies..." ) ;
-		recordMoviesAndShowsWithInputMap( movieMap ) ;
-		log.info( "Done recording movies." ) ;
 
-		log.info( "Recording TV shows..." ) ;
-		recordMoviesAndShowsWithInputMap( tvShowMap ) ;
-		log.info( "Done recordingTV Shows." ) ;
-	}
 	
-	/**
-	 * Build a correlated files list for each entry in the inputMap and store them all into
-	 *  the database movieAndShowInfoCollection.
-	 * @param inputMap
-	 */
-	private void recordMoviesAndShowsWithInputMap( final Map< String, MovieAndShowInfo > inputMap )
-	{
-		if( inputMap.isEmpty() )
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		{
 			// Not already in the storageMap
 			mapEntry = new MovieAndShowInfo( movieOrTVShowName, log ) ;
@@ -207,8 +167,7 @@ public class BuildMovieAndShowIndex
 	}
 
 	/**
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	 * Build two lists sd and hd movies and shows and place them
 	 * into the database.
 	 */
@@ -283,17 +242,11 @@ public class BuildMovieAndShowIndex
 	}
 
 	/**
-<<<<<<< HEAD
+
 	 * Build a correlated files list for each entry in the movieMap and tvShowMap and store them all into
 	 *  the database movieAndShowInfoCollection.
 	 * @param inputMap
-=======
-	 * The purpose of this method is to build a single Movie or TV Show (MovieAndShowInfo instance)
-	 *  for each movie or tv show. The method will populate the movieMap and tvShowMap with the
-	 *  resulting information, including to add all mp4 and mkv files to each movie or tv show.
-	 * This method only populates the movieMap and tvShowMap, but does NOT write anything
-	 *  to the database.
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	 */
 	private void recordMovieAndShowInfo()
 	{
@@ -341,93 +294,16 @@ public class BuildMovieAndShowIndex
 		masMDB.dropMovieAndShowInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		
-<<<<<<< HEAD
+
 		masMDB.dropHDMoviesAndShowCollection() ;
 		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
-=======
-		// First, let's pull the info from the probeInfoCollection
-		Bson mp4A = Filters.regex( "filename", ".*" ) ;
-		log.info( "Running find..." ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 
-<<<<<<< HEAD
+
 		masMDB.dropSDMoviesAndShowCollection() ;
 		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
 		
 		log.info( "Done resetting collections." ) ;
-=======
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
-		while( probeInfoFindResultIterator.hasNext() )
-		{
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
-			File theFile = new File( probeResult.getFileNameWithPath() ) ;
-			if( theFile.getParent().contains( "Season " ) )
-			{
-				// TV Show
-				// TV show names will be stored by combining the name of the show with the season
-				// For example: "Californication_Season 01"
-				final String tvShowNameStrict = theFile.getParentFile().getParentFile().getName() ;
-				final String tvShowSeasonName = theFile.getParentFile().getName() ;
-				final String tvShowName = tvShowNameStrict + "_" + tvShowSeasonName ;
-				log.fine( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
-				
-				MovieAndShowInfo entry = addEntryToMap( tvShowMap, tvShowName, probeResult, theFile ) ;
-				entry.setTVShowName( tvShowNameStrict ) ;
-				entry.setTVShowSeasonName( tvShowSeasonName ) ;
-			}
-			else if( theFile.getParent().contains( "(" ) )
-			{
-				// Movie
-				// The formal should be like this:
-				// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
-				final String movieName = theFile.getParentFile().getName() ;
-				log.fine( "Found movie: " + movieName + ", filename: " + theFile.getName() ) ;
-				// movieName should be of the form "Transformers (2007)"
-				addEntryToMap( movieMap, movieName, probeResult, theFile ) ;
-			}
-			else
-			{
-				log.warning( "Parse error for file: " + theFile.getAbsolutePath() ) ;
-			}
-		} // while( iterator.hasNext() )
-		log.info( "Done building movie index." ) ;
-	}
-	
-	/**
-	 * Place the tv show or movie file into the given storageMap. This could be either a tv show entry or movie entry.
-	 * Helper method for buildMovieIndex().
-	 * @param storageMap: Place to store the movie or tv show
-	 * @param movieOrTVShowName: The name of the movie or tv show. Will always be non-null
-	 * @param tvShowSeasonName: Null if the entry is a movie; a season name if tv.
-	 * @param theFile
-	 */
-	private MovieAndShowInfo addEntryToMap( Map< String, MovieAndShowInfo > storageMap,
-			final String movieOrTVShowName,
-			final FFmpegProbeResult probeResult,
-			final File theFile )
-	{
-		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
 
-		MovieAndShowInfo mapEntry = storageMap.get( movieOrTVShowName ) ;
-		if( null == mapEntry )
-		{
-			// Not already in the storageMap
-			mapEntry = new MovieAndShowInfo( movieOrTVShowName, log ) ;
-			storageMap.put( movieOrTVShowName, mapEntry ) ;
-		}
-		// Post condition: theShow is non-null and exists in the storageMap.
-		// Note that addMP4File/addMKVFile below will build correlations for each file.
-		if( isMP4 )
-		{
-			mapEntry.addMP4File( probeResult ) ;
-		}
-		else
-		{
-			mapEntry.addMKVFile( probeResult ) ;
-		}
-		return mapEntry ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	}
 	
 }

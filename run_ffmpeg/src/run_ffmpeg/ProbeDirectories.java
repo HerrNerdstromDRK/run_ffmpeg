@@ -24,13 +24,10 @@ public class ProbeDirectories extends Thread
 	private transient MoviesAndShowsMongoDB masMDB = null ;
 	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 
-<<<<<<< HEAD
 	/// Store the drives and folders to probe.
 	/// By default this will be all mp4 and mkv drives and folders, but can be changed below for multi-threaded use.
 	private List< String > drivesAndFoldersToProbe = null ;
 
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_probe_directories.txt" ;
 
@@ -52,10 +49,9 @@ public class ProbeDirectories extends Thread
 
 		masMDB = new MoviesAndShowsMongoDB() ;
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
-<<<<<<< HEAD
+
 		drivesAndFoldersToProbe = common.getAllDrivesAndFolders() ;
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	}
 
 	public ProbeDirectories( Logger log,
@@ -67,10 +63,8 @@ public class ProbeDirectories extends Thread
 		this.common = common ;
 		this.masMDB = masMDB ;
 		this.probeInfoCollection = probeInfoCollection ;
-<<<<<<< HEAD
+
 		drivesAndFoldersToProbe = common.getAllDrivesAndFolders() ;
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	}
 
 	public static void main(String[] args)
@@ -112,17 +106,13 @@ public class ProbeDirectories extends Thread
 
 	public void probeDirectoriesAndUpdateDB()
 	{
-<<<<<<< HEAD
+
 		log.info( "Probing drives and folders: " + getDrivesAndFoldersToProbe() ) ;
-=======
-		log.info( "Probing all drives and folders..." ) ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 		final long startTime = System.nanoTime() ;
-<<<<<<< HEAD
+
 		probeDirectoriesAndUpdateDB( getDrivesAndFoldersToProbe(), extensionsToProbe ) ;
-=======
-		probeDirectoriesAndUpdateDB( common.getAllDrivesAndFolders(), extensionsToProbe ) ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 		final long endTime = System.nanoTime() ;
 
 		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
@@ -140,11 +130,9 @@ public class ProbeDirectories extends Thread
 			// Walk through each file in this directory
 			for( File fileToProbe : filesToProbe )
 			{
-<<<<<<< HEAD
+
 				if( !shouldKeepRunning() )
-=======
-				if( common.shouldStopExecution( stopFileName ) )
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 				{
 					// Stop running
 					log.info( "Shutting down due to presence of stop file" ) ;
@@ -206,11 +194,6 @@ public class ProbeDirectories extends Thread
 
 		// Push the probe result into the database.
 		probeInfoCollection.insertOne( probeResult ) ;
-<<<<<<< HEAD
-
-=======
-		
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		return probeResult ;
 	}
 
@@ -268,7 +251,7 @@ public class ProbeDirectories extends Thread
 		//		out( "fileAlreadyProbed> Unable to find FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
 		return theProbeResult ;
 	}
-<<<<<<< HEAD
+
 
 	/**
 	 * Tell this instance to execute only chain A.
@@ -298,7 +281,6 @@ public class ProbeDirectories extends Thread
 	{
 		return !common.shouldStopExecution( stopFileName ) ;
 	}
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 
 }

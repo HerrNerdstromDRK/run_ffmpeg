@@ -66,7 +66,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public void addMKVFile( FFmpegProbeResult mkvProbeResult )
 	{
-<<<<<<< HEAD
 		final File probeResultFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
 		final String probeResultParentPath = probeResultFile.getParent() ;
 		if( null == mkvLongPath )
@@ -105,46 +104,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 
 		// Use on the file name, without the path or extension
 		final String fileNameWithoutExtension = probeResultFile.getName().replace( ".mp4", "" ) ;
-=======
-		File probeResultFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
-		final String probeResultParentPath = probeResultFile.getParent() ;
-		if( null == mkvLongPath )
-		{
-			// empty mkvLongPath, update it here
-			mkvLongPath = probeResultParentPath ;
-		}
-		// Use on the file name, without the path or extension
-		// Example: "Making Of-behindthescenes.mkv" -> "Making Of-behindthescenes"
-		String fileNameWithoutExtension = Common.removeFileNameExtension( probeResultFile.getName() ) ;
-
-		// First, look for an existing correlated file
-		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
-		if( null == correlatedFile )
-		{
-			// Not found, create it.
-			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
-			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
-		}
-		correlatedFile.addOrUpdateMKVFile( mkvProbeResult ) ;
-	}
-
-	/**
-	 * Add an MP4 file to the map and list of mp4 files. This will include the full path to the file.
-	 * @param mp4FileName
-	 */
-	public void addMP4File( FFmpegProbeResult mp4ProbeResult )
-	{
-		File probeResultFile = new File( mp4ProbeResult.getFileNameWithPath() ) ;
-		final String probeResultParentPath = probeResultFile.getParent() ;
-		if( null == mp4LongPath )
-		{
-			// empty mkvLongPath, update it here
-			mp4LongPath = probeResultParentPath ;
-		}
-
-		// Use on the file name, without the path or extension
-		String fileNameWithoutExtension = probeResultFile.getName().replace( ".mp4", "" ) ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 
 		// First, look for an existing correlated file
 		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
@@ -173,11 +132,8 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		FFmpegProbeResult largestFile = null ;
 		for( CorrelatedFile theCorrelatedFile : correlatedFilesList )
 		{
-<<<<<<< HEAD
 			final FFmpegProbeResult localLargestFile = theCorrelatedFile.findLargestFile() ;
-=======
-			FFmpegProbeResult localLargestFile = theCorrelatedFile.findLargestFile() ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 			if( null == localLargestFile )
 			{
 				log.warning( "Error: Found a null file in CorrelatedFile: " + theCorrelatedFile.toString() ) ;
@@ -223,39 +179,18 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 * Update a correlated file, probably because the file has had a probe update.
 	 * @param theFile
 	 */
-<<<<<<< HEAD
 	public void updateCorrelatedFile( final FFmpegProbeResult theProbeResult )
-=======
-	public void updateCorrelatedFile( final File theFile )
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	{
 		// First, find the CorrelatedFile in the list
 		// Note that correlated file names are stored without extension
-<<<<<<< HEAD
 		File theProbeResultFile = new File( theProbeResult.getFileNameWithPath() ) ;
 		String fileNameToSearch = Common.removeFileNameExtension( theProbeResultFile.getName() ) ;
 		if( fileNameToSearch.contains( Common.getMissingFilePreExtension() ) )
-=======
-		final String fileNameToSearch = Common.removeFileNameExtension( theFile.getName() ) ;
-		CorrelatedFile theCorrelatedFile = null ;
-		
-		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		{
-<<<<<<< HEAD
 			// If this is a missing file, it will have a second extension that needs
 			// to be removed for this search to succeed.
 			fileNameToSearch = Common.removeFileNameExtension( fileNameToSearch ) ;
-=======
-			if( correlatedFileIterator.getFileName().equals( fileNameToSearch ) )
-			{
-				// Found it.
-				theCorrelatedFile = correlatedFileIterator ;
-				break ;
-			}
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		}
-<<<<<<< HEAD
 		CorrelatedFile theCorrelatedFile = null ;
 		
 		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
@@ -285,15 +220,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			// MP4 file
 			theCorrelatedFile.addOrUpdateMP4File( theProbeResult ) ;
 		}
-=======
-		if( null == theCorrelatedFile )
-		{
-			log.warning( "Unable to find correlated file; MovieAndShowInfo name: " + getMovieOrShowName()
-				+ ", theFile: " + theFile.getAbsolutePath() ) ;
-			return ;
-		}
-		// TODO
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	}
 
 	public String getMovieOrShowName()

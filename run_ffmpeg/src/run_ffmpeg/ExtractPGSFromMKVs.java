@@ -28,11 +28,9 @@ public class ExtractPGSFromMKVs extends Thread
 	/// Directory from which to read MKV files
 	//	static String mkvInputDirectory = "C:\\Temp\\Little Women (2019)" ;
 	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\Movies" ;
-<<<<<<< HEAD
+
 	//	private String mkvInputDirectory = "D:\\Temp\\Big Bang" ;
-=======
-//	private String mkvInputDirectory = "D:\\Temp\\Big Bang" ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
 
 	/// Set to true to place the output SRT files into the same directory
@@ -49,9 +47,6 @@ public class ExtractPGSFromMKVs extends Thread
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 	
-	private transient Common common = null ;
-	private transient TranscodeCommon transcodeCommon = null ;
-
 	private transient Common common = null ;
 	private transient TranscodeCommon transcodeCommon = null ;
 
@@ -86,17 +81,16 @@ public class ExtractPGSFromMKVs extends Thread
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 		transcodeCommon = new TranscodeCommon( log, common, "", "", "", "" ) ;
-<<<<<<< HEAD
+
 
 		// The default set of drives and folders to extract is all of them.
 		setDrivesAndFoldersToExtract( common.getAllMKVDrivesAndFolders() ) ;
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	}
 
 	public static void main(String[] args)
 	{
-<<<<<<< HEAD
+
 		boolean useTwoThreads = true ;
 
 		if( useTwoThreads )
@@ -132,13 +126,10 @@ public class ExtractPGSFromMKVs extends Thread
 			ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
 			extractPGS.run() ;
 		}
-=======
-		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
-		extractPGS.runAll() ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	}
 
-<<<<<<< HEAD
+
 	/**
 	 * Tell this instance to execute only chain A.
 	 */
@@ -157,11 +148,9 @@ public class ExtractPGSFromMKVs extends Thread
 
 	@Override
 	public void run()
-=======
-	public void runAll()
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	{
-<<<<<<< HEAD
+
 		log.info( "Extracting drives and folders: " + getDrivesAndFoldersToExtract() ) ;
 		
 		final long startTime = System.nanoTime() ;
@@ -187,22 +176,7 @@ public class ExtractPGSFromMKVs extends Thread
 		log.info( "Shut down." ) ;
 	}
 
-=======
-		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
-		log.info( "Extracting subtitle files from " + allFolders.size() + " folder(s)" ) ;
-		for( String folderName : allFolders )
-		{
-			if( common.shouldStopExecution( getStopFileName() ) )
-			{
-				break ;
-			}
-			
-			runOne( folderName ) ;
-		}
-		log.info( "Shut down." ) ;
-	}
-	
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	public void runOne( final String inputDirectory )
 	{
 		log.info( "Extracting in folder: " + inputDirectory ) ;
@@ -216,11 +190,9 @@ public class ExtractPGSFromMKVs extends Thread
 		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
-<<<<<<< HEAD
+
 			if( !shouldKeepRunning() )
-=======
-			if( common.shouldStopExecution( getStopFileName() ) )
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 			{
 				log.info( "Stopping execution due to presence of stop file: " + getStopFileName() ) ;
 				break ;
@@ -412,7 +384,7 @@ public class ExtractPGSFromMKVs extends Thread
 	public String getStopFileName() {
 		return stopFileName;
 	}
-<<<<<<< HEAD
+
 
 	public List<String> getDrivesAndFoldersToExtract() {
 		return drivesAndFoldersToExtract;
@@ -426,6 +398,5 @@ public class ExtractPGSFromMKVs extends Thread
 	{
 		return !common.shouldStopExecution( getStopFileName() ) ;
 	}
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 }

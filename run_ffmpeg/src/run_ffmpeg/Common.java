@@ -54,7 +54,6 @@ public class Common
 	private static final String missingFileSubstituteName = "(none)" ;
 
 	/// The directories to probe
-<<<<<<< HEAD
 	/// Broken down into the two USB chains so that applications can
 	/// multithread access to the MP4/MKV drives
 	private final String[] allChainAMP4Drives = {
@@ -78,25 +77,7 @@ public class Common
 			"\\\\yoda\\MKV_Archive3",
 			"\\\\yoda\\MKV_Archive7",
 			"\\\\yoda\\MKV_Archive8"
-=======
-	private final String[] allMP4Drives = {
-			"\\\\yoda\\MP4",
-			"\\\\yoda\\MP4_2",
-			"\\\\yoda\\MP4_3",
-			"\\\\yoda\\MP4_4"
-	} ;
-	
-	private final String[] allMKVDrives = {
-			"\\\\yoda\\MKV_Archive1",
-			"\\\\yoda\\MKV_Archive2",
-			"\\\\yoda\\MKV_Archive3",
-			"\\\\yoda\\MKV_Archive4",
-			"\\\\yoda\\MKV_Archive5",
-			"\\\\yoda\\MKV_Archive6",
-			"\\\\yoda\\MKV_Archive7",
-			"\\\\yoda\\MKV_Archive8",
-			"\\\\yoda\\MKV_Archive9"
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
+
 	} ;
 	
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
@@ -524,7 +505,6 @@ public class Common
 		}
 	}
 	
-<<<<<<< HEAD
 	public List< String > addMoviesAndFoldersToEachDrive( final List< String > theDrives )
 	{
 		List< String > retMe = new ArrayList< String >() ;
@@ -636,69 +616,7 @@ public class Common
 	 * @return
 	 */
 	public static String getMissingFilePreExtension() {
-=======
-	public List< String > getAllDrivesAndFolders()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllMP4DrivesAndFolders() ) ;
-		retMe.addAll( getAllMKVDrivesAndFolders() ) ;
-		
-		return retMe ;
-	}
 
-	public List< String > getAllMKVDrivesAndFolders()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		for( String mkvDrive : allMKVDrives )
-		{
-			final String moviesFolder = addPathSeparatorIfNecessary( mkvDrive ) + "Movies" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( mkvDrive ) + "TV Shows" ;
-	
-			retMe.add( moviesFolder ) ;
-			retMe.add( tvShowsFolder ) ;
-		}
-		return retMe ;
-	}
-	
-	public List< String > getAllMP4DrivesAndFolders()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		for( String mp4Drive : allMP4Drives )
-		{
-			final String moviesFolder = addPathSeparatorIfNecessary( mp4Drive ) + "Movies" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( mp4Drive ) + "TV Shows" ;
-			
-			retMe.add( moviesFolder ) ;
-			retMe.add( tvShowsFolder ) ;
-		}
-		return retMe ;
-	}
-	
-	public List< String > getAllMKVDrives()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allMKVDrives) ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllMP4Drives()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allMP4Drives) ) ;
-		return retMe ;
-	}
-
-	public boolean getIsWindows()
-	{
-		return isWindows ;
-	}
-
-	/**
-	 * Return the string that will be included in each fake file to indicate that it is 
-	 *  a missing file (.mkv).
-	 * Includes the preceding '.'
-	 * @return
-	 */
-	public String getMissingFilePreExtension() {
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		return missingFilePreExtension;
 	}
 
