@@ -23,26 +23,26 @@ public class MoviesAndShowsMongoDB
 {
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
+//	private transient Common common = null ;
 	
 	private MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
 	private final String movieAndShowInfoCollectionName = "movieandshowinfos" ;
-	private final String missingFileCollectionName = "missingfiles" ;
 	private final String hDMoviesAndShowsCollectionName = "hdmoviesandshows" ;
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
+	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
+	private final String jobRecord_TranscodeMKVFilesInfoCollectionName = "jobrecord_transcodemkvfiles" ;
+	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
+	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
 	/// File name to which to log activities for this application.
 	static private final String logFileName = "log_movies_and_shows_mongodb.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	static private final String stopFileName = "C:\\Temp\\stop_database.txt" ;
-	static private final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
-
-	/// Set testMode to true to prevent mutations
-	static private boolean testMode = true ;
+//	static private final String stopFileName = "C:\\Temp\\stop_database.txt" ;
 
 	/**
 	 * Create a new instance of this class.
@@ -50,8 +50,8 @@ public class MoviesAndShowsMongoDB
 	 */
 	public MoviesAndShowsMongoDB()
 	{
-		run_ffmpeg.testMode = testMode ;
-		Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+//		common = new Common( log ) ;
 		loginAndConfigureDatabase() ;
 	}
 
@@ -89,9 +89,9 @@ public class MoviesAndShowsMongoDB
 		CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
 
 		// Login to the database
-		MongoCredential credential = MongoCredential.createCredential("dan", "MoviesAndShows", 
-				"BqQyH2r5xJuNu2A".toCharArray()); 
-		System.out.println("loginToDatabase> Connected to the database successfully" );  
+//		MongoCredential credential = 
+		MongoCredential.createCredential("dan", "MoviesAndShows", "BqQyH2r5xJuNu2A".toCharArray()); 
+		log.info("Connected to the database successfully" );  
 
 		// Configure the database to use the POJO provider and retrieve the handle
 		persistentDatabaseHandle = persistentMongoClient.getDatabase( databaseName ).withCodecRegistry( pojoCodecRegistry ) ;
@@ -99,6 +99,7 @@ public class MoviesAndShowsMongoDB
 
 	public MongoCollection< HDorSDFile > getHDMoviesAndShowsCollection()
 	{
+		log.fine( "Getting HDMoviesAndShowsCollection" )  ;
 		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( hDMoviesAndShowsCollectionName,
 				HDorSDFile.class ) ;
 		return theCollection ;
@@ -106,11 +107,13 @@ public class MoviesAndShowsMongoDB
 	
 	public void dropHDMoviesAndShowCollection()
 	{
+		log.info( "Dropping HDMoviesAndShowsCollection" )  ;
 		getHDMoviesAndShowsCollection().drop() ;
 	}
 	
 	public MongoCollection< HDorSDFile > getSDMoviesAndShowsCollection()
 	{
+		log.fine( "Getting SDMoviesAndShowsCollection" )  ;
 		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( sDMoviesAndShowsCollectionName,
 				HDorSDFile.class ) ;
 		return theCollection ;
@@ -118,11 +121,13 @@ public class MoviesAndShowsMongoDB
 	
 	public void dropSDMoviesAndShowCollection()
 	{
+		log.info( "Dropping SDMoviesAndShowsCollection" )  ;
 		getSDMoviesAndShowsCollection().drop() ;
 	}
 	
 	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
 	{	
+		log.fine( "Getting probeInfoCollection" )  ;
 		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
 				FFmpegProbeResult.class ) ;
 		return theCollection ;
@@ -130,11 +135,13 @@ public class MoviesAndShowsMongoDB
 
 	public void dropProbeInfoCollection()
 	{
+		log.info( "Dropping probeInfoCollection" )  ;
 		getProbeInfoCollection().drop() ;
 	}
 	
 	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
 	{	
+		log.fine( "Getting movieAndShowInfoCollectionName" )  ;
 		MongoCollection< MovieAndShowInfo > theCollection = persistentDatabaseHandle.getCollection( movieAndShowInfoCollectionName,
 				MovieAndShowInfo.class ) ;
 		return theCollection ;
@@ -142,21 +149,70 @@ public class MoviesAndShowsMongoDB
 	
 	public void dropMovieAndShowInfoCollection()
 	{
+		log.info( "Dropping movieAndShowInfoCollectionName" )  ;
 		getMovieAndShowInfoCollection().drop() ;
 	}
-	
-	public MongoCollection< MissingFile > getMissingFileCollection()
+
+	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_MakeFakeMKVFileInfoCollection()
 	{	
-		MongoCollection< MissingFile > theCollection = persistentDatabaseHandle.getCollection( missingFileCollectionName,
-				MissingFile.class ) ;
+		log.fine( "Getting jobRecord_MakeFakeMKVFilesCollection" )  ;
+		MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > theCollection = persistentDatabaseHandle.getCollection(
+				jobRecord_MakeFakeMKVFilesInfoCollectionName,
+				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
 		return theCollection ;
 	}
 	
-	public void dropMissingFileCollection()
+	public void dropJobRecord_MakeFakeMKVFileInfoCollection()
 	{
-		getMissingFileCollection().drop() ;
+		log.info( "Dropping jobRecord_MakeFakeMKVFilesCollection" )  ;
+		getJobRecord_MakeFakeMKVFileInfoCollection().drop() ;
 	}
-
+	
+	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_TranscodeMKVFileInfoCollection()
+	{	
+		log.fine( "Getting jobRecord_TranscodeMKVFilesCollection" )  ;
+		MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > theCollection = persistentDatabaseHandle.getCollection(
+				jobRecord_TranscodeMKVFilesInfoCollectionName,
+				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
+		return theCollection ;
+	}
+	
+	public void dropJobRecord_TranscodeMKVFileInfoCollection()
+	{
+		log.info( "Dropping jobRecord_TranscodeMKVFilesInfoCollection" )  ;
+		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
+	}
+	
+	public void dropJobRecord_ProbeFileInfoCollection()
+	{
+		log.info( "Dropping jobRecord_ProbeFileInfoCollection" )  ;
+		getJobRecord_ProbeFileInfoCollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_ProbeFile > getJobRecord_ProbeFileInfoCollection()
+	{	
+		log.fine( "Getting jobRecord_ProbeFileInfoCollection" )  ;
+		MongoCollection< JobRecord_ProbeFile > theCollection = persistentDatabaseHandle.getCollection(
+				jobRecord_ProbeFileInfoCollectionName,
+				JobRecord_ProbeFile.class ) ;
+		return theCollection ;
+	}
+	
+	public void dropJobRecord_UpdateCorrelatedFileInfoCollectionName()
+	{
+		log.info( "Dropping jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
+		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_UpdateCorrelatedFile > getJobRecord_UpdateCorrelatedFileInfoCollectionName()
+	{	
+		log.fine( "Getting jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
+		MongoCollection< JobRecord_UpdateCorrelatedFile > theCollection = persistentDatabaseHandle.getCollection(
+				jobRecord_UpdateCorrelatedFileInfoCollectionName,
+				JobRecord_UpdateCorrelatedFile.class ) ;
+		return theCollection ;
+	}
+	
 	/*
 	      System.out.println("Credentials ::"+ credential);     
 			System.out.println("Collection MoviesAndShows selected successfully");

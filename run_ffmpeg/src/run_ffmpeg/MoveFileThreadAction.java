@@ -8,20 +8,17 @@ import java.util.logging.Logger;
 
 public class MoveFileThreadAction extends ThreadAction
 {
-	public String sourceFileName = null ;
-	public String destinationFileName = null ;
+	private String sourceFileName = null ;
+	private String destinationFileName = null ;
 	private transient Logger log = null ;
-	
-	public boolean isTestMode()
-	{
-		return run_ffmpeg.testMode ;
-	}
+	private transient Common common = null ;
 
-	public MoveFileThreadAction( String sourceFileName, String destinationFileName )
+	public MoveFileThreadAction( String sourceFileName, String destinationFileName, Common common, Logger log )
 	{
 		this.sourceFileName = sourceFileName ;
 		this.destinationFileName = destinationFileName ;
-		log = run_ffmpeg.getLogger() ;
+		this.common = common ;
+		this.log = log ;
 	}
 
 	@Override
@@ -41,7 +38,7 @@ public class MoveFileThreadAction extends ThreadAction
 			{
 				log.warning( "sourcePath does not exist: " + sourcePath
 						+ " " + toString() ) ;
-				if( !isTestMode() )
+				if( !common.getTestMode() )
 				{
 					Files.createDirectory( sourcePath ) ;
 				}
@@ -51,13 +48,13 @@ public class MoveFileThreadAction extends ThreadAction
 			{
 				log.warning( "destinationPath does not exist: " + destinationPath
 						+ " " + toString() ) ;
-				if( !isTestMode() )
+				if( !common.getTestMode())
 				{
 					Files.createDirectory( destinationPath ) ;
 				}
 			}
 
-			if( !isTestMode() )
+			if( !common.getTestMode() )
 			{
 				final long startTime = System.nanoTime() ;
 				Path temp = Files.move(
@@ -72,11 +69,11 @@ public class MoveFileThreadAction extends ThreadAction
 					final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
 					
 					log.info( "Success; Total elapsed time: "
-			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds )
+			    			+ common.getNumberFormat().format( timeElapsedInSeconds )
 			    			+ " seconds, "
-			    			+ run_ffmpeg.numFormat.format( timeElapsedInSeconds / 60.0 )
+			    			+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
 			    			+ " minutes; moved " + fileLengthInMB + "MB at "
-			    			+ run_ffmpeg.numFormat.format( MBPerSecond ) + "MB/sec"
+			    			+ common.getNumberFormat().format( MBPerSecond ) + "MB/sec"
 			    			+ " " + toString() ) ;
 				}
 				else

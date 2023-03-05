@@ -8,171 +8,120 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import org.bson.types.ObjectId;
+
 /**
  * Encapsulates information about a movie or tv show. This includes all supporting files, such as extras.
  * @author Dan
- *
  */
 public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 {
-	/// The name of the movie.
-	/// Will likely include the year, as in Plex format.
-	/// Example: Godzilla King of the Monsters (2019)
-	public String name = null ;
-	public List< CorrelatedFile > correlatedFilesList = null ;
+	public ObjectId _id = null ;
 
+	/// The path to the movie or tv show in long form (File.getParent()).
+	/// Will likely include the year, as in Plex format.
+	/// Store the path for both mkv and mp4.
+	/// These variables will be updated in add{MKV,MP4}File() methods.
+	/// Note that at least one path could be empty, so makeReadyCorrelatedFilesList()
+	///  will ensure each is non-empty ("unk" or other)
+	public String mkvLongPath = null ;
+	public String mp4LongPath = null ;
+
+	/// The short version of the longName.
 	/// If this is a TV show, then seasonName will contain the name of the season ("Season 04")
 	/// If a movie, then seasonName will be null.
-	//	private String seasonName = null ;
+	/// Example: Godzilla King of the Monsters (2019)
+	public String movieOrShowName = null ;
 
-	/// The source (.mkv) files for this movie and its subordinate extras.
-	private transient List< FFmpegProbeResult > mkvFilesByProbeResult = new ArrayList< FFmpegProbeResult >() ; 
+	/// These two variables are only populated if this is a tv show
+	public String TVShowName = "" ;
+	public String TVShowSeasonName = "" ;
 
-	/// Same, but for the mp4 files
-	private transient List< FFmpegProbeResult > mp4FilesByProbeResult = new ArrayList< FFmpegProbeResult >() ;
+	/// Set to true if this movie or show is missing at least one mkv or mp4 file
+	public boolean isMissingFile = false ;
+
+	/// List that contains matching information for each mkv or mp4 file.
+	/// This is the structure that will be stored in the database.
+	public List< CorrelatedFile > correlatedFilesList = null ;
 
 	/// Store the files that have been correlated, indexed by filename
 	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
-	
+
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
+
+	public MovieAndShowInfo()
+	{}
 	
 	/// Constructor for a movie
-	public MovieAndShowInfo( final String name, Logger log )
+	public MovieAndShowInfo( final String movieOrShowName, Logger log )
 	{
-		this.name = name ;
+		this.movieOrShowName = movieOrShowName ;
 		this.log = log ;
 	}
-	
+
+	/**
+	 * Add an MKV file to the map and list of mkv files. This will include the full path to the file.
+	 * @param mkvFileName
+	 */
+	public void addMKVFile( FFmpegProbeResult mkvProbeResult )
+	{
+		final File probeResultFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
+		final String probeResultParentPath = probeResultFile.getParent() ;
+		if( null == mkvLongPath )
+		{
+			// empty mkvLongPath, update it here
+			mkvLongPath = probeResultParentPath ;
+		}
+		// Use on the file name, without the path or extension
+		// Example: "Making Of-behindthescenes.mkv" -> "Making Of-behindthescenes"
+		final String fileNameWithoutExtension = Common.removeFileNameExtension( probeResultFile.getName() ) ;
+
+		// First, look for an existing correlated file
+		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
+		if( null == correlatedFile )
+		{
+			// Not found, create it.
+			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
+			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
+		}
+		correlatedFile.addOrUpdateMKVFile( mkvProbeResult ) ;
+	}
+
+	/**
+	 * Add an MP4 file to the map and list of mp4 files. This will include the full path to the file.
+	 * @param mp4FileName
+	 */
+	public void addMP4File( FFmpegProbeResult mp4ProbeResult )
+	{
+		final File probeResultFile = new File( mp4ProbeResult.getFileNameWithPath() ) ;
+		final String probeResultParentPath = probeResultFile.getParent() ;
+		if( null == mp4LongPath )
+		{
+			// empty mkvLongPath, update it here
+			mp4LongPath = probeResultParentPath ;
+		}
+
+		// Use on the file name, without the path or extension
+		final String fileNameWithoutExtension = probeResultFile.getName().replace( ".mp4", "" ) ;
+
+		// First, look for an existing correlated file
+		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
+		if( null == correlatedFile )
+		{
+			// Not found, create it.
+			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
+			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
+		}
+		correlatedFile.addOrUpdateMP4File( mp4ProbeResult ) ;
+	}
+
 	@Override
 	public int compareTo( MovieAndShowInfo rhs )
 	{
-		return name.compareTo( rhs.name ) ;
+		return movieOrShowName.compareTo( rhs.movieOrShowName ) ;
 	}
-	
-	public void makeReadyCorrelatedFilesList()
-	{
-		correlatedFilesList = new ArrayList< CorrelatedFile >() ;
-		for( Map.Entry< String, CorrelatedFile > entrySet : correlatedFiles.entrySet() )
-		{
-			CorrelatedFile theCorrelatedFile = entrySet.getValue() ;
-			correlatedFilesList.add( theCorrelatedFile ) ;
-		}
-		Collections.sort( correlatedFilesList ) ;
-	}
-	
-	/**
-	 * Walk through all mp4 and mkv entries to establish correlations between each.
-	 */
-	/*
-	public List< MissingFile > reportMissingFiles()
-	{
-		// Possible that one mkv file will correlate to two mp4 files by mistake.
-		// The opposite is also possible.
-		// Therefore, establish a structure that permits multiple correlations for each file.
-		// This will be used to identify errors.
-		// TODO: Move this to addMKVFile/addMP4File
-		List< MissingFile > missingFiles = new ArrayList< MissingFile >() ;
 
-		// Look for missing or duplicated entries.
-		for( Map.Entry< String, CorrelatedFile > set : correlatedFiles.entrySet() )
-		{
-			final String fileName = set.getKey() ;
-			final CorrelatedFile correlatedFile = set.getValue() ;
-			
-			// First, look for missing mkv files
-			{
-				MissingFile theMissingFile = null ;
-
-				if( correlatedFile.mkvFiles.isEmpty() )
-				{
-					// The fact that mkvFiles is empty means that a CorrelatedFile exists with at least
-					// one mp4 entry. Be sure to output the mp4 file here.
-					theMissingFile = recordMissingFile( correlatedFile, correlatedFile.mp4Files.firstElement() ) ;
-					log.warning( "Empty mkvFiles for entry: " + fileName
-							+ ", mp4Files: " + correlatedFile.mp4Files.toString() ) ;
-				}
-				if( theMissingFile != null )
-				{
-					missingFiles.add( theMissingFile ) ;
-				}
-			}
-
-			// TODO
-			//			else if( correlatedFile.mkvFiles.size() > 1 )
-			//			{
-			//				log.warning( "More than one mkv file for entry: " + correlatedFile.mkvFiles.toString() ) ;
-			//			}
-			//			else
-			//			{
-			////				log.info( "Good MKV correlation for entry: " + fileName ) ;
-			//			}
-
-			// Next, look for missing mp4 files.
-			{
-				MissingFile theMissingFile = null ;
-				if( correlatedFile.mp4Files.isEmpty() )
-				{
-					// The fact that mp4Files is empty means that a CorrelatedFile exists with at least
-					// one mkv entry. Be sure to output the mkv file here.
-					log.warning( "Empty mp4Files for entry: " + fileName
-							+ ", mkvFiles: " + correlatedFile.mkvFiles.toString() ) ;
-					theMissingFile = recordMissingFile( correlatedFile, correlatedFile.mkvFiles.firstElement() ) ;
-				}
-				if( theMissingFile != null )
-				{
-					missingFiles.add( theMissingFile ) ;
-				}
-			}
-			// TODO
-			//			else if( correlatedFile.mp4Files.size() > 1 )
-			//			{
-			//				log.warning( "More than one mp4 file for entry: " + correlatedFile.mp4Files.toString() ) ;
-			//			}
-			//			else
-			//			{
-			////				log.info( "correlateProbeResults> Good MP4 correlation for entry: " + fileName ) ;
-			//			}
-
-		} // for ( correlatedFiles )
-		return missingFiles ;
-	}
-*/
-	/*
-	private MissingFile recordMissingFile( CorrelatedFile correlatedFile, FFmpegProbeResult residentFileProbeResult )
-	{
-		// Create a new MissingFile instance to record that a file is missing
-		MissingFile theMissingFile = new MissingFile() ;
-
-		// Assign it the movie or show name
-		theMissingFile.movieOrShowName = name ;
-
-		// Get some details
-		// Start with the File associated with the first item in the list of files that are present
-		File networkFile = new File( residentFileProbeResult.getFilename() ) ;
-
-		// Strip away the actual filename and store the path to the movie or show
-		theMissingFile.pathToMovieOrShow = networkFile.getParent() ;
-
-		// Keep just the file name without extension
-		String fileNameWithoutPath = networkFile.getName() ;
-		theMissingFile.residentFileName = fileNameWithoutPath ;
-		String missingExtension = ".mp4" ;
-		String presentExtension = ".mkv" ;
-
-		// If the .mp4 file is missing, then a .mkv file will be passed as the residentFileProbeResult
-		if( residentFileProbeResult.getFilename().contains( ".mp4" ) )
-		{
-			// Missing mkv file.
-			missingExtension = ".mkv" ;
-			presentExtension = ".mp4" ;
-		}
-		theMissingFile.missingFileName = fileNameWithoutPath.replace( presentExtension, missingExtension ) ;
-
-		return theMissingFile ;
-	}
-*/
-	
 	/**
 	 * Return the largest file in this MovieAndShowInfo. It could be an mkv or mp4.
 	 * Returns null if nothing found, although this shouldn't happen.
@@ -181,102 +130,132 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public FFmpegProbeResult findLargestFile()
 	{
 		FFmpegProbeResult largestFile = null ;
-		for( FFmpegProbeResult testFile : mkvFilesByProbeResult )
+		for( CorrelatedFile theCorrelatedFile : correlatedFilesList )
 		{
-			if( null == largestFile )
+			final FFmpegProbeResult localLargestFile = theCorrelatedFile.findLargestFile() ;
+			if( null == localLargestFile )
 			{
-				largestFile = testFile ;
+				log.warning( "Error: Found a null file in CorrelatedFile: " + theCorrelatedFile.toString() ) ;
 				continue ;
 			}
-			if( testFile.getSize() > largestFile.getSize() )
-			{
-				largestFile = testFile ;
-			}
-		}
-		for( FFmpegProbeResult testFile : mp4FilesByProbeResult )
-		{
+			// Post condition: localLargestFile != null ;
 			if( null == largestFile )
 			{
-				largestFile = testFile ;
-				continue ;
+				largestFile = localLargestFile ;
 			}
-			if( testFile.getSize() > largestFile.getSize() )
+			else if( localLargestFile.getSize() > largestFile.getSize() )
 			{
-				largestFile = testFile ;
+				largestFile = localLargestFile ;
 			}
 		}
 		return largestFile ;
 	}
-	
-	/**
-	 * Add an MKV file to the list of mkv files. This will include the full path to the file.
-	 * @param mkvFileName
-	 */
-	public void addMKVFile( FFmpegProbeResult mkvProbeResult )
-	{
-		//		for( FFmpegProbeResult mkvFile : mkvFilesByProbeResult )
-		//		{
-		// Use on the file name, without the path or extension
-		String fileName = (new File( mkvProbeResult.getFilename() )).getName().replace( ".mkv", "" ) ;
 
-		// First, look for an existing correlated file
-		CorrelatedFile correlatedFile = correlatedFiles.get( fileName ) ;
-		if( null == correlatedFile )
+	/**
+	 * Walk through the map of files associated with this Movie or TV Show and build
+	 *  the list of CorrelatedFiles that can be stored into the database.
+	 */
+	public void makeReadyCorrelatedFilesList()
+	{
+		if( null == mkvLongPath ) mkvLongPath = Common.getMissingFileSubstituteName() ;
+		if( null == mp4LongPath ) mp4LongPath = Common.getMissingFileSubstituteName() ;
+
+		correlatedFilesList = new ArrayList< CorrelatedFile >() ;
+		for( Map.Entry< String, CorrelatedFile > entrySet : correlatedFiles.entrySet() )
 		{
-			// Not found, create it.
-			correlatedFile = new CorrelatedFile( fileName ) ;
-			correlatedFiles.put( fileName,  correlatedFile ) ;
+			CorrelatedFile theCorrelatedFile = entrySet.getValue() ;
+			if( theCorrelatedFile.isMissingFile() )
+			{
+				isMissingFile = true ;
+			}
+			theCorrelatedFile.normalizeMKVAndMP4Files() ;
+			correlatedFilesList.add( theCorrelatedFile ) ;
 		}
-		correlatedFile.addMKVFile( mkvProbeResult ) ;
-		mkvFilesByProbeResult.add( mkvProbeResult ) ;
-		//		}
-		//		mkvFilesByProbeResult.add( mkvProbeResult ) ;
+		Collections.sort( correlatedFilesList ) ;
 	}
 
 	/**
-	 * Add an MP4 file to the list of mp4 files. This will include the full path to the file.
-	 * @param mp4FileName
+	 * Update a correlated file, probably because the file has had a probe update.
+	 * @param theFile
 	 */
-	public void addMP4File( FFmpegProbeResult mp4ProbeResult )
+	public void updateCorrelatedFile( final FFmpegProbeResult theProbeResult )
 	{
-		//		for( FFmpegProbeResult mp4File : mp4FilesByProbeResult )
-		//		{
-		// Use on the file name, without the path or extension
-		String fileName = (new File( mp4ProbeResult.getFilename() )).getName().replace( ".mp4", "" ) ;
-
-		// First, look for an existing correlated file
-		CorrelatedFile correlatedFile = correlatedFiles.get( fileName ) ;
-		if( null == correlatedFile )
+		// First, find the CorrelatedFile in the list
+		// Note that correlated file names are stored without extension
+		File theProbeResultFile = new File( theProbeResult.getFileNameWithPath() ) ;
+		String fileNameToSearch = Common.removeFileNameExtension( theProbeResultFile.getName() ) ;
+		if( fileNameToSearch.contains( Common.getMissingFilePreExtension() ) )
 		{
-			// Not found, create it.
-			correlatedFile = new CorrelatedFile( fileName ) ;
-			correlatedFiles.put( fileName,  correlatedFile ) ;
+			// If this is a missing file, it will have a second extension that needs
+			// to be removed for this search to succeed.
+			fileNameToSearch = Common.removeFileNameExtension( fileNameToSearch ) ;
 		}
-		correlatedFile.addMP4File( mp4ProbeResult ) ;
-		mp4FilesByProbeResult.add( mp4ProbeResult ) ;
-		//		}
-		//		mp4FilesByProbeResult.add( mp4ProbeResult ) ;
+		CorrelatedFile theCorrelatedFile = null ;
+		
+		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
+		{
+			if( correlatedFileIterator.getFileName().equals( fileNameToSearch ) )
+			{
+				// Found it.
+				theCorrelatedFile = correlatedFileIterator ;
+				break ;
+			}
+		}
+		if( null == theCorrelatedFile )
+		{
+			log.warning( "Unable to find correlated file; MovieAndShowInfo name: " + getMovieOrShowName()
+				+ ", theFile: " + theProbeResultFile.getAbsolutePath() ) ;
+			return ;
+		}
+		// Post condition: theCorrelatedFile is non-null and represents the file being searched.
+		
+		if( theProbeResultFile.getName().contains( ".mkv" ) )
+		{
+			// MKV file
+			theCorrelatedFile.addOrUpdateMKVFile( theProbeResult ) ;
+		}
+		else
+		{
+			// MP4 file
+			theCorrelatedFile.addOrUpdateMP4File( theProbeResult ) ;
+		}
 	}
 
-	public String getName()
+	public String getMovieOrShowName()
 	{
-		return name ;
+		return movieOrShowName ;
+	}
+
+	public String getTVShowName() {
+		return TVShowName;
+	}
+
+	public void setTVShowName(String tVShowName) {
+		TVShowName = tVShowName;
+	}
+
+	public String getTVShowSeasonName() {
+		return TVShowSeasonName;
+	}
+
+	public void setTVShowSeasonName(String tVShowSeasonName) {
+		TVShowSeasonName = tVShowSeasonName;
+	}
+
+	public boolean isTVShow()
+	{
+		return !getTVShowSeasonName().isBlank() ;
 	}
 
 	public String toString()
 	{
-		String retMe = "{name: " + getName()
-		+ ",mkv:[" ;
-		for( FFmpegProbeResult mkvFileProbeResult : mkvFilesByProbeResult )
-		{
-			retMe += mkvFileProbeResult.getFilename() + " " ;
-		}
-		retMe += "],mp4:[" ;
-		for( FFmpegProbeResult mp4FileProbeResult : mp4FilesByProbeResult )
-		{
-			retMe += mp4FileProbeResult.getFilename() + " " ;
-		}
-		retMe += "],correlateFiles:{" ;
+		String retMe = "{name: " + getMovieOrShowName()
+		+ ",mkvLongPath:" + mkvLongPath
+		+ ",mp4LongPath:" + mp4LongPath
+		+ ",TVShowName:" + getTVShowName()
+		+ ",TVShowSeasonName:" + getTVShowSeasonName()
+		+ ",isMissingFile:" + isMissingFile
+		+ ",correlateFiles:{" ;
 		for( Map.Entry< String, CorrelatedFile > set : correlatedFiles.entrySet() )
 		{
 			final String key = set.getKey() ;

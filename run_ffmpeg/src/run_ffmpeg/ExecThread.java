@@ -6,18 +6,20 @@ import java.util.logging.Logger;
 
 public class ExecThread extends Thread
 {
-	protected String threadName = "Unnamed Thread" ;
+	private String threadName = "Unnamed Thread" ;
 	private List< ThreadAction > execList = new ArrayList< >() ;
 	private transient Logger log = null ;
+//	private transient Common common = null ;
 
 	private boolean keepRunning = true ;
 
-	public ExecThread( String _threadName )
+	public ExecThread( String threadName, Common common, Logger log )
 	{
-		threadName = _threadName ;
-		log = run_ffmpeg.getLogger() ;
+		this.threadName = threadName ;
+//		this.common = common ;
+		this.log = log ;
 	}
-	
+
 	@Override
 	public void run()
 	{
@@ -71,6 +73,7 @@ public class ExecThread extends Thread
 		}
 		return hasWork ;
 	}
+	
 	public void addWork( ThreadAction addMe )
 	{
 		synchronized( execList )

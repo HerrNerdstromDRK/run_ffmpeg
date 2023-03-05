@@ -1,32 +1,20 @@
 package run_ffmpeg;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import com.google.common.collect.ImmutableList;
 
 public class run_ffmpeg
 {
-	/// Class-wide NumberFormat for ease of use in reporting data statistics
-	static public NumberFormat numFormat = NumberFormat.getInstance( new Locale( "en", "US" ) ) ;
-
+	private transient Logger log = null ;
+	private transient Common common = null ;
+	private transient TranscodeCommon transcodeCommon = null ;
+	
 	/// Note, for some reason this program needs to use the F:\\ nomenclature for representing file paths,
 	/// and NOT have a trailing separator
 	/// Note also that the paths for the below directories need to be similar for matching to work.
@@ -65,50 +53,24 @@ public class run_ffmpeg
 	static String mp4FinalDirectory = "\\\\yoda\\MP4\\Other Videos" ;
 //	static String mp4FinalDirectory = "\\\\yoda\\MP4_4\\TV Shows" ;
 
-	/// Set testMode to true to make execCommand() only output to the console, but not execute the command
-	/// Note that testMode supersedes doMove
-	static boolean testMode = false ;
-
 	/// Set to true to move the mp4/mkv/srt files to the destination
 	static boolean doMoveMP4 = false ;
 	static boolean doMoveMKV = false ;
 	static boolean doMoveSRT = false ;
 	
-	/// The string that each forced subtitle SRT file name includes
-	static final String forcedSubTitleFileNameContains = ".forced_subtitle." ;
-	
-	/// Set whether or not to transcode video
-	/// This is usually true, however the option here to disable video transcode is intended to be used
-	/// for testing audio or subtitle functions -- the overall transcode will be much faster without
-	/// transcoding video, allowing me to focus on the other areas.
-	static boolean doTranscodeVideo = true ;
-	
-	/// Determines the path separator
-	static boolean isWindows = true ;
-	
 	/// Set to true if this application should overwrite existing MP4 files; false otherwise
 	static boolean overwriteMP4s = false ;
-
-	/// Set to true to enable de-interlacing
-	static boolean deInterlaceInput = false ;
-	
-	/// Separator to use to demarc directories
-	static public String pathSeparator = "\\" ;
-	
-	/// Paths to ffmpeg and ffprobe
-	static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
-	static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
 
 	/// Set to true to host two move threads that move MKV and MP4 files in parallel
 	static boolean moveMKVAndMP4InParallel = true ;
 
 	/// The workerThread will perform all of the operations that can be performed in the background, like
 	/// moving files. This thread is NOT intended to transcode
-	static ExecThread[] workerThreads = null ;
+	private ExecThread[] workerThreads = null ;
 
 	/// Indices to the workerThreads array. Note that these will both be zero if moveMKVAndMP4InParallel is false
-	static int mkvMoveThreadIndex = 0 ;
-	static int mp4MoveThreadIndex = 1 ;
+	private int mkvMoveThreadIndex = 0 ;
+	private int mp4MoveThreadIndex = 1 ;
 
 	/// Identify the pattern for transcode
 	enum transcodeOrderingType
@@ -118,39 +80,10 @@ public class run_ffmpeg
 		transcodeLargeToSmall
 	} ;
 	static transcodeOrderingType transcodeOrder = transcodeOrderingType.transcodeSmallToLarge ;
-	
-	/// Identify the audio stream transcoding options. Select one.
-	enum audioStreamTranscodeOptionsType
-	{
-		// Transcode all audio streams available in the input file
-		audioStreamAll,
-		
-		// Transcode only the English (en/eng) audio streams
-		audioStreamEnglishOnly,
-		
-		// Transcode the primary language audio streams, plus english. This is intended for foreign language movies
-		// such as Chinese martial arts movies. In those cases, I tend to use the foreign language audio with
-		// english subtitles, but also want the option of english audio.
-		audioStreamPrimaryPlusEnglish,
-		
-		// Transcode by including all languages listed in an array of language names
-		audioStreamsByName
-	} ;
-	static final audioStreamTranscodeOptionsType audioStreamTranscodeOptions = audioStreamTranscodeOptionsType.audioStreamsByName ;
 
-	/// The array of language types to include under audioStreamsByName option above
-	static final String[] audioStreamsByNameArray = { "eng", "en" } ;
-	
-	/// The transcode library to use for audio transcodes. libfdk is the highest quality, with aac as the second highest quality.
-	static final String audioTranscodeLibrary = "aac" ;
-	
-	/// Set to true if we are to add a stereo stream of the primary audio language; false otherwise.
-	static final boolean addAudioStereoStream = true ;
-	
 	/// As some of the test runs generate enormous amounts of text output, capture it all in a log file, as well as in the console
 	/// Setup the logging subsystem
 	private static final String logFileName = "log.txt" ;
-	private static Logger log =  Common.setupLogger( logFileName, "run_ffmpeg" ) ;
 
 	/// In most cases, the included algorithm is smart enough to extract the metadata title from the
 	/// name of the file. But in some cases, such as with home movies, the filenames are inconsistent. In those
@@ -161,12 +94,26 @@ public class run_ffmpeg
 	/// possible time (after the current transcode and move).
 	static final String stopFileName = "C:\\Temp\\stop.txt" ;
 
-	/// Extensions to transcode to mp4
-	static final String[] transcodeExtensions = { ".mkv", ".MOV", ".mov", ".wmv" } ;
-
+	private run_ffmpeg()
+	{
+		log = Common.setupLogger( logFileName, "run_ffmpeg" ) ;
+		common = new Common( log ) ;
+		transcodeCommon = new TranscodeCommon( log,
+				common,
+				mkvInputDirectory,
+				mkvFinalDirectory,
+				mp4OutputDirectory,
+				mp4FinalDirectory ) ;
+	}
+	
     public static void main(String[] args)
 	{
-		numFormat.setMaximumFractionDigits( 2 ) ;
+    	run_ffmpeg runMe = new run_ffmpeg() ;
+    	runMe.run() ;
+	}
+    
+    public void run()
+    {
     	outputConfigurationHeader() ;
 				
 		if( moveMKVAndMP4InParallel )
@@ -188,13 +135,14 @@ public class run_ffmpeg
 				// Two threads, and this is the first
 				execThreadName = "MKV Move Thread" ;
 			}
-			workerThreads[ workerThreadsIndex ] = new ExecThread( execThreadName ) ;
+			workerThreads[ workerThreadsIndex ] = new ExecThread( execThreadName, common, log ) ;
 			workerThreads[ workerThreadsIndex ].start() ;
 		}
 		
 		// First, survey the input directory for files to transcode, and build
 		// a TranscodeFile object for each.
-		List< TranscodeFile > filesToTranscode = surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory ) ;
+		List< TranscodeFile > filesToTranscode = transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles(
+				mkvInputDirectory, transcodeCommon.getTranscodeExtensions() ) ;
 		List< TranscodeFile > filesToTranscodeInOrder = orderFilesToTranscode( filesToTranscode ) ;
 		for( TranscodeFile fileToTranscode : filesToTranscodeInOrder )
 		{
@@ -207,7 +155,7 @@ public class run_ffmpeg
 	  	// transcode the file, and move the input and output files (if necessary).
 		for( TranscodeFile fileToTranscode : filesToTranscodeInOrder )
 		{
-			if( stopExecution() )
+			if( common.shouldStopExecution( stopFileName ) )
 			{
 				break ;
 			}
@@ -222,7 +170,7 @@ public class run_ffmpeg
 			}
 			
 			// Probe the file's streams
-			FFmpegProbeResult ffmpegProbeResult = ExtractPGSFromMKVs.ffprobeFile( fileToTranscode, log ) ;
+			FFmpegProbeResult ffmpegProbeResult = common.ffprobeFile( fileToTranscode, log ) ;
 			if( null == ffmpegProbeResult )
 			{
 				log.info( "transcodeFile(" + fileToTranscode.getMkvFileName() + ")> null ffmpegProbeResult" ) ;
@@ -232,10 +180,37 @@ public class run_ffmpeg
 			fileToTranscode.processFFmpegProbeResult( ffmpegProbeResult ) ;
 			fileToTranscode.makeDirectories() ;
 			fileToTranscode.setTranscodeInProgress();
-			boolean transcodeSucceeded = transcodeFile( fileToTranscode ) ;
+			
+			boolean transcodeSucceeded = transcodeCommon.transcodeFile( fileToTranscode ) ;
 			if( transcodeSucceeded )
 			{
 				fileToTranscode.setTranscodeComplete();
+		    	// Move the MKV file to its final directory
+		    	// NOTE: I could easily check the move booleans here and prevent this
+		    	// code from executing. However, I have chosen to use those booleans deeper
+		    	// in the call tree for testing purposes -- when test mode is enabled, I
+		    	// want the code to be executed and the worker threads to output that they
+		    	// are working.
+		    	if( fileToTranscode.getMKVFileShouldMove() )
+		    	{
+		    		// moveFile respects the testMode variable
+		    		moveFile( fileToTranscode.getMKVFileNameWithPath(), fileToTranscode.getMkvFinalFileNameWithPath() ) ;
+		    		if( doMoveSRT )
+		    		{
+			    		for( Iterator< File > fileIterator = fileToTranscode.getSRTFileListIterator() ; fileIterator.hasNext() ; )
+			    		{
+			    			File srtFile = fileIterator.next() ;
+			    			if( !srtFile.getAbsolutePath().equalsIgnoreCase( fileToTranscode.getMkvFinalDirectory() ) )
+			    			{
+			    				moveFile( srtFile.getAbsolutePath(), fileToTranscode.getMkvFinalDirectory() + srtFile.getName() ) ;
+			    			}
+			    		}
+		    		}
+		    	}
+		    	if( fileToTranscode.getMP4FileShouldMove() )
+		    	{
+		    		moveFile( fileToTranscode.getMp4OutputFileNameWithPath(), fileToTranscode.getMP4FinalOutputFileNameWithPath() ) ;
+		    	}
 			}
 			else
 			{
@@ -273,212 +248,19 @@ public class run_ffmpeg
 		}
 
 		final long endTime = System.nanoTime() ;
-		final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 
-		log.info( "Total elapsed time: "
-    			+ numFormat.format( timeElapsedInSeconds )
-    			+ " seconds, "
-    			+ numFormat.format( timeElapsedInSeconds / 60.0 )
-    			+ " minutes" ) ;
-
+		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
+		log.info( "Shutdown complete." ) ;
 	} // main()
 
-    public static String addPathSeparatorIfNecessary( String inputPath )
+	public void buildDirectories( final TranscodeFile inputFile )
 	{
-		String retMe = inputPath ;
-		if( !inputPath.endsWith( getPathSeparator() ) )
-		{
-			retMe = inputPath + getPathSeparator() ;
-		}
-		return retMe ;
+		common.makeDirectory( inputFile.getMkvFinalDirectory() ) ;
+		common.makeDirectory( inputFile.getMp4OutputDirectory() ) ;
+		common.makeDirectory( inputFile.getMp4FinalDirectory() ) ;
 	}
 
-	public static void buildDirectories( final TranscodeFile inputFile )
-	{
-		makeDirectory( inputFile.getMkvFinalDirectory() ) ;
-		makeDirectory( inputFile.getMp4OutputDirectory() ) ;
-		makeDirectory( inputFile.getMp4FinalDirectory() ) ;
-	}
-
-	public static boolean executeCommand( ImmutableList.Builder< String > theCommand )
-	{
-		return executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
-	}
-
-	/**
-	 * Execute the given command.
-	 * Return true if successful, false otherwise.
-	 * Returns true in all cases when in test mode.
-	 * @param theCommand
-	 * @return
-	 */
-	public static boolean executeCommand( final String theCommand )
-	{
-		log.info( "theCommand: " + theCommand ) ;
-		boolean retMe = true ;
-		
-		// Only execute the command if we are NOT in test mode
-		if( !testMode )
-		{
-			try
-			{
-				Thread.currentThread().setPriority(Thread.MIN_PRIORITY);
-				final Process process = Runtime.getRuntime().exec( theCommand ) ;
-	
-				BufferedReader errorStreamReader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ;
-				String line = null ;
-				while( (line = errorStreamReader.readLine()) != null )
-				{
-
-					log.info( "ErrorStream: " + line ) ;
-				}
-				
-				if( process.exitValue() != 0 )
-				{
-					// Error occurred
-					log.info( "Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
-					retMe = false ;
-				}
-			}
-			catch( Exception theException )
-			{
-				retMe = false ;
-				log.info( "Exception: " + theException + " for command: " + theCommand ) ;
-			}
-		}
-		return retMe ;
-	}
-
-	public static boolean fileExists( final String fileNameWithPath )
-	{
-		final File theFile = new File( fileNameWithPath ) ;
-		return theFile.exists() ;
-	}
-
-	public static List< File > getFilesInDirectoryWithExtension( final String directoryPath, final String extension )
-	{
-		List< File > filesInDirectoryWithExtension = new ArrayList< >() ;
-		try
-		{
-			Stream< Path > walk = Files.walk( Paths.get( directoryPath ) ) ;
-			List< String > fileNames = walk.filter( Files::isRegularFile ).map( x -> x.toString() ).collect( Collectors.toList() ) ;
-			walk.close() ;
-	
-			// Filter by extension
-			for( String fileName : fileNames )
-			{
-				if( fileName.endsWith( extension ) )
-				{
-					filesInDirectoryWithExtension.add( new File( fileName ) ) ;
-				}
-			}
-		} // try()
-		catch( Exception theException )
-		{
-			log.info( " (" + directoryPath + ")> Exception: " + theException ) ;
-		}
-		return filesInDirectoryWithExtension ;
-	}
-
-	static String getPathSeparator()
-	{
-		String retMe = pathSeparator ;
-		if( !isWindows )
-		{
-			// Linux naming
-			retMe = "\\\\" ;
-		}
-		return retMe ;
-	}
-
-	public static List< File > getSubDirectories( final File directoryPathFile )
-	{
-		File[] directories = directoryPathFile.listFiles( File::isDirectory ) ;
-		return Arrays.asList( directories ) ;
-	}
-
-	/**
-	     * Retrieve all subdirectories to the given directoryPath.
-	     * Note that this excludes the parent directory.
-	     * Example: directoryPath = F:/Movies, return all directories underneath it (like "Elf" and "Mr. Deeds"), but not the
-	     * directory itself (F:/Movies)
-	     * @param directoryPath
-	     * @return
-	     */
-	public static List< File > getSubDirectories( final String directoryPath )
-	{
-		return getSubDirectories( new File( directoryPath ) ) ;
-	}
-
-	public static List< TranscodeFile > getTranscodeFilesInDirectory( final String inputDirectory )
-    {
-    	return getTranscodeFilesInDirectory( new File( inputDirectory ) ) ;
-    }
-
-    public static List< TranscodeFile > getTranscodeFilesInDirectory( final File inputDirectory )
-    {
-    	List< TranscodeFile > transcodeFilesInDirectory = new ArrayList< >() ;
-    	for( String extension : transcodeExtensions )
-    	{
-    		List< File > filesByExtension = getFilesInDirectoryWithExtension( inputDirectory.getAbsolutePath(), extension ) ;
-    		for( File theFile : filesByExtension )
-    		{
-    			TranscodeFile newTranscodeFile = new TranscodeFile( theFile,
-    					mkvFinalDirectory,
-    					mp4OutputDirectory,
-    					mp4FinalDirectory,
-    					log ) ;
-    			transcodeFilesInDirectory.add( newTranscodeFile ) ;
-    		}
-    	}
-    	return transcodeFilesInDirectory ;
-    }
-
-    public static boolean hasInputFileInDirectory( final File theDirectory )
-	{
-		for( String extension : transcodeExtensions )
-		{
-			if( hasInputFileInDirectory( theDirectory, extension ) )
-			{
-				return true ;
-			}
-		}
-		return false ;
-	}
-
-	static boolean hasInputFileInDirectory( final File theDirectory, final String extension )
-	{
-		return hasInputFileInDirectory( theDirectory.getAbsolutePath(), extension ) ;
-	}
-
-	static boolean hasInputFileInDirectory( final String directoryName, final String extension )
-	{
-		List< File > inputFileNameList = getFilesInDirectoryWithExtension( directoryName, extension ) ;
-		return (inputFileNameList.size() > 0) ;
-	}
-
-	static void makeDirectory( final String directoryName )
-	{
-		try
-		{
-			File directoryFile = new File( directoryName ) ;
-			if( !directoryFile.exists() )
-			{
-				log.info( "Making directory structure: " + directoryName ) ;
-				if( !testMode && !directoryFile.mkdirs() )
-				{
-					log.info( "Unable to mkdirs (" + directoryName + ")" ) ;
-				}
-			}
-
-		}
-		catch( Exception theException )
-		{
-			log.info( "Exception: (\"" + directoryName + "\"): " + theException.toString() ) ;
-		}
-	}
-
-    public static void moveFile( final String sourceFileName, final String destinationFileName )
+    public void moveFile( final String sourceFileName, final String destinationFileName )
 	{
     	log.info( "Moving file " + sourceFileName + " to " + destinationFileName ) ;
     	
@@ -498,7 +280,7 @@ public class run_ffmpeg
 		if( !sourceFileName.equalsIgnoreCase( destinationFileName ) && doMove )
 		{
 	    	MoveFileThreadAction theMoveFileThreadAction =
-	    			new MoveFileThreadAction( sourceFileName, destinationFileName ) ;
+	    			new MoveFileThreadAction( sourceFileName, destinationFileName, common, log ) ;
 	
 	    	int workerThreadsIndex = mkvMoveThreadIndex ;
 	    	if( sourceFileName.contains( ".mp4" ) )
@@ -511,7 +293,7 @@ public class run_ffmpeg
 	    }
 	}
 
-	static void outputConfigurationHeader()
+	public void outputConfigurationHeader()
 	{
 		log.info( "" ) ;
 		log.info( "*** Configuration ***" ) ;
@@ -519,14 +301,14 @@ public class run_ffmpeg
 		log.info( "*** mkvFinalDirectory: " + mkvFinalDirectory + " ***" ) ;
 		log.info( "*** mp4OutputDirectory: " + mp4OutputDirectory + " ***" ) ;
     	log.info( "*** mp4FinalDirectory: " + mp4FinalDirectory + " ***" ) ;
-    	log.info( "*** testMode: " + testMode + " ***" ) ;
+    	log.info( "*** testMode: " + common.getTestMode() + " ***" ) ;
     	log.info( "*** doMoveMP4: " + doMoveMP4 + " ***" ) ;
     	log.info( "*** doMoveMKV: " + doMoveMKV + " ***" ) ;
     	log.info( "*** doMoveSRT: " + doMoveSRT + " ***" ) ;
-    	log.info( "*** doTranscodeVideo: " + doTranscodeVideo + " ***" ) ;
-    	log.info( "*** isWindows: " + isWindows + " ***" ) ;
-    	log.info( "*** pathToFFMPEG: " + pathToFFMPEG + " ***" ) ;
-    	log.info( "*** pathToFFPROBE: " + pathToFFPROBE + " ***" ) ;
+    	log.info( "*** doTranscodeVideo: " + transcodeCommon.isDoTranscodeVideo() + " ***" ) ;
+    	log.info( "*** isWindows: " + common.getIsWindows() + " ***" ) ;
+    	log.info( "*** pathToFFMPEG: " + Common.getPathToFFmpeg() + " ***" ) ;
+    	log.info( "*** pathToFFPROBE: " + Common.getPathToFFprobe() + " ***" ) ;
     	String transcodeOrderString = "transcodeByDirectory" ;
     	if( transcodeOrder == transcodeOrderingType.transcodeSmallToLarge )
     	{
@@ -540,29 +322,29 @@ public class run_ffmpeg
     	log.info( "*** logFileName: " + logFileName + " ***" ) ;
     	log.info( "*** useFileNameAsTitle: " + useFileNameAsTitle + " ***" ) ;
     	log.info( "*** stopFileName: " + stopFileName + " ***" ) ;
-    	log.info( "*** transcodeExtensions: " + toString( transcodeExtensions ) + " ***" ) ;
+    	log.info( "*** transcodeExtensions: " + common.toString( transcodeCommon.getTranscodeExtensions() ) + " ***" ) ;
     	log.info( "*** moveMKVAndMP4InParallel: " + moveMKVAndMP4InParallel + " ***" ) ;
-    	log.info( "*** forcedSubTitleFileNameContains: " + forcedSubTitleFileNameContains + " ***" ) ;
-    	log.info( "*** audioTranscodeLibrary: " + audioTranscodeLibrary + " ***" ) ;
-    	log.info( "*** addAudioStereoStream: " + addAudioStereoStream + " ***" ) ;
+    	log.info( "*** forcedSubTitleFileNameContains: " + transcodeCommon.getForcedSubTitleFileNameContains() + " ***" ) ;
+    	log.info( "*** audioTranscodeLibrary: " + transcodeCommon.getAudioTranscodeLibrary() + " ***" ) ;
+    	log.info( "*** addAudioStereoStream: " + transcodeCommon.isAddAudioStereoStream() + " ***" ) ;
     	String audioStreamTranscodeOptionsString = "audioStreamAll" ;
-    	if( audioStreamTranscodeOptions == audioStreamTranscodeOptionsType.audioStreamEnglishOnly )
+    	if( transcodeCommon.isAudioStreamOptionAudioStreamEnglishOnly() )
     	{
     		audioStreamTranscodeOptionsString = "audioStreamEnglishOnly" ;
     	}
-    	else if( audioStreamTranscodeOptions == audioStreamTranscodeOptionsType.audioStreamPrimaryPlusEnglish )
+    	else if( transcodeCommon.isAudioStreamOptionAudioStreamPrimaryPlusEnglish() )
     	{
     		audioStreamTranscodeOptionsString = "audioStreamPrimaryPlusEnglish" ;
     	}
-    	else if( audioStreamTranscodeOptions == audioStreamTranscodeOptionsType.audioStreamsByName )
+    	else if( transcodeCommon.isAudioStreamOptionAudioStreamAudioStreamsByName() )
     	{
-    		audioStreamTranscodeOptionsString = "audioStreamsByName: " + toString( audioStreamsByNameArray ) ;
+    		audioStreamTranscodeOptionsString = "audioStreamsByName: " + common.toString( transcodeCommon.getAudioStreamsByNameArray() ) ;
     	}
     	log.info( "*** audioStreamTranscodeOptions: " + audioStreamTranscodeOptionsString + " ***" ) ;
     	log.info( "" ) ;
    	}
 
-	public static List< TranscodeFile > orderFilesToTranscode( final List< TranscodeFile > theFiles )
+	public List< TranscodeFile > orderFilesToTranscode( final List< TranscodeFile > theFiles )
 	{
 		SortedMap< Long, TranscodeFile > filesBySizeMap = null ;
 		switch( transcodeOrder )
@@ -590,467 +372,4 @@ public class run_ffmpeg
 		return filesByOrder ;
 	}
 
-	/**
-     * Replace the extension in the given inputFileName with the provided new extension.
-     * @param inputFileName
-     * @return
-     */
-    public static String replaceFileNameExtension( String inputFileName, final String newExtension )
-    {
-    	// Low likelihood that a filename has any of the stored input extensions as part of its name.
-    	for( String inputExtension : transcodeExtensions )
-    	{
-    		inputFileName = inputFileName.replace( inputExtension, newExtension ) ;
-    	}
-    	return inputFileName ;
-    }
-
-    /**
-	 * Check for the presence of a file named stopFileName. If present, return true.
-	 * @return
-	 */
-	public synchronized static boolean stopExecution()
-	{
-		return stopExecution( stopFileName ) ;
-	}
-
-	public synchronized static boolean stopExecution( final String fileName )
-	{
-		final File stopFile = new File( fileName ) ;
-		boolean fileExists = stopFile.exists() ;
-		return fileExists ;
-	}
-
-	public static List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles( final String inputDirectory )
-	{
-		assert( inputDirectory != null ) ;
-	
-		List< TranscodeFile > filesToTranscode = new ArrayList< >() ;
-	
-		// inputDirectory could be:
-		// - Invalid path
-		// - Empty
-		// - Contain one or more movies
-		// - Contain one or more TV Shows
-		// - Contain one or more movies and one or more TV Shows
-	
-		File inputDirectoryFile = new File( inputDirectory ) ;
-		if( !inputDirectoryFile.exists() )
-		{
-			log.warning( "inputDirectory does not exist: " + inputDirectory ) ;
-			return filesToTranscode ;
-		}
-	
-		// First, look for files in the inputDirectory with extensions listed in transcodeExtensions
-		filesToTranscode.addAll( getTranscodeFilesInDirectory( inputDirectory ) ) ;
-		return filesToTranscode ;
-	}
-
-	public static boolean transcodeFile( TranscodeFile inputFile )
-    {
-    	// Precondition: ffmpegProbeResult is not null
-    	log.info( "transcodeFile> Transcoding: " + inputFile ) ;
-
-		// Perform the options build by these steps:
-		//  1) Setup ffmpeg basic options
-		//  2) Include source file
-    	//  3) Include input SRT file(s)
-    	//  4) Add video transcode options
-		//  5) Add audio transcode options
-		//  6) Add subtitle transcode options
-		//  7) Add metadata transcode options
-		//  8) Add output filename (.mp4)
-    	
-    	// ffmpegCommand will hold the command to execute ffmpeg
-    	ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
-    	
-    	// 1) Setup ffmpeg basic options
-		ffmpegCommand.add( pathToFFMPEG ) ;
-		
-		// Overwrite existing files
-		ffmpegCommand.add( "-y" ) ;
-		
-		// 2) Include source file
-		ffmpegCommand.add( "-i", inputFile.getMKVFileNameWithPath() ) ;
-
-		// 3) Include all other input files (such as .srt, except forced subtitles)
-		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
-		{
-			final File srtFile = fileIterator.next() ;
-			if( !srtFile.getName().contains( forcedSubTitleFileNameContains ) )
-			{
-				ffmpegCommand.add( "-i", srtFile.getAbsolutePath() ) ;
-			}
-		}
-		
-		//  4) Add video transcode options
-		ffmpegCommand.addAll( buildVideoTranscodeOptions( inputFile ).build() ) ;
-
-		//  5) Add audio transcode options
-		ffmpegCommand.addAll( buildAudioTranscodeOptions( inputFile ).build() ) ;
-		
-		//  6) Add subtitle transcode options
-		ffmpegCommand.addAll( buildSubTitleTranscodeOptions( inputFile ).build() ) ;
-		
-		//  7) Add metadata info
-		
-		//  8) Add output filename (.mp4)
-		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
-
-    	long startTime = System.nanoTime() ;
-    	log.info( toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-
-		log.info( "transcodeFile> Executing command: " + toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-
-    	// Only execute the transcode if testMode is false
-    	boolean executeSuccess = testMode ? true : executeCommand( ffmpegCommand ) ;
-    	if( !executeSuccess )
-    	{
-    		log.info( "transcodeFile> Error in execute command" ) ;
-    		// Do not move any files since the transcode failed
-    		return false ;
-    	}
-    	
-    	long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-
-    	double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
-    	log.info( "transcodeFile> Elapsed time to transcode "
-    			+ inputFile.getMkvFileName()
-    			+ ": "
-    			+ numFormat.format( timeElapsedInSeconds )
-    			+ " seconds, "
-    			+ numFormat.format( timeElapsedInSeconds / 60.0 )
-    			+ " minutes, or "
-    			+ numFormat.format( timePerGigaByte )
-    			+ " seconds per GB" ) ;
-
-    	// Move the MKV file to its final directory
-    	// NOTE: I could easily check the move booleans here and prevent this
-    	// code from executing. However, I have chosen to use those booleans deeper
-    	// in the call tree for testing purposes -- when test mode is enabled, I
-    	// want the code to be executed and the worker threads to output that they
-    	// are working.
-    	if( inputFile.getMKVFileShouldMove() )
-    	{
-    		// moveFile respects the testMode variable
-    		moveFile( inputFile.getMKVFileNameWithPath(), inputFile.getMkvFinalFileNameWithPath() ) ;
-    		if( doMoveSRT )
-    		{
-	    		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
-	    		{
-	    			File srtFile = fileIterator.next() ;
-	    			if( !srtFile.getAbsolutePath().equalsIgnoreCase( inputFile.getMkvFinalDirectory() ) )
-	    			{
-	    				moveFile( srtFile.getAbsolutePath(), inputFile.getMkvFinalDirectory() + srtFile.getName() ) ;
-	    			}
-	    		}
-    		}
-    	}
-    	if( inputFile.getMP4FileShouldMove() )
-    	{
-    		moveFile( inputFile.getMp4OutputFileNameWithPath(), inputFile.getMP4FinalOutputFileNameWithPath() ) ;
-    	}
-    	return true ;
-    }
-	
-	/**
-	 * Include the options for transcoding
-	 * The standard is that the options strings include no leading or trailing spaces
-	 *  -v yadif=1: de-interlace
-	 *  -copyts: Copies the timestamps into the output file for use by subtitles
-	 *  -vcodec libx264: Use H.264 codec for otuput
-	 *  -crf 17: Set quality; anything better than 17 will not be noticeable
-	 *  -map 0: Copy all streams, including subtitles
-	 *  -movflags +faststart: Include indexing so it's easy to move anywhere in the file during playback
-	 * @param inputFile
-	 * @return
-	 */
-	static ImmutableList.Builder< String > buildVideoTranscodeOptions( TranscodeFile inputFile )
-	{
-		ImmutableList.Builder< String > videoTranscodeOptions = new ImmutableList.Builder<String>() ;
-
-		// Forced subtitles are to be burned into the underlying video stream, so treat them here
-		if( inputFile.hasForcedSubTitleFile() )
-		{
-			// Burn-in the forced subtitle track drawn from the stream in the input file.
-			// Prefer this solution to using the .srt file since the .srt file may have OCR errors.
-			// The normal approach here is to use [0:v][0:s[:stream#]], but since the subtitle files have the
-			//  file-level stream index, we need to exclude the :s in the stream number prelude
-			videoTranscodeOptions.add( "-filter_complex", "\"[0:v][0:" + inputFile.getForcedSubTitleStreamNumber() + "]overlay[v1]\"" ) ;
-			videoTranscodeOptions.add( "-map", "\"[v1]\"" ) ;
-			// Note that the presence of a forced subtitle for burn in means we lack the option of
-			// not transcoding the video stream
-		}
-		else
-		{
-			// No forced subtitle stream
-			// Set the basic transcode options
-			videoTranscodeOptions.add( "-map", "0:v" ) ;
-			if( !doTranscodeVideo )
-			{
-				// Do NOT transcode video, just copy it
-				// Probably working on audio or subtitle functions here and need to make the overall transcode
-				// go as fast as possible. Just copying the video does that pretty well.
-				videoTranscodeOptions.add( "-c:v", "copy" ) ;
-			}
-		} // if( hasForcedSubTitle )
-		
-		// Note that disabling transcode video options will fail when forced subtitles are present
-		// Leave it to the user about the option space
-		if( doTranscodeVideo )
-		{
-			if( deInterlaceInput )	videoTranscodeOptions.add( "-vf", "yadif=1" ) ;
-			videoTranscodeOptions.add( "-vcodec", "libx264" ) ;
-			videoTranscodeOptions.add( "-crf", "17" ) ;
-			videoTranscodeOptions.add( "-movflags", "+faststart" ) ;
-			videoTranscodeOptions.add( "-metadata", "title=\"" + inputFile.getMetaDataTitle() + "\"" ) ;
-		}
-		else
-		{
-			if( inputFile.hasForcedSubTitleFile() )
-			{
-				log.info( "buildVideoTranscodeOptions> Video transcode is disabled while forced subtitles exist. This will"
-						+ " probably generate an ffmpeg error" ) ;
-			}
-		}
-		return videoTranscodeOptions ;
-	}
-    
-	/**
-	 * Build the audio transcode options.
-	 * The main goal here is to ensure a Stereo stream exists.
-	 * @param inputFile
-	 * @return
-	 */
-	static ImmutableList.Builder< String > buildAudioTranscodeOptions( TranscodeFile inputFile )
-	{
-		/*
-		 * Example syntax:
-		 *  ffmpeg -y -i "%%A" -map 0:v -c:v copy -map 0:a:0? -c:a:0 copy -map 0:a:0? -c:a:1 aac -b:a:1 192k -ac 2
-		 *   -metadata:s:a:1 title="Eng 2.0 Stereo" -map 0:a:1? -c:a:2 copy -map 0:a:2? -c:a:3 copy -map 0:a:3?
-		 *   -c:a:4 copy -map 0:a:4? -c:a:5 copy -map 0:a:5? -c:a:6 copy -map 0:a:6? -c:a:7 copy -map 0:s? -c:s copy
-		 *   "ffmpegOut/%%~nA_Stereo.mkv"
-		 */
-		ImmutableList.Builder< String > audioTranscodeOptions = new ImmutableList.Builder<String>() ;
-
-		// The method works in two phases:
-		//  1) Build the list of audio streams to transcode based on the audioStreamTranscodeOptions
-		//  2) Build the options to support the list of audio streams to be transcoded
-		// NOTE: I have found that at least some of the movies/shows with stereo audio, at least on blu ray,
-		//  have the director commentary in stereo, but not necessarily the primary sound.
-		//  As such, I will generally ignore any existing stereo audio streams when deciding whether to add
-		//  a stereo audio stream.
-		ArrayList< FFmpegStream > audioStreamsToTranscode = new ArrayList< FFmpegStream >() ;
-		
-		if( audioStreamTranscodeOptionsType.audioStreamAll == audioStreamTranscodeOptions )
-		{
-			// Include all audio streams
-			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "*" ) ) ;
-		}
-		else if( audioStreamTranscodeOptionsType.audioStreamEnglishOnly == audioStreamTranscodeOptions )
-		{
-			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "eng" ) ) ;
-			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "en" ) ) ;
-		}
-		else if( audioStreamTranscodeOptionsType.audioStreamPrimaryPlusEnglish == audioStreamTranscodeOptions )
-		{
-			// Add the primary language first, then English
-			// Often the primary language type will be English
-			final String primaryAudioLanguage = inputFile.getPrimaryAudioLanguage() ;
-			audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( primaryAudioLanguage ) ) ;
-			if( !primaryAudioLanguage.equalsIgnoreCase( "eng" ) && !primaryAudioLanguage.equalsIgnoreCase( "en" ) )
-			{
-				// Primary language is other than english
-				// Add english to the list (after the primary)
-				audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "eng" ) ) ;
-				audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( "en" ) ) ;
-			}
-		}
-		else if( audioStreamTranscodeOptionsType.audioStreamsByName == audioStreamTranscodeOptions )
-		{
-			for( String languageName : audioStreamsByNameArray )
-			{
-				audioStreamsToTranscode.addAll( inputFile.getAudioStreamsByLanguage( languageName ) ) ;
-			}
-		}
-		else
-		{
-			log.info( "buildAudioTranscodeOptions> Unknown audioStreamTranscode option: " + audioStreamTranscodeOptions ) ;
-		}
-		// Post condition: audioStreamsToTranscode now has the full list of audio streams to transcode into
-		// the output file.
-		
-		// Use a deliberate audio stream mapping regardless of our decision to add a stereo stream.
-		// Typically, the first (#0) audio stream is the highest quality
-		// Keep the first (#0) audio stream and convert it based on the prescribed library
-		
-		// Finally, copy the remaining streams as aac into the output, offset by one stream
-		for( int inputStreamNumber = 0, outputStreamNumber = 0 ; inputStreamNumber < inputFile.getNumAudioStreams() ;
-				++inputStreamNumber, ++outputStreamNumber )
-		{
-			audioTranscodeOptions.add( "-map", "0:a:" + inputStreamNumber ) ;
-			audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;
-			audioTranscodeOptions.add( "-metadata:s:a:" + outputStreamNumber,
-					"title=\"" + inputFile.getAudioStreamAt( inputStreamNumber ).getTagByName( "title" ) + "\"" ) ;
-			
-			if( (0 == inputStreamNumber) && addAudioStereoStream )
-			{
-				// First audio stream (highest quality) and we need to add a stereo stream.
-				// Copy the first (#0) audio stream into stream #1 as stereo (-ac 2)
-				audioTranscodeOptions.add( "-map", "0:a:0" ) ;
-				audioTranscodeOptions.add( "-c:a:1", audioTranscodeLibrary, "-ac:a:1", "2" ) ;
-				audioTranscodeOptions.add( "-metadata:s:a:1", "title=\"Stereo\"" ) ;
-				// Skip one output stream number
-				++outputStreamNumber ;
-			}
-		}
-		return audioTranscodeOptions ;
-	}
-	
-	/**
-	 * Build a list of ffmpeg mapping options to incorporate any subtitle (.srt) files into the transcode.
-	 * Excludes importing the srt files themselves.
-	 * @param theTranscodeFile
-	 * @return
-	 */
-	public static ImmutableList.Builder< String > buildSubTitleTranscodeOptions( TranscodeFile theTranscodeFile )
-	{
-		// "${srtInputFiles[@]}" -map 0:v -map 0:a -map -0:s "${srtMapping[@]}" -copyts
-		ImmutableList.Builder< String > subTitleTranscodeOptions = new ImmutableList.Builder< String >() ;
-	
-		// Part of my transcode workflow process is to extract .srt files into separate files,
-		// or to extract PGS streams into .sup files and OCR Them.
-		// As such, never use default subtitle streams -- exclude them all explicitly.
-		subTitleTranscodeOptions.add( "-map", "-0:s" ) ;
-
-		// Now add the mapping for each SRT file
-		// TODO/NOTE: This assumes the same iteration for this loop as with the input options.
-		// In practice it doesn't matter since each of the SRT input files only has a single input stream.
-		// inputFileMappingIndex is the zero-based index of the input file.
-		// inputFileMappingIndex 0 is the source .mkv file
-		// inputFileMappingIndex 1 here is the first SRT input file
-		// inputFileMappingIndex is kept outside the loop here since that index only applies (I think) to files
-		//  included via -i on the command line.
-		// For forced subtitles, I will be including them implicitly, in which case (I think) they are not counted as
-		//  an input file by index.
-		// To avoid confusing the ffmpeg command line parser, first walk through all the srt files that
-		//  are NOT forced subtitle, and finish those with a copy statement.
-		//  The reason for this is that the -c:s mov_text needs to be attached to the non-forced subtitles, and not
-		//  the forced subtitles.
-		// Afterward, handle the forced subtitles.
-		boolean foundNonForcedSubtTileStream = false ;
-		int inputFileMappingIndex = 1 ;
-		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numSRTInputFiles() ; ++srtFileIndex )
-		{
-			final File theSRTFile = theTranscodeFile.getSRTFile( srtFileIndex ) ;
-			if( !theSRTFile.getName().contains( forcedSubTitleFileNameContains ) )
-			{
-				subTitleTranscodeOptions.add( "-map", "" + inputFileMappingIndex + ":s" ) ;
-				subTitleTranscodeOptions.add( "-metadata:s:s:" + inputFileMappingIndex, "language=eng" ) ;
-				subTitleTranscodeOptions.add( "-metadata:s:s:" + inputFileMappingIndex, "title=\"eng\"" ) ;
-				++inputFileMappingIndex ;
-				foundNonForcedSubtTileStream = true ;
-			}
-		}
-		if( foundNonForcedSubtTileStream )
-		{
-			// Found at least one non-forced subtitle
-			subTitleTranscodeOptions.add( "-c:s", "mov_text" ) ;
-		}
-		
-		/*
-		 * Note that forced subtitles are currently handled as a video option since they are burned into the
-		 * video stream. No need to process them here.
-		// Now walk through the srt files and process forced subtitle(s).
-		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numSRTInputFiles() ; ++srtFileIndex )
-		{
-			final File theSRTFile = theTranscodeFile.getSRTFile( srtFileIndex ) ;
-			String theSRTFileName = theSRTFile.getAbsolutePath() ;
-			
-			if( theSRTFileName.contains( forcedSubTitleFileNameContains ) )
-			{
-				// The subtitles option is a value of a filter graph argument, so
-				//  we have to add an escape character before every special character (thanks stackoverflow!)
-				// The correct use of the subtitles option is:
-				// "subtitles='name of file with special characters replace with \specialcharacter'"
-				// The special characters here include: :, \, [, ]
-				// Note that ' is also a special character in ffmpeg filter option strings, but I don't allow it
-				//  in any file name (along with & and a few others)
-				theSRTFileName = theSRTFileName.replace( "\\", "\\\\" ) ;
-				theSRTFileName = theSRTFileName.replace( ":", "\\:" ) ;
-				theSRTFileName = theSRTFileName.replace( "[", "\\[" ) ;
-				theSRTFileName = theSRTFileName.replace( "]", "\\]" ) ;
-
-				log.info( "buildSubTitleTranscodeOptions> Found forced subtitle, heSRTFileName after replace(): " + theSRTFileName ) ;
-				subTitleTranscodeOptions.add( "-vf", "\"subtitles=\'" + theSRTFileName + "\'\"" ) ;
-			}
-		} // for ( forced sub titles )
-		*/
-
-		return subTitleTranscodeOptions ;
-	}
-	
-    static String toStringForCommandExecution( final ImmutableList< String > theList )
-	{
-		String retMe = "" ;
-		for( Iterator< String > listIterator = theList.iterator() ; listIterator.hasNext() ; )
-//		for( String listItem : theList )
-		{
-			// Any file names with spaces must be encapsulated in double quotes, except for those
-			// items that already start with "
-			String arg = listIterator.next();
-			if( arg.contains( " " ) && !arg.startsWith( "\"" ) && !arg.endsWith( "\"" ) )
-			{
-				retMe += "\"" ;
-			}
-			retMe += arg ;
-
-			// Any file names with spaces must be encapsulated in double quotes, except for those
-			// items that already start with "
-			if( arg.contains( " " ) && !arg.startsWith( "\"" ) && !arg.endsWith( "\"" ) )
-			{
-				retMe += "\"" ;
-			}
-			
-			if( listIterator.hasNext() )
-			{
-				// At least one more item remaining, add a space
-				retMe += " " ;
-			}
-		}
-		return retMe ;
-	}
-	
-	static void touchFile( final String fileName )
-	{
-		try
-		{
-			File theTouchFile = new File( fileName ) ;
-			if( !theTouchFile.exists() )
-			{
-				theTouchFile.createNewFile() ;
-			}
-		}
-		catch( Exception e )
-		{
-			run_ffmpeg.log.info( "TranscodeFile.touchFile> Exception for file " + fileName + ": " + e ) ;
-		}
-	}
-
-	static String toString( final String[] inputArray )
-	{
-		String retMe = "{" ;
-		for( String theInput : inputArray )
-		{
-			retMe += "[" + theInput + "]" ;
-		}
-		retMe += "}" ;
-		return retMe ;
-	}
-	
-	static Logger getLogger()
-	{
-		return log ;
-	}
-	
 } // run_ffmpeg

@@ -15,19 +15,21 @@ import com.google.common.collect.ImmutableList;
 public class FFmpegProbeResult
 {
 	/// This object's id in the database.
-	private ObjectId _id ;
-	
-	/// The object's id as a String
-//	private transient String idString = null ;
+	public ObjectId _id ;
 	
 	/// The file being probed.
-	private String filename = null ;
+	public String fileNameWithPath = null ;
+	public String fileNameWithoutPath = null ;
+	public String fileNameShort = null ;
 	
 	/// The time, in ms since 1-Jan-1970, of this probe
-	private long probeTime = 0 ;
+	public long probeTime = 0 ;
 	
 	/// Size of the file in bytes
-	private long size = 0 ;
+	public long size = 0 ;
+	
+	/// The time this file was last modified
+	public long lastModified = 0 ;
 	
 	/// Store any error state
 	public FFmpegError error = null ;
@@ -91,14 +93,6 @@ public class FFmpegProbeResult
 		return ImmutableList.copyOf(chapters);
 	}
 
-	public String getFilename() {
-		return filename;
-	}
-
-	public void setFilename(String filename) {
-		this.filename = filename;
-	}
-
 	public long getProbeTime() {
 		return probeTime;
 	}
@@ -115,22 +109,59 @@ public class FFmpegProbeResult
 		this.size = size;
 	}
 	
-//	public String getIDString()
-//	{
-//		if( null == idString )
-//		{
-//			idString = _id.toString() ;
-//		}
-//		return idString ;
-//	}
-	
 	public String toString()
 	{
-		String retMe = "{filename: " + getFilename()
-		+ ",streams.size: " + streams.size()
+		String retMe =
+				"{" + _id.toString()
+				+ ", fileNameWithPath: " + getFileNameWithPath()
+				+ ", fileNameWithoutPath: " + getFileNameWithoutPath()
+				+ ", fileNameShort: " + getFileNameShort()
+				+ ", probeTime: " + getProbeTime()
+				+ ", lastModified: " + getLastModified()
+				+ ", streams.size: " + streams.size()
 //		+ ",chapters.size: " + chapters.size()
 		+ "}" ;
 		return retMe ;
+	}
+
+	public long getLastModified() {
+		return lastModified;
+	}
+
+	public void setLastModified(long lastModified) {
+		this.lastModified = lastModified;
+	}
+
+	public ObjectId get_id() {
+		return _id;
+	}
+
+	public void set_id(ObjectId _id) {
+		this._id = _id;
+	}
+
+	public String getFileNameWithPath() {
+		return fileNameWithPath;
+	}
+
+	public void setFileNameWithPath(String fileNameWithPath) {
+		this.fileNameWithPath = fileNameWithPath;
+	}
+
+	public String getFileNameWithoutPath() {
+		return fileNameWithoutPath;
+	}
+
+	public void setFileNameWithoutPath(String fileNameWithoutPath) {
+		this.fileNameWithoutPath = fileNameWithoutPath;
+	}
+
+	public String getFileNameShort() {
+		return fileNameShort;
+	}
+
+	public void setFileNameShort(String fileNameShort) {
+		this.fileNameShort = fileNameShort;
 	}
 	
 }
