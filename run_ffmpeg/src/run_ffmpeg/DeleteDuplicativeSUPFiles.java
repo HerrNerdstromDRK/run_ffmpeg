@@ -17,6 +17,14 @@ public class DeleteDuplicativeSUPFiles
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_delete_duplicative_sup_files.txt" ;
 	
+	/// If the file by the given name is present, stop this processing at the
+	/// next iteration of the main loop.
+	private final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
+	
+	public String getStopFileName() {
+		return stopFileName;
+	}
+
 	private static final String supExtension = "sup" ;
 	private static final String srtExtension = "srt" ;
 	
@@ -38,6 +46,11 @@ public class DeleteDuplicativeSUPFiles
 		log.info( "Deleting .sup files from " + allFolders.size() + " folder(s)" ) ;
 		for( String folderName : allFolders )
 		{
+			if( common.shouldStopExecution( getStopFileName() ) )
+			{
+				break ;
+			}
+			
 			runOne( folderName ) ;
 		}
 		log.info( "Shut down." ) ;

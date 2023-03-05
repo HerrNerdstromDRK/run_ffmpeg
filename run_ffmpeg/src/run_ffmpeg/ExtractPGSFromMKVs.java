@@ -91,6 +91,11 @@ public class ExtractPGSFromMKVs
 		log.info( "Extracting subtitle files from " + allFolders.size() + " folder(s)" ) ;
 		for( String folderName : allFolders )
 		{
+			if( common.shouldStopExecution( getStopFileName() ) )
+			{
+				break ;
+			}
+			
 			runOne( folderName ) ;
 		}
 		log.info( "Shut down." ) ;
