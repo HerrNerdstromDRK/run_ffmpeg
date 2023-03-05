@@ -2,7 +2,6 @@ package run_ffmpeg;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 /**
  * Structure that stores information about a file attached to a movie or tv show.

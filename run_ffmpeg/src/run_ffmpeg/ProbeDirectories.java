@@ -32,36 +32,6 @@ public class ProbeDirectories
 	private final String stopFileName = "C:\\Temp\\stop_probe_directories.txt" ;
 	//	private final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
 
-	/// The directories to probe
-	private final String[] directoriesToProbe = {
-			"\\\\yoda\\MP4\\Movies",
-			"\\\\yoda\\MP4_2\\Movies",
-			"\\\\yoda\\MP4_3\\Movies",
-			"\\\\yoda\\MP4_4\\Movies",
-			"\\\\yoda\\MP4\\TV Shows",
-			"\\\\yoda\\MP4_2\\TV Shows",
-			"\\\\yoda\\MP4_3\\TV Shows",
-			"\\\\yoda\\MP4_4\\TV Shows",
-			"\\\\yoda\\MKV_Archive1\\Movies",
-			"\\\\yoda\\MKV_Archive2\\Movies",
-			"\\\\yoda\\MKV_Archive3\\Movies",
-			"\\\\yoda\\MKV_Archive4\\Movies",
-			"\\\\yoda\\MKV_Archive4\\TV Shows",
-			"\\\\yoda\\MKV_Archive5\\Movies",
-			"\\\\yoda\\MKV_Archive6\\Movies",
-			"\\\\yoda\\MKV_Archive7\\Movies",
-			"\\\\yoda\\MKV_Archive8\\Movies",
-			"\\\\yoda\\MKV_Archive9\\Movies",
-			"\\\\yoda\\MKV_Archive1\\TV Shows",
-			"\\\\yoda\\MKV_Archive2\\TV Shows",
-			"\\\\yoda\\MKV_Archive3\\TV Shows",
-			"\\\\yoda\\MKV_Archive5\\TV Shows",
-			"\\\\yoda\\MKV_Archive6\\TV Shows",
-			"\\\\yoda\\MKV_Archive7\\TV Shows",
-			"\\\\yoda\\MKV_Archive8\\TV Shows",
-			"\\\\yoda\\MKV_Archive9\\TV Shows",
-	} ;
-
 	/// The extensions of the files to probe herein.
 	private final String[] extensionsToProbe = {
 			".mkv",
@@ -96,28 +66,20 @@ public class ProbeDirectories
 
 	public void probeDirectoriesAndUpdateDB()
 	{
+		log.info( "Probing all drives and folders..." ) ;
 		final long startTime = System.nanoTime() ;
-		probeDirectoriesAndUpdateDB( directoriesToProbe, extensionsToProbe ) ;
+		probeDirectoriesAndUpdateDB( common.getAllDrivesAndFolders(), extensionsToProbe ) ;
 		final long endTime = System.nanoTime() ;
 
 		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
+		log.info( "Finished probing all drives and folders." ) ;
 	}
 
-	public void probeDirectoriesAndUpdateDB( final String[] directories, final String[] extensions )
+	public void probeDirectoriesAndUpdateDB( final List< String > directoriesToProbe, final String[] extensions )
 	{		
-		log.info( "Probing directories: " + common.toString( directories ) ) ;
-
 		// Walk through each directory
-		for( String directoryToProbe : directories )
+		for( String directoryToProbe : directoriesToProbe )
 		{
-			log.info( "Probing directory: " + directoryToProbe ) ;
-			if( common.shouldStopExecution( stopFileName ) )
-			{
-				// Stop running
-				log.info( "Shutting down due to presence of stop file" ) ;
-				break ;
-			}
-
 			// Find files in this directory to probe
 			List< File > filesToProbe = common.getFilesInDirectoryByExtension( directoryToProbe, extensions ) ;
 
@@ -127,6 +89,7 @@ public class ProbeDirectories
 				if( common.shouldStopExecution( stopFileName ) )
 				{
 					// Stop running
+					log.info( "Shutting down due to presence of stop file" ) ;
 					break ;
 				}
 
@@ -138,8 +101,6 @@ public class ProbeDirectories
 			System.gc() ;
 
 		} // for( filesToProbe )
-
-		log.info( "Shutdown complete" ) ;
 	}
 
 	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe )

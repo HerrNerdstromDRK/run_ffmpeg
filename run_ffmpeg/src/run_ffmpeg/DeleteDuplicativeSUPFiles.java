@@ -51,7 +51,7 @@ public class DeleteDuplicativeSUPFiles
 		}
 		
 		List< File > supFilesByExtension = common.getFilesInDirectoryByExtension( mkvInputDirectory, supExtension ) ;
-		log.info( "Found " + supFilesByExtension.size() + " .sup file(s)" ) ;
+		log.info( mkvInputDirectory + ": Found " + supFilesByExtension.size() + " .sup file(s)" ) ;
 		
 		int numDuplicativeSupFiles = 0 ;
 		for( File supFile : supFilesByExtension )
@@ -68,7 +68,7 @@ public class DeleteDuplicativeSUPFiles
 				supFile.delete() ;
 			}
 		}
-		log.info( "Deleted " + numDuplicativeSupFiles + " .sup file(s)" ) ;
+		log.info( mkvInputDirectory + ": Deleted " + numDuplicativeSupFiles + " .sup file(s)" ) ;
 	}
 	
 }
