@@ -74,7 +74,11 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 		removeProbeResult( mkvFilesByProbe, theMP4FileProbeResult ) ;
 		
 		mp4FilesByName.add( shortenedFileName ) ;
+<<<<<<< HEAD
 		mp4FilesByProbe.add( theMP4FileProbeResult ) ;
+=======
+		mkvFilesByProbe.add( theMP4FileProbeResult ) ;
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	}
 
 	@Override

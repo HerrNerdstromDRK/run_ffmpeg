@@ -59,7 +59,11 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 
 		// Figure out where the MKV file should go
 		String missingMKVPath = makeFakeJob.mkvLongPath ;
+<<<<<<< HEAD
 		if( missingMKVPath.equals( Common.getMissingFileSubstituteName() ) )
+=======
+		if( missingMKVPath.equals( "(empty)" ) )
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		{
 			// Empty mkvLongPath -- this means that none of the MKV files attached to the movie or tv show
 			// exist.

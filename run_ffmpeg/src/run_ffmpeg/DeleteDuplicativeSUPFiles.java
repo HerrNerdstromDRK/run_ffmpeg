@@ -50,6 +50,10 @@ public class DeleteDuplicativeSUPFiles
 			{
 				break ;
 			}
+<<<<<<< HEAD
+=======
+			
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 			runOne( folderName ) ;
 		}
 		log.info( "Shut down." ) ;

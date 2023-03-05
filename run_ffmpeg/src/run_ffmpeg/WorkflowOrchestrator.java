@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+<<<<<<< HEAD
 /**
  * Instrument the workflow.
  * Works by retaining at least one worker thread for each function
@@ -53,6 +54,56 @@ public class WorkflowOrchestrator
 		WorkflowStageThread_UpdateCorrelatedFile updatedCorrelatedFileThread = new WorkflowStageThread_UpdateCorrelatedFile(
 				"updateCorrelatedFileThread", log, common, masMDB ) ;
 		threadList.add( updatedCorrelatedFileThread ) ;
+=======
+import com.mongodb.client.MongoCollection;
+
+/**
+ * Instrument the workflow.
+ * Works by retaining at least one worker thread for each function
+ *  in the workflow.
+ * The responsibility to initiate the next stage in the workflow lays
+ *  with the thread that owns the previous state.
+ * Workflow jobs are stored in the database.
+ * Convention is herein established that, upon initiating a stage in the workflow,
+ *  that the thread owning that stage will first removed the job from the database,
+ *  then process it, then either restore that job in the event of a failure, or create
+ *  a job for the next stage and install it into the database.
+ * Workflow:
+ *  Extract subtitle->OCR->transcode->move files to final destinations->update probe info
+ * Parallel workflow:
+ *  Make fake MKVs->update probe info.
+ * @author Dan
+ */
+public class WorkflowOrchestrator
+{
+	/// Setup the logging subsystem
+	private transient Logger log = null ;
+	private transient Common common = null ;
+	private final String logFileName = "workflow_orchestrator_log.txt" ;
+	private transient List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
+	private final transient String stopFileName = "C:\\Temp\\stop_workflow.txt" ;
+	private transient MoviesAndShowsMongoDB masMDB = null ;
+
+	public WorkflowOrchestrator()
+	{
+		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		common = new Common( log ) ;
+
+		// Establish connection to the database.
+		masMDB = new MoviesAndShowsMongoDB() ;
+	
+		setupThreads() ;
+	}
+
+	private void setupThreads()
+	{
+		WorkflowStageThread_MakeFakeMKVFiles makeFakeMKVFilesThread = new WorkflowStageThread_MakeFakeMKVFiles(
+				"makeFakeMKVFileThread", log, common, masMDB ) ;
+		threadList.add( makeFakeMKVFilesThread ) ;
+		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
+				"probeFileThread", log, common, masMDB ) ;
+		threadList.add( probeFileThread ) ;
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	}
 
 	public static void main(String[] args)
