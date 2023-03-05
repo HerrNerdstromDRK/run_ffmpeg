@@ -88,7 +88,7 @@ public class ExtractPGSFromMKVs
 	public void runAll()
 	{
 		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
-		log.info( "Deleting .sup files from " + allFolders.size() + " folder(s)" ) ;
+		log.info( "Extracting subtitle files from " + allFolders.size() + " folder(s)" ) ;
 		for( String folderName : allFolders )
 		{
 			runOne( folderName ) ;

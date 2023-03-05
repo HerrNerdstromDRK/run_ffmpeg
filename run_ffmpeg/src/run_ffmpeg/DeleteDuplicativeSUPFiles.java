@@ -35,10 +35,12 @@ public class DeleteDuplicativeSUPFiles
 	public void runAll()
 	{
 		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
+		log.info( "Deleting .sup files from " + allFolders.size() + " folder(s)" ) ;
 		for( String folderName : allFolders )
 		{
 			runOne( folderName ) ;
 		}
+		log.info( "Shut down." ) ;
 	}
 	
 	public void runOne( final String mkvInputDirectory )
