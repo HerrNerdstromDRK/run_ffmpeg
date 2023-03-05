@@ -87,7 +87,6 @@ public class ExtractPGSFromMKVs
 
 	public void runAll()
 	{
-		common.setTestMode( true ) ;
 		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
 		for( String folderName : allFolders )
 		{
