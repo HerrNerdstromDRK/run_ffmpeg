@@ -30,6 +30,9 @@ public class BuildMovieAndShowIndex
 {
 	/// Setup the logging subsystem
 	private Logger log = null ;
+	
+	/// The set of methods and variables for common use.
+	private Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "build_movie_and_show_index.txt" ;
@@ -50,6 +53,7 @@ public class BuildMovieAndShowIndex
 	public BuildMovieAndShowIndex()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		common = new Common( log ) ;
 		
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
@@ -224,7 +228,7 @@ public class BuildMovieAndShowIndex
 		while( probeInfoFindResultIterator.hasNext() )
 		{
 			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
-			File theFile = new File( probeResult.getFilename() ) ;
+			File theFile = new File( probeResult.getFileNameWithPath() ) ;
 			if( theFile.getParent().contains( "Season " ) )
 			{
 				// TV Show

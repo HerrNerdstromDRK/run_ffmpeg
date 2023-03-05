@@ -12,16 +12,15 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 {
 	private transient MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_MakeFakeMKVFilesCollection = null ;
 	private transient MongoCollection< JobRecord_ProbeFile > getJobRecord_ProbeFileInfoCollection = null ;
-	private MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
+	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
 
 	public WorkflowStageThread_MakeFakeMKVFiles( final String threadName,
 			Logger log,
 			Common common,
-			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_MakeFakeMKVFilesCollection )
+			MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
-		this.jobRecord_MakeFakeMKVFilesCollection = jobRecord_MakeFakeMKVFilesCollection ;
+		jobRecord_MakeFakeMKVFilesCollection = masMDB.getJobRecord_MakeFakeMKVFileInfoCollection() ;
 		getJobRecord_ProbeFileInfoCollection = masMDB.getJobRecord_ProbeFileInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 	}
@@ -31,7 +30,7 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 	{
 		// Get a job from the database
 		//Bson mp4A = Filters.regex( "fileName", ".*" ) ;
-		JobRecord_MakeFakeOrTranscodeMKVFile makeFakeJob = jobRecord_MakeFakeMKVFilesCollection.findOneAndDelete(null) ;
+		JobRecord_MakeFakeOrTranscodeMKVFile makeFakeJob = jobRecord_MakeFakeMKVFilesCollection.findOneAndDelete( null ) ;
 		if( null == makeFakeJob )
 		{
 			return ;
@@ -45,7 +44,7 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 			log.warning( "Unable to find movieAndShowInfo: " + makeFakeJob.movieOrShowName_id ) ;
 			return ;
 		}
-		log.info( "Found movieAndShowInfo: " + makeFakeJob.toString() );
+		log.fine( "Found movieAndShowInfo: " + makeFakeJob.toString() );
 		
 		// the mp4LongPath *should* always be correct here since we are creating an mkv file; this implies
 		// that the mp4 file is present
@@ -95,7 +94,7 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 				+ makeFakeJob.fileName
 				+ common.getMissingFilePreExtension()
 				+ ".mkv" ;
-		log.info( "missingMKVFileNameWithPath: " + missingMKVFileNameWithPath ) ;
+		log.fine( "missingMKVFileNameWithPath: " + missingMKVFileNameWithPath ) ;
 
 		File missingMKVFileNameWithPathFile = new File( missingMKVFileNameWithPath ) ;
 		if( !missingMKVFileNameWithPathFile.exists() )
@@ -122,9 +121,8 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 		}
 		// Created file and it now exists.
 		// Add a job to update the probe info so it can be collected.
-		JobRecord_ProbeFile newProbeJob = new JobRecord_ProbeFile( missingMKVFileNameWithPath ) ;
+		JobRecord_ProbeFile newProbeJob = new JobRecord_ProbeFile( missingMKVFileNameWithPath, movieAndShowInfo, true ) ;
 		getJobRecord_ProbeFileInfoCollection.insertOne( newProbeJob ) ;
-		// TODO
 	}
 
 }

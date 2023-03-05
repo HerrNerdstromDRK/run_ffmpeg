@@ -17,7 +17,7 @@ public class DeleteDuplicativeSUPFiles
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_delete_duplicative_sup_files.txt" ;
 	
-	private static final String mkvInputDirectory = "\\\\yoda\\MKV_Archive2\\Movies" ;
+	private static final String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\Movies" ;
 	private static final String supExtension = "sup" ;
 	private static final String srtExtension = "srt" ;
 	

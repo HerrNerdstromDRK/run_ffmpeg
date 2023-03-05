@@ -13,7 +13,7 @@ import java.util.StringTokenizer;
  */
 public class CorrelatedFile implements Comparable< CorrelatedFile >
 {
-	/// Name of the file in question, without extension.
+	/// Name of the file in question, without extension or path.
 	/// For example: "Making Of-behindthescenes"
 	public String fileName = null ;
 	
@@ -40,6 +40,79 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	{}
 
 	/**
+	 * Record an mkv file for this correlated file.
+	 * Replace an empty mkv file if present.
+	 * @param theMKVFileProbeResult
+	 */
+	public void addOrUpdateMKVFile( FFmpegProbeResult theMKVFileProbeResult )
+	{
+		final String shortenedFileName = theMKVFileProbeResult.getFileNameShort() ;
+		
+		// Remove substitute names included from the mkvFilesByName structure
+		removeFilesByName( mkvFilesByName, shortenedFileName ) ;
+		removeFilesByName( mkvFilesByName, Common.getMissingFileSubstituteName() ) ;
+		
+		// Remove probe results for the same name.
+		removeProbeResult( mkvFilesByProbe, theMKVFileProbeResult ) ;
+		
+		mkvFilesByName.add( shortenedFileName ) ;
+		mkvFilesByProbe.add( theMKVFileProbeResult ) ;
+	}
+	
+	/**
+	 * Record an mp4 file for this correlated file.
+	 * @param theMP4FileProbeResult
+	 */
+	public void addOrUpdateMP4File( FFmpegProbeResult theMP4FileProbeResult )
+	{
+		final String shortenedFileName = theMP4FileProbeResult.getFileNameShort() ;
+		
+		// Remove substitute names included from the mkvFilesByName structure
+		removeFilesByName( mp4FilesByName, shortenedFileName ) ;
+		removeFilesByName( mp4FilesByName, Common.getMissingFileSubstituteName() ) ;
+		
+		// Remove probe results for the same name.
+		removeProbeResult( mkvFilesByProbe, theMP4FileProbeResult ) ;
+		
+		mp4FilesByName.add( shortenedFileName ) ;
+		mkvFilesByProbe.add( theMP4FileProbeResult ) ;
+	}
+
+	@Override
+	public int compareTo( CorrelatedFile rhs )
+	{
+		return fileName.compareTo( rhs.fileName ) ;
+	}
+
+	public FFmpegProbeResult findLargestFile()
+	{
+		FFmpegProbeResult largestFile = null ;
+		for( FFmpegProbeResult theProbeResult : mkvFilesByProbe )
+		{
+			if( null == largestFile )
+			{
+				largestFile = theProbeResult ;
+			}
+			else if( theProbeResult.getSize() > largestFile.getSize() )
+			{
+				largestFile = theProbeResult ;
+			}
+		}
+		for( FFmpegProbeResult theProbeResult : mp4FilesByProbe )
+		{
+			if( null == largestFile )
+			{
+				largestFile = theProbeResult ;
+			}
+			else if( theProbeResult.getSize() > largestFile.getSize() )
+			{
+				largestFile = theProbeResult ;
+			}
+		}
+		return largestFile ;
+	}
+
+	/**
 	 * Return true if this CorrelatedFile is missing a file.
 	 * This will mean that the number of mkv files is different from the
 	 *  number of mp4 files.
@@ -49,7 +122,63 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	{
 		return (mkvFilesByProbe.size() != mp4FilesByProbe.size()) ;
 	}
+
+	/**
+	 * This method will fill any empty mkv or mp4 files with "(none)" to ensure the
+	 * number of mkv and mp4 files matches for presentation.
+	 */
+	public void normalizeMKVAndMP4Files()
+	{
+		missingMKVFile = false ;
+		missingMP4File = false ;
+		
+		while( mkvFilesByName.size() < mp4FilesByName.size() )
+		{
+			missingMKVFile = true ;
+			mkvFilesByName.add( Common.getMissingFileSubstituteName() ) ;
+		}
+		while( mp4FilesByName.size() < mkvFilesByName.size() )
+		{
+			missingMP4File = true ;
+			mp4FilesByName.add( Common.getMissingFileSubstituteName() ) ;
+		}
+	}
+
+	public void removeProbeResult( List< FFmpegProbeResult > probeResultList, final FFmpegProbeResult removeMe )
+	{
+		for( int index = 0 ; index < probeResultList.size() ; ++index )
+		{
+			FFmpegProbeResult checkProbeResult = probeResultList.get( index ) ;
+			if( checkProbeResult.getFileNameWithPath().equals( removeMe.getFileNameWithPath() ) )
+			{
+				// Found match.
+				probeResultList.remove( index ) ;
+
+				// Should be only one item with the file name, but just to be certain
+				// check again.
+				index = -1 ;
+			}
+		}
+	}
 	
+	public void removeFilesByName( List< String > fileNameList, final String removeMe )
+	{
+		// First, delete any mkv substitute files
+		for( int index = 0 ; index < fileNameList.size() ; ++index )
+		{
+			final String theFileName = fileNameList.get( index ) ;
+			if( theFileName.equals( removeMe ) )
+			{
+				fileNameList.remove( index ) ;
+				// Removing an item while walking through a linear structure tends to mess
+				// up the iteration.
+				// Reset the index to -1 (which will then be incremented to 0 at the end of this loop)
+				// to restart the search.
+				index = -1 ;
+			}
+		}
+	}
+
 	public String toString()
 	{
 		String retMe = "{fileName:" + fileName
@@ -66,85 +195,28 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 		return retMe ;
 	}
 
-	/**
-	 * Strip most of the information about a file's absolute path.
-	 * This is targeted to how I currently have the workflow setup, wherein
-	 *  each file used by this suite of tools includes the full path name:
-	 *   \\yoda\\MKV_Archive1\\Movies\\Transformers (2002)\\Transformers (2002).mkv
-	 * That string is too long to present in a web interface side by side with other things,
-	 *  so this method will shorten to something like "MKV_1\\Transformers (2002).mkv"
-	 * @param inputName
-	 * @return
-	 */
-	public static String shortenFileName( final String inputName )
-	{
-		String retMe = "" ;
-		StringTokenizer tokens = new StringTokenizer( inputName, "\\" ) ;
-		
-		// Walk through the tokens to build the shortened file name
-		// Keep only "MKV_#" and the actual file name.
-		while( tokens.hasMoreTokens() )
-		{
-			String nextToken = tokens.nextToken() ;
-			if( nextToken.contains( "MKV_" ) || nextToken.contains( "MP4" ) )
-			{
-				retMe += nextToken.replace( "Archive", "" ) + "\\" ;
-			}
-			else if( nextToken.contains( ".mkv" ) || nextToken.contains( ".mp4" ) )
-			{
-				retMe += nextToken ;
-			}
-		}
-		return retMe ;
+	public String getFileName() {
+		return fileName;
 	}
 
-	/**
-	 * Record an mkv file for this correlated file.
-	 * @param theMKVFileProbeResult
-	 */
-	public void addMKVFile( FFmpegProbeResult theMKVFileProbeResult )
-	{
-		mkvFilesByProbe.add( theMKVFileProbeResult ) ;
-		final String shortenedFileName = shortenFileName( theMKVFileProbeResult.getFilename() ) ;
-		mkvFilesByName.add( shortenedFileName ) ;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
-	/**
-	 * Record an mp4 file for this correlated file.
-	 * @param theMP4FileProbeResult
-	 */
-	public void addMP4File( FFmpegProbeResult theMP4FileProbeResult )
-	{
-		mp4FilesByProbe.add( theMP4FileProbeResult ) ;
-		final String shortenedFileName = shortenFileName( theMP4FileProbeResult.getFilename() ) ;
-		mp4FilesByName.add( shortenedFileName ) ;
+	public boolean isMissingMKVFile() {
+		return missingMKVFile;
 	}
 
-	/**
-	 * This method will fill any empty mkv or mp4 files with "(none)" to ensure the
-	 * number of mkv and mp4 files matches for presentation.
-	 */
-	public void normalizeMKVAndMP4Files()
-	{
-		missingMKVFile = false ;
-		missingMP4File = false ;
-		
-		while( mkvFilesByName.size() < mp4FilesByName.size() )
-		{
-			missingMKVFile = true ;
-			mkvFilesByName.add( "(none)" ) ;
-		}
-		while( mp4FilesByName.size() < mkvFilesByName.size() )
-		{
-			missingMP4File = true ;
-			mp4FilesByName.add( "(none)" ) ;
-		}
+	public void setMissingMKVFile(boolean missingMKVFile) {
+		this.missingMKVFile = missingMKVFile;
 	}
 
-	@Override
-	public int compareTo( CorrelatedFile rhs )
-	{
-		return fileName.compareTo( rhs.fileName ) ;
+	public boolean isMissingMP4File() {
+		return missingMP4File;
+	}
+
+	public void setMissingMP4File(boolean missingMP4File) {
+		this.missingMP4File = missingMP4File;
 	}
 
 }

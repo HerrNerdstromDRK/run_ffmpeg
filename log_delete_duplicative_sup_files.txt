@@ -1,100 +1,128 @@
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Found 521 .sup file(s) 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Bad Boys for Life (2020)\Deleted Scenes-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Bad Boys for Life (2020)\Easter Eggs-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Bad Boys for Life (2020)\Epic Stunts-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Bad Boys for Life (2020)\Gag Reel-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman (1989)\Designing The Batsuit-behindthescenes.11.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman (1989)\Designing The Batsuit-behindthescenes.12.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman (1989)\From Jack To The Joker-behindthescenes.11.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman (1989)\From Jack To The Joker-behindthescenes.12.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman and Robin (1997)\Costumes-behindthescenes.11.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman and Robin (1997)\Costumes-behindthescenes.12.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman Returns (1992)\Costumes-behindthescenes.11.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman Returns (1992)\Costumes-behindthescenes.12.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman Returns (1992)\Dark Side Of The Knight-behindthescenes.11.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Batman Returns (1992)\Dark Side Of The Knight-behindthescenes.12.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Blades of Glory (2007)\Celebrities On Thin Ice-behindthescenes.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Blades of Glory (2007)\Costumes-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Blades of Glory (2007)\Costumes-behindthescenes.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Blades of Glory (2007)\Gag Reel-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Blades of Glory (2007)\Gag Reel-behindthescenes.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cloudy with a Chance of Meatballs 2 (2013)\Cloudy Cafe-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cloudy with a Chance of Meatballs 2 (2013)\Cloudy With A Chance Of Meatballs 2 (2013).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cloudy with a Chance of Meatballs 2 (2013)\Cloudy With A Chance Of Meatballs 2 (2013).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cloudy with a Chance of Meatballs 2 (2013)\Cloudy With A Chance Of Meatballs 2 (2013).6.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cloudy with a Chance of Meatballs 2 (2013)\Earl Scouts-other.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cloudy with a Chance of Meatballs 2 (2013)\Foodimals Animation-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Cowboys and Aliens (2011)\Cowboys and Aliens [Extended] (2011).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Despicable Me (2010)\Despicable Me (2010).7.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\Creating the World of District 9-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\Deleted 2-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\Deleted Scenes-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\Deleted-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).10.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).11.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).12.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).21.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).7.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).8.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\District 9 (2009)\District 9 (2009).9.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Collaboration-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Elysium (2013).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Elysium (2013).6.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Elysium (2013).7.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Engineering Utopia-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Enhancing Elysium-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Elysium (2013)\Envisioning Elysium-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Fantastic Beasts The Crimes of Grindelwald (2018)\Credence Reborn-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Fantastic Beasts The Crimes of Grindelwald (2018)\Distinctly Dumbledore-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Fantastic Beasts The Crimes of Grindelwald (2018)\Fantastic Beasts The Crimes of Grindelwald (2018).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Father of the Bride (1991)\Father of the Bride (1991).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Father of the Bride (1991)\Father of the Bride (1991).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Father of the Bride Part II (1995)\Father of the Bride Part II (1995).3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Final Fantasy VII Advent Children (2005)\Final Fantasy VII - Advent Children (2005).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Final Fantasy VII Advent Children (2005)\Final Fantasy VII - Advent Children (2005).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Final Fantasy VII Advent Children (2005)\Final Fantasy VII - Advent Children (2005).6.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Final Fantasy VII Advent Children (2005)\Final Fantasy VII - Advent Children (2005).7.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Final Fantasy VII Advent Children (2005)\Final Fantasy VII - Advent Children (2005).8.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Flight of the Phoenix (2004)\Flight Of The Phoenix (2004).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Flight of the Phoenix (2004)\Flight Of The Phoenix (2004).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Frozen II (2019)\Elsas Dream-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Frozen II (2019)\Elsas Dream-deleted.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Frozen II (2019)\Finding The Truth-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Frozen II (2019)\Finding The Truth-deleted.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Frozen II (2019)\Frozen II (2019).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Frozen II (2019)\Frozen II (2019).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Gemini Man (2019)\Facing Your Younger Self-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Gemini Man (2019)\Gemini Man (2019).4.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Gemini Man (2019)\Gemini Man (2019).5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Hotel Transylvania 2 (2015)\Drawing Dennisovich-other.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Hotel Transylvania 2 (2015)\Foley Art-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Maleficent (2014)\From Fairy Tale To Feature Film-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Costume Development-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Costume Development-behindthescenes.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Dangers Of The Ocean-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Dangers Of The Ocean-deleted.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Easter Eggs-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Easter Eggs-behindthescenes.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Entering The Underworld-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Moana (2016)\Entering The Underworld-deleted.3.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Olympus Has Fallen (2013)\Creating The Action-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Olympus Has Fallen (2013)\Deconstructing The Black Hawk Sequence-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Olympus Has Fallen (2013)\Gag Reel-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\One Hundred And One Dalmations (1961)\Cheerio Goodbye Tudaloo Hip Hip-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\One Hundred And One Dalmations (1961)\Dalmation Plantation-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\One Hundred And One Dalmations (1961)\Dogs-other.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\One Hundred And One Dalmations (1961)\Dont Buy A Parrot From A Pirate-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\One Hundred And One Dalmations (1961)\Drawn To be Bad-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Ratatouille (2007)\Chef-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Ratatouille (2007)\Chez Gusteau-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Ratatouille (2007)\First Day-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Star Trek First Contact (1996)\Flirting-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Star Trek First Contact (1996)\From A To E-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Step Up (2006)\Deleted Scene-deleted.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\The Blind Side (2009)\Finding The Blind Side-behindthescenes.5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\The Blind Side (2009)\Gender Identity-behindthescenes.5.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\The Hangover Part II (2011)\Directing-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\The Hangover Part II (2011)\Gag Reel-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\The Rundown (2003)\Christopher Walken-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive2\Movies\Wild Hogs (2007)\Gag Reel-behindthescenes.2.srt 
-[20230226.1828] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleted 98 .sup file(s) 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Found 419 .sup file(s) 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\21 Jump Street (2012)\Driving Gag Reel-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\21 Jump Street (2012)\Gag Reel-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\21 Jump Street (2012)\Odd Couple-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\21 Jump Street (2012)\Old vs New-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Adventureland (2009)\Drunk Mom In Office-deleted.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Adventureland (2009)\Drunk Mom In Office-deleted.4.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Adventureland (2009)\Employee Training Video-other.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Adventureland (2009)\Frigos Ball Caps-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Adventureland (2009)\Guide To Style-other.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Adventureland (2009)\Making Of-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Batman v Superman Dawn of Justice (2016)\Might and Power of a Punch-other.6.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Batman v Superman Dawn of Justice (2016)\Mythology-behindthescenes.6.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Contagion (2011)\How a Virus Changes the World-other.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Fantastic Beasts and Where to Find Them (2016)\Fantastic Beasts and Where to Find Them (2016).6.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Ready Player One (2018)\Effects for a Brave New World-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Ready Player One (2018)\Ernie and Tyes Excellent Adventures-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Ready Player One (2018)\Game Changer Cracking the Code-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Ready Player One (2018)\High Score Endgame-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Riddick (2013)\Graphic Novel-featurette.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Riddick (2013)\Meet the Mercs-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Robin Hood (2010)\No Quarter Given-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Spider-Man Into the Spider-Verse (2018)\Easter Egg Challenge-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Spider-Man Into the Spider-Verse (2018)\Heroes and Hams-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Stargate (1994)\Fight Scene-deleted.5.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Stargate (1994)\Fight Scene-deleted.6.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Sully (2016)\Neck Deep in the Hudson-behindthescenes.6.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Book of Eli (2010)\Eli Goes to Battle-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Book of Eli (2010)\Elis Journey-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Book of Eli (2010)\Elis Weapon of Choice-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Book of Eli (2010)\Graphic Novels-featurette.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Chronicles of Riddick (2004)\Inspiration for Riddick-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Chronicles of Riddick (2004)\Mercenary Log-featurette.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Chronicles of Riddick (2004)\On Location-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Dark Knight (2008)\Gotham Tonight-featurette.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Dark Knight Rises (2012)\Final Action Sequence-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Dark Knight Rises (2012)\Man and Machine-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Dark Knight Rises (2012)\Mob Scenes-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Dressing Bloomkvist-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Dressing Bloomkvist-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background 2-other.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background 2-other.4.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background 3-other.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background 3-other.4.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background 4-other.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background 4-other.4.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background-other.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\DVD Background-other.4.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Film Acting-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Film Acting-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Goran Visnjic Audition-interview.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Goran Visnjic Audition-interview.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Gun Play-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Gun Play-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Hard Copy-other.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Hard Copy-other.4.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Hard Copy-other.5.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Hard Copy-other.6.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\In The Cutting Room-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\In The Cutting Room-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Inside Martins House-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Inside Martins House-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Irene Nesser-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Irene Nesser-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Lisbeth Salander-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Lisbeth Salander-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Making it Real-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Making it Real-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Men Who Hate Women-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Girl with The Dragon Tattoo (2011)\Men Who Hate Women-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Help (2011)\Making Of-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Fantasy-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Flying Carpet-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Good Is Not Enough-other.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Ian Fleming-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Interview Panel-panel.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Locations-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\Music-other.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Living Daylights (1987)\On Location-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Dirty Coffee Table-deleted.13.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Dirty Coffee Table-deleted.14.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Dirty Coffee Table-deleted.15.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Dirty Coffee Table-deleted.16.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Dirty Coffee Table-deleted.26.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Dirty Coffee Table-deleted.27.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Ershon Confinement-deleted.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Ershon Confinement-deleted.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Extreme Close Ups-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Extreme Close Ups-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Extreme Eating-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Extreme Eating-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Highsmith and Danson-deleted.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Highsmith and Danson-deleted.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Improv-deleted.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Improv-deleted.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Is This On-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Is This On-behindthescenes.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Long Ride-deleted.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Other Guys (2010)\Long Ride-deleted.3.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Predator (2018)\Evolution of the Predator-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Spy Who Loved Me (1977)\Egypt-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Spy Who Loved Me (1977)\Escape From Atlantis-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Spy Who Loved Me (1977)\Making Of-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Twilight Saga Breaking Dawn - Part 1 (2011)\Jacob Maturing-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Twilight Saga Breaking Dawn - Part 1 (2011)\Love Death Birth-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Twilight Saga Breaking Dawn - Part 1 (2011)\Marriage-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Twilight Saga Eclipse (2010)\Extended Scenes-deleted.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Twilight Saga Eclipse (2010)\Introducing David Slade-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\The Twilight Saga Eclipse (2010)\Lights Camera Action-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Tomorrow Never Dies (1997)\Making Of-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Tomorrow Never Dies (1997)\Music Concept-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Venom (2018)\Designing Venom-behindthescenes.2.srt 
+[2023034.1809] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Venom (2018)\From Symbiote to Screen-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Venom (2018)\Lethal Protector in Action-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Watchmen (2009)\Dr Manhattan-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Watchmen (2009)\Heroes as Vigilantes-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Watchmen (2009)\Max Movie Mode-other.3.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Watchmen (2009)\Mother and Daughter-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Wonder Woman (2017)\Diana in the Modern World-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\World War Z (2013)\Looking to Science-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\X-Men First Class (2011)\Max Movie Mode-other.3.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\X-Men First Class (2011)\Max Movie Mode-other.4.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Yesterday (2019)\Ed Sheeran-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Yesterday (2019)\Jack Calls Ellie-deleted.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Yesterday (2019)\Moscow Audience-deleted.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\Yesterday (2019)\Nutters Italian Ice Cream-deleted.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleting .sup file: \\yoda\MKV_Archive5\Movies\You Only Live Twice (1967)\Inside You Only Live Twice-behindthescenes.2.srt 
+[2023034.1810] [INFO   ] DeleteDuplicativeSUPFiles.run> Deleted 126 .sup file(s) 

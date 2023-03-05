@@ -8,17 +8,18 @@ import com.mongodb.client.MongoCollection;
 public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 {
 	private transient MongoCollection< JobRecord_ProbeFile > jobRecord_ProbeFileInfoCollection = null ;
+	private transient MongoCollection< JobRecord_UpdateCorrelatedFile > jobRecord_UpdateCorrelatedFileInfoCollection = null ;
 	
 	public WorkflowStageThread_ProbeFile( final String threadName,
 			Logger log,
 			Common common,
-			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< JobRecord_ProbeFile > jobRecord_ProbeFileInfoCollection )
+			MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
-		this.jobRecord_ProbeFileInfoCollection = jobRecord_ProbeFileInfoCollection ;
+		jobRecord_ProbeFileInfoCollection = masMDB.getJobRecord_ProbeFileInfoCollection() ;
+		jobRecord_UpdateCorrelatedFileInfoCollection = masMDB.getJobRecord_UpdateCorrelatedFileInfoCollectionName() ;
 	}
-	
+
 	@Override
 	public void doAction()
 	{
@@ -35,7 +36,12 @@ public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 		
 		File theFile = new File( theJob.fileNameWithPath ) ;
 		ProbeDirectories pd = new ProbeDirectories( log, common, masMDB, masMDB.getProbeInfoCollection() ) ;
-		pd.probeFileAndUpdateDB( theFile ) ;
+		FFmpegProbeResult theProbeResult = pd.probeFileAndUpdateDB( theFile ) ;
+		
+		// Build the job to build the movie and show index.
+		JobRecord_UpdateCorrelatedFile jobRecord_UpdateCorrelatedFile = new JobRecord_UpdateCorrelatedFile(
+				theJob.getFileNameWithPath(), theJob.getMovieAndShowInfo_id(), theProbeResult.get_id() ) ;
+		jobRecord_UpdateCorrelatedFileInfoCollection.insertOne( jobRecord_UpdateCorrelatedFile ) ;
 	}
 	
 }

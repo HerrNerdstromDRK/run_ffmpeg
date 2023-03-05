@@ -29,33 +29,31 @@ public class WorkflowOrchestrator
 	private transient Logger log = null ;
 	private transient Common common = null ;
 	private final String logFileName = "workflow_orchestrator_log.txt" ;
-	private List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
-	private final String stopFileName = "C:\\Temp\\stop_workflow.txt" ;
-	private MoviesAndShowsMongoDB masMDB = null ;
-	private MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_MakeFakeMKVFilesInfoCollection = null ;
-	private MongoCollection< JobRecord_ProbeFile > jobRecord_ProbeFileInfoCollection = null ;
-//	private MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_TranscodeMKVFilesCollection = null ;
+	private transient List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
+	private final transient String stopFileName = "C:\\Temp\\stop_workflow.txt" ;
+	private transient MoviesAndShowsMongoDB masMDB = null ;
 
 	public WorkflowOrchestrator()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
-		
+
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
-		jobRecord_MakeFakeMKVFilesInfoCollection = masMDB.getJobRecord_MakeFakeMKVFileInfoCollection() ;
-		jobRecord_ProbeFileInfoCollection = masMDB.getJobRecord_ProbeFileInfoCollection() ;
-		
+	
 		setupThreads() ;
 	}
 
 	private void setupThreads()
 	{
 		WorkflowStageThread_MakeFakeMKVFiles makeFakeMKVFilesThread = new WorkflowStageThread_MakeFakeMKVFiles(
-				"makeFakeMKVFileThread", log, common, masMDB, jobRecord_MakeFakeMKVFilesInfoCollection ) ;
+				"makeFakeMKVFileThread", log, common, masMDB ) ;
 		threadList.add( makeFakeMKVFilesThread ) ;
+		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
+				"probeFileThread", log, common, masMDB ) ;
+		threadList.add( probeFileThread ) ;
 	}
-	
+
 	public static void main(String[] args)
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
@@ -64,13 +62,21 @@ public class WorkflowOrchestrator
 
 	public void runThreads()
 	{
-		log.info( "Starting threads..." ) ;
-		for( WorkflowStageThread theThread : threadList )
+		// Only start threads if execution is permitted
+		if( !common.shouldStopExecution( getStopFileName() ) )
 		{
-			log.info( "Starting thread " + theThread.toString() + "..." ) ;
-			theThread.start() ;
+			log.info( "Starting threads..." ) ;
+			for( WorkflowStageThread theThread : threadList )
+			{
+				log.info( "Starting thread " + theThread.toString() + "..." ) ;
+				theThread.start() ;
+			}
+			log.info( "Started " + threadList.size() + " thread(s)" ) ;
 		}
-		log.info( "Started " + threadList.size() + " thread(s)" ) ;
+		else
+		{
+			log.info( "Stop execution indicator found" ) ;
+		}
 
 		while( !common.shouldStopExecution( getStopFileName() ) )
 		{

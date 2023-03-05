@@ -35,6 +35,7 @@ public class MoviesAndShowsMongoDB
 	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
 	private final String jobRecord_TranscodeMKVFilesInfoCollectionName = "jobrecord_transcodemkvfiles" ;
 	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
+	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
 	/// File name to which to log activities for this application.
 	static private final String logFileName = "log_movies_and_shows_mongodb.txt" ;
@@ -182,6 +183,12 @@ public class MoviesAndShowsMongoDB
 		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
 	}
 	
+	public void dropJobRecord_ProbeFileInfoCollection()
+	{
+		log.info( "Dropping jobRecord_ProbeFileInfoCollection" )  ;
+		getJobRecord_ProbeFileInfoCollection().drop() ;
+	}
+	
 	public MongoCollection< JobRecord_ProbeFile > getJobRecord_ProbeFileInfoCollection()
 	{	
 		log.fine( "Getting jobRecord_ProbeFileInfoCollection" )  ;
@@ -191,10 +198,19 @@ public class MoviesAndShowsMongoDB
 		return theCollection ;
 	}
 	
-	public void dropJobRecord_ProbeFileInfoCollection()
+	public void dropJobRecord_UpdateCorrelatedFileInfoCollectionName()
 	{
-		log.info( "Dropping jobRecord_ProbeFileInfoCollection" )  ;
-		getJobRecord_ProbeFileInfoCollection().drop() ;
+		log.info( "Dropping jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
+		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_UpdateCorrelatedFile > getJobRecord_UpdateCorrelatedFileInfoCollectionName()
+	{	
+		log.fine( "Getting jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
+		MongoCollection< JobRecord_UpdateCorrelatedFile > theCollection = persistentDatabaseHandle.getCollection(
+				jobRecord_UpdateCorrelatedFileInfoCollectionName,
+				JobRecord_UpdateCorrelatedFile.class ) ;
+		return theCollection ;
 	}
 	
 	/*

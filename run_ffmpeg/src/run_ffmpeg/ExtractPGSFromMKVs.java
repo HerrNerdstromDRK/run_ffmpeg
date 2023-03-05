@@ -76,35 +76,48 @@ public class ExtractPGSFromMKVs
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
-		transcodeCommon = new TranscodeCommon( log, common, mkvInputDirectory, "", "", "" ) ;
+		transcodeCommon = new TranscodeCommon( log, common, "", "", "", "" ) ;
 	}
 
 	public static void main(String[] args)
 	{
 		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
-		extractPGS.run() ;
+		extractPGS.runAll() ;
 	}
 
-	public void run()
+	public void runAll()
 	{
+		common.setTestMode( true ) ;
+		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
+		for( String folderName : allFolders )
+		{
+			runOne( folderName ) ;
+		}
+	}
+	
+	public void runOne( final String inputDirectory )
+	{
+		log.info( "Extracting in folder: " + inputDirectory ) ;
+		transcodeCommon.setMkvInputDirectory( inputDirectory ) ;
+
 		// First, survey the input directory for files to process, and build
 		// a TranscodeFile object for each.
-		List< TranscodeFile > filesToProcess = transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( mkvInputDirectory,
+		List< TranscodeFile > filesToProcess = transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( inputDirectory,
 				transcodeCommon.getTranscodeExtensions() ) ;
 
 		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
-			if( common.shouldStopExecution( stopFileName ) )
+			if( common.shouldStopExecution( getStopFileName() ) )
 			{
-				log.info( "Stopping execution due to presence of stop file: " + stopFileName ) ;
+				log.info( "Stopping execution due to presence of stop file: " + getStopFileName() ) ;
 				break ;
 			}
 
 			// Skip this file if a .srt file exists in its directory
 			if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 			{
-				log.info( "Skipping file due to presenece of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
+				log.info( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
 				continue ;
 			}
 
@@ -282,5 +295,9 @@ public class ExtractPGSFromMKVs
 		}
 		// No allowable code name found
 		return false ;
+	}
+
+	public String getStopFileName() {
+		return stopFileName;
 	}
 }

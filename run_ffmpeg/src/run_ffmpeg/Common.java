@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
@@ -48,7 +49,30 @@ public class Common
 	/// Paths to ffmpeg and ffprobe
 	private static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
 	private static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
+	
+	/// The replacement file name for correlated files that are missing.
+	private static final String missingFileSubstituteName = "(none)" ;
 
+	/// The directories to probe
+	private final String[] allMP4Drives = {
+			"\\\\yoda\\MP4",
+			"\\\\yoda\\MP4_2",
+			"\\\\yoda\\MP4_3",
+			"\\\\yoda\\MP4_4"
+	} ;
+	
+	private final String[] allMKVDrives = {
+			"\\\\yoda\\MKV_Archive1",
+			"\\\\yoda\\MKV_Archive2",
+			"\\\\yoda\\MKV_Archive3",
+			"\\\\yoda\\MKV_Archive4",
+			"\\\\yoda\\MKV_Archive5",
+			"\\\\yoda\\MKV_Archive6",
+			"\\\\yoda\\MKV_Archive7",
+			"\\\\yoda\\MKV_Archive8",
+			"\\\\yoda\\MKV_Archive9"
+	} ;
+	
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
 	private NumberFormat numFormat = null ;
 
@@ -131,7 +155,7 @@ public class Common
 
 	public FFmpegProbeResult ffprobeFile( File theFile, Logger log )
 	{	
-		log.info( "Processing: " + theFile.getAbsolutePath() ) ;
+		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
 		FFmpegProbeResult result = null ;
 	
 		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
@@ -181,9 +205,11 @@ public class Common
 			else
 			{
 				// Deserialize the JSON streams info from this file
-				result = gson.fromJson(inputBuffer, FFmpegProbeResult.class);
+				result = gson.fromJson( inputBuffer, FFmpegProbeResult.class ) ;
 				// TODO: Ensure consistent file path naming using \\yoda as start
-				result.setFilename( theFile.getAbsolutePath() ) ;
+				result.setFileNameWithPath( theFile.getAbsolutePath() ) ;
+				result.setFileNameWithoutPath( theFile.getName() ) ;
+				result.setFileNameShort( shortenFileName( theFile.getAbsolutePath() ) ) ;
 				result.setProbeTime( System.currentTimeMillis() ) ;
 				result.setSize( theFile.length() ) ;
 				result.setLastModified( theFile.lastModified() ) ;
@@ -347,6 +373,12 @@ public class Common
 				+ " minutes" ;
 		return retMe ; 
 	}
+	
+	public static String removeFileNameExtension( final String fileName )
+	{
+		String fileNameWithoutExtension = fileName.substring( 0, fileName.lastIndexOf( '.' ) ) ;
+		return fileNameWithoutExtension ;
+	}
 
 	/**
 	 * Setup a logger stream for the given filename and class.
@@ -378,6 +410,38 @@ public class Common
 		log.setLevel( Level.ALL ) ;
 		System.out.println( "setupLogger> Established logger with log filename: " + logFileName ) ;
 		return log ;
+	}
+	
+	/**
+	 * Strip most of the information about a file's absolute path.
+	 * This is targeted to how I currently have the workflow setup, wherein
+	 *  each file used by this suite of tools includes the full path name:
+	 *   \\yoda\\MKV_Archive1\\Movies\\Transformers (2002)\\Transformers (2002).mkv
+	 * That string is too long to present in a web interface side by side with other things,
+	 *  so this method will shorten to something like "MKV_1\\Transformers (2002).mkv"
+	 * @param inputName
+	 * @return
+	 */
+	public static String shortenFileName( final String inputName )
+	{
+		String retMe = "" ;
+		StringTokenizer tokens = new StringTokenizer( inputName, "\\" ) ;
+		
+		// Walk through the tokens to build the shortened file name
+		// Keep only "MKV_#" and the actual file name.
+		while( tokens.hasMoreTokens() )
+		{
+			String nextToken = tokens.nextToken() ;
+			if( nextToken.contains( "MKV_" ) || nextToken.contains( "MP4" ) )
+			{
+				retMe += nextToken.replace( "Archive", "" ) + "\\" ;
+			}
+			else if( nextToken.contains( ".mkv" ) || nextToken.contains( ".mp4" ) )
+			{
+				retMe += nextToken ;
+			}
+		}
+		return retMe ;
 	}
 
 	public synchronized boolean shouldStopExecution( final String fileName )
@@ -434,9 +498,72 @@ public class Common
 		}
 	}
 	
+	public List< String > getAllDrivesAndFolders()
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		retMe.addAll( getAllMP4DrivesAndFolders() ) ;
+		retMe.addAll( getAllMKVDrivesAndFolders() ) ;
+		
+		return retMe ;
+	}
+
+	public List< String > getAllMKVDrivesAndFolders()
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		for( String mkvDrive : allMKVDrives )
+		{
+			final String moviesFolder = addPathSeparatorIfNecessary( mkvDrive ) + "Movies" ;
+			final String tvShowsFolder = addPathSeparatorIfNecessary( mkvDrive ) + "TV Shows" ;
+	
+			retMe.add( moviesFolder ) ;
+			retMe.add( tvShowsFolder ) ;
+		}
+		return retMe ;
+	}
+	
+	public List< String > getAllMP4DrivesAndFolders()
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		for( String mp4Drive : allMP4Drives )
+		{
+			final String moviesFolder = addPathSeparatorIfNecessary( mp4Drive ) + "Movies" ;
+			final String tvShowsFolder = addPathSeparatorIfNecessary( mp4Drive ) + "TV Shows" ;
+			
+			retMe.add( moviesFolder ) ;
+			retMe.add( tvShowsFolder ) ;
+		}
+		return retMe ;
+	}
+	
+	public List< String > getAllMKVDrives()
+	{
+		List< String > retMe = new ArrayList< String >( Arrays.asList( allMKVDrives) ) ;
+		return retMe ;
+	}
+
+	public List< String > getAllMP4Drives()
+	{
+		List< String > retMe = new ArrayList< String >( Arrays.asList( allMP4Drives) ) ;
+		return retMe ;
+	}
+
 	public boolean getIsWindows()
 	{
 		return isWindows ;
+	}
+
+	/**
+	 * Return the string that will be included in each fake file to indicate that it is 
+	 *  a missing file (.mkv).
+	 * Includes the preceding '.'
+	 * @return
+	 */
+	public String getMissingFilePreExtension() {
+		return missingFilePreExtension;
+	}
+
+	public static String getMissingFileSubstituteName() {
+		return missingFileSubstituteName;
 	}
 
 	public String getMissingMovieMKVPath() {
@@ -479,16 +606,6 @@ public class Common
 		}
 		retMe += "}" ;
 		return retMe ;
-	}
-
-	/**
-	 * Return the string that will be included in each fake file to indicate that it is 
-	 *  a missing file (.mkv).
-	 * Includes the preceding '.'
-	 * @return
-	 */
-	public String getMissingFilePreExtension() {
-		return missingFilePreExtension;
 	}
 
 }

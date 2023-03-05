@@ -142,26 +142,38 @@ public class ProbeDirectories
 		log.info( "Shutdown complete" ) ;
 	}
 
-	public void probeFileAndUpdateDB( File fileToProbe )
+	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe )
 	{
-		// Has the directory already been probed?
+		// Has the file already been probed?
 		FFmpegProbeResult probeResult = fileAlreadyProbed( probeInfoCollection, fileToProbe ) ;
 		if( (probeResult != null) && !needsRefresh( fileToProbe, probeResult ) )
 		{
 			// No need to probe again, continue to the next file.
-			log.info( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
-			return ;
+			log.fine( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
+			return probeResult ;
 		}
-		// Post-condition: File does not currently exist in the database
+		// Post-condition: File does not currently exist in the database, or it does and it needs a refresh, or it's null
+
+		if( probeResult != null )
+		{
+			// In the case it needs a refresh, just delete the old one and re-probe
+			log.fine( "Deleting probeResult: " + probeResult ) ;
+			probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
+		}
+
+		// File needs to a probe
 		log.info( "Probing " + fileToProbe.getAbsolutePath() ) ;
 
 		// Handle the special case that this is a missing file substitute
 		if( fileToProbe.getName().contains( common.getMissingFilePreExtension() ) )
 		{
 			// Missing file. Do not probe directly
-			log.info( "Found missing file: " + fileToProbe.getAbsolutePath() );
+			log.fine( "This is a missing file: " + fileToProbe.getAbsolutePath() );
 			probeResult = new FFmpegProbeResult() ;
-			probeResult.filename = fileToProbe.getName() ;
+			probeResult.setFileNameWithPath( fileToProbe.getAbsolutePath() ) ;
+			probeResult.setFileNameWithoutPath( fileToProbe.getName() ) ;
+			probeResult.setFileNameShort( Common.shortenFileName( fileToProbe.getAbsolutePath() ) ) ;
+			probeResult.probeTime = fileToProbe.lastModified() + 1 ;
 			probeResult.chapters = new ArrayList< FFmpegChapter >() ;
 			probeResult.error = new FFmpegError() ;
 			probeResult.format = new FFmpegFormat() ;
@@ -175,6 +187,8 @@ public class ProbeDirectories
 
 		// Push the probe result into the database.
 		probeInfoCollection.insertOne( probeResult ) ;
+		
+		return probeResult ;
 	}
 
 	/**
@@ -192,10 +206,10 @@ public class ProbeDirectories
 		// Check for the special case of a missing file.
 		if( fileToProbe.getName().contains( common.getMissingFilePreExtension() ) )
 		{
-			// Special files never need a refres.
+			// Special files never need a refresh.
 			return false ;
 		}
-		
+
 		if( fileToProbe.length() != probeResult.size )
 		{
 			// Size has changed
@@ -216,7 +230,6 @@ public class ProbeDirectories
 	 */
 	public FFmpegProbeResult fileAlreadyProbed( MongoCollection< FFmpegProbeResult > probeInfoCollection, final File fileToProbe )
 	{
-		//		out( "fileAlreadyProbed> Looking for filename: " + fileToProbe.getAbsolutePath() ) ;
 		FFmpegProbeResult theProbeResult = null ;
 		FindIterable< FFmpegProbeResult > findResult =
 				probeInfoCollection.find( Filters.eq( "filename", fileToProbe.getAbsolutePath() ) ) ;
