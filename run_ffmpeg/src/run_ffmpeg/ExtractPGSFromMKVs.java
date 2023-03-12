@@ -269,7 +269,7 @@ public class ExtractPGSFromMKVs extends Thread
 		}
 
 		// Build the ffmpeg command
-		ImmutableList.Builder<String> ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
+		ImmutableList.Builder< String > ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
 		ffmpegSubTitleExtractCommand.add( Common.getPathToFFmpeg() ) ;
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
 		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVFileNameWithPath() ) ;

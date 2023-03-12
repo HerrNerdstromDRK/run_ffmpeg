@@ -140,10 +140,8 @@ public class ProbeDirectories extends Thread
 		{
 			// Found the item in the database.
 			theProbeResult = findIterator.next() ;
-			//			out( "fileAlreadyProbed> Found FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
 		}
 
-		//		out( "fileAlreadyProbed> Unable to find FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
 		return theProbeResult ;
 	}
 

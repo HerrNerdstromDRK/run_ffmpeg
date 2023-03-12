@@ -1,7 +1,6 @@
 package run_ffmpeg;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -29,16 +28,16 @@ public class PruneSmallSUPFiles
 	/// The list of extensions to prune for size.
 	private final String[] extensionsToPrune = { ".sup" } ;
 
-	public static void main( String[] args )
-	{
-		PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
-		pssf.run() ;
-	}
-
 	public PruneSmallSUPFiles()
 	{
 		log = Common.setupLogger( getLogFileName(), this.getClass().getName() ) ;
 		common = new Common( log ) ;
+	}
+
+	public static void main( String[] args )
+	{
+		PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
+		pssf.run() ;
 	}
 
 	public void run()
