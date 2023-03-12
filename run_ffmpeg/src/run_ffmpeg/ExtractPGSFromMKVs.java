@@ -1,5 +1,6 @@
 package run_ffmpeg;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -30,23 +31,12 @@ public class ExtractPGSFromMKVs extends Thread
 	private String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\Movies" ;
 
 	//	private String mkvInputDirectory = "D:\\Temp\\Big Bang" ;
-
 	//	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive5\\TV Shows\\Game Of Thrones" ;
-
-	/// Set to true to place the output SRT files into the same directory
-	/// in which the input files are found.
-	/// When set to true, the below destination directory will be ignored.
-	private boolean doPlaceSubTitleFilesInInputDirectory = true ;
-
-	/// Directory to which to write .srt files
-	private final String subTitleStreamExtractDestinationDirectory = mkvInputDirectory ;
-
-	/// Set to true to extract the subtitles from this file into one or more separate subtitle files
-	private final boolean doSubTitleExtract = true ;
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
-	
+
+	/// Hook in the Common methods and values
 	private transient Common common = null ;
 	private transient TranscodeCommon transcodeCommon = null ;
 
@@ -82,104 +72,96 @@ public class ExtractPGSFromMKVs extends Thread
 		common = new Common( log ) ;
 		transcodeCommon = new TranscodeCommon( log, common, "", "", "", "" ) ;
 
-
 		// The default set of drives and folders to extract is all of them.
 		setDrivesAndFoldersToExtract( common.getAllMKVDrivesAndFolders() ) ;
-
 	}
 
 	public static void main(String[] args)
 	{
-
 		boolean useTwoThreads = true ;
+		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
 
+		/**
+		 * The only difference between these two branches is that running with threads
+		 * will set one chain of drives and folders to each thread and run,
+		 * and running without threads will just run in a single thread.
+		 * For now, running as a single thread will leave drives and folders as null,
+		 * and so the mkvInputdirectory will be used.
+		 */
 		if( useTwoThreads )
 		{
-			ExtractPGSFromMKVs extractPGS1 = new ExtractPGSFromMKVs() ;
-			ExtractPGSFromMKVs extractPGS2 = new ExtractPGSFromMKVs() ;
-
-			extractPGS1.setChainA() ;
-			extractPGS2.setChainB() ;
-
-			extractPGS1.start() ;
-			extractPGS2.start() ;
-
-			try
-			{
-				// Set the stop file to halt execution
-				while( extractPGS1.shouldKeepRunning() )
-				{
-					Thread.sleep( 100 ) ;
-				} // while( keepRunning )
-
-				extractPGS1.join() ;
-				extractPGS2.join() ;
-			}
-			catch( Exception e )
-			{
-				System.out.println( "ExtractPGSFromMKVs.main> Exception: " + e.toString() ) ;
-			}
+			System.out.println( "ExtractPGSFromMKVs.main> Running with threads" ) ;
+			extractPGS.runThreads() ;
 		}
 		else
 		{
-			// Execute as a single thread.
-			ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
+			System.out.println( "ExtractPGSFromMKVs.main> Running without threads" ) ;
 			extractPGS.run() ;
 		}
 
+		System.out.println( "ExtractPGSFromMKVs.main> Shutdown." ) ;
 	}
 
-
-	/**
-	 * Tell this instance to execute only chain A.
-	 */
-	public void setChainA()
+	private void runThreads()
 	{
-		setDrivesAndFoldersToExtract( common.getAllChainAMKVDrivesAndFolders() ) ;
-	}
+		ExtractPGSFromMKVs extractPGS1 = new ExtractPGSFromMKVs() ;
+		ExtractPGSFromMKVs extractPGS2 = new ExtractPGSFromMKVs() ;
 
-	/**
-	 * Tell this instance to execute only chain B.
-	 */
-	public void setChainB()
-	{
-		setDrivesAndFoldersToExtract( common.getAllChainBMKVDrivesAndFolders() ) ;
+		extractPGS1.setChainA() ;
+		extractPGS2.setChainB() ;
+
+		log.info( "Starting threads." ) ;
+		extractPGS1.start() ;
+		extractPGS2.start() ;
+		log.info( "Running threads..." ) ;
+
+		try
+		{
+			// Set the stop file to halt execution
+			while( extractPGS1.shouldKeepRunning()
+					&& extractPGS1.isAlive()
+					&& extractPGS2.isAlive() )
+			{
+				Thread.sleep( 100 ) ;
+			} // while( keepRunning )
+
+			log.info( "Shutting down threads..." ) ;
+			extractPGS1.join() ;
+			extractPGS2.join() ;
+		}
+		catch( Exception e )
+		{
+			log.info( "Exception: " + e.toString() ) ;
+		}
 	}
 
 	@Override
 	public void run()
-
 	{
+		List< String > drivesAndFolders = getDrivesAndFoldersToExtract() ;
+		log.info( "Extracting from drives and folders: " + drivesAndFolders.toString() ) ;
 
-		log.info( "Extracting drives and folders: " + getDrivesAndFoldersToExtract() ) ;
-		
 		final long startTime = System.nanoTime() ;
-		runChain( getDrivesAndFoldersToExtract() ) ;
-		final long endTime = System.nanoTime() ;
-
-		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
-		log.info( "Finished extract PGS from drives and folders." ) ;
-	}
-
-	public void runChain( List< String > drivesAndFolders )
-	{
-		log.info( "Extracting subtitle files from " + drivesAndFolders.size() + " folder(s)" ) ;
 		for( String folderName : drivesAndFolders )
 		{
+			log.info( "Extracting subtitle files from folder " + folderName ) ;
 			if( !shouldKeepRunning() )
 			{
 				break ;
 			}
 
 			runOne( folderName ) ;
+			log.info( "Completed extracting subtitle files from folder " + folderName ) ;
 		}
-		log.info( "Shut down." ) ;
-	}
+		final long endTime = System.nanoTime() ;
 
+		log.info( "Completed extracting from drives and folders: " + drivesAndFolders.toString() ) ;
+		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
+		log.info( "Thread shutdown." ) ;
+	}
 
 	public void runOne( final String inputDirectory )
 	{
-		log.info( "Extracting in folder: " + inputDirectory ) ;
 		transcodeCommon.setMkvInputDirectory( inputDirectory ) ;
 
 		// First, survey the input directory for files to process, and build
@@ -190,7 +172,6 @@ public class ExtractPGSFromMKVs extends Thread
 		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
-
 			if( !shouldKeepRunning() )
 
 			{
@@ -215,13 +196,8 @@ public class ExtractPGSFromMKVs extends Thread
 				continue ;
 			}
 
-			if( doSubTitleExtract )
-			{
-				extractSubtitles( theFileToProcess, probeResult ) ;
-			}
-
+			extractSubtitles( theFileToProcess, probeResult ) ;
 		} // for( fileToSubTitleExtract )
-		log.info( "Complete." ) ;
 	}
 
 	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
@@ -247,19 +223,13 @@ public class ExtractPGSFromMKVs extends Thread
 			// Create the .sup filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
-			String outputPath = subTitleStreamExtractDestinationDirectory ;
-			if( doPlaceSubTitleFilesInInputDirectory )
-			{
-				// Place the subtitle files in the same directory as the source files
-				outputPath = theFile.getMKVInputPath() ;
-			}
+			String outputPath = theFile.getMKVInputPath() ;
 			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputPath )
 					+ theFile.getMkvFileName().replace( ".mkv", "" ) ;
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
 			outputFileNameWithPath += "." + streamIndex ;
-			if( stStream.codec_name.equals( codecNameSubTitlePGSString )
-					|| stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
+			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
 			{
 				outputFileNameWithPath += ".sup" ;
 			}
@@ -267,18 +237,19 @@ public class ExtractPGSFromMKVs extends Thread
 			{
 				outputFileNameWithPath += ".srt" ;
 			}
-			if( stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
-			{
-				ffmpegOptionsCommandString.add( "-c:s", "dvdsub" ) ;
-				ffmpegOptionsCommandString.add( "-f", "rawvideo", outputFileNameWithPath ) ;
-			}
-			else
-			{
+			
+//			if( stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
+//			{
+//				ffmpegOptionsCommandString.add( "-c:s", "dvdsub" ) ;
+//				ffmpegOptionsCommandString.add( "-f", "rawvideo", outputFileNameWithPath ) ;
+//			}
+//			else
+//			{
 				ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
-			}
+//			}
 		}
-		//		log.info( "ffmpegOptionsCommandString: "
-		//				+ run_ffmpeg.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
+		log.fine( "ffmpegOptionsCommandString: "
+				+ common.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
 		return ffmpegOptionsCommandString ;	
 	}
 
@@ -305,6 +276,12 @@ public class ExtractPGSFromMKVs extends Thread
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
 		common.executeCommand( ffmpegSubTitleExtractCommand ) ;
+		
+		// Unable to know if a subtitle stream is valid before it is written.
+		// Prune any small .sup files created herein.
+		PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
+		File regularFile = new File( fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
+		pssf.pruneFolder( regularFile.getAbsolutePath() ) ;
 	}
 
 	/**
@@ -381,17 +358,55 @@ public class ExtractPGSFromMKVs extends Thread
 		return false ;
 	}
 
+	public String getMkvInputDirectory() {
+		return mkvInputDirectory;
+	}
+
 	public String getStopFileName() {
 		return stopFileName;
 	}
 
+	public List< String > getDrivesAndFoldersToExtract() {
+		List< String > retMe = new ArrayList< String >() ;
+		if( drivesAndFoldersToExtract != null )
+		{
+			retMe.addAll( drivesAndFoldersToExtract ) ;
+		}
+		else
+		{
+			retMe.add( getMkvInputDirectory() ) ;
+		}
+		return retMe;
+	}
 
-	public List<String> getDrivesAndFoldersToExtract() {
-		return drivesAndFoldersToExtract;
+	/**
+	 * Tell this instance to execute only chain A.
+	 */
+	public void setChainA()
+	{
+		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainAMP4DrivesAndFolders() ) ;
+		setDrivesAndFoldersToExtract( drivesAndFoldersToProbe ) ;
+	}
+
+	/**
+	 * Tell this instance to execute only chain B.
+	 */
+	public void setChainB()
+	{
+		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainBMP4DrivesAndFolders() ) ;
+		setDrivesAndFoldersToExtract( drivesAndFoldersToProbe ) ;
 	}
 
 	public void setDrivesAndFoldersToExtract(List<String> drivesAndFoldersToExtract) {
 		this.drivesAndFoldersToExtract = drivesAndFoldersToExtract;
+	}
+
+	public void setMkvInputDirectory(String mkvInputDirectory) {
+		this.mkvInputDirectory = mkvInputDirectory;
 	}
 
 	public boolean shouldKeepRunning()

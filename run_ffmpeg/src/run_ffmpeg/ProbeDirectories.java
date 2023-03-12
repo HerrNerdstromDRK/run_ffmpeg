@@ -34,7 +34,6 @@ public class ProbeDirectories extends Thread
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_probe_directories.txt" ;
-	//	private final String pathToFFPROBE = run_ffmpeg.pathToFFPROBE ;
 
 	/// The extensions of the files to probe herein.
 	private final String[] extensionsToProbe = {
@@ -78,8 +77,7 @@ public class ProbeDirectories extends Thread
 		else
 		{
 			System.out.println( "ProbeDirectories.main> Running without threads" ) ;
-			ProbeDirectories pd = new ProbeDirectories() ;
-			pd.probeDirectoriesAndUpdateDB() ;
+			probeDirectory.probeDirectoriesAndUpdateDB() ;
 		}
 		System.out.println( "ProbeDirectories.main> Shutdown." ) ;
 
@@ -114,7 +112,7 @@ public class ProbeDirectories extends Thread
 		}
 		catch( Exception e )
 		{
-			System.out.println( "ProbeDirectories.main> Exception: " + e.toString() ) ;
+			log.info( "Exception: " + e.toString() ) ;
 		}
 	}
 
@@ -199,6 +197,7 @@ public class ProbeDirectories extends Thread
 		// Walk through each directory
 		for( String directoryToProbe : directoriesToProbe )
 		{
+			log.info( "Probing directory: " + directoryToProbe ) ;
 			// Find files in this directory to probe
 			List< File > filesToProbe = common.getFilesInDirectoryByExtension( directoryToProbe, extensions ) ;
 
@@ -219,7 +218,7 @@ public class ProbeDirectories extends Thread
 			// Clear that here to prevent memory problems.
 			log.info( "Cleaning garbage" ) ;
 			System.gc() ;
-
+			log.info( "Completed probing directory: " + directoryToProbe ) ;
 		} // for( filesToProbe )
 	}
 
@@ -230,7 +229,7 @@ public class ProbeDirectories extends Thread
 		if( (probeResult != null) && !needsRefresh( fileToProbe, probeResult ) )
 		{
 			// No need to probe again, continue to the next file.
-			log.info( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
+			log.fine( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
 			return probeResult ;
 		}
 		// Post-condition: File does not currently exist in the database, or it does and it needs a refresh, or it's null
@@ -276,8 +275,10 @@ public class ProbeDirectories extends Thread
 	 */
 	public void setChainA()
 	{
-		setDrivesAndFoldersToProbe( common.getAllChainAMKVDrivesAndFolders() ) ;
-		setDrivesAndFoldersToProbe( common.getAllChainAMP4DrivesAndFolders() ) ;
+		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainAMP4DrivesAndFolders() ) ;
+		setDrivesAndFoldersToProbe( drivesAndFoldersToProbe ) ;
 	}
 
 	/**
@@ -285,8 +286,10 @@ public class ProbeDirectories extends Thread
 	 */
 	public void setChainB()
 	{
-		setDrivesAndFoldersToProbe( common.getAllChainBMKVDrivesAndFolders() ) ;
-		setDrivesAndFoldersToProbe( common.getAllChainBMP4DrivesAndFolders() ) ;
+		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
+		drivesAndFoldersToProbe.addAll( common.getAllChainBMP4DrivesAndFolders() ) ;
+		setDrivesAndFoldersToProbe( drivesAndFoldersToProbe ) ;
 	}
 
 	public List<String> getDrivesAndFoldersToProbe() {
@@ -301,6 +304,4 @@ public class ProbeDirectories extends Thread
 	{
 		return !common.shouldStopExecution( stopFileName ) ;
 	}
-
-
 }

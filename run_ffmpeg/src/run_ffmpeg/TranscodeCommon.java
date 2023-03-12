@@ -230,32 +230,7 @@ public class TranscodeCommon
 		/*
 		 * Note that forced subtitles are currently handled as a video option since they are burned into the
 		 * video stream. No need to process them here.
-		// Now walk through the srt files and process forced subtitle(s).
-		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numSRTInputFiles() ; ++srtFileIndex )
-		{
-			final File theSRTFile = theTranscodeFile.getSRTFile( srtFileIndex ) ;
-			String theSRTFileName = theSRTFile.getAbsolutePath() ;
-			
-			if( theSRTFileName.contains( forcedSubTitleFileNameContains ) )
-			{
-				// The subtitles option is a value of a filter graph argument, so
-				//  we have to add an escape character before every special character (thanks stackoverflow!)
-				// The correct use of the subtitles option is:
-				// "subtitles='name of file with special characters replace with \specialcharacter'"
-				// The special characters here include: :, \, [, ]
-				// Note that ' is also a special character in ffmpeg filter option strings, but I don't allow it
-				//  in any file name (along with & and a few others)
-				theSRTFileName = theSRTFileName.replace( "\\", "\\\\" ) ;
-				theSRTFileName = theSRTFileName.replace( ":", "\\:" ) ;
-				theSRTFileName = theSRTFileName.replace( "[", "\\[" ) ;
-				theSRTFileName = theSRTFileName.replace( "]", "\\]" ) ;
-	
-				log.info( "buildSubTitleTranscodeOptions> Found forced subtitle, heSRTFileName after replace(): " + theSRTFileName ) ;
-				subTitleTranscodeOptions.add( "-vf", "\"subtitles=\'" + theSRTFileName + "\'\"" ) ;
-			}
-		} // for ( forced sub titles )
-		*/
-	
+		*/	
 		return subTitleTranscodeOptions ;
 	}
 
@@ -320,6 +295,38 @@ public class TranscodeCommon
 			}
 		}
 		return videoTranscodeOptions ;
+	}
+
+	public String[] getAudioStreamsByNameArray() {
+		return audioStreamsByNameArray;
+	}
+
+	public String getAudioTranscodeLibrary() {
+		return audioTranscodeLibrary;
+	}
+
+	public audioStreamTranscodeOptionsType getAudioStreamTranscodeOptions() {
+		return audioStreamTranscodeOptions;
+	}
+
+	public String getForcedSubTitleFileNameContains() {
+		return forcedSubTitleFileNameContains;
+	}
+
+	public String getMkvFinalDirectory() {
+		return mkvFinalDirectory;
+	}
+
+	public String getMkvInputDirectory() {
+		return mkvInputDirectory;
+	}
+
+	public String getMp4FinalDirectory() {
+		return mp4FinalDirectory;
+	}
+
+	public String getMp4OutputDirectory() {
+		return mp4OutputDirectory;
 	}
 
 	public String[] getTranscodeExtensions() {
@@ -458,38 +465,6 @@ public class TranscodeCommon
 
     	return true ;
     }
-
-	public String[] getAudioStreamsByNameArray() {
-		return audioStreamsByNameArray;
-	}
-
-	public audioStreamTranscodeOptionsType getAudioStreamTranscodeOptions() {
-		return audioStreamTranscodeOptions;
-	}
-
-	public String getAudioTranscodeLibrary() {
-		return audioTranscodeLibrary;
-	}
-
-	public String getForcedSubTitleFileNameContains() {
-		return forcedSubTitleFileNameContains;
-	}
-
-	public String getMkvFinalDirectory() {
-		return mkvFinalDirectory;
-	}
-
-	public String getMkvInputDirectory() {
-		return mkvInputDirectory;
-	}
-
-	public String getMp4FinalDirectory() {
-		return mp4FinalDirectory;
-	}
-
-	public String getMp4OutputDirectory() {
-		return mp4OutputDirectory;
-	}
 
 	public boolean isAddAudioStereoStream() {
 		return addAudioStereoStream;

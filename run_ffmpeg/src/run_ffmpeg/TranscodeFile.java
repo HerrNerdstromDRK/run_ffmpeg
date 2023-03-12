@@ -338,6 +338,24 @@ public class TranscodeFile
 		}
 	}
 	
+	protected void processSubTitleStreams( List< FFmpegStream > inputStreams )
+		{
+			// Pre-condition: inputStreams contains streams only of type subtitle
+	//		for( FFmpegStream theInputStream : inputStreams )
+	//		{
+	//			
+	//		}
+		}
+
+	protected FFmpegStream getAudioStreamAt( int index )
+	{
+		if( (index < 0) || (index >= getNumAudioStreams()) )
+		{
+			return null ;
+		}
+		return audioStreams.get( index ) ;
+	}
+
 	/**
 	 * Return an ArrayList of FFmpegStreams of audio streams that match the given
 	 * input search string. The searching string will be used in a case insensitive match
@@ -374,6 +392,63 @@ public class TranscodeFile
 		return audioStreamsToReturn ;
 	}
 	
+	public File getForcedSubTitleFile()
+	{
+		File retMe = null ;
+		for( File srtFile : srtFileList )
+		{
+			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
+			{
+				retMe = srtFile ;
+				break ;
+			}
+		}
+		return retMe ;
+	}
+
+	/**
+		 * Return the zero-based index of the stream associated with the forced subtitle.
+		 * The stream number is global to all streams in the file.
+		 * Returns -1 if no such forced subtitle stream exists.
+		 * @return
+		 */
+		public int getForcedSubTitleStreamNumber()
+		{
+			// The stream index is captured in the name of the srt file.
+			// First, get the file.
+			File fsbFile = getForcedSubTitleFile() ;
+			if( null == fsbFile )
+			{
+				log.warning( "Unable to find forced subtitle file for TranscodeFile: " + toString() ) ;
+				return -1 ;
+			}
+			// Post-condition: Found the forced subtitle file.
+	//		out( "getForcedSubTitleStreamNumber> Found forced subtitle file (name): " + fsbFile.getName() ) ;
+			// File name should be of the form: "file name[-extra|(year)].forced_subtitle.<num>.srt"
+			// Example: Game Of Thrones - S03E04 - And Now His Watch Is Ended.forced_subtitle.12.srt
+			// Grab the stream id from the second to last token
+			// split() searches by regular expression
+			String[] tokens = fsbFile.getName().split( "\\." ) ;
+			// A properly formed file name with "forced_subtitle" should have (at least?) 4 tokens
+			if( tokens.length < 4 )
+			{
+				log.warning( "Invalid number of tokens in file name: " + fsbFile.getName()
+				+ ", expected 4 but got: " + tokens.length ) ;
+				return -1 ;
+			}
+			// Post-condition: tokens has at least 4 tokens
+			// We want the second from last
+			String streamNumberString = tokens[ 2 ] ;
+			Integer streamNumberInteger = Integer.parseInt( streamNumberString ) ;
+			
+			return streamNumberInteger.intValue() ;
+		}
+
+	public long getInputFileSize()
+	{
+		return getTheMKVFile().length() ;
+	}
+
 	public String getPrimaryAudioLanguage()
 	{
 		// The audio streams should already be in numerical order, low to high
@@ -394,42 +469,9 @@ public class TranscodeFile
 		return primaryAudioLanguage ;
 	}
 	
-	protected FFmpegStream getAudioStreamAt( int index )
-	{
-		if( (index < 0) || (index >= getNumAudioStreams()) )
-		{
-			return null ;
-		}
-		return audioStreams.get( index ) ;
-	}
-	
-	protected void processSubTitleStreams( List< FFmpegStream > inputStreams )
-	{
-		// Pre-condition: inputStreams contains streams only of type subtitle
-//		for( FFmpegStream theInputStream : inputStreams )
-//		{
-//			
-//		}
-	}
-
 	public String getMKVFileNameWithPath()
 	{
 		return getTheMKVFile().getAbsolutePath() ;
-	}
-
-	public String getMP4OutputFileNameWithPath()
-	{
-		return (getMp4OutputDirectory() + getTheMP4FileName()) ;
-	}
-
-	public String getMP4FinalOutputFileNameWithPath()
-	{
-		return (getMp4FinalDirectory() + getTheMP4FileName()) ;
-	}
-
-	public long getInputFileSize()
-	{
-		return getTheMKVFile().length() ;
 	}
 
 	public boolean getMKVFileShouldMove()
@@ -443,7 +485,28 @@ public class TranscodeFile
 		// The MP4 file should move if the output directory is different thank the final directory
 		return (!getMp4OutputDirectory().equalsIgnoreCase( getMp4FinalDirectory() )) ;
 	}
-	
+
+	public String getMP4FinalOutputFileNameWithPath()
+	{
+		return (getMp4FinalDirectory() + getTheMP4FileName()) ;
+	}
+
+	public String getMP4OutputFileNameWithPath()
+	{
+		return (getMp4OutputDirectory() + getTheMP4FileName()) ;
+	}
+
+	public boolean getTranscodeStatus( final String extensionToCheck )
+	{
+		final String transcodeExtensionFileName = Common.replaceExtension( getMKVFileNameWithPath(), extensionToCheck ) ;
+		if( common.fileExists( transcodeExtensionFileName ))
+		{
+			log.fine( extensionToCheck + "> Found file " + transcodeExtensionFileName ) ;
+			return true ;
+		}
+	return false ;
+	}
+
 	public boolean hasForcedSubTitleFile()
 	{
 		for( File srtFile : srtFileList )
@@ -456,61 +519,14 @@ public class TranscodeFile
 		return false ;
 	}
 	
-	public File getForcedSubTitleFile()
+	public boolean isTranscodeComplete()
 	{
-		File retMe = null ;
-		for( File srtFile : srtFileList )
-		{
-			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
-			{
-				retMe = srtFile ;
-				break ;
-			}
-		}
-		return retMe ;
+		return getTranscodeStatus( transcodeCompleteFileExtension ) ;
 	}
 
-	/**
-	 * Return the zero-based index of the stream associated with the forced subtitle.
-	 * The stream number is global to all streams in the file.
-	 * Returns -1 if no such forced subtitle stream exists.
-	 * @return
-	 */
-	public int getForcedSubTitleStreamNumber()
+	public boolean isTranscodeInProgress()
 	{
-		// The stream index is captured in the name of the srt file.
-		// First, get the file.
-		File fsbFile = getForcedSubTitleFile() ;
-		if( null == fsbFile )
-		{
-			log.warning( "Unable to find forced subtitle file for TranscodeFile: " + toString() ) ;
-			return -1 ;
-		}
-		// Post-condition: Found the forced subtitle file.
-//		out( "getForcedSubTitleStreamNumber> Found forced subtitle file (name): " + fsbFile.getName() ) ;
-		// File name should be of the form: "file name[-extra|(year)].forced_subtitle.<num>.srt"
-		// Example: Game Of Thrones - S03E04 - And Now His Watch Is Ended.forced_subtitle.12.srt
-		// Grab the stream id from the second to last token
-		// split() searches by regular expression
-		String[] tokens = fsbFile.getName().split( "\\." ) ;
-		// A properly formed file name with "forced_subtitle" should have (at least?) 4 tokens
-		if( tokens.length < 4 )
-		{
-			log.warning( "Invalid number of tokens in file name: " + fsbFile.getName()
-			+ ", expected 4 but got: " + tokens.length ) ;
-			return -1 ;
-		}
-		// Post-condition: tokens has at least 4 tokens
-		// We want the second from last
-		String streamNumberString = tokens[ 2 ] ;
-		Integer streamNumberInteger = Integer.parseInt( streamNumberString ) ;
-		
-		return streamNumberInteger.intValue() ;
-	}
-
-	public void setTVShow()
-	{
-		isTVShow = true ;
+		return getTranscodeStatus( transcodeInProgressFileExtension ) ;
 	}
 
 	public boolean isTVShow()
@@ -518,60 +534,44 @@ public class TranscodeFile
 		return isTVShow ;
 	}
 
-	public boolean isTranscodeInProgress()
-	{
-		return getTranscodeStatus( transcodeInProgressFileExtension ) ;
-	}
-	
-	public boolean isTranscodeComplete()
-	{
-		return getTranscodeStatus( transcodeCompleteFileExtension ) ;
-	}
-	
-	public void setTranscodeInProgress()
-	{
-		setTranscodeStatus( transcodeInProgressFileExtension ) ;
-	}
-	
-	public void unSetTranscodeInProgress()
-	{
-		unSetTranscodeStatus( transcodeInProgressFileExtension ) ;
-	}
-	
 	public void setTranscodeComplete()
 	{
 		setTranscodeStatus( transcodeCompleteFileExtension ) ;
 	}
-	
-	public void unSetTranscodeComplete()
+
+	public void setTranscodeInProgress()
 	{
-		unSetTranscodeStatus( transcodeCompleteFileExtension ) ;
+		setTranscodeStatus( transcodeInProgressFileExtension ) ;
 	}
-	
-	public boolean getTranscodeStatus( final String extensionToCheck )
-	{
-		String transcodeExtensionFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToCheck ) ;
-		if( common.fileExists( transcodeExtensionFileName ))
-		{
-			log.fine( extensionToCheck + "> Found file " + transcodeExtensionFileName ) ;
-			return true ;
-		}
-	return false ;
-	}
-	
+
 	public void setTranscodeStatus( final String extensionToWrite )
 	{
-		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
+		final String mkvTouchFileName = Common.replaceExtension( getMKVFileNameWithPath(), extensionToWrite ) ;
 		log.fine( extensionToWrite + "> Touching file: " + mkvTouchFileName ) ;
 		if( !common.getTestMode() )
 		{
 			common.touchFile( mkvTouchFileName ) ;
 		}
 	}
+
+	public void setTVShow()
+	{
+		isTVShow = true ;
+	}
+
+	public void unSetTranscodeComplete()
+	{
+		unSetTranscodeStatus( transcodeCompleteFileExtension ) ;
+	}
+
+	public void unSetTranscodeInProgress()
+	{
+		unSetTranscodeStatus( transcodeInProgressFileExtension ) ;
+	}
 	
 	public void unSetTranscodeStatus( final String extensionToWrite )
 	{
-		final String mkvTouchFileName = getMKVFileNameWithPath().replace( ".mkv", extensionToWrite ) ;
+		final String mkvTouchFileName = Common.replaceExtension( getMKVFileNameWithPath(), extensionToWrite ) ;
 		log.info( extensionToWrite + "> Deleting file: " + mkvTouchFileName ) ;
 		if( !common.getTestMode() )
 		{

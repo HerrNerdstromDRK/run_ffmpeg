@@ -26,7 +26,7 @@ public class run_ffmpeg
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive7\\To Convert\\Madagascar 3 Europes Most Wanted (2012)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\Movies\\Ip Man 2 (2010)" ;
 //	static String mkvInputDirectory = "\\\\yoda\\MKV_Archive9\\To Convert" ;
-	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\drive-download-20230211T202934Z-001" ;
+	static String mkvInputDirectory = "C:\\Users\\Dan\\Desktop\\To Convert" ;
 //	static String mkvInputDirectory = "E:\\To Convert - TV Shows" ;
 
 	/// Directory to which to move MKV files for storage

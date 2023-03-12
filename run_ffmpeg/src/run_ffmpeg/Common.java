@@ -37,7 +37,7 @@ public class Common
 	private static Logger log = null ;
 
 	/// Set testMode to true to prevent mutations
-	static boolean testMode = false ;
+	private static boolean testMode = false ;
 
 	/// Separator to use to demarc directories
 	// TODO: Make this use the System.property
@@ -382,10 +382,22 @@ public class Common
 		return retMe ; 
 	}
 
+	/**
+	 * Returns a new String without the last extension.
+	 * @param fileName
+	 * @return
+	 */
 	public static String removeFileNameExtension( final String fileName )
 	{
 		String fileNameWithoutExtension = fileName.substring( 0, fileName.lastIndexOf( '.' ) ) ;
 		return fileNameWithoutExtension ;
+	}
+	
+	public static String replaceExtension( final String fileName, final String newExtension )
+	{
+		final String fileNameWithoutExtension = removeFileNameExtension( fileName ) ;
+		final String fileNameWithNewExtension = fileNameWithoutExtension + newExtension ;
+		return fileNameWithNewExtension ;
 	}
 
 	/**
