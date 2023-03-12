@@ -51,7 +51,6 @@ public class ProbeDirectories extends Thread
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 
 		drivesAndFoldersToProbe = common.getAllDrivesAndFolders() ;
-
 	}
 
 	public ProbeDirectories( Logger log,
@@ -70,43 +69,119 @@ public class ProbeDirectories extends Thread
 	public static void main(String[] args)
 	{
 		boolean useTwoThreads = true ;
+		ProbeDirectories probeDirectory = new ProbeDirectories() ;
 		if( useTwoThreads )
 		{
-			ProbeDirectories probeDirectories1 = new ProbeDirectories() ;
-			ProbeDirectories probeDirectories2 = new ProbeDirectories() ;
-
-			probeDirectories1.setChainA() ;
-			probeDirectories2.setChainB() ;
-
-			probeDirectories1.start() ;
-			probeDirectories2.start() ;
-
-			try
-			{
-				// Set the stop file to halt execution
-				while( probeDirectories1.shouldKeepRunning() )
-				{
-					Thread.sleep( 100 ) ;
-				} // while( keepRunning )
-
-				probeDirectories1.join() ;
-				probeDirectories2.join() ;
-			}
-			catch( Exception e )
-			{
-				System.out.println( "ProbeDirectories.main> Exception: " + e.toString() ) ;
-			}
+			System.out.println( "ProbeDirectories.main> Running with threads" ) ;
+			probeDirectory.runThreads() ;
 		}
 		else
 		{
+			System.out.println( "ProbeDirectories.main> Running without threads" ) ;
 			ProbeDirectories pd = new ProbeDirectories() ;
 			pd.probeDirectoriesAndUpdateDB() ;
 		}
+		System.out.println( "ProbeDirectories.main> Shutdown." ) ;
+
+	}
+
+	private void runThreads()
+	{
+		ProbeDirectories probeDirectories1 = new ProbeDirectories() ;
+		ProbeDirectories probeDirectories2 = new ProbeDirectories() ;
+
+		probeDirectories1.setChainA() ;
+		probeDirectories2.setChainB() ;
+
+		log.info( "Starting threads." ) ;
+		probeDirectories1.start() ;
+		probeDirectories2.start() ;
+		log.info( "Running threads..." ) ;
+		
+		try
+		{
+			// Set the stop file to halt execution
+			while( probeDirectories1.shouldKeepRunning()
+					&& probeDirectories1.isAlive()
+					&& probeDirectories1.isAlive() )
+			{
+				Thread.sleep( 100 ) ;
+			} // while( keepRunning )
+
+			log.info( "Shutting down threads..." ) ;
+			probeDirectories1.join() ;
+			probeDirectories2.join() ;
+		}
+		catch( Exception e )
+		{
+			System.out.println( "ProbeDirectories.main> Exception: " + e.toString() ) ;
+		}
+	}
+
+	@Override
+	public void run()
+	{
+		probeDirectoriesAndUpdateDB() ;
+	}
+	
+	/**
+	 * Return an FFmpegProbeResult corresponding to the given fileToProbe
+	 * if it exists in the database.
+	 * @param probeInfoCollection
+	 * @param fileToProbe
+	 * @return
+	 */
+	public FFmpegProbeResult fileAlreadyProbed( MongoCollection< FFmpegProbeResult > probeInfoCollection, final File fileToProbe )
+	{
+		FFmpegProbeResult theProbeResult = null ;
+		FindIterable< FFmpegProbeResult > findResult =
+				probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsolutePath() ) ) ;
+
+		Iterator< FFmpegProbeResult > findIterator = findResult.iterator() ;
+		if( findIterator.hasNext() )
+		{
+			// Found the item in the database.
+			theProbeResult = findIterator.next() ;
+			//			out( "fileAlreadyProbed> Found FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
+		}
+
+		//		out( "fileAlreadyProbed> Unable to find FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
+		return theProbeResult ;
+	}
+
+	/**
+	 * Return true if the probe result needs to be updated in the database.
+	 * This occurs when the file:
+	 *  - Exists in the database (pre-condition to call this method).
+	 *  - Size has changed
+	 *  - Has been updated since last probe
+	 * @param fileToProbe
+	 * @param probeResult
+	 * @return
+	 */
+	public boolean needsRefresh( File fileToProbe, FFmpegProbeResult probeResult )
+	{
+		// Check for the special case of a missing file.
+		if( fileToProbe.getName().contains( Common.getMissingFilePreExtension() ) )
+		{
+			// Special files never need a refresh.
+			return false ;
+		}
+
+		if( fileToProbe.length() != probeResult.size )
+		{
+			// Size has changed
+			return true ;
+		}
+		if( fileToProbe.lastModified() > probeResult.getLastModified() )
+		{
+			return true ;
+		}
+		return false ;
 	}
 
 	public void probeDirectoriesAndUpdateDB()
 	{
-
 		log.info( "Probing drives and folders: " + getDrivesAndFoldersToProbe() ) ;
 
 		final long startTime = System.nanoTime() ;
@@ -130,9 +205,7 @@ public class ProbeDirectories extends Thread
 			// Walk through each file in this directory
 			for( File fileToProbe : filesToProbe )
 			{
-
 				if( !shouldKeepRunning() )
-
 				{
 					// Stop running
 					log.info( "Shutting down due to presence of stop file" ) ;
@@ -144,6 +217,7 @@ public class ProbeDirectories extends Thread
 
 			// Apparently rapid calls to the database creates a bunch of heap usage
 			// Clear that here to prevent memory problems.
+			log.info( "Cleaning garbage" ) ;
 			System.gc() ;
 
 		} // for( filesToProbe )
@@ -156,7 +230,7 @@ public class ProbeDirectories extends Thread
 		if( (probeResult != null) && !needsRefresh( fileToProbe, probeResult ) )
 		{
 			// No need to probe again, continue to the next file.
-			log.fine( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
+			log.info( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
 			return probeResult ;
 		}
 		// Post-condition: File does not currently exist in the database, or it does and it needs a refresh, or it's null
@@ -172,7 +246,7 @@ public class ProbeDirectories extends Thread
 		log.info( "Probing " + fileToProbe.getAbsolutePath() ) ;
 
 		// Handle the special case that this is a missing file substitute
-		if( fileToProbe.getName().contains( common.getMissingFilePreExtension() ) )
+		if( fileToProbe.getName().contains( Common.getMissingFilePreExtension() ) )
 		{
 			// Missing file. Do not probe directly
 			log.fine( "This is a missing file: " + fileToProbe.getAbsolutePath() );
@@ -198,67 +272,12 @@ public class ProbeDirectories extends Thread
 	}
 
 	/**
-	 * Return true if the probe result needs to be updated in the database.
-	 * This occurs when the file:
-	 *  - Exists in the database (pre-condition to call this method).
-	 *  - Size has changed
-	 *  - Has been updated since last probe
-	 * @param fileToProbe
-	 * @param probeResult
-	 * @return
-	 */
-	public boolean needsRefresh( File fileToProbe, FFmpegProbeResult probeResult )
-	{
-		// Check for the special case of a missing file.
-		if( fileToProbe.getName().contains( common.getMissingFilePreExtension() ) )
-		{
-			// Special files never need a refresh.
-			return false ;
-		}
-
-		if( fileToProbe.length() != probeResult.size )
-		{
-			// Size has changed
-			return true ;
-		}
-		if( fileToProbe.lastModified() > probeResult.getLastModified() )
-		{
-			return true ;
-		}
-		return false ;
-	}
-
-	/**
-	 * Return true if the given file has already been probed. False otherwise.
-	 * @param probeInfoCollection
-	 * @param fileToProbe
-	 * @return
-	 */
-	public FFmpegProbeResult fileAlreadyProbed( MongoCollection< FFmpegProbeResult > probeInfoCollection, final File fileToProbe )
-	{
-		FFmpegProbeResult theProbeResult = null ;
-		FindIterable< FFmpegProbeResult > findResult =
-				probeInfoCollection.find( Filters.eq( "filename", fileToProbe.getAbsolutePath() ) ) ;
-
-		Iterator< FFmpegProbeResult > findIterator = findResult.iterator() ;
-		if( findIterator.hasNext() )
-		{
-			// Found the item in the database.
-			theProbeResult = findIterator.next() ;
-			//			out( "fileAlreadyProbed> Found FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
-		}
-
-		//		out( "fileAlreadyProbed> Unable to find FFmpegProbeResult by filename: " + fileToProbe.getAbsolutePath() ) ;
-		return theProbeResult ;
-	}
-
-
-	/**
 	 * Tell this instance to execute only chain A.
 	 */
 	public void setChainA()
 	{
 		setDrivesAndFoldersToProbe( common.getAllChainAMKVDrivesAndFolders() ) ;
+		setDrivesAndFoldersToProbe( common.getAllChainAMP4DrivesAndFolders() ) ;
 	}
 
 	/**
@@ -267,6 +286,7 @@ public class ProbeDirectories extends Thread
 	public void setChainB()
 	{
 		setDrivesAndFoldersToProbe( common.getAllChainBMKVDrivesAndFolders() ) ;
+		setDrivesAndFoldersToProbe( common.getAllChainBMP4DrivesAndFolders() ) ;
 	}
 
 	public List<String> getDrivesAndFoldersToProbe() {
@@ -276,7 +296,7 @@ public class ProbeDirectories extends Thread
 	public void setDrivesAndFoldersToProbe(List<String> drivesAndFoldersToProbe) {
 		this.drivesAndFoldersToProbe = drivesAndFoldersToProbe;
 	}
-	
+
 	public boolean shouldKeepRunning()
 	{
 		return !common.shouldStopExecution( stopFileName ) ;

@@ -33,7 +33,8 @@ public class Common
 	/// Determines the path separator
 	private static boolean isWindows = true ;
 
-	private Logger log = null ;
+	/// The log stream to use internally and share with other objects in this process.
+	private static Logger log = null ;
 
 	/// Set testMode to true to prevent mutations
 	static boolean testMode = false ;
@@ -49,7 +50,7 @@ public class Common
 	/// Paths to ffmpeg and ffprobe
 	private static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
 	private static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
-	
+
 	/// The replacement file name for correlated files that are missing.
 	private static final String missingFileSubstituteName = "(none)" ;
 
@@ -64,7 +65,7 @@ public class Common
 	private final String[] allChainBMP4Drives = {
 			"\\\\yoda\\MP4_3"
 	} ;
-	
+
 	private final String[] allChainAMKVDrives = {
 			"\\\\yoda\\MKV_Archive2",
 			"\\\\yoda\\MKV_Archive4",
@@ -79,13 +80,13 @@ public class Common
 			"\\\\yoda\\MKV_Archive8"
 
 	} ;
-	
+
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
 	private NumberFormat numFormat = null ;
 
 	public Common( Logger log )
 	{
-		this.log = log ;
+		if( null == Common.log ) Common.log = log ;
 		numFormat = NumberFormat.getInstance( new Locale( "en", "US" ) ) ;
 		numFormat.setMaximumFractionDigits( 2 ) ;
 	}
@@ -121,7 +122,7 @@ public class Common
 	{
 		log.info( "theCommand: " + theCommand ) ;
 		boolean retMe = true ;
-		
+
 		// Only execute the command if we are NOT in test mode
 		if( !getTestMode() )
 		{
@@ -129,15 +130,15 @@ public class Common
 			{
 				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 				final Process process = Runtime.getRuntime().exec( theCommand ) ;
-	
+
 				BufferedReader errorStreamReader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ;
 				String line = null ;
 				while( (line = errorStreamReader.readLine()) != null )
 				{
-	
+
 					log.info( "ErrorStream: " + line ) ;
 				}
-				
+
 				if( process.exitValue() != 0 )
 				{
 					// Error occurred
@@ -164,35 +165,35 @@ public class Common
 	{	
 		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
 		FFmpegProbeResult result = null ;
-	
+
 		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
 		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
-	
+
 		// Add option "-v quiet" to suppress the normal ffprobe output
 		ffprobeExecuteCommand.add( "-v", "quiet" ) ;
-	
+
 		// Instruct ffprobe to show streams
 		ffprobeExecuteCommand.add( "-show_streams" ) ;
-	
+
 		// Instruct ffprobe to return result as json
 		ffprobeExecuteCommand.add( "-print_format", "json" ) ;
-	
+
 		// Finally, add the input file
 		ffprobeExecuteCommand.add( "-i", theFile.getAbsolutePath() ) ;
-	
+
 		// Build the GSON parser for the JSON input
 		GsonBuilder builder = new GsonBuilder(); 
 		builder.setPrettyPrinting(); 
 		Gson gson = builder.create();
-	
+
 		try
 		{
 			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 			String ffprobeExecuteCommandString = toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
 			log.info( "Execute ffprobe command: " + ffprobeExecuteCommandString ) ;
-	
+
 			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommandString ) ;
-	
+
 			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
 			int lineNumber = 1 ;
 			String inputLine = null ;
@@ -203,7 +204,7 @@ public class Common
 				inputBuffer += inputLine ;
 				++lineNumber ;
 			}
-	
+
 			if( process.exitValue() != 0 )
 			{
 				log.warning( "Error running ffprobe on file " + theFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
@@ -269,7 +270,7 @@ public class Common
 			Stream< Path > walk = Files.walk( Paths.get( directoryPath ) ) ;
 			List< String > fileNames = walk.filter( Files::isRegularFile ).map( x -> x.toString() ).collect( Collectors.toList() ) ;
 			walk.close() ;
-	
+
 			// Filter by extension
 			for( String fileName : fileNames )
 			{
@@ -362,14 +363,14 @@ public class Common
 					log.info( "Unable to mkdirs (" + directoryName + ")" ) ;
 				}
 			}
-	
+
 		}
 		catch( Exception theException )
 		{
 			log.info( "Exception: (\"" + directoryName + "\"): " + theException.toString() ) ;
 		}
 	}
-	
+
 	public String makeElapsedTimeString( final long startTimeMillis, final long stopTimeMillis )
 	{
 		final double timeElapsedInSeconds = (stopTimeMillis - startTimeMillis) / 1000000000.0 ;
@@ -380,7 +381,7 @@ public class Common
 				+ " minutes" ;
 		return retMe ; 
 	}
-	
+
 	public static String removeFileNameExtension( final String fileName )
 	{
 		String fileNameWithoutExtension = fileName.substring( 0, fileName.lastIndexOf( '.' ) ) ;
@@ -395,30 +396,36 @@ public class Common
 	 */
 	public static Logger setupLogger( final String logFileName, final String className )
 	{
-		Logger log = Logger.getLogger( className ) ;
-		try
+		// Keep only a single log instance per process
+		if( null == log )
 		{
-			// Disable default handlers
-			log.setUseParentHandlers( false ) ;
-			FileHandler logFileHandler = new FileHandler( logFileName ) ;
-			logFileHandler.setFormatter( new MyLogFormatter() );
-			log.addHandler( logFileHandler ) ;
+			// First time creating a log stream.
+			// Retrive the log instance and setup the parameters for this process.
+			log = Logger.getLogger( className ) ;
+			try
+			{
+				// Disable default handlers
+				log.setUseParentHandlers( false ) ;
+				FileHandler logFileHandler = new FileHandler( logFileName ) ;
+				logFileHandler.setFormatter( new MyLogFormatter() );
+				log.addHandler( logFileHandler ) ;
 
-			ConsoleHandler ch = new ConsoleHandler() ;
-			ch.setFormatter( new MyLogFormatter() ) ;
-			log.addHandler( ch ) ;
+				ConsoleHandler ch = new ConsoleHandler() ;
+				ch.setFormatter( new MyLogFormatter() ) ;
+				log.addHandler( ch ) ;
+			}
+			catch( Exception theException )
+			{
+				System.out.println( "BuildMovieAndShowIndex> Unable to create logger FileHandler as file "
+						+ logFileName
+						+ ": " + theException ) ;
+			}
+			log.setLevel( Level.ALL ) ;
 		}
-		catch( Exception theException )
-		{
-			System.out.println( "BuildMovieAndShowIndex> Unable to create logger FileHandler as file "
-					+ logFileName
-					+ ": " + theException ) ;
-		}
-		log.setLevel( Level.ALL ) ;
 		System.out.println( "setupLogger> Established logger with log filename: " + logFileName ) ;
 		return log ;
 	}
-	
+
 	/**
 	 * Strip most of the information about a file's absolute path.
 	 * This is targeted to how I currently have the workflow setup, wherein
@@ -433,7 +440,7 @@ public class Common
 	{
 		String retMe = "" ;
 		StringTokenizer tokens = new StringTokenizer( inputName, "\\" ) ;
-		
+
 		// Walk through the tokens to build the shortened file name
 		// Keep only "MKV_#" and the actual file name.
 		while( tokens.hasMoreTokens() )
@@ -462,7 +469,7 @@ public class Common
 	{
 		String retMe = "" ;
 		for( Iterator< String > listIterator = theList.iterator() ; listIterator.hasNext() ; )
-//		for( String listItem : theList )
+			//		for( String listItem : theList )
 		{
 			// Any file names with spaces must be encapsulated in double quotes, except for those
 			// items that already start with "
@@ -479,7 +486,7 @@ public class Common
 			{
 				retMe += "\"" ;
 			}
-			
+
 			if( listIterator.hasNext() )
 			{
 				// At least one more item remaining, add a space
@@ -488,7 +495,7 @@ public class Common
 		}
 		return retMe ;
 	}
-	
+
 	public void touchFile( final String fileName )
 	{
 		try
@@ -504,7 +511,7 @@ public class Common
 			log.info( "TranscodeFile.touchFile> Exception for file " + fileName + ": " + e ) ;
 		}
 	}
-	
+
 	public List< String > addMoviesAndFoldersToEachDrive( final List< String > theDrives )
 	{
 		List< String > retMe = new ArrayList< String >() ;
@@ -512,9 +519,11 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-	
+			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+
 			retMe.add( moviesFolder ) ;
 			retMe.add( tvShowsFolder ) ;
+			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
 	}
@@ -568,7 +577,7 @@ public class Common
 		List< String > retMe = new ArrayList< String >() ;
 		retMe.addAll( getAllMP4DrivesAndFolders() ) ;
 		retMe.addAll( getAllMKVDrivesAndFolders() ) ;
-		
+
 		return retMe ;
 	}
 
@@ -603,7 +612,7 @@ public class Common
 		retMe.addAll( getAllChainBMP4DrivesAndFolders() ) ;
 		return retMe ;
 	}
-	
+
 	public boolean getIsWindows()
 	{
 		return isWindows ;

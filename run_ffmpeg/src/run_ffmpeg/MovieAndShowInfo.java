@@ -42,17 +42,17 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 
 	/// List that contains matching information for each mkv or mp4 file.
 	/// This is the structure that will be stored in the database.
-	public List< CorrelatedFile > correlatedFilesList = null ;
+	public List< CorrelatedFile > correlatedFilesList = new ArrayList< CorrelatedFile >() ;
 
 	/// Store the files that have been correlated, indexed by filename
-	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
+	private Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 
 	public MovieAndShowInfo()
 	{}
-	
+
 	/// Constructor for a movie
 	public MovieAndShowInfo( final String movieOrShowName, Logger log )
 	{
@@ -75,7 +75,12 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		}
 		// Use on the file name, without the path or extension
 		// Example: "Making Of-behindthescenes.mkv" -> "Making Of-behindthescenes"
-		final String fileNameWithoutExtension = Common.removeFileNameExtension( probeResultFile.getName() ) ;
+		String fileNameWithoutExtension = Common.removeFileNameExtension( probeResultFile.getName() ) ;
+		if( fileNameWithoutExtension.contains( Common.getMissingFilePreExtension() ) )
+		{
+			// File like: "Making Of-behindthescenes.missing_file" -> "Making Of-behindthescenes"
+			fileNameWithoutExtension = Common.removeFileNameExtension( fileNameWithoutExtension ) ;
+		}
 
 		// First, look for an existing correlated file
 		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
@@ -84,6 +89,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			// Not found, create it.
 			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
 			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
+			correlatedFilesList.add( correlatedFile ) ;
 		}
 		correlatedFile.addOrUpdateMKVFile( mkvProbeResult ) ;
 	}
@@ -112,6 +118,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			// Not found, create it.
 			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
 			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
+			correlatedFilesList.add( correlatedFile ) ;
 		}
 		correlatedFile.addOrUpdateMP4File( mp4ProbeResult ) ;
 	}
@@ -158,19 +165,20 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public void makeReadyCorrelatedFilesList()
 	{
+		isMissingFile = false ;
+		
 		if( null == mkvLongPath ) mkvLongPath = Common.getMissingFileSubstituteName() ;
 		if( null == mp4LongPath ) mp4LongPath = Common.getMissingFileSubstituteName() ;
 
-		correlatedFilesList = new ArrayList< CorrelatedFile >() ;
-		for( Map.Entry< String, CorrelatedFile > entrySet : correlatedFiles.entrySet() )
+		for( CorrelatedFile theCorrelatedFile : correlatedFilesList )
 		{
-			CorrelatedFile theCorrelatedFile = entrySet.getValue() ;
+			// Order these two items is important:
+			// normalize() checks for missing files.
+			theCorrelatedFile.normalizeMKVAndMP4Files() ;
 			if( theCorrelatedFile.isMissingFile() )
 			{
 				isMissingFile = true ;
 			}
-			theCorrelatedFile.normalizeMKVAndMP4Files() ;
-			correlatedFilesList.add( theCorrelatedFile ) ;
 		}
 		Collections.sort( correlatedFilesList ) ;
 	}
@@ -192,7 +200,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			fileNameToSearch = Common.removeFileNameExtension( fileNameToSearch ) ;
 		}
 		CorrelatedFile theCorrelatedFile = null ;
-		
+
 		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
 		{
 			if( correlatedFileIterator.getFileName().equals( fileNameToSearch ) )
@@ -205,11 +213,11 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		if( null == theCorrelatedFile )
 		{
 			log.warning( "Unable to find correlated file; MovieAndShowInfo name: " + getMovieOrShowName()
-				+ ", theFile: " + theProbeResultFile.getAbsolutePath() ) ;
+			+ ", theFile: " + theProbeResultFile.getAbsolutePath() ) ;
 			return ;
 		}
 		// Post condition: theCorrelatedFile is non-null and represents the file being searched.
-		
+
 		if( theProbeResultFile.getName().contains( ".mkv" ) )
 		{
 			// MKV file

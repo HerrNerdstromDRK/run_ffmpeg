@@ -71,7 +71,7 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 		removeFilesByName( mp4FilesByName, Common.getMissingFileSubstituteName() ) ;
 		
 		// Remove probe results for the same name.
-		removeProbeResult( mkvFilesByProbe, theMP4FileProbeResult ) ;
+		removeProbeResult( mp4FilesByProbe, theMP4FileProbeResult ) ;
 		
 		mp4FilesByName.add( shortenedFileName ) ;
 		mp4FilesByProbe.add( theMP4FileProbeResult ) ;
@@ -118,8 +118,9 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	 * @return
 	 */
 	public boolean isMissingFile()
+	// TODO: Make this a variable instead of a method.
 	{
-		return (mkvFilesByProbe.size() != mp4FilesByProbe.size()) ;
+		return (isMissingMKVFile() || isMissingMP4File() ) ;
 	}
 
 	/**
@@ -128,6 +129,10 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	 */
 	public void normalizeMKVAndMP4Files()
 	{
+		// The first time this method is run, it may populate either mkv or mp4 file list
+		// with the missing file substitute.
+		// Each subsequent time this method runs will already be populated with the missing
+		// file substitute.
 		missingMKVFile = false ;
 		missingMP4File = false ;
 		
@@ -136,10 +141,35 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 			missingMKVFile = true ;
 			mkvFilesByName.add( Common.getMissingFileSubstituteName() ) ;
 		}
+		if( !missingMKVFile )
+		{
+			// Look for the instance where the mkvFilesByName may have a missing file from
+			// the first run.
+			for( String theFile : mkvFilesByName )
+			{
+				if( theFile.equals( Common.getMissingFileSubstituteName() ) )
+				{
+					missingMKVFile = true ;
+				}
+			}
+		}
+		
 		while( mp4FilesByName.size() < mkvFilesByName.size() )
 		{
 			missingMP4File = true ;
 			mp4FilesByName.add( Common.getMissingFileSubstituteName() ) ;
+		}
+		if( !missingMP4File )
+		{
+			// Look for the instance where the mkvFilesByName may have a missing file from
+			// the first run.
+			for( String theFile : mp4FilesByName )
+			{
+				if( theFile.equals( Common.getMissingFileSubstituteName() ) )
+				{
+					missingMP4File = true ;
+				}
+			}
 		}
 	}
 

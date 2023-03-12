@@ -36,7 +36,8 @@ public class WorkflowStageThread_UpdateCorrelatedFile extends WorkflowStageThrea
 			// Nothing to do.
 			return ;
 		}
-
+		log.info( "Got job: " + theJob ) ;
+		
 		Bson movieAndShowInfoIDdFilter = Filters.eq( "_id", theJob.getMovieAndShowInfo_id() ) ;
 		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDdFilter ).first() ;
 		if( null == movieAndShowInfo )
@@ -56,6 +57,7 @@ public class WorkflowStageThread_UpdateCorrelatedFile extends WorkflowStageThrea
 		// Post condition: movieAndShowInfo and probeInfoResult are both valid
 		
 		movieAndShowInfo.updateCorrelatedFile( probeInfoFindResult ) ;
+		movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDdFilter,  movieAndShowInfo ) ;
 	}
 }

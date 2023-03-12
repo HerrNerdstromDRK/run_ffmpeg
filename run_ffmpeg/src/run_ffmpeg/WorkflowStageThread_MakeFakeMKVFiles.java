@@ -74,6 +74,7 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 			{
 				// TV Show
 				missingMKVPath = common.getMissingTVShowMKVPath()
+						+ common.getPathSeparator()
 						+ movieAndShowInfo.getTVShowName()
 						+ common.getPathSeparator()
 						+ movieAndShowInfo.getTVShowSeasonName() ;

@@ -88,12 +88,9 @@ public class BuildMovieAndShowIndex
 			final File theFile )
 	{
 		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
-	
-
+		
 		MovieAndShowInfo mapEntry = storageMap.get( movieOrTVShowName ) ;
 		if( null == mapEntry )
-
-	
 		{
 			// Not already in the storageMap
 			mapEntry = new MovieAndShowInfo( movieOrTVShowName, log ) ;
@@ -113,7 +110,6 @@ public class BuildMovieAndShowIndex
 	}
 
 	/**
-
 	 * The purpose of this method is to build a single Movie or TV Show (MovieAndShowInfo instance)
 	 *  for each movie or tv show. The method will populate the movieMap and tvShowMap with the
 	 *  resulting information, including to add all mp4 and mkv files to each movie or tv show.
