@@ -10,6 +10,14 @@ import java.util.logging.Logger;
  */
 public class ExtractAndOCR extends Thread
 {
+	/// The two instances, one of extractpgs and the other of ocrsubtitle, for
+	/// the worker threads to execute. Each thread will execute one of those
+	/// two types. The intent here is for the ExtractAndOCR controller thread
+	/// to have a means to issue a stop work for each of the subordinate controller
+	/// threads.
+	private transient ExtractPGSFromMKVs extractPGSFromMKVs = null ; 
+	private transient OCRSubtitle ocrSubtitle = null ;
+	
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 
@@ -22,14 +30,6 @@ public class ExtractAndOCR extends Thread
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_extract_and_ocr.txt" ;
-	
-	/// Set this variable to true to execute the ExtractPGS controller thread.
-	/// False means run the OCR controller thread.
-	private boolean runExtract = false ;
-	
-	/// Set to true to keep the instances running, set to false otherwise.
-	/// This is meant to provide a programmatic way of shutting down all of the threads.
-	private boolean keepThreadRunning = true ;
 	
 	public ExtractAndOCR()
 	{
@@ -49,9 +49,12 @@ public class ExtractAndOCR extends Thread
 		// thread as the controller.
 		// Need to spawn the controller thread here in a separate thread.
 		ExtractAndOCR extractThread = new ExtractAndOCR() ;
-		extractThread.setRunExtract( true ) ;
+		extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
+		extractThread.setRunExtract( extractPGSFromMKVs ) ;
 		
 		ExtractAndOCR OCRThread = new ExtractAndOCR() ;
+		ocrSubtitle = new OCRSubtitle() ;
+		OCRThread.setRunOCR( ocrSubtitle ) ;
 		
 		// Start both
 		try
@@ -70,8 +73,8 @@ public class ExtractAndOCR extends Thread
 			// Post-condition: Either the stop file now exists, or both threads have stopped.
 			// Stop the threads.
 			log.info( "Stopping the threads..." ) ;
-			extractThread.stopRunningThread() ;
-			OCRThread.stopRunningThread() ;
+			extractPGSFromMKVs.stopRunningThread() ;
+			ocrSubtitle.stopRunningThread() ;
 			
 			log.info( "Joining threads..." ) ; 
 			extractThread.join() ;
@@ -87,48 +90,35 @@ public class ExtractAndOCR extends Thread
 	@Override
 	public void run()
 	{
-		if( isRunExtract() )
+		if( extractPGSFromMKVs != null )
 		{
 			// Run the extract method here.
-			ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
 			extractPGSFromMKVs.runThreads() ;
 		}
 		else
 		{
 			// Run the OCR.
-			OCRSubtitle ocrSubtitle = new OCRSubtitle() ;
 			ocrSubtitle.runThreads() ;
 		}
 	}
 
-	public boolean isRunExtract() {
-		return runExtract;
+	public String getStopFileName() {
+		return stopFileName;
 	}
 
-	public void setRunExtract(boolean runExtract) {
-		this.runExtract = runExtract;
-	}
-	
-	public boolean isKeepThreadRunning() {
-		return keepThreadRunning;
+	private void setRunExtract( ExtractPGSFromMKVs extractPGSFromMKVs )
+	{
+		this.extractPGSFromMKVs = extractPGSFromMKVs ;
 	}
 
-	public void setKeepThreadRunning(boolean keepThreadRunning) {
-		this.keepThreadRunning = keepThreadRunning;
+	private void setRunOCR( OCRSubtitle ocrSubtitle )
+	{
+		this.ocrSubtitle = ocrSubtitle ;
 	}
 
 	public boolean shouldKeepRunning()
 	{
-		return (!common.shouldStopExecution( getStopFileName() ) && isKeepThreadRunning()) ;
-	}
-
-	public void stopRunningThread()
-	{
-		setKeepThreadRunning( false ) ;
-	}
-
-	public String getStopFileName() {
-		return stopFileName;
+		return !common.shouldStopExecution( getStopFileName() ) ;
 	}
 	
 }
