@@ -24,6 +24,8 @@ import com.google.common.collect.ImmutableList;
  */
 public class ExtractPGSFromMKVs extends Thread
 {
+	/// The list of drives and folders to extract. This variable is set for each thread
+	/// specifically to allow multiple threads to execute in parallel but on different folders.
 	private List< String > drivesAndFoldersToExtract = null ;
 
 	/// Directory from which to read MKV files
@@ -46,6 +48,10 @@ public class ExtractPGSFromMKVs extends Thread
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
+	
+	/// Set to true to keep the instances running, set to false otherwise.
+	/// This is meant to provide a programmatic way of shutting down all of the threads.
+	private transient boolean keepThreadRunning = true ;
 
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
@@ -78,7 +84,7 @@ public class ExtractPGSFromMKVs extends Thread
 
 	public static void main(String[] args)
 	{
-		boolean useTwoThreads = true ;
+		boolean useThreads = true ;
 		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
 
 		/**
@@ -88,7 +94,7 @@ public class ExtractPGSFromMKVs extends Thread
 		 * For now, running as a single thread will leave drives and folders as null,
 		 * and so the mkvInputdirectory will be used.
 		 */
-		if( useTwoThreads )
+		if( useThreads )
 		{
 			System.out.println( "ExtractPGSFromMKVs.main> Running with threads" ) ;
 			extractPGS.runThreads() ;
@@ -102,7 +108,11 @@ public class ExtractPGSFromMKVs extends Thread
 		System.out.println( "ExtractPGSFromMKVs.main> Shutdown." ) ;
 	}
 
-	private void runThreads()
+	/**
+	 * Self-contained method that spawns two additional threads to run the extract, and keeps
+	 * this thread as the controller.
+	 */
+	public void runThreads()
 	{
 		ExtractPGSFromMKVs extractPGS1 = new ExtractPGSFromMKVs() ;
 		ExtractPGSFromMKVs extractPGS2 = new ExtractPGSFromMKVs() ;
@@ -119,12 +129,15 @@ public class ExtractPGSFromMKVs extends Thread
 		{
 			// Set the stop file to halt execution
 			while( extractPGS1.shouldKeepRunning()
-					&& extractPGS1.isAlive()
-					&& extractPGS2.isAlive() )
+					&& (extractPGS1.isAlive()
+					|| extractPGS2.isAlive()) )
 			{
 				Thread.sleep( 100 ) ;
 			} // while( keepRunning )
-
+			// Post-condition: At least one condition directing this instance to halt has occurred.
+			extractPGS1.stopRunningThread() ;
+			extractPGS2.stopRunningThread() ;
+			
 			log.info( "Shutting down threads..." ) ;
 			extractPGS1.join() ;
 			extractPGS2.join() ;
@@ -182,7 +195,7 @@ public class ExtractPGSFromMKVs extends Thread
 			// Skip this file if a .srt file exists in its directory
 			if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 			{
-				log.info( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
+				log.fine( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
 				continue ;
 			}
 
@@ -409,9 +422,22 @@ public class ExtractPGSFromMKVs extends Thread
 		this.mkvInputDirectory = mkvInputDirectory;
 	}
 
+	public void setKeepThreadRunning(boolean keepThreadRunning) {
+		this.keepThreadRunning = keepThreadRunning;
+	}
+
 	public boolean shouldKeepRunning()
 	{
-		return !common.shouldStopExecution( getStopFileName() ) ;
+		return (!common.shouldStopExecution( getStopFileName() ) && isKeepThreadRunning()) ;
+	}
+	
+	public boolean isKeepThreadRunning() {
+		return keepThreadRunning;
+	}
+
+	public void stopRunningThread()
+	{
+		setKeepThreadRunning( false ) ;
 	}
 
 }

@@ -100,8 +100,8 @@ public class ProbeDirectories extends Thread
 		{
 			// Set the stop file to halt execution
 			while( probeDirectories1.shouldKeepRunning()
-					&& probeDirectories1.isAlive()
-					&& probeDirectories1.isAlive() )
+					&& (probeDirectories1.isAlive()
+					|| probeDirectories1.isAlive()) )
 			{
 				Thread.sleep( 100 ) ;
 			} // while( keepRunning )

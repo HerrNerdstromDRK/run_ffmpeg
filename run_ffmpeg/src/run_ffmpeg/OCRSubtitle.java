@@ -16,7 +16,13 @@ public class OCRSubtitle extends Thread
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 	private transient Common common = null ;
+	
+	/// Set to true to keep the instances running, set to false otherwise.
+	/// This is meant to provide a programmatic way of shutting down all of the threads.
 	private transient boolean keepThreadRunning = true ;
+	
+	/// The default number of threads to run.
+	private int defaultNumThreads = 4 ;
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_ocr_subtitle.txt" ;
@@ -41,13 +47,16 @@ public class OCRSubtitle extends Thread
 	public static void main( String[] args )
 	{
 		OCRSubtitle ocrs = new OCRSubtitle() ;
-		ocrs.runWithThreads() ;
+		ocrs.runThreads() ;
 	}
 
-	public void runWithThreads()
+	public void runThreads()
 	{
-		final int numThreads = 3 ;
-
+		runThreads( getDefaultNumThreads() ) ;
+	}
+	
+	public void runThreads( final int numThreads )
+	{
 		// Retrieve all of the drives and folders containing mkv files to find .sup files
 		List< String > drivesAndFoldersToOCR = new ArrayList< String >() ;
 		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
@@ -120,7 +129,7 @@ public class OCRSubtitle extends Thread
 		{
 			log.warning( "Exception: " + theException.toString() ) ;
 		}
-		log.info( "Shut down." ) ;
+		log.info( "Complete." ) ;
 	}
 
 	/**
@@ -204,9 +213,8 @@ public class OCRSubtitle extends Thread
 		return extensionsToOCR;
 	}
 	
-	public void setExtensionsToOCR( String[] extensionsToOCR )
-	{
-		this.extensionsToOCR = extensionsToOCR ;
+	public List<String> getFileNamesToOCR() {
+		return fileNamesToOCR;
 	}
 
 	/**
@@ -238,13 +246,22 @@ public class OCRSubtitle extends Thread
 		return keepThreadRunning;
 	}
 
+	public void setExtensionsToOCR( String[] extensionsToOCR )
+	{
+		this.extensionsToOCR = extensionsToOCR ;
+	}
+
+	public void setFileNamesToOCR(List<String> fileNamesToOCR) {
+		this.fileNamesToOCR = fileNamesToOCR;
+	}
+
 	public void setKeepThreadRunning(boolean keepThreadRunning) {
 		this.keepThreadRunning = keepThreadRunning;
 	}
 
 	public boolean shouldKeepRunning()
 	{
-		return !common.shouldStopExecution( stopFileName ) ;
+		return (!common.shouldStopExecution( getStopFileName() ) && isKeepThreadRunning()) ;
 	}
 
 	public void stopRunningThread()
@@ -269,12 +286,12 @@ public class OCRSubtitle extends Thread
 		}
 		return false ;
 	}
-	
-	public void setFileNamesToOCR(List<String> fileNamesToOCR) {
-		this.fileNamesToOCR = fileNamesToOCR;
+
+	public int getDefaultNumThreads() {
+		return defaultNumThreads;
 	}
 
-	public List<String> getFileNamesToOCR() {
-		return fileNamesToOCR;
+	public void setDefaultNumThreads(int defaultNumThreads) {
+		this.defaultNumThreads = defaultNumThreads;
 	}
 }
