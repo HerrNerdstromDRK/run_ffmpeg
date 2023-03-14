@@ -35,7 +35,7 @@ public class BuildMovieAndShowIndex
 	private Common common = null ;
 
 	/// File name to which to log activities for this application.
-	private static final String logFileName = "build_movie_and_show_index.txt" ;
+	private static final String logFileName = "log_build_movie_and_show_index.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.

@@ -26,7 +26,7 @@ public class WorkflowOrchestrator
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 	private transient Common common = null ;
-	private final String logFileName = "workflow_orchestrator_log.txt" ;
+	private final String logFileName = "log_workflow_orchestrator.txt" ;
 	private transient List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
 	private final transient String stopFileName = "C:\\Temp\\stop_workflow.txt" ;
 	private transient MoviesAndShowsMongoDB masMDB = null ;
