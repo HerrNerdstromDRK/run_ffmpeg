@@ -47,7 +47,6 @@ public class ExtractAndOCR extends Thread
 	{
 		// ExtractPGS spawns two additional threads as workers and keeps the owning
 		// thread as the controller.
-		// Need to spawn the controller thread here in a separate thread.
 		ExtractAndOCR extractThread = new ExtractAndOCR() ;
 		extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
 		extractThread.setRunExtract( extractPGSFromMKVs ) ;
@@ -71,7 +70,7 @@ public class ExtractAndOCR extends Thread
 				Thread.sleep( 100 ) ;
 			}
 			// Post-condition: Either the stop file now exists, or both threads have stopped.
-			// Stop the threads.
+			// Stop the threads in the event that the stop file now exists.
 			log.info( "Stopping the threads..." ) ;
 			extractPGSFromMKVs.stopRunningThread() ;
 			ocrSubtitle.stopRunningThread() ;

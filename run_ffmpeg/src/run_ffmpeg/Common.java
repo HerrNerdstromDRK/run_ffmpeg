@@ -43,6 +43,7 @@ public class Common
 	// TODO: Make this use the System.property
 	private static String pathSeparator = "\\" ;
 
+	/// Information about how to record and track missing MKV files.
 	private static final String missingMovieMKVPath = "\\\\yoda\\MKV_Archive1\\Movies_Missing" ;
 	private static final String missingTVShowMKVPath = "\\\\yoda\\MKV_Archive1\\TV Shows_Missing" ;
 	private static final String missingFilePreExtension = ".missing_file" ;
@@ -54,7 +55,8 @@ public class Common
 	private static final String pathToPGSTOSRTDLL = "D:\\Program Files\\PgsToSrt\\src\\out\\PgsToSrt.dll" ;
 	private static final String pathToTESSDATA = "D:\\Program Files\\PgsToSrt\\tessdata" ;
 
-	/// The replacement file name for correlated files that are missing.
+	/// The replacement file name for correlated files that are missing. This is used for
+	/// user interface reporting via the web interface.
 	private static final String missingFileSubstituteName = "(none)" ;
 
 	/// The directories to probe
@@ -157,12 +159,23 @@ public class Common
 		return retMe ;
 	}
 
+	/**
+	 * Return true if the given file exists, false otherwise.
+	 * @param fileNameWithPath
+	 * @return
+	 */
 	public boolean fileExists( final String fileNameWithPath )
 	{
 		final File theFile = new File( fileNameWithPath ) ;
 		return theFile.exists() ;
 	}
 
+	/**
+	 * Probe the given file and report out to the given log stream.
+	 * @param theFile
+	 * @param log
+	 * @return
+	 */
 	public FFmpegProbeResult ffprobeFile( File theFile, Logger log )
 	{	
 		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
@@ -436,7 +449,7 @@ public class Common
 			}
 			log.setLevel( Level.ALL ) ;
 		}
-		System.out.println( "setupLogger> Established logger with log filename: " + logFileName ) ;
+		System.out.println( "setupLogger> Established logger: " + log.toString() ) ;
 		return log ;
 	}
 

@@ -128,7 +128,7 @@ public class ExtractPGSFromMKVs extends Thread
 		try
 		{
 			// Set the stop file to halt execution
-			while( extractPGS1.shouldKeepRunning()
+			while( shouldKeepRunning()
 					&& (extractPGS1.isAlive()
 					|| extractPGS2.isAlive()) )
 			{
