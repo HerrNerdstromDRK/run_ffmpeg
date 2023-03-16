@@ -136,39 +136,44 @@ public class Common
 				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 				final Process process = Runtime.getRuntime().exec( theCommand ) ;
 
-				BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
-				BufferedReader errorStreamReader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ;
-				String inputStreamLine = null ;
-				String errorStreamLine = null ;
-				if( inputStreamReader.ready() )
-				{
-					inputStreamLine = inputStreamReader.readLine() ;
-					if( inputStreamLine != null )
-					{
-						log.info( "InputStream: " + inputStreamLine ) ;
-					}
-				}
-				if( errorStreamReader.ready() )
-				{
-					errorStreamLine = errorStreamReader.readLine() ;
-					if( errorStreamLine != null )
-					{
-						log.info( "ErrorStream: " + errorStreamLine ) ;
-					}
-				}
-				if( (null == inputStreamLine) && (null == errorStreamLine) )
-				{
-					// Neither stream had data.
-					// Pause to wait for input.
-					Thread.sleep( 100 ) ;
-				}
+				BufferedReader inputStreamReader = process.inputReader() ;
+				BufferedReader errorStreamReader =  process.errorReader() ;
 
+				while( process.isAlive() )
+				{
+					String inputStreamLine = null ;
+					String errorStreamLine = null ;
+					if( inputStreamReader.ready() )
+					{
+						inputStreamLine = inputStreamReader.readLine() ;
+						if( inputStreamLine != null )
+						{
+							log.info( "InputStream: " + inputStreamLine ) ;
+						}
+					}
+					if( errorStreamReader.ready() )
+					{
+						errorStreamLine = errorStreamReader.readLine() ;
+						if( errorStreamLine != null )
+						{
+							log.info( "ErrorStream: " + errorStreamLine ) ;
+						}
+					}
+					if( (null == inputStreamLine) && (null == errorStreamLine) )
+					{
+						// Neither stream had data.
+						// Pause to wait for input.
+						Thread.sleep( 100 ) ;
+					}
+				} // while( process.isAlive() )
+				// Post-condition: Process has terminated.
+				
 				// Check if the process has exited.
 				if( process.exitValue() != 0 )
 				{
 					// Error occurred
-					log.info( "Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
 					retMe = false ;
+					log.info( "Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
 				}
 			}
 			catch( Exception theException )
