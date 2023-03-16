@@ -23,6 +23,9 @@ public class OCRSubtitle extends Thread
 
 	/// The default number of threads to run.
 	private int defaultNumThreads = 4 ;
+	
+	/// Duration, in milliseconds, between thread liveness checks.
+	private long aliveCheckDuration = 5000 ;
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_ocr_subtitle.txt" ;
@@ -97,12 +100,35 @@ public class OCRSubtitle extends Thread
 		// This loop is for the controller thread.
 		// The below calls to stopRunningThread() are used to shutdown each individual thread.
 		Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
+		long lastAliveCheck = System.currentTimeMillis() ;
 		while( shouldKeepRunning() && ocrJobAvailable() )
 		{
 			try
 			{
 				// Sleep while we should keep running at at least one thread is busy working.
 				Thread.sleep( 100 ) ;
+				
+				long timeNow = System.currentTimeMillis() ;
+				if( (timeNow - lastAliveCheck) >= getAliveCheckDuration() )
+				{
+					// Check the status of the threads
+					lastAliveCheck = timeNow ;
+					int numAliveThreads = 0 ;
+					int numDeadThreads = 0 ;
+					
+					for( OCRSubtitle ocrThread : ocrThreads )
+					{
+						if( ocrThread.isAlive() )
+						{
+							++numAliveThreads ;
+						}
+						else
+						{
+							++numDeadThreads ;
+						}
+					}
+					log.info( "Alive threads: " + numAliveThreads + ", dead threads: " + numDeadThreads ) ;
+				}
 			}
 			catch( Exception theException )
 			{
@@ -294,5 +320,13 @@ public class OCRSubtitle extends Thread
 
 	public void setDefaultNumThreads(int defaultNumThreads) {
 		this.defaultNumThreads = defaultNumThreads;
+	}
+
+	public long getAliveCheckDuration() {
+		return aliveCheckDuration;
+	}
+
+	public void setAliveCheckDuration(long aliveCheckDuration) {
+		this.aliveCheckDuration = aliveCheckDuration;
 	}
 }
