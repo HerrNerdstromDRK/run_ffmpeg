@@ -449,7 +449,7 @@ public class Common
 			}
 			log.setLevel( Level.ALL ) ;
 		}
-		System.out.println( "setupLogger> Established logger: " + log.toString() ) ;
+		System.out.println( "setupLogger> Established logger: " + log.getName() ) ;
 		return log ;
 	}
 

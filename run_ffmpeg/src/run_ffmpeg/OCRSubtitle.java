@@ -16,11 +16,11 @@ public class OCRSubtitle extends Thread
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 	private transient Common common = null ;
-	
+
 	/// Set to true to keep the instances running, set to false otherwise.
 	/// This is meant to provide a programmatic way of shutting down all of the threads.
 	private transient boolean keepThreadRunning = true ;
-	
+
 	/// The default number of threads to run.
 	private int defaultNumThreads = 4 ;
 
@@ -54,7 +54,7 @@ public class OCRSubtitle extends Thread
 	{
 		runThreads( getDefaultNumThreads() ) ;
 	}
-	
+
 	public void runThreads( final int numThreads )
 	{
 		// Retrieve all of the drives and folders containing mkv files to find .sup files
@@ -80,7 +80,7 @@ public class OCRSubtitle extends Thread
 		for( int i = 0 ; i < numThreads ; ++i )
 		{
 			OCRSubtitle ocrs = new OCRSubtitle() ;
-			
+
 			// This is a bit confusing to visualize, but we need to pass along
 			// the file names and extensions to OCR to each subordinate thread.
 			// All threads, including this controller thread, will reference the same
@@ -139,7 +139,7 @@ public class OCRSubtitle extends Thread
 	public void run()
 	{
 		log.info( "New thread reporting for duty." ) ;
-		while( isKeepThreadRunning() )
+		while( shouldKeepRunning() )
 		{
 			// Get a file to OCR from the queue.
 			final String fileNameToOCR = getFileNameToOCR() ;
@@ -152,15 +152,16 @@ public class OCRSubtitle extends Thread
 
 			// OCR this file.
 			boolean commandSuccess = doOCRFileName( fileNameToOCR ) ;
-			if( commandSuccess )
+			// Delete the .sup file regardless:
+			// If successful, then the file should be removed so it is not re-OCRd
+			// If unsuccessful, then something is probably wrong with the file and I don't
+			//  want to try to re-OCR it.
+			// If the OCR was successful, then delete the input (.sup) file.
+			log.info( "Deleting OCR input file: " + fileNameToOCR ) ;
+			if( !common.getTestMode() )
 			{
-				// If the OCR was successful, then delete the input (.sup) file.
-				log.info( "Deleting OCR input file: " + fileNameToOCR ) ;
-				if( !common.getTestMode() )
-				{
-					File fileToOCR = new File( fileNameToOCR ) ;
-					fileToOCR.delete() ;
-				}
+				File fileToOCR = new File( fileNameToOCR ) ;
+				fileToOCR.delete() ;
 			}
 			log.info( "Completed OCR on file: " + fileNameToOCR ) ;
 		}
@@ -212,7 +213,7 @@ public class OCRSubtitle extends Thread
 	public String[] getExtensionsToOCR() {
 		return extensionsToOCR;
 	}
-	
+
 	public List<String> getFileNamesToOCR() {
 		return fileNamesToOCR;
 	}
