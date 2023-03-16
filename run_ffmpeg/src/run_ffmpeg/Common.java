@@ -136,13 +136,34 @@ public class Common
 				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 				final Process process = Runtime.getRuntime().exec( theCommand ) ;
 
+				BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
 				BufferedReader errorStreamReader = new BufferedReader( new InputStreamReader( process.getErrorStream() ) ) ;
-				String line = null ;
-				while( (line = errorStreamReader.readLine()) != null )
+				String inputStreamLine = null ;
+				String errorStreamLine = null ;
+				if( inputStreamReader.ready() )
 				{
-					log.info( "ErrorStream: " + line ) ;
+					inputStreamLine = inputStreamReader.readLine() ;
+					if( inputStreamLine != null )
+					{
+						log.info( "InputStream: " + inputStreamLine ) ;
+					}
+				}
+				if( errorStreamReader.ready() )
+				{
+					errorStreamLine = errorStreamReader.readLine() ;
+					if( errorStreamLine != null )
+					{
+						log.info( "ErrorStream: " + errorStreamLine ) ;
+					}
+				}
+				if( (null == inputStreamLine) && (null == errorStreamLine) )
+				{
+					// Neither stream had data.
+					// Pause to wait for input.
+					Thread.sleep( 100 ) ;
 				}
 
+				// Check if the process has exited.
 				if( process.exitValue() != 0 )
 				{
 					// Error occurred
@@ -407,7 +428,7 @@ public class Common
 		String fileNameWithoutExtension = fileName.substring( 0, fileName.lastIndexOf( '.' ) ) ;
 		return fileNameWithoutExtension ;
 	}
-	
+
 	public static String replaceExtension( final String fileName, final String newExtension )
 	{
 		final String fileNameWithoutExtension = removeFileNameExtension( fileName ) ;
