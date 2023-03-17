@@ -177,7 +177,8 @@ public class OCRSubtitle extends Thread
 			}
 
 			// OCR this file.
-			boolean commandSuccess = doOCRFileName( fileNameToOCR ) ;
+			doOCRFileName( fileNameToOCR ) ;
+			
 			// Delete the .sup file regardless:
 			// If successful, then the file should be removed so it is not re-OCRd
 			// If unsuccessful, then something is probably wrong with the file and I don't

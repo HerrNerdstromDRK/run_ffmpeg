@@ -143,7 +143,7 @@ public class Common
 				{
 					String inputStreamLine = null ;
 					String errorStreamLine = null ;
-					if( inputStreamReader.ready() )
+					while( inputStreamReader.ready() )
 					{
 						inputStreamLine = inputStreamReader.readLine() ;
 						if( inputStreamLine != null )
@@ -151,7 +151,7 @@ public class Common
 							log.info( "InputStream: " + inputStreamLine ) ;
 						}
 					}
-					if( errorStreamReader.ready() )
+					while( errorStreamReader.ready() )
 					{
 						errorStreamLine = errorStreamReader.readLine() ;
 						if( errorStreamLine != null )

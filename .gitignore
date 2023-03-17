@@ -2,5 +2,5 @@
 /bin/
 /db_connect_info.txt
 /build_movie_and_show_index.txt
-/log*.txt
+/log*.txt*
 /*.lck
