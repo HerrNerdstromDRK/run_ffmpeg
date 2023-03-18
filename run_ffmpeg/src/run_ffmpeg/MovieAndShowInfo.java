@@ -34,8 +34,8 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public String movieOrShowName = null ;
 
 	/// These two variables are only populated if this is a tv show
-	public String TVShowName = "" ;
-	public String TVShowSeasonName = "" ;
+	public String tvShowName = "" ;
+	public String tvShowSeasonName = "" ;
 
 	/// Set to true if this movie or show is missing at least one mkv or mp4 file
 	public boolean isMissingFile = false ;
@@ -45,7 +45,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public List< CorrelatedFile > correlatedFilesList = new ArrayList< CorrelatedFile >() ;
 
 	/// Store the files that have been correlated, indexed by filename
-	private Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
+	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
@@ -236,19 +236,19 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	}
 
 	public String getTVShowName() {
-		return TVShowName;
+		return tvShowName;
 	}
 
-	public void setTVShowName(String tVShowName) {
-		TVShowName = tVShowName;
+	public void setTVShowName(String tvShowName) {
+		this.tvShowName = tvShowName;
 	}
 
 	public String getTVShowSeasonName() {
-		return TVShowSeasonName;
+		return tvShowName;
 	}
 
-	public void setTVShowSeasonName(String tVShowSeasonName) {
-		TVShowSeasonName = tVShowSeasonName;
+	public void setTVShowSeasonName(String tvShowSeasonName) {
+		this.tvShowSeasonName = tvShowSeasonName;
 	}
 
 	public boolean isTVShow()

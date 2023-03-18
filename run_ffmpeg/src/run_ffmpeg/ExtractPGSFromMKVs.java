@@ -48,7 +48,7 @@ public class ExtractPGSFromMKVs extends Thread
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_pgs.txt" ;
-	
+
 	/// Set to true to keep the instances running, set to false otherwise.
 	/// This is meant to provide a programmatic way of shutting down all of the threads.
 	private transient boolean keepThreadRunning = true ;
@@ -130,14 +130,14 @@ public class ExtractPGSFromMKVs extends Thread
 			// Set the stop file to halt execution
 			while( shouldKeepRunning()
 					&& (extractPGS1.isAlive()
-					|| extractPGS2.isAlive()) )
+							|| extractPGS2.isAlive()) )
 			{
 				Thread.sleep( 100 ) ;
 			} // while( keepRunning )
 			// Post-condition: At least one condition directing this instance to halt has occurred.
 			extractPGS1.stopRunningThread() ;
 			extractPGS2.stopRunningThread() ;
-			
+
 			log.info( "Shutting down threads..." ) ;
 			extractPGS1.join() ;
 			extractPGS2.join() ;
@@ -163,7 +163,7 @@ public class ExtractPGSFromMKVs extends Thread
 				break ;
 			}
 
-			runOne( folderName ) ;
+			runOneDirectory( folderName ) ;
 			log.info( "Completed extracting subtitle files from folder " + folderName ) ;
 		}
 		final long endTime = System.nanoTime() ;
@@ -173,7 +173,11 @@ public class ExtractPGSFromMKVs extends Thread
 		log.info( "Thread shutdown." ) ;
 	}
 
-	public void runOne( final String inputDirectory )
+	/**
+	 * Extract from all files in a given directory.
+	 * @param inputDirectory
+	 */
+	public void runOneDirectory( final String inputDirectory )
 	{
 		transcodeCommon.setMkvInputDirectory( inputDirectory ) ;
 
@@ -185,32 +189,42 @@ public class ExtractPGSFromMKVs extends Thread
 		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
-			if( !shouldKeepRunning() )
+			runOneFile( theFileToProcess ) ;
+		}
+	}
 
-			{
-				log.info( "Stopping execution due to presence of stop file: " + getStopFileName() ) ;
-				break ;
-			}
+	/**
+	 * Extract from this one file.
+	 * @param theFileToProcess
+	 */
+	public FFmpegProbeResult runOneFile( TranscodeFile theFileToProcess )
+	{
+		if( !shouldKeepRunning() )
 
-			// Skip this file if a .srt file exists in its directory
-			if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
-			{
-				log.fine( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
-				continue ;
-			}
+		{
+			log.info( "Stopping execution due to presence of stop file: " + getStopFileName() ) ;
+			return null ;
+		}
 
-			// Look for usable subtitle streams in the file and retrieve a list of options
-			// for an ffmpeg extract command
-			FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess, log ) ;
-			if( null == probeResult )
-			{
-				// Unable to ffprobe the file
-				log.warning( "Error probing file: \"" + theFileToProcess.getMKVFileNameWithPath() + "\"" ) ;
-				continue ;
-			}
+		// Skip this file if a .srt file exists in its directory
+		if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
+		{
+			log.fine( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
+			return null ;
+		}
 
-			extractSubtitles( theFileToProcess, probeResult ) ;
-		} // for( fileToSubTitleExtract )
+		// Look for usable subtitle streams in the file and retrieve a list of options
+		// for an ffmpeg extract command
+		FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess, log ) ;
+		if( null == probeResult )
+		{
+			// Unable to ffprobe the file
+			log.warning( "Error probing file: \"" + theFileToProcess.getMKVFileNameWithPath() + "\"" ) ;
+			return probeResult ;
+		}
+
+		extractSubtitles( theFileToProcess, probeResult ) ;
+		return probeResult ;
 	}
 
 	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
@@ -250,16 +264,16 @@ public class ExtractPGSFromMKVs extends Thread
 			{
 				outputFileNameWithPath += ".srt" ;
 			}
-			
-//			if( stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
-//			{
-//				ffmpegOptionsCommandString.add( "-c:s", "dvdsub" ) ;
-//				ffmpegOptionsCommandString.add( "-f", "rawvideo", outputFileNameWithPath ) ;
-//			}
-//			else
-//			{
-				ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
-//			}
+
+			//			if( stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
+			//			{
+			//				ffmpegOptionsCommandString.add( "-c:s", "dvdsub" ) ;
+			//				ffmpegOptionsCommandString.add( "-f", "rawvideo", outputFileNameWithPath ) ;
+			//			}
+			//			else
+			//			{
+			ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
+			//			}
 		}
 		log.fine( "ffmpegOptionsCommandString: "
 				+ common.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
@@ -289,7 +303,7 @@ public class ExtractPGSFromMKVs extends Thread
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
 		common.executeCommand( ffmpegSubTitleExtractCommand ) ;
-		
+
 		// Unable to know if a subtitle stream is valid before it is written.
 		// Prune any small .sup files created herein.
 		PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
@@ -430,7 +444,7 @@ public class ExtractPGSFromMKVs extends Thread
 	{
 		return (!common.shouldStopExecution( getStopFileName() ) && isKeepThreadRunning()) ;
 	}
-	
+
 	public boolean isKeepThreadRunning() {
 		return keepThreadRunning;
 	}

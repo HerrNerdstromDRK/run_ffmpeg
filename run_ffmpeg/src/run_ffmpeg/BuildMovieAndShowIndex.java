@@ -30,7 +30,7 @@ public class BuildMovieAndShowIndex
 {
 	/// Setup the logging subsystem
 	private Logger log = null ;
-	
+
 	/// The set of methods and variables for common use.
 	private Common common = null ;
 
@@ -39,32 +39,32 @@ public class BuildMovieAndShowIndex
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-//	private static final String stopFileName = "C:\\Temp\\stop_build_movie_and_show_index.txt" ;
-	
+	//	private static final String stopFileName = "C:\\Temp\\stop_build_movie_and_show_index.txt" ;
+
 	private MoviesAndShowsMongoDB masMDB = null ;
 	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 	private MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
 	private MongoCollection< HDorSDFile > hDMoviesAndShowsCollection = null ;
 	private MongoCollection< HDorSDFile > sDMoviesAndShowsCollection = null ;
-	
+
 	private Map< String, MovieAndShowInfo > movieMap = new HashMap< String, MovieAndShowInfo >() ;
 	private Map< String, MovieAndShowInfo > tvShowMap = new HashMap< String, MovieAndShowInfo >() ;
-	
+
 	public BuildMovieAndShowIndex()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
-		
+
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
-		
+
 		// Retrieve the db collections.
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
 		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
 	}
-	
+
 	public static void main( String[] args )
 	{
 		BuildMovieAndShowIndex bmasi = new BuildMovieAndShowIndex() ;
@@ -72,6 +72,7 @@ public class BuildMovieAndShowIndex
 		bmasi.buildMovieIndex() ;
 		bmasi.recordMovieAndShowInfo() ;
 		bmasi.findAndRecordHDandSDMoviesAndShows() ;
+		System.out.println( "Shutdown." ) ;
 	}
 
 	/**
@@ -88,7 +89,7 @@ public class BuildMovieAndShowIndex
 			final File theFile )
 	{
 		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
-		
+
 		MovieAndShowInfo mapEntry = storageMap.get( movieOrTVShowName ) ;
 		if( null == mapEntry )
 		{
@@ -119,12 +120,17 @@ public class BuildMovieAndShowIndex
 	private void buildMovieIndex()
 	{
 		log.info( "Building movie index..." ) ;
-		
+
 		// First, let's pull the info from the probeInfoCollection
-		Bson mp4A = Filters.regex( "fileNameShort", ".*" ) ;
+		Bson mp4A = Filters.regex( "fileNameWithPath", ".*" ) ;
 		log.info( "Running find..." ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;
-	
+
+		int numMovies = 0 ;
+		int numTVShows = 0 ;
+		int numOtherVideos = 0 ;
+		int numParseErrors = 0 ;
+
 		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 		while( probeInfoFindResultIterator.hasNext() )
 		{
@@ -133,13 +139,15 @@ public class BuildMovieAndShowIndex
 			if( theFile.getParent().contains( "Season " ) )
 			{
 				// TV Show
+				++numTVShows ;
+
 				// TV show names will be stored by combining the name of the show with the season
 				// For example: "Californication_Season 01"
 				final String tvShowNameStrict = theFile.getParentFile().getParentFile().getName() ;
 				final String tvShowSeasonName = theFile.getParentFile().getName() ;
 				final String tvShowName = tvShowNameStrict + "_" + tvShowSeasonName ;
 				log.fine( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
-				
+
 				MovieAndShowInfo entry = addEntryToMap( tvShowMap, tvShowName, probeResult, theFile ) ;
 				entry.setTVShowName( tvShowNameStrict ) ;
 				entry.setTVShowSeasonName( tvShowSeasonName ) ;
@@ -147,19 +155,28 @@ public class BuildMovieAndShowIndex
 			else if( theFile.getParent().contains( "(" ) )
 			{
 				// Movie
-				// The formal should be like this:
+				++numMovies ;
+
+				// The formal filename should be like this:
 				// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
 				final String movieName = theFile.getParentFile().getName() ;
 				log.fine( "Found movie: " + movieName + ", filename: " + theFile.getName() ) ;
 				// movieName should be of the form "Transformers (2007)"
 				addEntryToMap( movieMap, movieName, probeResult, theFile ) ;
 			}
+			else if( theFile.getAbsolutePath().contains( "Other Videos" ) )
+			{
+				// Do nothing for other videos
+				++numOtherVideos ;
+			}
 			else
 			{
+				++numParseErrors ;
 				log.warning( "Parse error for file: " + theFile.getAbsolutePath() ) ;
 			}
 		} // while( iterator.hasNext() )
-		log.info( "Done building movie index." ) ;
+		log.info( "Done building movie index. Found " + numMovies + " movie file(s), " + numTVShows + " tv show file(s), "
+				+ numOtherVideos + " other video file(s), and " + numParseErrors + " parse error(s)" ) ;
 	}
 
 	/**
@@ -172,7 +189,7 @@ public class BuildMovieAndShowIndex
 		log.info( "Finding and recording HD and SD Movies..." ) ;
 		findAndRecordHDandSDMoviesAndShowsWithInputMap( movieMap ) ;
 		log.info( "Done finding and recording HD and SD Movies." ) ;
-	
+
 		log.info( "Finding and recording HD and SD TV Shows..." ) ;
 		findAndRecordHDandSDMoviesAndShowsWithInputMap( tvShowMap ) ;
 		log.info( "Done finding and recording HD and SD TV Shows." ) ;
@@ -190,7 +207,7 @@ public class BuildMovieAndShowIndex
 		{
 			String movieOrShowName = set.getKey() ;
 			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
-			
+
 			FFmpegProbeResult largestFile = movieAndShowInfo.findLargestFile() ;
 			if( null == largestFile )
 			{
@@ -204,14 +221,14 @@ public class BuildMovieAndShowIndex
 				log.warning( "Found null streams for MovieAndShowInfo: " + movieAndShowInfo.toString() ) ;
 				continue ;
 			}
-			
+
 			// Stream[0] is always the video file.
 			if( streams.isEmpty() )
 			{
 				log.warning( "Found empty streams for MovieAndShowInfo: " + movieAndShowInfo.toString() ) ;
 				continue ;
 			}
-			
+
 			FFmpegStream videoStream = streams.get( 0 ) ;
 			if( videoStream.height >= 720 )
 			{
@@ -223,7 +240,7 @@ public class BuildMovieAndShowIndex
 				sdFiles.add( new HDorSDFile( movieOrShowName ) ) ;
 			}
 		} // for( movieMap )
-		
+
 		// Find done, now record.
 		if( !hdFiles.isEmpty() )
 		{
@@ -246,38 +263,40 @@ public class BuildMovieAndShowIndex
 	 */
 	private void recordMovieAndShowInfo()
 	{
-		log.info( "Recording movies..." ) ;
+		log.info( "Recording " + movieMap.size() + " movies..." ) ;
 		recordMoviesAndShowsWithInputMap( movieMap ) ;
 		log.info( "Done recording movies." ) ;
-	
-		log.info( "Recording TV shows..." ) ;
+
+		log.info( "Recording " + tvShowMap.size() + " TV show seasons..." ) ;
 		recordMoviesAndShowsWithInputMap( tvShowMap ) ;
-		log.info( "Done recordingTV Shows." ) ;
+		log.info( "Done recording TV Shows." ) ;
 	}
 
 	/**
-		 * Build a correlated files list for each entry in the inputMap and store them all into
-		 *  the database movieAndShowInfoCollection.
-		 * @param inputMap
-		 */
-		private void recordMoviesAndShowsWithInputMap( final Map< String, MovieAndShowInfo > inputMap )
+	 * Build a correlated files list for each entry in the inputMap and store them all into
+	 *  the database movieAndShowInfoCollection.
+	 * @param inputMap
+	 */
+	private void recordMoviesAndShowsWithInputMap( final Map< String, MovieAndShowInfo > inputMap )
+	{
+		if( inputMap.isEmpty() )
 		{
-			if( inputMap.isEmpty() )
-			{
-				return ;
-			}
-			
-			List< MovieAndShowInfo > moviesAndShowsInfo = new ArrayList< MovieAndShowInfo >() ;
-			for( Map.Entry< String, MovieAndShowInfo > set : inputMap.entrySet() )
-			{
-	//			String movieOrShowName = set.getKey() ;
-				MovieAndShowInfo movieAndShowInfo = set.getValue() ;
-				movieAndShowInfo.makeReadyCorrelatedFilesList() ;
-				moviesAndShowsInfo.add( movieAndShowInfo ) ;
-			}
-			Collections.sort( moviesAndShowsInfo ) ;
-			movieAndShowInfoCollection.insertMany( moviesAndShowsInfo ) ;
+			return ;
 		}
+
+		// Used a Map<> internally for quick search, but the database only accepts (so far as I can
+		// figure out) linear Collections.
+		List< MovieAndShowInfo > moviesAndShowsInfo = new ArrayList< MovieAndShowInfo >() ;
+		for( Map.Entry< String, MovieAndShowInfo > set : inputMap.entrySet() )
+		{
+			//			String movieOrShowName = set.getKey() ;
+			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
+			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
+			moviesAndShowsInfo.add( movieAndShowInfo ) ;
+		}
+		Collections.sort( moviesAndShowsInfo ) ;
+		movieAndShowInfoCollection.insertMany( moviesAndShowsInfo ) ;
+	}
 
 	/**
 	 * Remove all objects from each collection, except the ProbeInfo collection, and establish
@@ -290,16 +309,12 @@ public class BuildMovieAndShowIndex
 		masMDB.dropMovieAndShowInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		
-
 		masMDB.dropHDMoviesAndShowCollection() ;
 		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
 
-
 		masMDB.dropSDMoviesAndShowCollection() ;
 		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
-		
-		log.info( "Done resetting collections." ) ;
 
+		log.info( "Done resetting collections." ) ;
 	}
-	
 }

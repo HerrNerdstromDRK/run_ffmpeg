@@ -45,7 +45,7 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	 */
 	public void addOrUpdateMKVFile( FFmpegProbeResult theMKVFileProbeResult )
 	{
-		final String shortenedFileName = theMKVFileProbeResult.getFileNameShort() ;
+		final String shortenedFileName = theMKVFileProbeResult.getFileNameShort().replace( Common.getMissingFilePreExtension(), "" ) ;
 		
 		// Remove substitute names included from the mkvFilesByName structure
 		removeFilesByName( mkvFilesByName, shortenedFileName ) ;

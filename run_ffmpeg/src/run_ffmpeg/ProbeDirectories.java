@@ -222,9 +222,14 @@ public class ProbeDirectories extends Thread
 
 	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe )
 	{
+		return probeFileAndUpdateDB( fileToProbe, false ) ;
+	}
+	
+	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe, boolean forceRefresh )
+	{
 		// Has the file already been probed?
 		FFmpegProbeResult probeResult = fileAlreadyProbed( probeInfoCollection, fileToProbe ) ;
-		if( (probeResult != null) && !needsRefresh( fileToProbe, probeResult ) )
+		if( !forceRefresh && ((probeResult != null) && !needsRefresh( fileToProbe, probeResult )) )
 		{
 			// No need to probe again, continue to the next file.
 			log.fine( "File already exists, skipping: " + fileToProbe.getAbsolutePath() ) ;
@@ -287,6 +292,7 @@ public class ProbeDirectories extends Thread
 		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
 		drivesAndFoldersToProbe.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
 		drivesAndFoldersToProbe.addAll( common.getAllChainBMP4DrivesAndFolders() ) ;
+		drivesAndFoldersToProbe.addAll( common.getMissingFiles() ) ;
 		setDrivesAndFoldersToProbe( drivesAndFoldersToProbe ) ;
 	}
 

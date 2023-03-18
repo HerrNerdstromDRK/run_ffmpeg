@@ -53,6 +53,9 @@ public class WorkflowOrchestrator
 		WorkflowStageThread_UpdateCorrelatedFile updatedCorrelatedFileThread = new WorkflowStageThread_UpdateCorrelatedFile(
 				"updateCorrelatedFileThread", log, common, masMDB ) ;
 		threadList.add( updatedCorrelatedFileThread ) ;
+		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
+				"transcodeMKVFilesThread", log, common, masMDB ) ;
+		threadList.add( transcodeMKVFilesThread ) ;
 	}
 
 	public static void main(String[] args)

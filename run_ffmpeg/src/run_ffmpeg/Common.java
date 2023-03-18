@@ -47,6 +47,8 @@ public class Common
 	private static final String missingMovieMKVPath = "\\\\yoda\\MKV_Archive1\\Movies_Missing" ;
 	private static final String missingTVShowMKVPath = "\\\\yoda\\MKV_Archive1\\TV Shows_Missing" ;
 	private static final String missingFilePreExtension = ".missing_file" ;
+	private static final String missingMovieMP4Path = "\\\\yoda\\MP4\\Movies" ;
+	private static final String missingShowMP4Path = "\\\\yoda\\MP4\\TV Shows" ;
 
 	/// Paths to external applications
 	private static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
@@ -83,7 +85,10 @@ public class Common
 			"\\\\yoda\\MKV_Archive3",
 			"\\\\yoda\\MKV_Archive7",
 			"\\\\yoda\\MKV_Archive8"
-
+	} ;
+	private final String[] missingFiles = {
+			"\\\\yoda\\MKV_Archive1\\Movies_Missing",
+			"\\\\yoda\\MKV_Archive1\\TV Shows_Missing"
 	} ;
 
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
@@ -738,6 +743,19 @@ public class Common
 
 	public static String getPathToTessdata() {
 		return pathToTESSDATA;
+	}
+
+	public static String getMissingMovieMP4Path() {
+		return missingMovieMP4Path;
+	}
+
+	public static String getMissingShowMP4Path() {
+		return missingShowMP4Path;
+	}
+
+	public List< String > getMissingFiles() {
+		List< String > retMe = new ArrayList< String >( Arrays.asList( missingFiles ) ) ;
+		return retMe ;
 	}
 
 }
