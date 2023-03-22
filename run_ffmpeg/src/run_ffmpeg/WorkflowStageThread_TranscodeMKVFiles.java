@@ -47,8 +47,8 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		log.info( "Got job: " + theJob ) ;
 
 		// Get the corresponding MovieAndShowInfo
-		Bson movieAndShowInfoIDdFilter = Filters.eq( "_id", new ObjectId( theJob.getMovieOrShowName_id() ) ) ;
-		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDdFilter ).first() ;
+		Bson movieAndShowInfoIDFilter = Filters.eq( "_id", new ObjectId( theJob.getMovieOrShowName_id() ) ) ;
+		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
 		if( null == movieAndShowInfo )
 		{
 			log.warning( "Unable to find movieAndShowInfo: " + theJob.getMovieOrShowName_id().toString() ) ;
@@ -114,13 +114,10 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 				log,
 				tCommon ) ;
 
+		// Extract subtitle streams.
 		ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
-		FFmpegProbeResult ffmpegProbeResult = extractPGSFromMKVs.runOneFile( fileToTranscode ) ;
-		if( null == ffmpegProbeResult )
-		{
-			log.warning( "null probeResult" ) ;
-			return ;
-		}
+		// runOneFile() will also prune the .sup files
+		extractPGSFromMKVs.runOneFile( fileToTranscode ) ;
 
 		OCRSubtitle ocrSubtitle = new OCRSubtitle() ;
 		List< File > filesToOCR = common.getFilesInDirectoryByExtension( theJob.getMkvLongPath(), ocrSubtitle.getExtensionsToOCR() ) ;
@@ -141,7 +138,12 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 				mp4FinalDirectory,
 				log,
 				tCommon ) ;
-		fileToTranscode.processFFmpegProbeResult( ffmpegProbeResult ) ;
+		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( mkvInputFileWithPath, log ) ;
+		if( null == mkvProbeResult )
+		{
+			log.warning( "mkvProbeResult is null" ) ;
+		}
+		fileToTranscode.processFFmpegProbeResult( mkvProbeResult ) ;
 		fileToTranscode.makeDirectories() ;
 		fileToTranscode.setTranscodeInProgress();
 
@@ -186,11 +188,12 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		// Update the probe information for this file
 		// Be sure to force the refresh.
 		ProbeDirectories pd = new ProbeDirectories() ;
-		ffmpegProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMP4FinalOutputFileNameWithPath() ), true ) ;
+		FFmpegProbeResult mp4ProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMP4FinalOutputFileNameWithPath() ), true ) ;
 
 		// Update the movie and show index
-		movieAndShowInfo.updateCorrelatedFile( ffmpegProbeResult ) ;
-		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDdFilter,  movieAndShowInfo ) ;
+		movieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
+		movieAndShowInfo.makeReadyCorrelatedFilesList() ;
+		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDFilter,  movieAndShowInfo ) ;
 	}
 
 	public String getMP4WorkingDirectory() {

@@ -290,7 +290,7 @@ public class TranscodeCommon
 		{
 			if( inputFile.hasForcedSubTitleFile() )
 			{
-				log.info( "buildVideoTranscodeOptions> Video transcode is disabled while forced subtitles exist. This will"
+				log.info( "Video transcode is disabled while forced subtitles exist. This will"
 						+ " probably generate an ffmpeg error" ) ;
 			}
 		}
@@ -388,7 +388,7 @@ public class TranscodeCommon
 	public boolean transcodeFile( TranscodeFile inputFile )
     {
     	// Precondition: ffmpegProbeResult is not null
-    	log.info( "transcodeFile> Transcoding: " + inputFile ) ;
+    	log.info( "Transcoding: " + inputFile ) ;
 
 		// Perform the options build by these steps:
 		//  1) Setup ffmpeg basic options
@@ -439,13 +439,11 @@ public class TranscodeCommon
     	long startTime = System.nanoTime() ;
     	log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
 
-		log.info( "transcodeFile> Executing command: " + common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-
     	// Only execute the transcode if testMode is false
     	boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
     	if( !executeSuccess )
     	{
-    		log.info( "transcodeFile> Error in execute command" ) ;
+    		log.info( "Error in execute command" ) ;
     		// Do not move any files since the transcode failed
     		return false ;
     	}
@@ -453,7 +451,7 @@ public class TranscodeCommon
     	long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
 
     	double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
-    	log.info( "transcodeFile> Elapsed time to transcode "
+    	log.info( "Elapsed time to transcode "
     			+ inputFile.getMkvFileName()
     			+ ": "
     			+ common.getNumberFormat().format( timeElapsedInSeconds )

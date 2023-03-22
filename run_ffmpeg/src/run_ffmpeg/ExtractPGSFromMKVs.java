@@ -197,20 +197,20 @@ public class ExtractPGSFromMKVs extends Thread
 	 * Extract from this one file.
 	 * @param theFileToProcess
 	 */
-	public FFmpegProbeResult runOneFile( TranscodeFile theFileToProcess )
+	public void runOneFile( TranscodeFile theFileToProcess )
 	{
 		if( !shouldKeepRunning() )
 
 		{
 			log.info( "Stopping execution due to presence of stop file: " + getStopFileName() ) ;
-			return null ;
+			return ;
 		}
 
 		// Skip this file if a .srt file exists in its directory
 		if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 		{
 			log.fine( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
-			return null ;
+			return ;
 		}
 
 		// Look for usable subtitle streams in the file and retrieve a list of options
@@ -220,11 +220,10 @@ public class ExtractPGSFromMKVs extends Thread
 		{
 			// Unable to ffprobe the file
 			log.warning( "Error probing file: \"" + theFileToProcess.getMKVFileNameWithPath() + "\"" ) ;
-			return probeResult ;
+			return ;
 		}
 
 		extractSubtitles( theFileToProcess, probeResult ) ;
-		return probeResult ;
 	}
 
 	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
@@ -308,7 +307,7 @@ public class ExtractPGSFromMKVs extends Thread
 		// Prune any small .sup files created herein.
 		PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
 		File regularFile = new File( fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
-		pssf.pruneFolder( regularFile.getAbsolutePath() ) ;
+		pssf.pruneFolder( regularFile.getParent() ) ;
 	}
 
 	/**

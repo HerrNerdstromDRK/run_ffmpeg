@@ -122,7 +122,7 @@ public class BuildMovieAndShowIndex
 		log.info( "Building movie index..." ) ;
 
 		// First, let's pull the info from the probeInfoCollection
-		Bson mp4A = Filters.regex( "fileNameWithPath", ".*" ) ;
+		Bson mp4A = Filters.regex( "fileNameWithPath", "Jumanji.*" ) ;
 		log.info( "Running find..." ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( mp4A ) ;
 

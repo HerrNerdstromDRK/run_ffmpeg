@@ -662,7 +662,7 @@ public class TranscodeFile
 	@Override
 	public String toString()
 	{
-		String retMe = "TranscodeFile> theMP4FileName: "
+		String retMe = "theMP4FileName: "
 				+ getTheMP4FileName()
 				+ ", mkvFinalDirectory: "
 				+ getMkvFinalDirectory()
