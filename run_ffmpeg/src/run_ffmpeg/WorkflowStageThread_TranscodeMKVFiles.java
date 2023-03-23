@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -18,7 +17,6 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 {
 	private transient MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_TranscodeMKVFilesInfoCollection = null ;
 	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
-	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 	private final String mp4WorkingDirectory = "D:\\temp" ;
 
 	public WorkflowStageThread_TranscodeMKVFiles( final String threadName,
@@ -29,7 +27,6 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		super( threadName, log, common, masMDB ) ;
 		jobRecord_TranscodeMKVFilesInfoCollection = masMDB.getJobRecord_TranscodeMKVFileInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
-		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
 
 	@Override
@@ -111,8 +108,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 				theJob.getMkvLongPath(),
 				getMP4WorkingDirectory(),
 				mp4FinalDirectory,
-				log,
-				tCommon ) ;
+				log ) ;
 
 		// Extract subtitle streams.
 		ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
@@ -136,8 +132,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 				theJob.getMkvLongPath(),
 				getMP4WorkingDirectory(),
 				mp4FinalDirectory,
-				log,
-				tCommon ) ;
+				log ) ;
 		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( mkvInputFileWithPath, log ) ;
 		if( null == mkvProbeResult )
 		{
@@ -161,8 +156,8 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		log.info( "Moving mp4 file from " + getMP4WorkingDirectory() + " to " + mp4FinalDirectory ) ;
 		if( !common.getTestMode() )
 		{
-			final String mp4FileNameInWorkingDirectory = fileToTranscode.getMp4OutputFileNameWithPath() ;
-			final String mp4FileNameInFinalDirectory = fileToTranscode.getMP4FinalOutputFileNameWithPath() ;
+			final String mp4FileNameInWorkingDirectory = fileToTranscode.getMP4OutputFileNameWithPath() ;
+			final String mp4FileNameInFinalDirectory = fileToTranscode.getMP4FinalFileNameWithPath() ;
 
 			try
 			{
@@ -188,7 +183,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		// Update the probe information for this file
 		// Be sure to force the refresh.
 		ProbeDirectories pd = new ProbeDirectories() ;
-		FFmpegProbeResult mp4ProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMP4FinalOutputFileNameWithPath() ), true ) ;
+		FFmpegProbeResult mp4ProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMP4FinalFileNameWithPath() ), true ) ;
 
 		// Update the movie and show index
 		movieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;

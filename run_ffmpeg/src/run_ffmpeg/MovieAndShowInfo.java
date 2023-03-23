@@ -50,14 +50,72 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 
+	/**
+	 * Default constructor for serialization/deserialization.
+	 */
 	public MovieAndShowInfo()
 	{}
 
-	/// Constructor for a movie
+	/**
+	 * Constructor for a MovieOrShowInfo. This is a convenience constructor that requires the
+	 *  caller to follow the creation of this object by configuring the strict tv showname (if appropriate).
+	 * @param movieOrShowName
+	 * @param log
+	 */
 	public MovieAndShowInfo( final String movieOrShowName, Logger log )
 	{
 		this.movieOrShowName = movieOrShowName ;
 		this.log = log ;
+	}
+	
+	/**
+	 * Create an instance of MovieAndShowInfo and initialize the instance-level variables.
+	 * Do NOT add the probeResult to any of the file structures -- that must be done
+	 *  separately via add<MKV/MP4>File().
+	 * @param theProbeResult
+	 * @param log
+	 */
+	public MovieAndShowInfo( FFmpegProbeResult theProbeResult, Logger log )
+	{
+		File theFile = new File( theProbeResult.getFileNameWithPath() ) ;
+		if( theFile.getParent().contains( "Season " ) )
+		{
+			// TV show names will be stored by combining the name of the show with the season
+			// For example: "Californication_Season 01"
+			final String tvShowNameStrict = theFile.getParentFile().getParentFile().getName() ;
+			final String tvShowSeasonName = theFile.getParentFile().getName() ;
+			final String tvShowName = tvShowNameStrict + "_" + tvShowSeasonName ;
+			log.fine( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
+			
+			setTVShowName( tvShowNameStrict ) ;
+			setTVShowSeasonName( tvShowSeasonName ) ;
+			setMovieOrShowName( tvShowName ) ;
+		}
+		else if( theFile.getParent().contains( "(" ) )
+		{
+			// The formal filename should be like this:
+			// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
+			final String movieName = theFile.getParentFile().getName() ;
+			setMovieOrShowName( movieName ) ;
+			log.fine( "Found movie: " + movieName + ", filename: " + theFile.getName() ) ;
+			// movieName should be of the form "Transformers (2007)"
+		}
+		else if( theFile.getAbsolutePath().contains( "Other Videos" ) )
+		{
+			// Do nothing for other videos
+		}
+		else
+		{
+			log.warning( "Parse error for file: " + theFile.getAbsolutePath() ) ;
+		}
+		if( theFile.getName().endsWith( ".mp4" ) )
+		{
+			setMP4LongPath( theFile.getParent() ) ;
+		}
+		else
+		{
+			setMKVLongPath( theFile.getParent() ) ;
+		}
 	}
 
 	/**
@@ -234,6 +292,11 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	{
 		return movieOrShowName ;
 	}
+	
+	public void setMovieOrShowName( final String movieOrShowName )
+	{
+		this.movieOrShowName = movieOrShowName ;
+	}
 
 	public String getTVShowName() {
 		return tvShowName;
@@ -273,6 +336,22 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		}
 		retMe += "}" ;
 		return retMe ;
+	}
+
+	public String getMKVLongPath() {
+		return mkvLongPath;
+	}
+
+	public void setMKVLongPath(String mkvLongPath) {
+		this.mkvLongPath = mkvLongPath;
+	}
+
+	public String getMP4LongPath() {
+		return mp4LongPath;
+	}
+
+	public void setMP4LongPath(String mp4LongPath) {
+		this.mp4LongPath = mp4LongPath;
 	}
 
 }

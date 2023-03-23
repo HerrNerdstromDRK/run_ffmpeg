@@ -39,7 +39,7 @@ public class OCRSubtitle extends Thread
 	private List< String > fileNamesToOCR = new ArrayList< String >() ;
 
 	/// The extensions that contain image-based subtitles
-	private String[] extensionsToOCR = { ".sup" } ;
+	private static String[] extensionsToOCR = { ".sup" } ;
 
 	public OCRSubtitle()
 	{
@@ -237,7 +237,7 @@ public class OCRSubtitle extends Thread
 		}
 	}
 
-	public String[] getExtensionsToOCR() {
+	public static String[] getExtensionsToOCR() {
 		return extensionsToOCR;
 	}
 
@@ -274,9 +274,9 @@ public class OCRSubtitle extends Thread
 		return keepThreadRunning;
 	}
 
-	public void setExtensionsToOCR( String[] extensionsToOCR )
+	public static void setExtensionsToOCR( String[] _extensionsToOCR )
 	{
-		this.extensionsToOCR = extensionsToOCR ;
+		extensionsToOCR = _extensionsToOCR ;
 	}
 
 	public void setFileNamesToOCR(List<String> fileNamesToOCR) {

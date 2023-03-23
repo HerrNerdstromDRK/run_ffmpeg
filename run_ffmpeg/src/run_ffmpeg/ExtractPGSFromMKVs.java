@@ -209,7 +209,7 @@ public class ExtractPGSFromMKVs extends Thread
 		// Skip this file if a .srt file exists in its directory
 		if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 		{
-			log.fine( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMkvFileName() ) ;
+			log.fine( "Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMKVInputFileNameWithPath() ) ;
 			return ;
 		}
 
@@ -219,7 +219,7 @@ public class ExtractPGSFromMKVs extends Thread
 		if( null == probeResult )
 		{
 			// Unable to ffprobe the file
-			log.warning( "Error probing file: \"" + theFileToProcess.getMKVFileNameWithPath() + "\"" ) ;
+			log.warning( "Error probing file: \"" + theFileToProcess.getMKVInputFileNameWithPath() + "\"" ) ;
 			return ;
 		}
 
@@ -249,9 +249,9 @@ public class ExtractPGSFromMKVs extends Thread
 			// Create the .sup filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
-			String outputPath = theFile.getMKVInputPath() ;
+			String outputPath = theFile.getMKVInputDirectory() ;
 			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputPath )
-					+ theFile.getMkvFileName().replace( ".mkv", "" ) ;
+					+ theFile.getMKVFileName().replace( ".mkv", "" ) ;
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
 			outputFileNameWithPath += "." + streamIndex ;
@@ -298,7 +298,7 @@ public class ExtractPGSFromMKVs extends Thread
 		ImmutableList.Builder< String > ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
 		ffmpegSubTitleExtractCommand.add( Common.getPathToFFmpeg() ) ;
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
-		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
+		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
 		common.executeCommand( ffmpegSubTitleExtractCommand ) ;
@@ -306,7 +306,7 @@ public class ExtractPGSFromMKVs extends Thread
 		// Unable to know if a subtitle stream is valid before it is written.
 		// Prune any small .sup files created herein.
 		PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
-		File regularFile = new File( fileToSubTitleExtract.getMKVFileNameWithPath() ) ;
+		File regularFile = new File( fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
 		pssf.pruneFolder( regularFile.getParent() ) ;
 	}
 

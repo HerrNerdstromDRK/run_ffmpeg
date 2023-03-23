@@ -16,6 +16,9 @@ public class TranscodeCommon
 	private String mkvFinalDirectory = null ;
 	private String mp4OutputDirectory = null ;
 	private String mp4FinalDirectory = null ;
+
+	/// Default location for MP4 working directory.
+	private final static String defaultMP4OutputDirectory = "D:\\Temp" ;
 	
 	/// Set whether or not to transcode video
 	/// This is usually true, however the option here to disable video transcode is intended to be used
@@ -309,6 +312,10 @@ public class TranscodeCommon
 		return audioStreamTranscodeOptions;
 	}
 
+	protected static String getDefaultMP4OutputDirectory() {
+		return defaultMP4OutputDirectory;
+	}
+
 	public String getForcedSubTitleFileNameContains() {
 		return forcedSubTitleFileNameContains;
 	}
@@ -350,8 +357,7 @@ public class TranscodeCommon
     					mkvFinalDirectory,
     					mp4OutputDirectory,
     					mp4FinalDirectory,
-    					log,
-    					this ) ;
+    					log ) ;
     			transcodeFilesInDirectory.add( newTranscodeFile ) ;
     		}
     	}
@@ -410,7 +416,7 @@ public class TranscodeCommon
 		ffmpegCommand.add( "-y" ) ;
 		
 		// 2) Include source file
-		ffmpegCommand.add( "-i", inputFile.getMKVFileNameWithPath() ) ;
+		ffmpegCommand.add( "-i", inputFile.getMKVInputFileNameWithPath() ) ;
 
 		// 3) Include all other input files (such as .srt, except forced subtitles)
 		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
@@ -452,7 +458,7 @@ public class TranscodeCommon
 
     	double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
     	log.info( "Elapsed time to transcode "
-    			+ inputFile.getMkvFileName()
+    			+ inputFile.getMKVFileName()
     			+ ": "
     			+ common.getNumberFormat().format( timeElapsedInSeconds )
     			+ " seconds, "

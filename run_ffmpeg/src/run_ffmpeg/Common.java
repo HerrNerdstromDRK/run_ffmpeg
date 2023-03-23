@@ -283,7 +283,7 @@ public class Common
 	 */
 	public FFmpegProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
 	{
-		return ffprobeFile( new File( theFile.getMKVFileNameWithPath() ), log ) ;
+		return ffprobeFile( new File( theFile.getMKVInputFileNameWithPath() ), log ) ;
 	}
 
 	/**
@@ -582,6 +582,20 @@ public class Common
 			retMe.add( moviesFolder ) ;
 			retMe.add( tvShowsFolder ) ;
 			retMe.add( otherVideosFolder ) ;
+		}
+		return retMe ;
+	}
+	
+	public List< String > addToConvertToEachDrive( final List< String > theDrives )
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		for( String theDrive : theDrives )
+		{
+			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" + getPathSeparator() + "To Convert" ;
+			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" + getPathSeparator() + "To Convert" ;
+
+			retMe.add( moviesFolder ) ;
+			retMe.add( tvShowsFolder ) ;
 		}
 		return retMe ;
 	}

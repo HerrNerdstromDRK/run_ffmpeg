@@ -165,7 +165,7 @@ public class run_ffmpeg
 			{
 				// The mp4 file already exists and we are not overwriting it.
 				// Skip this loop and move to the next file.
-				log.info( "Input file (" + fileToTranscode.getMkvFileName() + ") already has an mp4 equivalent. Skipping transcode." ) ;
+				log.info( "Input file (" + fileToTranscode.getMKVFileName() + ") already has an mp4 equivalent. Skipping transcode." ) ;
 				continue ;
 			}
 			
@@ -173,7 +173,7 @@ public class run_ffmpeg
 			FFmpegProbeResult ffmpegProbeResult = common.ffprobeFile( fileToTranscode, log ) ;
 			if( null == ffmpegProbeResult )
 			{
-				log.info( "transcodeFile(" + fileToTranscode.getMkvFileName() + ")> null ffmpegProbeResult" ) ;
+				log.info( "transcodeFile(" + fileToTranscode.getMKVFileName() + ")> null ffmpegProbeResult" ) ;
 				continue ;
 			}
 
@@ -194,22 +194,22 @@ public class run_ffmpeg
 		    	if( fileToTranscode.getMKVFileShouldMove() )
 		    	{
 		    		// moveFile respects the testMode variable
-		    		moveFile( fileToTranscode.getMKVFileNameWithPath(), fileToTranscode.getMkvFinalFileNameWithPath() ) ;
+		    		moveFile( fileToTranscode.getMKVInputFileNameWithPath(), fileToTranscode.getMKVFinalFileNameWithPath() ) ;
 		    		if( doMoveSRT )
 		    		{
 			    		for( Iterator< File > fileIterator = fileToTranscode.getSRTFileListIterator() ; fileIterator.hasNext() ; )
 			    		{
 			    			File srtFile = fileIterator.next() ;
-			    			if( !srtFile.getAbsolutePath().equalsIgnoreCase( fileToTranscode.getMkvFinalDirectory() ) )
+			    			if( !srtFile.getAbsolutePath().equalsIgnoreCase( fileToTranscode.getMKVFinalDirectory() ) )
 			    			{
-			    				moveFile( srtFile.getAbsolutePath(), fileToTranscode.getMkvFinalDirectory() + srtFile.getName() ) ;
+			    				moveFile( srtFile.getAbsolutePath(), fileToTranscode.getMKVFinalDirectory() + srtFile.getName() ) ;
 			    			}
 			    		}
 		    		}
 		    	}
 		    	if( fileToTranscode.getMP4FileShouldMove() )
 		    	{
-		    		moveFile( fileToTranscode.getMp4OutputFileNameWithPath(), fileToTranscode.getMP4FinalOutputFileNameWithPath() ) ;
+		    		moveFile( fileToTranscode.getMP4OutputFileNameWithPath(), fileToTranscode.getMP4FinalFileNameWithPath() ) ;
 		    	}
 			}
 			else
@@ -252,13 +252,6 @@ public class run_ffmpeg
 		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
 		log.info( "Shutdown complete." ) ;
 	} // main()
-
-	public void buildDirectories( final TranscodeFile inputFile )
-	{
-		common.makeDirectory( inputFile.getMkvFinalDirectory() ) ;
-		common.makeDirectory( inputFile.getMp4OutputDirectory() ) ;
-		common.makeDirectory( inputFile.getMp4FinalDirectory() ) ;
-	}
 
     public void moveFile( final String sourceFileName, final String destinationFileName )
 	{
