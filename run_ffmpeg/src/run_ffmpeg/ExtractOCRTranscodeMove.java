@@ -27,18 +27,22 @@ public class ExtractOCRTranscodeMove extends Thread
 	private transient Common common = null ;
 
 	/// File name to which to log activities for this application.
-	private final String logFileName = "log_extract_and_ocr.txt" ;
+	private final String logFileName = "log_extract_ocr_transcode_move.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_extract_and_ocr.txt" ;
-	
+
 	/// Handle to the mongodb
 	private transient MoviesAndShowsMongoDB masMDB = null ;
-	
+
 	/// Handle to the MovieAndShowInfo collection
 	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
-	
+
+	/// Handle to the probe info collection to lookup and store probe information for the mkv
+	/// and mp4 files.
+	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+
 	public ExtractOCRTranscodeMove()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
@@ -46,40 +50,144 @@ public class ExtractOCRTranscodeMove extends Thread
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
+		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
-	
+
+	/**
+	 * Transcode all folders with To Convert subdirectories.
+	 */
+	public void runFolders()
+	{
+		List< String > foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+		runFolders( foldersToTranscode ) ;
+	}
+
 	/**
 	 * Transcode all files in each of the listed folders.
 	 * @param folderList
 	 */
 	public void runFolders( List< String > folderList )
 	{		
-		for( String folder : folderList )
+		for( String inputDirectory : folderList )
 		{
-			final String mkvInputDirectory = folder ;
-			final String mkvFinalDirectory = makeFinalMKVDirectory( mkvInputDirectory ) ;
-			final String mp4OutputDirectory = TranscodeCommon.getDefaultMP4OutputDirectory() ;
-			final String mp4FinalOutputDirectory = makeFinalMP4Directory( mkvInputDirectory ) ;
-			TranscodeFile fileToTranscode = new TranscodeFile(
-					folder,
-					
-					)
-					
-					
-					public TranscodeFile( final File theMKVFile,
-							final String mkvFinalDirectory,
-							final String mp4OutputDirectory,
-							final String mp4FinalDirectory,
-							Logger log,
-							TranscodeCommon transcodeCommon )
+			final File folderToTranscodeFile = new File( inputDirectory ) ;
+			if( !folderToTranscodeFile.exists() )
+			{
+				continue ;
+			}
+			// Post condition: folderToTranscode exists.
+
+			// Retrieve the mkv input files in this folder.
+			List< File > filesToTranscode = common.getFilesInDirectoryByExtension( inputDirectory,
+					TranscodeCommon.getTranscodeExtensions() ) ;
+			for( File mkvInputFile : filesToTranscode )
+			{
+				// Find or create the FFmpegProbeResult for this file.
+				Bson probeInfoFilter = Filters.eq( "fileNameWithPath", mkvInputFile.getAbsolutePath() ) ;
+				FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( probeInfoFilter ).first() ;
+				if( null == mkvProbeResult )
+				{
+					mkvProbeResult = common.ffprobeFile( mkvInputFile, log ) ;
+					if( null == mkvProbeResult )
+					{
+						// ffprobe failed.
+						log.warning( "ffprobe failed for file: " + mkvInputFile.toString() ) ;
+						continue ;
+					}
+					// Create a new probe result.
+					// Store it where it is for now
+					// TODO: If we move the mkvInputFile, then update the probe info also.
+					probeInfoCollection.insertOne( mkvProbeResult ) ;
+				}
+				// Post condition: mkvProbeResult is non-null, and hopefully relevant.
+
+				// Check for the situation where we are transcoding a file that is already part of 
+				// the destination mkv directory.
+				// Need to lookup the movie or show based on the first class content of the movie/show name
+				// since we may be transcoding something here that is already in the database with its
+				// final locations included.
+				// Use the MovieAndShowInfo parser to extract all of the relevant information.
+				MovieAndShowInfo testMovieAndShowInfo = new MovieAndShowInfo( mkvProbeResult, log ) ;
+
+				// Use the testMovieAndShowInfo to lookup the correct MovieAndShowInfo by movieOrShowName
+				Bson movieAndShowInfoIDFilter = Filters.eq( "movieOrShowName", testMovieAndShowInfo.getMovieOrShowName() ) ;
+				MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
+				String mkvFinalDirectory = null ;
+				String mp4FinalDirectory = null ;
+
+				if( movieAndShowInfo != null )
+				{
+					// Found the movie or show in the database.
+					// Use those values for the directory build here.
+					mkvFinalDirectory = movieAndShowInfo.getMKVLongPath() ;
+					mp4FinalDirectory = movieAndShowInfo.getMP4LongPath() ;
+				}
+				else
+				{
+					// movie or show not found in the database.
+					// Build the directories here based on what data is available.
+					mkvFinalDirectory = makeFinalMKVDirectory( mkvProbeResult, testMovieAndShowInfo ) ;
+					mp4FinalDirectory = makeFinalMP4Directory( mkvProbeResult, testMovieAndShowInfo ) ;
+				}
+
+				// mp4OutputDirectory is the location where we will store the transcoded
+				// mp4 output files before moving to their end destination (if different from output directory).
+				final String mp4OutputDirectory = TranscodeCommon.getDefaultMP4OutputDirectory() ;
+
+				TranscodeFile fileToTranscode = new TranscodeFile(
+						mkvInputFile,
+						mkvFinalDirectory,
+						mp4OutputDirectory,
+						mp4FinalDirectory,
+						log ) ;
+				fileToTranscode.processFFmpegProbeResult( mkvProbeResult ) ;
+
+				runOneFile( fileToTranscode, mkvProbeResult ) ;
+			} // for( fileToTranscode )
 		}
 	}
-	
-	protected String makeFinalMP4Directory( final String mkvInputDirectory )
+
+	/**
+	 * Determine where to place the final mp4 files for the given mkvInputDirectory.
+	 * If the show/movie corresponds to an existing folder, for example when adding a new
+	 *  season to an existing show, use that existing directory.
+	 * If the show or movie directory does not exist, create it new.
+	 * testMovieAndShowInfo is provided here because its parser is able to extract some basics
+	 *  such as whether or not the file is a tv show or movie.
+	 * @param mkvInputDirectory
+	 * @return
+	 */
+	protected String makeFinalMP4Directory( final FFmpegProbeResult mkvProbeResult, MovieAndShowInfo testMovieAndShowInfo )
 	{
-		
+		String mp4FinalDirectory = common.getMP4DriveWithMostAvailableSpace() ;
+		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
+		final String mkvInputDirectory = mkvInputFile.getParent() ;
+		final File mkvInputDirectoryFile = new File( mkvInputFile.getParentFile().getAbsolutePath() ) ;
+
+		if( !testMovieAndShowInfo.isTVShow() )
+		{
+			// Movie
+			// Create the mp4LongPath
+			// mp4DriveWithMostSpaceAvailable will be of the form "\\yoda\\MP4"
+			mp4FinalDirectory += common.getPathSeparator()
+					+ "Movies"
+					+ common.getPathSeparator()
+					+ testMovieAndShowInfo.getMovieOrShowName() ;
+		}
+		else
+		{
+			// TV Show
+			final String tvShowSeasonName = mkvInputDirectoryFile.getParentFile().getName() ;
+			final String tvShowName = mkvInputDirectoryFile.getParentFile().getParentFile().getName() ;
+			mp4FinalDirectory += "TV Shows"
+					+ common.getPathSeparator()
+					+ tvShowName
+					+ common.getPathSeparator()
+					+ tvShowSeasonName ;
+		}
+		return mp4FinalDirectory ;
 	}
-	
+
 	/**
 	 * Return the folder path to which mkv files from the given mkvInputDirectory
 	 *  should be permanently placed.
@@ -89,22 +197,35 @@ public class ExtractOCRTranscodeMove extends Thread
 	 * @param mkvInputDirectory
 	 * @return
 	 */
-	protected String makeFinalMKVDirectory( final String mkvInputDirectory )
+	protected String makeFinalMKVDirectory( final FFmpegProbeResult mkvProbeResult, MovieAndShowInfo testMovieAndShowInfo )
 	{
+		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
+		final String mkvInputDirectory = mkvInputFile.getParent() ;
+
 		if( !mkvInputDirectory.contains( "To Convert" ) )
 		{
+			// Since the path doesn't include "To Convert" assume the file is in its
+			// final destination.
 			// output == input
 			return mkvInputDirectory ;
 		}
 		// Post condition: The given folder is on the To Convert path.
-		if( mkvInputDirectory.contains( "TV Show" ) )
+		if( mkvInputDirectory.contains( "TV Shows" ) )
 		{
+			// It is a TV Show
+			// Strip the "To Convert - " from the path
 			return mkvInputDirectory.replace( "To Convert - TV Shows", "TV Shows" ) ;
 		}
+		// Otherwise, this is a movie. Remove the "To Convert"
 		return mkvInputDirectory.replace( "To Convert", "Movies" ) ;
 	}
-	
-	public void runOneFile( TranscodeFile fileToTranscode )
+
+	/**
+	 * Transcode this file. The second argument is included here just to ensure that the file
+	 *  has been probed. It should already have been processed by the TranscodeFile.
+	 * @param fileToTranscode
+	 */
+	public void runOneFile( TranscodeFile fileToTranscode, FFmpegProbeResult inputFileProbeResult )
 	{
 		// Extract subtitle streams.
 		ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
@@ -127,17 +248,9 @@ public class ExtractOCRTranscodeMove extends Thread
 			}
 		}
 
-		// Transcode the file.
-		// Force a refresh of supporting files (.srt) by creating a new TranscodeFile
+		// Force a refresh of supporting files (.srt).
 		fileToTranscode.buildSubTitleFileList() ;
-		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( new File( fileToTranscode.getMKVInputFileNameWithPath() ), log ) ;
-		if( null == mkvProbeResult )
-		{
-			log.warning( "mkvProbeResult is null" ) ;
-		}
-		fileToTranscode.processFFmpegProbeResult( mkvProbeResult ) ;
 		fileToTranscode.makeDirectories() ;
-		fileToTranscode.setTranscodeInProgress();
 
 		TranscodeCommon tCommon = new TranscodeCommon(
 				log,
@@ -146,6 +259,9 @@ public class ExtractOCRTranscodeMove extends Thread
 				fileToTranscode.getMKVFinalDirectory(),
 				fileToTranscode.getMP4OutputDirectory(),
 				fileToTranscode.getMP4FinalDirectory() ) ;
+
+		// Transcode the file.
+		fileToTranscode.setTranscodeInProgress();
 		boolean transcodeSucceeded = tCommon.transcodeFile( fileToTranscode ) ;
 		if( !transcodeSucceeded )
 		{
@@ -157,6 +273,7 @@ public class ExtractOCRTranscodeMove extends Thread
 
 		// Move files to their destinations
 		// For now, only the mp4 file needs to move.
+		// TODO: Build a static multi-threaded move controller.
 		log.info( "Moving mp4 file from " + fileToTranscode.getMP4OutputDirectory() + " to " + fileToTranscode.getMP4FinalDirectory() ) ;
 		if( !common.getTestMode() )
 		{
@@ -185,31 +302,37 @@ public class ExtractOCRTranscodeMove extends Thread
 		}
 
 		// Update the probe information for this file
-		// Be sure to force the refresh.
 		ProbeDirectories pd = new ProbeDirectories() ;
 		FFmpegProbeResult mp4ProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMP4FinalFileNameWithPath() ), true ) ;
+		FFmpegProbeResult mkvProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMKVFinalFileNameWithPath() ), true ) ;
 
 		// Update the movie and show index, creating it if not already present
-		Bson movieAndShowInfoIDFilter = Filters.eq( "mkvLongPath", fileToTranscode.getMKVFinalDirectory() ) ;
-		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
+		// Use the MovieAndShowInfo constructor to parse the input directory for the database search.
+		MovieAndShowInfo movieAndShowInfo = new MovieAndShowInfo( mkvProbeResult, log ) ;
+		Bson movieAndShowInfoIDFilter = Filters.eq( "movieOrShowName", movieAndShowInfo.getMovieOrShowName() ) ;
+		movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
+		
 		if( null == movieAndShowInfo )
 		{
 			// No information found about this movie or show.
 			// Create it.
 			movieAndShowInfo = new MovieAndShowInfo( mp4ProbeResult, log ) ;
-			
+
 			// At this point, the transcode is successful.
 			movieAndShowInfo.addMKVFile( mkvProbeResult ) ;
+			movieAndShowInfo.addMP4File( mp4ProbeResult ) ;
+			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 			movieAndShowInfoCollection.insertOne( movieAndShowInfo ) ;
 		}
 		movieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
 		movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDFilter,  movieAndShowInfo ) ;
 	}
-	
+
 	public static void main(String[] args)
 	{
-
+		ExtractOCRTranscodeMove eotm = new ExtractOCRTranscodeMove() ;
+		eotm.runFolders() ;
 	}
 
 }

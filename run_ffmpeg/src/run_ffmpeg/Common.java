@@ -101,6 +101,22 @@ public class Common
 		numFormat.setMaximumFractionDigits( 2 ) ;
 	}
 
+	public List< String > addMoviesAndFoldersToEachDrive( final List< String > theDrives )
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		for( String theDrive : theDrives )
+		{
+			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
+			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
+			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+	
+			retMe.add( moviesFolder ) ;
+			retMe.add( tvShowsFolder ) ;
+			retMe.add( otherVideosFolder ) ;
+		}
+		return retMe ;
+	}
+
 	/**
 	 * Add trailing path separator ("/" or "\\") if missing.
 	 * @param inputPath
@@ -112,6 +128,20 @@ public class Common
 		if( !inputPath.endsWith( getPathSeparator() ) )
 		{
 			retMe = inputPath + getPathSeparator() ;
+		}
+		return retMe ;
+	}
+
+	public List< String > addToConvertToEachDrive( final List< String > theDrives )
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		for( String theDrive : theDrives )
+		{
+			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + getPathSeparator() + "To Convert" ;
+			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + getPathSeparator() + "To Convert - TV Shows" ;
+	
+			retMe.add( moviesFolder ) ;
+			retMe.add( tvShowsFolder ) ;
 		}
 		return retMe ;
 	}
@@ -563,36 +593,6 @@ public class Common
 		}
 	}
 
-	public List< String > addMoviesAndFoldersToEachDrive( final List< String > theDrives )
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		for( String theDrive : theDrives )
-		{
-			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
-
-			retMe.add( moviesFolder ) ;
-			retMe.add( tvShowsFolder ) ;
-			retMe.add( otherVideosFolder ) ;
-		}
-		return retMe ;
-	}
-	
-	public List< String > addToConvertToEachDrive( final List< String > theDrives )
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		for( String theDrive : theDrives )
-		{
-			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" + getPathSeparator() + "To Convert" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" + getPathSeparator() + "To Convert" ;
-
-			retMe.add( moviesFolder ) ;
-			retMe.add( tvShowsFolder ) ;
-		}
-		return retMe ;
-	}
-
 	public List< String > getAllChainAMKVDrives()
 	{
 		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainAMKVDrives) ) ;
@@ -689,21 +689,62 @@ public class Common
 	 * Includes the preceding '.'
 	 * @return
 	 */
-	public static String getMissingFilePreExtension() {
-
+	public static String getMissingFilePreExtension()
+	{
 		return missingFilePreExtension;
 	}
 
-	public static String getMissingFileSubstituteName() {
+	public List< String > getMissingFiles()
+	{
+		List< String > retMe = new ArrayList< String >( Arrays.asList( missingFiles ) ) ;
+		return retMe ;
+	}
+
+	public static String getMissingFileSubstituteName()
+	{
 		return missingFileSubstituteName;
 	}
 
-	public String getMissingMovieMKVPath() {
+	public String getMissingMovieMKVPath()
+	{
 		return missingMovieMKVPath;
 	}
 
-	public String getMissingTVShowMKVPath() {
+	public static String getMissingMovieMP4Path()
+	{
+		return missingMovieMP4Path;
+	}
+
+	public String getMissingTVShowMKVPath()
+	{
 		return missingTVShowMKVPath;
+	}
+
+	public static String getMissingTVShowMP4Path()
+	{
+		return missingShowMP4Path;
+	}
+
+	public String getMP4DriveWithMostAvailableSpace()
+	{
+		String mp4DriveWithMostAvailableSpace = "" ;
+		double largestFreeSpaceSoFar = 0.0 ;
+		
+		final List< String > allMP4Drives = getAllMP4Drives() ;
+		for( String mp4Drive : allMP4Drives )
+		{
+			final File mp4DriveFile = new File( mp4Drive ) ;
+			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
+	
+			if( (null == mp4DriveWithMostAvailableSpace)
+					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
+			{
+				// Found a new largest drive.
+				mp4DriveWithMostAvailableSpace = mp4Drive ;
+				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
+			}
+		}
+		return mp4DriveWithMostAvailableSpace ;
 	}
 
 	public NumberFormat getNumberFormat()
@@ -711,12 +752,29 @@ public class Common
 		return numFormat ;
 	}
 
-	public static String getPathToFFmpeg() {
+	public static String getPathToDotNet()
+	{
+		return pathToDOTNET;
+	}
+
+	public static String getPathToFFmpeg()
+	{
 		return pathToFFMPEG;
 	}
 
-	public static String getPathToFFprobe() {
+	public static String getPathToFFprobe()
+	{
 		return pathToFFPROBE;
+	}
+
+	public static String getPathToPgsToSrtDLL()
+	{
+		return pathToPGSTOSRTDLL;
+	}
+
+	public static String getPathToTessdata()
+	{
+		return pathToTESSDATA;
 	}
 
 	public boolean getTestMode()
@@ -737,31 +795,6 @@ public class Common
 			retMe += "[" + theInput + "]" ;
 		}
 		retMe += "}" ;
-		return retMe ;
-	}
-
-	public static String getPathToDotNet() {
-		return pathToDOTNET;
-	}
-
-	public static String getPathToPgsToSrtDLL() {
-		return pathToPGSTOSRTDLL;
-	}
-
-	public static String getPathToTessdata() {
-		return pathToTESSDATA;
-	}
-
-	public static String getMissingMovieMP4Path() {
-		return missingMovieMP4Path;
-	}
-
-	public static String getMissingShowMP4Path() {
-		return missingShowMP4Path;
-	}
-
-	public List< String > getMissingFiles() {
-		List< String > retMe = new ArrayList< String >( Arrays.asList( missingFiles ) ) ;
 		return retMe ;
 	}
 

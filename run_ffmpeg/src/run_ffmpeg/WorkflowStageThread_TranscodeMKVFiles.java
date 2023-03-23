@@ -29,7 +29,6 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 	}
 
-	// TODO: Seems to be transcoding multiple files at once.
 	@Override
 	public void doAction()
 	{
@@ -56,7 +55,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 
 		// Setup the destination directory for the mp4 file
 		// mp4LongPath, if it exists, will NOT have the trailing path separator
-		String mp4FinalDirectory = theJob.getMp4LongPath() ;
+		String mp4FinalDirectory = theJob.getMP4LongPath() ;
 		if( mp4FinalDirectory.equals( Common.getMissingFileSubstituteName() ) )
 		{
 			// mp4LongPath is empty
@@ -65,7 +64,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 			{
 				// TV Show
 				// In the case of TV shows, the movieOrShowName is like "Show Name_Season Num"
-				mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getMissingShowMP4Path() )
+				mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getMissingTVShowMP4Path() )
 						+ movieAndShowInfo.getTVShowName()
 						+ common.getPathSeparator()
 						+ movieAndShowInfo.getTVShowSeasonName() ;
@@ -86,7 +85,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 				+ ".mp4" ;
 		log.info( "mp4FileNameWithPath: " + mp4FinalFileNameWithPath ) ;
 
-		final String mkvInputDirectory = theJob.getMkvLongPath() ;
+		final String mkvInputDirectory = theJob.getMKVLongPath() ;
 		final String mkvFinalDirectory = mkvInputDirectory ;
 
 		final String mkvInputFileNameWithPath = mkvInputDirectory
@@ -106,7 +105,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		// Got the mkv file and mp4 file information.
 		// Execute the extract PGS.
 		TranscodeFile fileToTranscode = new TranscodeFile( mkvInputFileWithPath,
-				theJob.getMkvLongPath(),
+				mkvInputDirectory,
 				getMP4WorkingDirectory(),
 				mp4FinalDirectory,
 				log ) ;
@@ -117,7 +116,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		extractPGSFromMKVs.runOneFile( fileToTranscode ) ;
 
 		OCRSubtitle ocrSubtitle = new OCRSubtitle() ;
-		List< File > filesToOCR = common.getFilesInDirectoryByExtension( theJob.getMkvLongPath(), ocrSubtitle.getExtensionsToOCR() ) ;
+		List< File > filesToOCR = common.getFilesInDirectoryByExtension( mkvInputDirectory, OCRSubtitle.getExtensionsToOCR() ) ;
 		for( File fileToOCR : filesToOCR )
 		{
 			ocrSubtitle.doOCRFileName( fileToOCR.getAbsolutePath() ) ;
@@ -130,7 +129,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		// Transcode the file.
 		// Force a refresh of supporting files (.srt) by creating a new TranscodeFile
 		fileToTranscode = new TranscodeFile( mkvInputFileWithPath,
-				theJob.getMkvLongPath(),
+				mkvInputDirectory,
 				getMP4WorkingDirectory(),
 				mp4FinalDirectory,
 				log ) ;

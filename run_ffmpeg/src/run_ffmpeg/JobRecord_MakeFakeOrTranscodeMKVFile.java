@@ -26,67 +26,67 @@ public class JobRecord_MakeFakeOrTranscodeMKVFile
 		return retMe ;
 	}
 
-	public String getMkvLongPath() {
-		return mkvLongPath;
-	}
-
-	public void setMkvLongPath(String mkvLongPath) {
-		this.mkvLongPath = mkvLongPath;
-	}
-
-	public String getMp4LongPath() {
-		return mp4LongPath;
-	}
-
-	public void setMp4LongPath(String mp4LongPath) {
-		this.mp4LongPath = mp4LongPath;
-	}
-
-	public String getMovieOrShowName_id() {
-		return movieOrShowName_id;
-	}
-
-	public void setMovieOrShowName_id(String movieOrShowName_id) {
-		this.movieOrShowName_id = movieOrShowName_id;
-	}
-
-	public String getMovieOrShowName() {
-		return movieOrShowName;
-	}
-
-	public void setMovieOrShowName(String movieOrShowName) {
-		this.movieOrShowName = movieOrShowName;
-	}
-
-	public String getMkvFileName() {
-		return mkvFileName;
-	}
-
-	public void setMkvFileName(String mkvFileName) {
-		this.mkvFileName = mkvFileName;
-	}
-
 	public String getFileName() {
 		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
 	}
 
 	public String getMissingMKVFile() {
 		return missingMKVFile;
 	}
 
-	public void setMissingMKVFile(String missingMKVFile) {
-		this.missingMKVFile = missingMKVFile;
-	}
-
 	public String getMissingMP4File() {
 		return missingMP4File;
 	}
 
+	public String getMKVFileName() {
+		return mkvFileName;
+	}
+
+	public String getMKVLongPath() {
+		return mkvLongPath;
+	}
+
+	public String getMovieOrShowName() {
+		return movieOrShowName;
+	}
+
+	public String getMovieOrShowName_id() {
+		return movieOrShowName_id;
+	}
+
+	public String getMP4LongPath() {
+		return mp4LongPath;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	public void setMissingMKVFile(String missingMKVFile) {
+		this.missingMKVFile = missingMKVFile;
+	}
+
 	public void setMissingMP4File(String missingMP4File) {
 		this.missingMP4File = missingMP4File;
+	}
+
+	public void setMKVFileName(String mkvFileName) {
+		this.mkvFileName = mkvFileName;
+	}
+
+	public void setMKVLongPath(String mkvLongPath) {
+		this.mkvLongPath = mkvLongPath;
+	}
+
+	public void setMovieOrShowName(String movieOrShowName) {
+		this.movieOrShowName = movieOrShowName;
+	}
+
+	public void setMovieOrShowName_id(String movieOrShowName_id) {
+		this.movieOrShowName_id = movieOrShowName_id;
+	}
+
+	public void setMP4LongPath(String mp4LongPath) {
+		this.mp4LongPath = mp4LongPath;
 	}
 }

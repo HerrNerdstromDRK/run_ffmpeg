@@ -89,7 +89,7 @@ public class OCRSubtitle extends Thread
 			// All threads, including this controller thread, will reference the same
 			// work queue.
 			ocrs.setFileNamesToOCR( getFileNamesToOCR() );
-			ocrs.setExtensionsToOCR( getExtensionsToOCR() ) ;
+			setExtensionsToOCR( getExtensionsToOCR() ) ;
 			ocrThreads.add( ocrs ) ;
 
 			// Upon starting the thread, it will begin pulling ocr jobs from the queue and continue

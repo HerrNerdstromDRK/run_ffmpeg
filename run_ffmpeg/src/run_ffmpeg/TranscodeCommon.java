@@ -30,7 +30,7 @@ public class TranscodeCommon
 	private boolean deInterlaceInput = false ;
 	
 	/// Extensions to transcode to mp4
-	private final String[] transcodeExtensions = { ".mkv", ".MOV", ".mov", ".wmv" } ;
+	private final static String[] transcodeExtensions = { ".mkv", ".MOV", ".mov", ".wmv" } ;
 	
 	/// The string that each forced subtitle SRT file name includes
 	private final String forcedSubTitleFileNameContains = ".forced_subtitle." ;
@@ -90,13 +90,6 @@ public class TranscodeCommon
 	 */
 	public ImmutableList.Builder< String > buildAudioTranscodeOptions( TranscodeFile inputFile )
 	{
-		/*
-		 * Example syntax:
-		 *  ffmpeg -y -i "%%A" -map 0:v -c:v copy -map 0:a:0? -c:a:0 copy -map 0:a:0? -c:a:1 aac -b:a:1 192k -ac 2
-		 *   -metadata:s:a:1 title="Eng 2.0 Stereo" -map 0:a:1? -c:a:2 copy -map 0:a:2? -c:a:3 copy -map 0:a:3?
-		 *   -c:a:4 copy -map 0:a:4? -c:a:5 copy -map 0:a:5? -c:a:6 copy -map 0:a:6? -c:a:7 copy -map 0:s? -c:s copy
-		 *   "ffmpegOut/%%~nA_Stereo.mkv"
-		 */
 		ImmutableList.Builder< String > audioTranscodeOptions = new ImmutableList.Builder<String>() ;
 	
 		// The method works in two phases:
@@ -152,29 +145,42 @@ public class TranscodeCommon
 			}
 		}
 		
+		/*
+		 * Example syntax:
+		 *  ffmpeg -y -i "%%A" -map 0:v -c:v copy -map 0:a:0? -c:a:0 copy -map 0:a:0? -c:a:1 aac -b:a:1 192k -ac 2
+		 *   -metadata:s:a:1 title="Eng 2.0 Stereo" -map 0:a:1? -c:a:2 copy -map 0:a:2? -c:a:3 copy -map 0:a:3?
+		 *   -c:a:4 copy -map 0:a:4? -c:a:5 copy -map 0:a:5? -c:a:6 copy -map 0:a:6? -c:a:7 copy -map 0:s? -c:s copy
+		 *   "ffmpegOut/%%~nA_Stereo.mkv"
+		 */
 		// Use a deliberate audio stream mapping regardless of our decision to add a stereo stream.
 		// Typically, the first (#0) audio stream is the highest quality
 		// Keep the first (#0) audio stream and convert it based on the prescribed library
 		
 		// Finally, copy the remaining streams as aac into the output, offset by one stream
-		for( int inputStreamNumber = 0, outputStreamNumber = 0 ; inputStreamNumber < inputFile.getNumAudioStreams() ;
-				++inputStreamNumber, ++outputStreamNumber )
+//		for( int inputStreamNumber = 0, outputStreamNumber = 0 ; inputStreamNumber < inputFile.getNumAudioStreams() ;
+//				++inputStreamNumber, ++outputStreamNumber )
+		int audioInputStreamNumber = 0 ;
+		int outputStreamNumber = 0 ;
+		for( FFmpegStream theAudioStream : audioStreamsToTranscode )
 		{
-			audioTranscodeOptions.add( "-map", "0:a:" + inputStreamNumber ) ;
+			audioTranscodeOptions.add( "-map", "0:a:" + audioInputStreamNumber ) ;
 			audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;
 			audioTranscodeOptions.add( "-metadata:s:a:" + outputStreamNumber,
-					"title=\"" + inputFile.getAudioStreamAt( inputStreamNumber ).getTagByName( "title" ) + "\"" ) ;
+					"title=\"" + theAudioStream.getTagByName( "title" ) + "\"" ) ;
+			++outputStreamNumber ;
 			
-			if( (0 == inputStreamNumber) && addAudioStereoStream )
+			if( (0 == audioInputStreamNumber) && addAudioStereoStream )
 			{
 				// First audio stream (highest quality) and we need to add a stereo stream.
 				// Copy the first (#0) audio stream into stream #1 as stereo (-ac 2)
-				audioTranscodeOptions.add( "-map", "0:a:0" ) ;
-				audioTranscodeOptions.add( "-c:a:1", audioTranscodeLibrary, "-ac:a:1", "2" ) ;
-				audioTranscodeOptions.add( "-metadata:s:a:1", "title=\"Stereo\"" ) ;
+				audioTranscodeOptions.add( "-map", "0:a:" + audioInputStreamNumber ) ;
+				audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;
+				audioTranscodeOptions.add( "-ac", "2" ) ;
+				audioTranscodeOptions.add( "-metadata:s:a:"  + outputStreamNumber, "title=\"Stereo\"" ) ;
 				// Skip one output stream number
 				++outputStreamNumber ;
 			}
+			++audioInputStreamNumber ;
 		}
 		return audioTranscodeOptions ;
 	}
@@ -300,43 +306,53 @@ public class TranscodeCommon
 		return videoTranscodeOptions ;
 	}
 
-	public String[] getAudioStreamsByNameArray() {
+	public String[] getAudioStreamsByNameArray()
+	{
 		return audioStreamsByNameArray;
 	}
 
-	public String getAudioTranscodeLibrary() {
+	public String getAudioTranscodeLibrary()
+	{
 		return audioTranscodeLibrary;
 	}
 
-	public audioStreamTranscodeOptionsType getAudioStreamTranscodeOptions() {
+	public audioStreamTranscodeOptionsType getAudioStreamTranscodeOptions()
+	{
 		return audioStreamTranscodeOptions;
 	}
 
-	protected static String getDefaultMP4OutputDirectory() {
+	protected static String getDefaultMP4OutputDirectory()
+	{
 		return defaultMP4OutputDirectory;
 	}
 
-	public String getForcedSubTitleFileNameContains() {
+	public String getForcedSubTitleFileNameContains()
+	{
 		return forcedSubTitleFileNameContains;
 	}
 
-	public String getMkvFinalDirectory() {
+	public String getMkvFinalDirectory()
+	{
 		return mkvFinalDirectory;
 	}
 
-	public String getMkvInputDirectory() {
+	public String getMkvInputDirectory()
+	{
 		return mkvInputDirectory;
 	}
 
-	public String getMp4FinalDirectory() {
+	public String getMp4FinalDirectory()
+	{
 		return mp4FinalDirectory;
 	}
 
-	public String getMp4OutputDirectory() {
+	public String getMp4OutputDirectory()
+	{
 		return mp4OutputDirectory;
 	}
 
-	public String[] getTranscodeExtensions() {
+	public static String[] getTranscodeExtensions()
+	{
 		return transcodeExtensions;
 	}
 
@@ -365,7 +381,73 @@ public class TranscodeCommon
     }
     
 
-	public List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles( final String inputDirectory,
+	public boolean isAddAudioStereoStream()
+	{
+		return addAudioStereoStream;
+	}
+
+	public boolean isAudioStreamOptionAudioStreamAll()
+	{
+		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamAll ;
+	}
+
+	public boolean isAudioStreamOptionAudioStreamAudioStreamsByName()
+	{
+		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamsByName ;
+	}
+
+	public boolean isAudioStreamOptionAudioStreamEnglishOnly()
+	{
+		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamEnglishOnly ;
+	}
+
+	public boolean isAudioStreamOptionAudioStreamPrimaryPlusEnglish()
+	{
+		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamPrimaryPlusEnglish ;
+	}
+
+	public boolean isDeInterlaceInput()
+	{
+		return deInterlaceInput;
+	}
+
+	public boolean isDoTranscodeVideo()
+	{
+		return doTranscodeVideo;
+	}
+
+	public void setDeInterlaceInput( boolean deInterlaceInput )
+	{
+		this.deInterlaceInput = deInterlaceInput;
+	}
+
+	public void setDoTranscodeVideo( boolean doTranscodeVideo )
+	{
+		this.doTranscodeVideo = doTranscodeVideo;
+	}
+
+	public void setMkvInputDirectory( String mkvInputDirectory )
+	{
+		this.mkvInputDirectory = mkvInputDirectory;
+	}
+
+	public void setMkvFinalDirectory( String mkvFinalDirectory )
+	{
+		this.mkvFinalDirectory = mkvFinalDirectory;
+	}
+
+	public void setMp4FinalDirectory( String mp4FinalDirectory )
+	{
+		this.mp4FinalDirectory = mp4FinalDirectory;
+	}
+
+	public void setMp4OutputDirectory( String mp4OutputDirectory )
+	{
+		this.mp4OutputDirectory = mp4OutputDirectory;
+	}
+
+	public List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles(
+			final String inputDirectory,
 			final String[] transcodeExtensions )
 	{
 		assert( inputDirectory != null ) ;
@@ -392,24 +474,24 @@ public class TranscodeCommon
 	}
 
 	public boolean transcodeFile( TranscodeFile inputFile )
-    {
-    	// Precondition: ffmpegProbeResult is not null
-    	log.info( "Transcoding: " + inputFile ) ;
-
+	{
+		// Precondition: ffmpegProbeResult is not null
+		log.info( "Transcoding: " + inputFile ) ;
+	
 		// Perform the options build by these steps:
 		//  1) Setup ffmpeg basic options
 		//  2) Include source file
-    	//  3) Include input SRT file(s)
-    	//  4) Add video transcode options
+		//  3) Include input SRT file(s)
+		//  4) Add video transcode options
 		//  5) Add audio transcode options
 		//  6) Add subtitle transcode options
 		//  7) Add metadata transcode options
 		//  8) Add output filename (.mp4)
-    	
-    	// ffmpegCommand will hold the command to execute ffmpeg
-    	ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
-    	
-    	// 1) Setup ffmpeg basic options
+		
+		// ffmpegCommand will hold the command to execute ffmpeg
+		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
+		
+		// 1) Setup ffmpeg basic options
 		ffmpegCommand.add( Common.getPathToFFmpeg() ) ;
 		
 		// Overwrite existing files
@@ -417,7 +499,7 @@ public class TranscodeCommon
 		
 		// 2) Include source file
 		ffmpegCommand.add( "-i", inputFile.getMKVInputFileNameWithPath() ) ;
-
+	
 		// 3) Include all other input files (such as .srt, except forced subtitles)
 		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
 		{
@@ -430,7 +512,7 @@ public class TranscodeCommon
 		
 		//  4) Add video transcode options
 		ffmpegCommand.addAll( buildVideoTranscodeOptions( inputFile ).build() ) ;
-
+	
 		//  5) Add audio transcode options
 		ffmpegCommand.addAll( buildAudioTranscodeOptions( inputFile ).build() ) ;
 		
@@ -441,89 +523,33 @@ public class TranscodeCommon
 		
 		//  8) Add output filename (.mp4)
 		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
-
-    	long startTime = System.nanoTime() ;
-    	log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-
-    	// Only execute the transcode if testMode is false
-    	boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
-    	if( !executeSuccess )
-    	{
-    		log.info( "Error in execute command" ) ;
-    		// Do not move any files since the transcode failed
-    		return false ;
-    	}
-    	
-    	long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-
-    	double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
-    	log.info( "Elapsed time to transcode "
-    			+ inputFile.getMKVFileName()
-    			+ ": "
-    			+ common.getNumberFormat().format( timeElapsedInSeconds )
-    			+ " seconds, "
-    			+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
-    			+ " minutes, or "
-    			+ common.getNumberFormat().format( timePerGigaByte )
-    			+ " seconds per GB" ) ;
-
-    	return true ;
-    }
-
-	public boolean isAddAudioStereoStream() {
-		return addAudioStereoStream;
-	}
-
-	public boolean isAudioStreamOptionAudioStreamAll()
-	{
-		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamAll ;
-	}
-
-	public boolean isAudioStreamOptionAudioStreamAudioStreamsByName()
-	{
-		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamsByName ;
-	}
-
-	public boolean isAudioStreamOptionAudioStreamEnglishOnly()
-	{
-		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamEnglishOnly ;
-	}
-
-	public boolean isAudioStreamOptionAudioStreamPrimaryPlusEnglish()
-	{
-		return getAudioStreamTranscodeOptions() == audioStreamTranscodeOptionsType.audioStreamPrimaryPlusEnglish ;
-	}
-
-	public boolean isDeInterlaceInput() {
-		return deInterlaceInput;
-	}
-
-	public boolean isDoTranscodeVideo() {
-		return doTranscodeVideo;
-	}
-
-	public void setDeInterlaceInput(boolean deInterlaceInput) {
-		this.deInterlaceInput = deInterlaceInput;
-	}
-
-	public void setDoTranscodeVideo(boolean doTranscodeVideo) {
-		this.doTranscodeVideo = doTranscodeVideo;
-	}
-
-	public void setMkvInputDirectory(String mkvInputDirectory) {
-		this.mkvInputDirectory = mkvInputDirectory;
-	}
-
-	public void setMkvFinalDirectory(String mkvFinalDirectory) {
-		this.mkvFinalDirectory = mkvFinalDirectory;
-	}
-
-	public void setMp4FinalDirectory(String mp4FinalDirectory) {
-		this.mp4FinalDirectory = mp4FinalDirectory;
-	}
-
-	public void setMp4OutputDirectory(String mp4OutputDirectory) {
-		this.mp4OutputDirectory = mp4OutputDirectory;
+	
+		long startTime = System.nanoTime() ;
+		log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
+	
+		// Only execute the transcode if testMode is false
+		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
+		if( !executeSuccess )
+		{
+			log.info( "Error in execute command" ) ;
+			// Do not move any files since the transcode failed
+			return false ;
+		}
+		
+		long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
+	
+		double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
+		log.info( "Elapsed time to transcode "
+				+ inputFile.getMKVFileName()
+				+ ": "
+				+ common.getNumberFormat().format( timeElapsedInSeconds )
+				+ " seconds, "
+				+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
+				+ " minutes, or "
+				+ common.getNumberFormat().format( timePerGigaByte )
+				+ " seconds per GB" ) ;
+	
+		return true ;
 	}
 
 }

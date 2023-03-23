@@ -80,6 +80,9 @@ public class TranscodeFile
 	protected int numAudioStreams = 0 ;
 	private ArrayList< FFmpegStream > audioStreams = new ArrayList< FFmpegStream >() ;
 
+	/**
+	 * mkvInputFile is the file with full path to the .mkv file. The next three are directories.
+	 */
 	public TranscodeFile( final File mkvInputFile,
 			final String mkvFinalDirectory,
 			final String mp4OutputDirectory,
@@ -635,28 +638,11 @@ public class TranscodeFile
 		return srtFileList.size() ;
 	}
 
-	public void processFFmpegProbeResult( FFmpegProbeResult _theFFmpegProbeResult )
-	{
-		theFFmpegProbeResult = _theFFmpegProbeResult ;
-		processVideoStreams( theFFmpegProbeResult.getStreamsByCodecType( "video" ) ) ;
-		processAudioStreams( theFFmpegProbeResult.getStreamsByCodecType( "audio" ) ) ;
-		processSubTitleStreams( theFFmpegProbeResult.getStreamsByCodecType( "subtitle" ) ) ;
-	}
-
-	protected void processVideoStreams( List< FFmpegStream > inputStreams )
-	{
-		// Pre-condition: inputStreams contains streams only of type video
-		//		for( FFmpegStream theInputStream : inputStreams )
-		//		{
-		//			
-		//		}
-	}
-
 	protected void processAudioStreams( List< FFmpegStream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type audio
 		audioStreams.addAll( inputStreams ) ;
-
+	
 		for( FFmpegStream theInputStream : inputStreams )
 		{
 			if( null == theInputStream.channel_layout )
@@ -664,7 +650,8 @@ public class TranscodeFile
 				// No channel_layout
 				log.info( "processaudioStreams> No channel_layout field found for file: " + toString() ) ;
 			}
-			else if( theInputStream.channel_layout.contains( "stereo" ) )
+			else if( theInputStream.channel_layout.contains( "stereo" )
+					|| theInputStream.channel_layout.contains( "2 channels" ) )
 			{
 				setAudioHasStereo( true ) ;
 			}
@@ -685,6 +672,23 @@ public class TranscodeFile
 				log.warning( "TranscodeFile.processAudioStreams> Unknown channel_layout: " + theInputStream.channel_layout ) ;
 			}
 		}
+	}
+
+	public void processFFmpegProbeResult( FFmpegProbeResult _theFFmpegProbeResult )
+	{
+		theFFmpegProbeResult = _theFFmpegProbeResult ;
+		processVideoStreams( theFFmpegProbeResult.getStreamsByCodecType( "video" ) ) ;
+		processAudioStreams( theFFmpegProbeResult.getStreamsByCodecType( "audio" ) ) ;
+		processSubTitleStreams( theFFmpegProbeResult.getStreamsByCodecType( "subtitle" ) ) ;
+	}
+
+	protected void processVideoStreams( List< FFmpegStream > inputStreams )
+	{
+		// Pre-condition: inputStreams contains streams only of type video
+		//		for( FFmpegStream theInputStream : inputStreams )
+		//		{
+		//			
+		//		}
 	}
 
 	protected void processSubTitleStreams( List< FFmpegStream > inputStreams )
