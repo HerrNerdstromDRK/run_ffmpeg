@@ -87,7 +87,7 @@ public class WorkflowStageThread_MakeFakeMKVFiles extends WorkflowStageThread
 			log.info( "Creating directory " + missingMKVPath + " for file " + makeFakeJob.fileName ) ;
 			if( !common.getTestMode() )
 			{
-				missingMKVPathFile.mkdir() ;
+				common.makeDirectory( missingMKVPath ) ;
 			}
 		}
 

@@ -400,20 +400,13 @@ public class Common
 	{
 		try
 		{
-			File directoryFile = new File( directoryName ) ;
-			if( !directoryFile.exists() )
-			{
-				log.info( "Making directory structure: " + directoryName ) ;
-				if( !testMode && !directoryFile.mkdirs() )
-				{
-					log.info( "Unable to mkdirs (" + directoryName + ")" ) ;
-				}
-			}
-
+			Path directoryPath = Paths.get( directoryName ) ;
+			log.info( "Making directory structure: " + directoryPath.toString() ) ;
+			Files.createDirectories( directoryPath ) ;
 		}
 		catch( Exception theException )
 		{
-			log.info( "Exception: (\"" + directoryName + "\"): " + theException.toString() ) ;
+			log.info( "Exception creating directory (\"" + directoryName + "\"): " + theException.toString() ) ;
 		}
 	}
 
