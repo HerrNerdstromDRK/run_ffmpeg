@@ -217,6 +217,24 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return largestFile ;
 	}
 
+	public String getMovieOrShowName()
+	{
+		return movieOrShowName ;
+	}
+
+	public String getTVShowName() {
+		return tvShowName;
+	}
+
+	public String getTVShowSeasonName() {
+		return tvShowSeasonName;
+	}
+
+	public boolean isTVShow()
+	{
+		return !getTVShowSeasonName().isBlank() ;
+	}
+
 	/**
 	 * Walk through the map of files associated with this Movie or TV Show and build
 	 *  the list of CorrelatedFiles that can be stored into the database.
@@ -227,7 +245,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		
 		if( null == mkvLongPath ) mkvLongPath = Common.getMissingFileSubstituteName() ;
 		if( null == mp4LongPath ) mp4LongPath = Common.getMissingFileSubstituteName() ;
-
+	
 		for( CorrelatedFile theCorrelatedFile : correlatedFilesList )
 		{
 			// Order these two items is important:
@@ -241,6 +259,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		Collections.sort( correlatedFilesList ) ;
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Update a correlated file, probably because the file has had a probe update.
 	 * @param theFile
@@ -302,21 +321,14 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return tvShowName;
 	}
 
+=======
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	public void setTVShowName(String tvShowName) {
 		this.tvShowName = tvShowName;
 	}
 
-	public String getTVShowSeasonName() {
-		return tvShowName;
-	}
-
 	public void setTVShowSeasonName(String tvShowSeasonName) {
 		this.tvShowSeasonName = tvShowSeasonName;
-	}
-
-	public boolean isTVShow()
-	{
-		return !getTVShowSeasonName().isBlank() ;
 	}
 
 	public String toString()
@@ -338,6 +350,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return retMe ;
 	}
 
+<<<<<<< HEAD
 	public String getMKVLongPath() {
 		return mkvLongPath;
 	}
@@ -352,6 +365,53 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 
 	public void setMP4LongPath(String mp4LongPath) {
 		this.mp4LongPath = mp4LongPath;
+=======
+	/**
+	 * Update a correlated file, probably because the file has had a probe update.
+	 * @param theFile
+	 */
+	public void updateCorrelatedFile( final FFmpegProbeResult theProbeResult )
+	{
+		// First, find the CorrelatedFile in the list
+		// Note that correlated file names are stored without extension
+		File theProbeResultFile = new File( theProbeResult.getFileNameWithPath() ) ;
+		String fileNameToSearch = Common.removeFileNameExtension( theProbeResultFile.getName() ) ;
+		if( fileNameToSearch.contains( Common.getMissingFilePreExtension() ) )
+		{
+			// If this is a missing file, it will have a second extension that needs
+			// to be removed for this search to succeed.
+			fileNameToSearch = Common.removeFileNameExtension( fileNameToSearch ) ;
+		}
+		CorrelatedFile theCorrelatedFile = null ;
+	
+		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
+		{
+			if( correlatedFileIterator.getFileName().equals( fileNameToSearch ) )
+			{
+				// Found it.
+				theCorrelatedFile = correlatedFileIterator ;
+				break ;
+			}
+		}
+		if( null == theCorrelatedFile )
+		{
+			log.warning( "Unable to find correlated file; MovieAndShowInfo name: " + getMovieOrShowName()
+			+ ", theFile: " + theProbeResultFile.getAbsolutePath() ) ;
+			return ;
+		}
+		// Post condition: theCorrelatedFile is non-null and represents the file being searched.
+	
+		if( theProbeResultFile.getName().contains( ".mkv" ) )
+		{
+			// MKV file
+			theCorrelatedFile.addOrUpdateMKVFile( theProbeResult ) ;
+		}
+		else
+		{
+			// MP4 file
+			theCorrelatedFile.addOrUpdateMP4File( theProbeResult ) ;
+		}
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	}
 
 }

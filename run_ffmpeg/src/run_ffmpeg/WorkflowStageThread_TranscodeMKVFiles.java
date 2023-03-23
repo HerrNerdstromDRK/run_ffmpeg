@@ -29,6 +29,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 	}
 
+	// TODO: Seems to be transcoding multiple files at once.
 	@Override
 	public void doAction()
 	{
