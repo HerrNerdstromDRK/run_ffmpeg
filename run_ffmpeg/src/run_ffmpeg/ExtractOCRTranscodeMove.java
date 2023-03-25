@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import com.mongodb.client.model.Filters;
  * The purpose of this class is to run the full workflow on a file or folder.
  * It will extract SRT/PGS, OCR if necessary, transcode, and move the file(s)
  *  to their destination.
+ * External use of this class should finish by calling waitForThreadsToComplete().
  * @author Dan
  */
 public class ExtractOCRTranscodeMove extends Thread
@@ -33,6 +35,9 @@ public class ExtractOCRTranscodeMove extends Thread
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_extract_and_ocr.txt" ;
 
+	/// Move file thread controller.
+	MoveFiles moveFiles = null ;
+
 	/// Handle to the mongodb
 	private transient MoviesAndShowsMongoDB masMDB = null ;
 
@@ -47,6 +52,10 @@ public class ExtractOCRTranscodeMove extends Thread
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
+
+		// Create the MoveFiles handler, which will also start the threads.
+		moveFiles = new MoveFiles( log, common ) ;
+
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
@@ -145,6 +154,13 @@ public class ExtractOCRTranscodeMove extends Thread
 				runOneFile( fileToTranscode, mkvProbeResult ) ;
 			} // for( fileToTranscode )
 		}
+	}
+
+	public void waitForThreadsToComplete()
+	{
+		log.info( "Waiting for move files threads to complete..." ) ;
+		moveFiles.waitForThreadsToComplete() ;
+		log.info( "Move files threads shutdown." ) ;		
 	}
 
 	/**
@@ -272,35 +288,28 @@ public class ExtractOCRTranscodeMove extends Thread
 		fileToTranscode.setTranscodeComplete() ;
 
 		// Move files to their destinations
-		// For now, only the mp4 file needs to move.
-		// TODO: Build a static multi-threaded move controller.
-		log.info( "Moving mp4 file from " + fileToTranscode.getMP4OutputDirectory() + " to " + fileToTranscode.getMP4FinalDirectory() ) ;
-		if( !common.getTestMode() )
+		log.info( "Moving MP4 file from " + fileToTranscode.getMP4OutputDirectory()
+			+ " to " + fileToTranscode.getMP4FinalDirectory() ) ;
+		moveFiles.addMP4FileMove( fileToTranscode.getMP4OutputFileNameWithPath(),
+				fileToTranscode.getMP4FinalFileNameWithPath() ) ;
+
+		log.info( "Moving MKV file from " + fileToTranscode.getMKVInputFileNameWithPath()
+			+ " to " + fileToTranscode.getMKVFinalFileNameWithPath() ) ;
+		moveFiles.addMKVFileMove( fileToTranscode.getMKVInputFileNameWithPath(),
+				fileToTranscode.getMKVFinalFileNameWithPath() ) ;
+
+		// Move the srt files also.
+		Iterator< File > srtFileIterator = fileToTranscode.getSRTFileListIterator() ;
+		while( srtFileIterator.hasNext() )
 		{
-			final String mp4FileNameInWorkingDirectory = fileToTranscode.getMP4OutputFileNameWithPath() ;
-			final String mp4FileNameInFinalDirectory = fileToTranscode.getMP4FinalFileNameWithPath() ;
-
-			try
-			{
-				Path temp = Files.move(
-						Paths.get( mp4FileNameInWorkingDirectory ),
-						Paths.get( mp4FileNameInFinalDirectory ) ) ;
-				if( temp != null )
-				{
-					log.info( "Move successful." ) ;
-				}
-				else
-				{
-					log.warning( "Move failed." ) ;
-				}
-			}
-			catch( Exception theException )
-			{
-				log.warning( "Exception: " + theException.toString() ) ;
-				return ;
-			}
+			File sourceSRTFile = srtFileIterator.next() ;
+			final String sourceSRTFileName = sourceSRTFile.getName() ;
+			final String destinationSRTFileNameWithPath = fileToTranscode.getMKVFinalDirectory()
+					+ common.getPathSeparator()
+					+ sourceSRTFileName ;
+			moveFiles.addMKVFileMove( sourceSRTFile.getAbsolutePath(), destinationSRTFileNameWithPath ) ;
 		}
-
+		
 		// Update the probe information for this file
 		ProbeDirectories pd = new ProbeDirectories() ;
 		FFmpegProbeResult mp4ProbeResult = pd.probeFileAndUpdateDB( new File( fileToTranscode.getMP4FinalFileNameWithPath() ), true ) ;
@@ -311,7 +320,7 @@ public class ExtractOCRTranscodeMove extends Thread
 		MovieAndShowInfo movieAndShowInfo = new MovieAndShowInfo( mkvProbeResult, log ) ;
 		Bson movieAndShowInfoIDFilter = Filters.eq( "movieOrShowName", movieAndShowInfo.getMovieOrShowName() ) ;
 		movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
-		
+
 		if( null == movieAndShowInfo )
 		{
 			// No information found about this movie or show.
@@ -333,6 +342,7 @@ public class ExtractOCRTranscodeMove extends Thread
 	{
 		ExtractOCRTranscodeMove eotm = new ExtractOCRTranscodeMove() ;
 		eotm.runFolders() ;
+		eotm.waitForThreadsToComplete() ;
 	}
 
 }

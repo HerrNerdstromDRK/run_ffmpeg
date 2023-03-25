@@ -184,7 +184,7 @@ public class ExtractPGSFromMKVs extends Thread
 		// First, survey the input directory for files to process, and build
 		// a TranscodeFile object for each.
 		List< TranscodeFile > filesToProcess = transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( inputDirectory,
-				transcodeCommon.getTranscodeExtensions() ) ;
+				TranscodeCommon.getTranscodeExtensions() ) ;
 
 		// Perform the core work of this application
 		for( TranscodeFile theFileToProcess : filesToProcess )
