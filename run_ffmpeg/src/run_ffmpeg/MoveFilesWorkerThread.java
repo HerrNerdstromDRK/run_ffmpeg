@@ -17,12 +17,12 @@ public class MoveFilesWorkerThread extends Thread
 
 	/// Hook in the Common methods and values
 	private transient Common common = null ;
-	
+
 	/// Work queue
 	protected List< MoveFileInfo > moveActionList = null ;
 
 	/// File name to which to log activities for this application.
-//	private final String logFileName = "log_move_files_thread.txt" ;
+	//	private final String logFileName = "log_move_files_thread.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
@@ -30,7 +30,7 @@ public class MoveFilesWorkerThread extends Thread
 
 	/// Variable the controller thread can use to shutdown the thread.
 	protected boolean doKeepRunning = true ;
-	
+
 	/// The name of this thread.
 	protected String name = "" ;
 
@@ -61,7 +61,6 @@ public class MoveFilesWorkerThread extends Thread
 			{
 				if( null == moveInfo )
 				{
-					log.warning( "null moveInfo object" ) ;
 					Thread.sleep( 100 ) ;
 					continue ;
 				}
@@ -69,7 +68,7 @@ public class MoveFilesWorkerThread extends Thread
 				if( !Files.exists( moveInfo.getSourceFileDirectoryPath() ) )
 				{
 					log.info( "Creating sourceFileDirectoryPath: " + moveInfo.getSourceFileDirectoryPath()
-							+ " " + toString() ) ;
+					+ " " + toString() ) ;
 					if( !common.getTestMode() )
 					{
 						Files.createDirectory( moveInfo.getSourceFileDirectoryPath() ) ;
@@ -79,7 +78,7 @@ public class MoveFilesWorkerThread extends Thread
 				if( !Files.exists( moveInfo.getDestinationFileDirectoryPath() ) )
 				{
 					log.info( "Creating destinationFileDirectoryPath: " + moveInfo.getDestinationFileDirectoryPath()
-							+ " " + toString() ) ;
+					+ " " + toString() ) ;
 					if( !common.getTestMode())
 					{
 						Files.createDirectory( moveInfo.getDestinationFileDirectoryPath() ) ;
@@ -99,18 +98,18 @@ public class MoveFilesWorkerThread extends Thread
 						final long fileLength = moveInfo.getDestinationFile().length() ;
 						final double fileLengthInMB = fileLength / 1e6 ;
 						final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
-						
+
 						log.info( "Successfully moved "
 								+ moveInfo.getSourceFileNameWithPath() 
 								+ " -> "
 								+ moveInfo.getDestinationFileNameWithPath()
 								+ "; elapsed time: "
-				    			+ common.getNumberFormat().format( timeElapsedInSeconds )
-				    			+ " seconds, "
-				    			+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
-				    			+ " minutes; moved " + fileLengthInMB + "MB at "
-				    			+ common.getNumberFormat().format( MBPerSecond ) + "MB/sec"
-				    			+ " " + toString() ) ;
+								+ common.getNumberFormat().format( timeElapsedInSeconds )
+								+ " seconds, "
+								+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
+								+ " minutes; moved " + fileLengthInMB + "MB at "
+								+ common.getNumberFormat().format( MBPerSecond ) + "MB/sec"
+								+ " " + toString() ) ;
 					}
 					else
 					{
@@ -131,7 +130,10 @@ public class MoveFilesWorkerThread extends Thread
 		MoveFileInfo retMe = null ;
 		synchronized( moveActionList )
 		{
-			retMe = moveActionList.remove( 0 ) ;
+			if( !moveActionList.isEmpty() )
+			{
+				retMe = moveActionList.remove( 0 ) ;
+			}
 		}
 		return retMe ;
 	}
@@ -155,7 +157,7 @@ public class MoveFilesWorkerThread extends Thread
 	{
 		return (!common.shouldStopExecution( getStopFileName() ) && doKeepRunning) ;
 	}
-	
+
 	/**
 	 * Stop the thread from executing. Note that this will abandon any remaining work items.
 	 */
@@ -163,7 +165,7 @@ public class MoveFilesWorkerThread extends Thread
 	{
 		doKeepRunning = false ;
 	}
-	
+
 	public String toString()
 	{
 		return name ;

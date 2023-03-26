@@ -497,6 +497,10 @@ public class TranscodeCommon
 		// Overwrite existing files
 		ffmpegCommand.add( "-y" ) ;
 		
+		// Not exactly sure what these do but it seems to help reduce errors on some files.
+		ffmpegCommand.add( "-analyzeduration", "100M" ) ;
+		ffmpegCommand.add( "-probesize", "100M" ) ;
+		
 		// 2) Include source file
 		ffmpegCommand.add( "-i", inputFile.getMKVInputFileNameWithPath() ) ;
 	

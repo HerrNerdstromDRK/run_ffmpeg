@@ -43,12 +43,33 @@ public class ExtractAndOCR extends Thread
 		controllerThread.runThreads() ;
 	}
 	
+	public String getStopFileName()
+	{
+		return stopFileName;
+	}
+
+	@Override
+	public void run()
+	{
+		if( extractPGSFromMKVs != null )
+		{
+			// Run the extract method here.
+			extractPGSFromMKVs.runThreads() ;
+		}
+		else
+		{
+			// Run the OCR.
+			ocrSubtitle.runThreads() ;
+		}
+	}
+
 	public void runThreads()
 	{
 		// ExtractPGS spawns two additional threads as workers and keeps the owning
 		// thread as the controller.
 		ExtractAndOCR extractThread = new ExtractAndOCR() ;
 		extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
+		extractPGSFromMKVs.setDrivesAndFoldersToExtract( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 		extractThread.setRunExtract( extractPGSFromMKVs ) ;
 		
 		ExtractAndOCR OCRThread = new ExtractAndOCR() ;
@@ -86,25 +107,6 @@ public class ExtractAndOCR extends Thread
 		log.info( "Complete." ) ;
 	}
 	
-	@Override
-	public void run()
-	{
-		if( extractPGSFromMKVs != null )
-		{
-			// Run the extract method here.
-			extractPGSFromMKVs.runThreads() ;
-		}
-		else
-		{
-			// Run the OCR.
-			ocrSubtitle.runThreads() ;
-		}
-	}
-
-	public String getStopFileName() {
-		return stopFileName;
-	}
-
 	private void setRunExtract( ExtractPGSFromMKVs extractPGSFromMKVs )
 	{
 		this.extractPGSFromMKVs = extractPGSFromMKVs ;

@@ -108,11 +108,11 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
 	
 			retMe.add( moviesFolder ) ;
 			retMe.add( tvShowsFolder ) ;
-			retMe.add( otherVideosFolder ) ;
+//			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
 	}
@@ -606,7 +606,7 @@ public class Common
 
 	public List< String > getAllChainBMKVDrives()
 	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainBMKVDrives) ) ;
+		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainBMKVDrives ) ) ;
 		return retMe ;
 	}
 
@@ -617,7 +617,7 @@ public class Common
 
 	public List< String > getAllChainAMP4Drives()
 	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainAMP4Drives) ) ;
+		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainAMP4Drives ) ) ;
 		return retMe ;
 	}
 
