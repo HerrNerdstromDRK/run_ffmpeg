@@ -63,6 +63,7 @@ public class MoveFiles
 		if( mkvFileNameWithPath.equals( mkvDestinationFileNameWithPath ) )
 		{
 			// Same file, nothing to do.
+			log.warning( "Input and output files are the same: " + mkvFileNameWithPath ) ;
 			return ;
 		}
 		MoveFileInfo moveFileInfo = new MoveFileInfo( mkvFileNameWithPath, mkvDestinationFileNameWithPath ) ;
@@ -77,6 +78,7 @@ public class MoveFiles
 		if( mp4FileNameWithPath.equals( mp4DestinationFileNameWithPath ) )
 		{
 			// Same file, nothing to do.
+			log.warning( "Input and output files are the same: " + mp4FileNameWithPath ) ;
 			return ;
 		}
 		MoveFileInfo moveFileInfo = new MoveFileInfo( mp4FileNameWithPath, mp4DestinationFileNameWithPath ) ;

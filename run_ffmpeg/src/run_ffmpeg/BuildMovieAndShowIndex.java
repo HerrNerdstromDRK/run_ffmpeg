@@ -32,7 +32,7 @@ public class BuildMovieAndShowIndex
 	private Logger log = null ;
 
 	/// The set of methods and variables for common use.
-	private Common common = null ;
+//	private Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_build_movie_and_show_index.txt" ;
@@ -53,7 +53,7 @@ public class BuildMovieAndShowIndex
 	public BuildMovieAndShowIndex()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		common = new Common( log ) ;
+//		common = new Common( log ) ;
 
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;

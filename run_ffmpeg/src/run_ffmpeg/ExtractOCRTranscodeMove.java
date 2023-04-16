@@ -45,11 +45,11 @@ public class ExtractOCRTranscodeMove extends Thread
 
 	/// Handle to the probe info collection to lookup and store probe information for the mkv
 	/// and mp4 files.
-	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+//	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 	
 	/// Sort and transcode files from smallest to largest.
 	/// If false, then sort largest to smallest.
-	private boolean sortSmallToLarge = false ;
+	private boolean sortSmallToLarge = true ;
 
 	public ExtractOCRTranscodeMove()
 	{
@@ -62,7 +62,7 @@ public class ExtractOCRTranscodeMove extends Thread
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
-		probeInfoCollection = masMDB.getProbeInfoCollection() ;
+//		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
 
 	public String getStopFileName()
@@ -157,7 +157,7 @@ public class ExtractOCRTranscodeMove extends Thread
 	 */
 	public void runFolders()
 	{
-		common.setTestMode( true ) ;
+		common.setTestMode( false ) ;
 		List< String > foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
 		runFolders( foldersToTranscode ) ;
 	}
@@ -234,12 +234,33 @@ public class ExtractOCRTranscodeMove extends Thread
 			String mp4FinalDirectory = null ;
 
 			// Build the final mkv and mp4 directories.
+			// First, check if the movieAndShowInfo is not null
 			if( movieAndShowInfo != null )
 			{
 				// Found the movie or show in the database.
-				// Use those values for the directory build here.
-				mkvFinalDirectory = movieAndShowInfo.getMKVLongPath() ;
-				mp4FinalDirectory = movieAndShowInfo.getMP4LongPath() ;
+				// If the mkv/mp4 long path is invalid, then create a new one
+				if( movieAndShowInfo.getMKVLongPath().equals( Common.getMissingFileSubstituteName() ) )
+				{
+					// Has an unusable mkv long path
+					mkvFinalDirectory = makeFinalMKVDirectory( mkvProbeResult, testMovieAndShowInfo ) ;
+				}
+				else
+				{
+					// Valid mkv long path
+					mkvFinalDirectory = movieAndShowInfo.getMKVLongPath() ;
+				}
+				
+				// Do the same for the mp4 path
+				if( movieAndShowInfo.getMP4LongPath().equals( Common.getMissingFileSubstituteName() ) )
+				{
+					// Has an unusable mp4 long path
+					mp4FinalDirectory = makeFinalMP4Directory( mkvProbeResult, testMovieAndShowInfo ) ;
+				}
+				else
+				{
+					// Valid mp4 long path
+					mp4FinalDirectory = movieAndShowInfo.getMP4LongPath() ;
+				}
 			}
 			else
 			{
@@ -326,12 +347,12 @@ public class ExtractOCRTranscodeMove extends Thread
 		fileToTranscode.setTranscodeComplete() ;
 
 		// Move files to their destinations
-		log.info( "Moving MP4 file from " + fileToTranscode.getMP4OutputDirectory()
+		log.info( "Moving " + fileToTranscode.getMP4FileName() + " from " + fileToTranscode.getMP4OutputDirectory()
 		+ " to " + fileToTranscode.getMP4FinalDirectory() ) ;
 		moveFiles.addMP4FileMove( fileToTranscode.getMP4OutputFileNameWithPath(),
 				fileToTranscode.getMP4FinalFileNameWithPath() ) ;
 
-		log.info( "Moving MKV file from " + fileToTranscode.getMKVInputFileNameWithPath()
+		log.info( "Moving " + fileToTranscode.getMKVFileName() + " from " + fileToTranscode.getMKVInputFileNameWithPath()
 		+ " to " + fileToTranscode.getMKVFinalFileNameWithPath() ) ;
 		moveFiles.addMKVFileMove( fileToTranscode.getMKVInputFileNameWithPath(),
 				fileToTranscode.getMKVFinalFileNameWithPath() ) ;

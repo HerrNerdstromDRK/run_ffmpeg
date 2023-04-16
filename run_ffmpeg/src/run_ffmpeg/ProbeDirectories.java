@@ -80,7 +80,6 @@ public class ProbeDirectories extends Thread
 			probeDirectory.probeDirectoriesAndUpdateDB() ;
 		}
 		System.out.println( "ProbeDirectories.main> Shutdown." ) ;
-
 	}
 
 	private void runThreads()
