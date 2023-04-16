@@ -54,7 +54,9 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 * Default constructor for serialization/deserialization.
 	 */
 	public MovieAndShowInfo()
-	{}
+	{
+		log = Common.setupLogger( "log_movie_and_show_info.txt", this.getClass().getName() ) ;
+	}
 
 	/**
 	 * Constructor for a MovieOrShowInfo. This is a convenience constructor that requires the

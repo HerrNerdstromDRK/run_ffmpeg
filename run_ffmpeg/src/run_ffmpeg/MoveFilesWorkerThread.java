@@ -68,7 +68,7 @@ public class MoveFilesWorkerThread extends Thread
 				if( !Files.exists( moveInfo.getSourceFileDirectoryPath() ) )
 				{
 					log.info( "Creating sourceFileDirectoryPath: " + moveInfo.getSourceFileDirectoryPath()
-					+ " " + toString() ) ;
+						+ " " + toString() ) ;
 					if( !common.getTestMode() )
 					{
 						Files.createDirectory( moveInfo.getSourceFileDirectoryPath() ) ;
@@ -78,7 +78,7 @@ public class MoveFilesWorkerThread extends Thread
 				if( !Files.exists( moveInfo.getDestinationFileDirectoryPath() ) )
 				{
 					log.info( "Creating destinationFileDirectoryPath: " + moveInfo.getDestinationFileDirectoryPath()
-					+ " " + toString() ) ;
+						+ " " + toString() ) ;
 					if( !common.getTestMode())
 					{
 						Files.createDirectory( moveInfo.getDestinationFileDirectoryPath() ) ;
@@ -113,7 +113,8 @@ public class MoveFilesWorkerThread extends Thread
 					}
 					else
 					{
-						log.warning( "Failed: " + toString() ) ;
+						log.warning( "Failed move: " + moveInfo.getSourceFilePath().toString()
+								+ " -> " + moveInfo.getDestinationFilePath().toString() ) ;
 					}
 				}
 			}

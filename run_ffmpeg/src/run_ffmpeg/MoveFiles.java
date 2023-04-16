@@ -19,7 +19,7 @@ public class MoveFiles
 	private transient Logger log = null ;
 
 	/// Hook in the Common methods and values
-	private transient Common common = null ;
+//	private transient Common common = null ;
 
 	/// File name to which to log activities for this application.
 //	private final String logFileName = "log_move_files_thread.txt" ;
@@ -40,7 +40,7 @@ public class MoveFiles
 	public MoveFiles( Logger log, Common common )
 	{
 		this.log = log ;
-		this.common = common ;
+//		this.common = common ;
 		mkvMoveActionList = new ArrayList< MoveFileInfo >() ;
 		mp4MoveActionList = new ArrayList< MoveFileInfo >() ;
 		

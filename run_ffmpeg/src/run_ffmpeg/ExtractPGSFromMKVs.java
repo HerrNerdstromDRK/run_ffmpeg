@@ -2,18 +2,11 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
-import org.bson.conversions.Bson;
-
 import com.google.common.collect.ImmutableList;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 
 /**
  * Problems to solve:

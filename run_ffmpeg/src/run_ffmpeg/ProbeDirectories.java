@@ -245,7 +245,7 @@ public class ProbeDirectories extends Thread
 		}
 
 		// File needs to a probe
-		log.info( "Probing " + fileToProbe.getAbsolutePath() ) ;
+		log.fine( "Probing " + fileToProbe.getAbsolutePath() ) ;
 
 		// Handle the special case that this is a missing file substitute
 		if( fileToProbe.getName().contains( Common.getMissingFilePreExtension() ) )

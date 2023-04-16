@@ -24,6 +24,8 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 
 	/// These next two record the mkv and mp4 files names and are populated
 	/// exclusively when the database needs to record this CorrelatedFile.
+	/// filenames here are stored as their shortened file name, for example
+	/// "MKV_1/Transformers (2001)/Transformers (2001).mkv"
 	public List< String > mkvFilesByName = new ArrayList< String >() ;
 	public List< String > mp4FilesByName = new ArrayList< String >() ;
 
