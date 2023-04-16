@@ -49,7 +49,7 @@ public class ExtractOCRTranscodeMove extends Thread
 	
 	/// Sort and transcode files from smallest to largest.
 	/// If false, then sort largest to smallest.
-	private boolean sortSmallToLarge = true ;
+	private boolean sortSmallToLarge = false ;
 
 	public ExtractOCRTranscodeMove()
 	{
@@ -189,7 +189,6 @@ public class ExtractOCRTranscodeMove extends Thread
 
 		// Sort by size
 		sortFilesToTranscode( filesToTranscode ) ;
-		log.info( "Files in sorted order: " + filesToTranscode.toString() ) ;
 		
 		// Iterate through the input mkv files and transcode each
 		for( File mkvInputFile : filesToTranscode )
@@ -290,6 +289,7 @@ public class ExtractOCRTranscodeMove extends Thread
 		OCRSubtitle ocrSubtitle = new OCRSubtitle() ;
 		List< File > filesToOCR = common.getFilesInDirectoryByExtension( fileToTranscode.getMKVInputDirectory(),
 				OCRSubtitle.getExtensionsToOCR() ) ;
+		log.info( "filesToOCR: " + filesToOCR.toString() ) ;
 		for( File fileToOCR : filesToOCR )
 		{
 			ocrSubtitle.doOCRFileName( fileToOCR.getAbsolutePath() ) ;
