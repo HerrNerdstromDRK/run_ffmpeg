@@ -23,7 +23,7 @@ public class OCRSubtitle extends Thread
 
 	/// The default number of threads to run.
 	private int defaultNumThreads = 6 ;
-	
+
 	/// Duration, in milliseconds, between thread liveness checks.
 	private long aliveCheckDuration = 5000 ;
 
@@ -36,7 +36,7 @@ public class OCRSubtitle extends Thread
 
 	/// The list of filenames to OCR
 	/// Will be used as the job queue.
-	private List< String > fileNamesToOCR = new ArrayList< String >() ;
+	private List< File > filesToOCR = new ArrayList< File >() ;
 
 	/// The extensions that contain image-based subtitles
 	private static String[] extensionsToOCR = { ".sup" } ;
@@ -50,37 +50,66 @@ public class OCRSubtitle extends Thread
 	public static void main( String[] args )
 	{
 		OCRSubtitle ocrs = new OCRSubtitle() ;
+		List< String > drivesAndFoldersToOCR = new ArrayList< String >() ;
+		Common common = ocrs.getCommon() ;
+		common.setTestMode( false ) ;
+
+		//		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
+		drivesAndFoldersToOCR.add( "C:\\temp" ) ;
+		for( String directory : drivesAndFoldersToOCR )
+		{
+			List< File > filesToOCR = common.getFilesInDirectoryByExtension( directory, getExtensionsToOCR() ) ;
+			ocrs.addFilesToOCR( filesToOCR ) ;
+		}
 		ocrs.runThreads() ;
+	}
+
+	public Common getCommon()
+	{
+		return common ;
 	}
 
 	public void addFileNameToOCR( final String newFileNameToOCR )
 	{
-		fileNamesToOCR.add( newFileNameToOCR ) ;
+		addFileToOCR( new File( newFileNameToOCR ) ) ;
 	}
 
 	public void addFileNamesToOCR( final List< String > newFileNamesToOCR )
 	{
-		fileNamesToOCR.addAll( newFileNamesToOCR ) ;
+		for( String fileName : newFileNamesToOCR )
+		{
+			addFileToOCR( new File( fileName ) ) ;
+		}
+	}
+
+	public void addFilesToOCR( final List< File > filesToOCR )
+	{
+		this.filesToOCR.addAll( filesToOCR ) ;
+	}
+
+	public void addFileToOCR( File newFileToOCR )
+	{
+		filesToOCR.add( newFileToOCR ) ;
 	}
 
 	/**
 	 * Run OCR on a single file. Delete the original file when complete.
 	 * @param fileNameToOCR
 	 */
-	public boolean doOCRFileName( final String fileNameToOCR )
+	public boolean doOCRFile( final File fileToOCR )
 	{
-		log.info( "Running OCR on file: " + fileNameToOCR ) ;
+		log.info( "Running OCR on file: " + fileToOCR.toString() ) ;
 		// Format is:
 		// dotnet PgsToSrt.dll --input video1.fr.sup --output video1.fr.srt --tesseractlanguage fra --tesseractdata path_to_language_files
 		// The output filename will default, as will the language file.
 		// However, will need to include path to the tessdata
 		ImmutableList.Builder< String > ocrExecuteCommand = new ImmutableList.Builder<String>() ;
 		ocrExecuteCommand.add( Common.getPathToDotNet(), Common.getPathToPgsToSrtDLL() ) ;
-		ocrExecuteCommand.add( "--input", fileNameToOCR ) ;
+		ocrExecuteCommand.add( "--input", fileToOCR.getAbsolutePath() ) ;
 		ocrExecuteCommand.add( "--tesseractdata", Common.getPathToTessdata() ) ;
 
 		boolean commandSuccess = common.executeCommand( ocrExecuteCommand ) ;
-		log.info( "OCR on file " + fileNameToOCR + ": " + commandSuccess ) ;
+		log.info( "OCR on file " + fileToOCR.toString() + ": " + commandSuccess ) ;
 		return commandSuccess ;
 	}
 
@@ -89,17 +118,19 @@ public class OCRSubtitle extends Thread
 	 */
 	public synchronized boolean ocrJobAvailable()
 	{
-		synchronized( fileNamesToOCR )
+		synchronized( filesToOCR )
 		{
-			return !fileNamesToOCR.isEmpty() ;
+			return !filesToOCR.isEmpty() ;
 		}
 	}
 
-	public long getAliveCheckDuration() {
+	public long getAliveCheckDuration()
+	{
 		return aliveCheckDuration;
 	}
 
-	public int getDefaultNumThreads() {
+	public int getDefaultNumThreads()
+	{
 		return defaultNumThreads;
 	}
 
@@ -108,26 +139,26 @@ public class OCRSubtitle extends Thread
 		return extensionsToOCR;
 	}
 
-	public List<String> getFileNamesToOCR()
+	public List< File > getFilesToOCR()
 	{
-		return fileNamesToOCR;
+		return filesToOCR;
 	}
 
 	/**
 	 * Returns the next filename to OCR, or null if none available.
 	 * @return
 	 */
-	public synchronized String getFileNameToOCR()
+	public synchronized File getFileToOCR()
 	{
-		String fileNameToOCR = null ;
-		synchronized( fileNamesToOCR )
+		File fileToOCR = null ;
+		synchronized( filesToOCR )
 		{
-			if( !fileNamesToOCR.isEmpty() )
+			if( !filesToOCR.isEmpty() )
 			{
-				fileNameToOCR = fileNamesToOCR.remove( 0 ) ;
+				fileToOCR = filesToOCR.remove( 0 ) ;
 			}
 		}
-		return fileNameToOCR ;
+		return fileToOCR ;
 	}
 
 	public String getLogFileName()
@@ -155,29 +186,28 @@ public class OCRSubtitle extends Thread
 		while( shouldKeepRunning() )
 		{
 			// Get a file to OCR from the queue.
-			final String fileNameToOCR = getFileNameToOCR() ;
-			if( null == fileNameToOCR )
+			final File fileToOCR = getFileToOCR() ;
+			if( null == fileToOCR )
 			{
 				// Out of jobs. Exit this thread.
 				log.info( "No more jobs for this thread." ) ;
 				return ;
 			}
-	
+
 			// OCR this file.
-			doOCRFileName( fileNameToOCR ) ;
-			
+			doOCRFile( fileToOCR ) ;
+
 			// Delete the .sup file regardless:
 			// If successful, then the file should be removed so it is not re-OCRd
 			// If unsuccessful, then something is probably wrong with the file and I don't
 			//  want to try to re-OCR it.
 			// If the OCR was successful, then delete the input (.sup) file.
-			log.info( "Deleting OCR input file: " + fileNameToOCR ) ;
+			log.info( "Deleting OCR input file: " + fileToOCR.toString() ) ;
 			if( !common.getTestMode() )
 			{
-				File fileToOCR = new File( fileNameToOCR ) ;
 				fileToOCR.delete() ;
 			}
-			log.info( "Completed OCR on file: " + fileNameToOCR ) ;
+			log.info( "Completed OCR on file: " + fileToOCR.toString() ) ;
 		}
 		log.info( "Thread is shutdown." ) ;
 	}
@@ -187,45 +217,42 @@ public class OCRSubtitle extends Thread
 		runThreads( getDefaultNumThreads() ) ;
 	}
 
+	/**
+	 * Run one or more threads to OCR the available .sup files.
+	 * Note that the files to OCR must either be set prior to this invocation,
+	 *  or the controller process must feed new file names into the queue to
+	 *  process.
+	 * Will keep running while the stop file is absent and the keepThreadRunning boolean
+	 *  is true.
+	 * @param numThreads
+	 */
 	public void runThreads( final int numThreads )
 	{
 		// Retrieve all of the drives and folders containing mkv files to find .sup files
-		List< String > drivesAndFoldersToOCR = new ArrayList< String >() ;
-		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
-		log.info( "Running OCR on: " + drivesAndFoldersToOCR.toString() ) ;
-	
-		// Walk through each drive and folder to find the .sup files
-		for( String folderToOCR : drivesAndFoldersToOCR )
+		List< File > filesToOCR = getFilesToOCR() ;
+		synchronized( filesToOCR )
 		{
-			List< File > filesToOCR = common.getFilesInDirectoryByExtension( folderToOCR, getExtensionsToOCR() ) ;
-			for( File fileToOCR : filesToOCR )
-			{
-				// Add each file to ocr to a list for later processing.
-				final String fileNameToOCR = fileToOCR.getAbsolutePath() ;
-				addFileNameToOCR( fileNameToOCR ) ;
-			}
+			log.info( "Running OCR on files: " + filesToOCR.toString() ) ;
 		}
-		log.info( "Will execute OCR on " + fileNamesToOCR.size() + " file(s) using " + numThreads + " thread(s)" ) ;
-	
+
 		// Create and start the threads.
 		List< OCRSubtitle > ocrThreads = new ArrayList< OCRSubtitle >() ;
 		for( int i = 0 ; i < numThreads ; ++i )
 		{
 			OCRSubtitle ocrs = new OCRSubtitle() ;
-	
+
 			// This is a bit confusing to visualize, but we need to pass along
 			// the file names and extensions to OCR to each subordinate thread.
 			// All threads, including this controller thread, will reference the same
 			// work queue.
-			ocrs.setFileNamesToOCR( getFileNamesToOCR() );
-			setExtensionsToOCR( getExtensionsToOCR() ) ;
+			ocrs.setFilesToOCR( getFilesToOCR() );
 			ocrThreads.add( ocrs ) ;
-	
+
 			// Upon starting the thread, it will begin pulling ocr jobs from the queue and continue
 			// until the queue is empty or the controller thread tells it to stop.
 			ocrs.start() ;
 		}
-	
+
 		// This loop is for the controller thread.
 		// The below calls to stopRunningThread() are used to shutdown each individual thread.
 		Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
@@ -236,7 +263,7 @@ public class OCRSubtitle extends Thread
 			{
 				// Sleep while we should keep running at at least one thread is busy working.
 				Thread.sleep( 100 ) ;
-				
+
 				long timeNow = System.currentTimeMillis() ;
 				if( (timeNow - lastAliveCheck) >= getAliveCheckDuration() )
 				{
@@ -244,7 +271,7 @@ public class OCRSubtitle extends Thread
 					lastAliveCheck = timeNow ;
 					int numAliveThreads = 0 ;
 					int numDeadThreads = 0 ;
-					
+
 					for( OCRSubtitle ocrThread : ocrThreads )
 					{
 						if( ocrThread.isAlive() )
@@ -264,14 +291,14 @@ public class OCRSubtitle extends Thread
 				log.warning( "Exception: " + theException.toString() ) ;
 			}
 		}
-	
+
 		// Tell the threads to shut down.
 		log.info( "Shutting down threads..." ) ;
 		for( OCRSubtitle theoCRSubtitleObject : ocrThreads )
 		{
 			theoCRSubtitleObject.stopRunningThread() ;
 		}
-	
+
 		// Wait for them to shut down.
 		try
 		{
@@ -284,14 +311,16 @@ public class OCRSubtitle extends Thread
 		{
 			log.warning( "Exception: " + theException.toString() ) ;
 		}
-		log.info( "Complete." ) ;
+		log.info( "Shut down." ) ;
 	}
 
-	public void setAliveCheckDuration(long aliveCheckDuration) {
+	public void setAliveCheckDuration(long aliveCheckDuration)
+	{
 		this.aliveCheckDuration = aliveCheckDuration;
 	}
 
-	public void setDefaultNumThreads(int defaultNumThreads) {
+	public void setDefaultNumThreads(int defaultNumThreads)
+	{
 		this.defaultNumThreads = defaultNumThreads;
 	}
 
@@ -300,9 +329,9 @@ public class OCRSubtitle extends Thread
 		extensionsToOCR = _extensionsToOCR ;
 	}
 
-	public void setFileNamesToOCR( List< String > fileNamesToOCR )
+	public void setFilesToOCR( List< File > fileNamesToOCR )
 	{
-		this.fileNamesToOCR = fileNamesToOCR;
+		this.filesToOCR = fileNamesToOCR;
 	}
 
 	public void setKeepThreadRunning( boolean keepThreadRunning )

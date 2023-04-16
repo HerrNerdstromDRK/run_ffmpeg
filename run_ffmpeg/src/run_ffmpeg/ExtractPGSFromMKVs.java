@@ -93,7 +93,12 @@ public class ExtractPGSFromMKVs extends Thread
 		probeDirectories = new ProbeDirectories( log, common, masMDB, probeInfoCollection ) ;
 
 		// The default set of drives and folders to extract is all of them.
-		setDrivesAndFoldersToExtract( common.getAllMKVDrivesAndFolders() ) ;
+//		setDrivesAndFoldersToExtract( common.getAllMKVDrivesAndFolders() ) ;
+	}
+	
+	public Common getCommon()
+	{
+		return common ;
 	}
 
 	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
@@ -231,7 +236,6 @@ public class ExtractPGSFromMKVs extends Thread
 	public List< String > getDrivesAndFoldersToExtract()
 	{
 		List< String > retMe = new ArrayList< String >() ;
-		new ArrayList< String >() ;
 		if( drivesAndFoldersToExtract != null )
 		{
 			retMe.addAll( drivesAndFoldersToExtract ) ;
@@ -288,9 +292,11 @@ public class ExtractPGSFromMKVs extends Thread
 
 	public static void main(String[] args)
 	{
-		boolean useThreads = true ;
+		boolean useThreads = false ;
 		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
-
+		extractPGS.getCommon().setTestMode( false ) ;
+		extractPGS.setMkvInputDirectory( "C:\\temp" ) ;
+		
 		/**
 		 * The only difference between these two branches is that running with threads
 		 * will set one chain of drives and folders to each thread and run,

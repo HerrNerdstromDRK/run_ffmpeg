@@ -314,7 +314,7 @@ public class ExtractOCRTranscodeMove extends Thread
 		log.info( "filesToOCR: " + filesToOCR.toString() ) ;
 		for( File fileToOCR : filesToOCR )
 		{
-			ocrSubtitle.doOCRFileName( fileToOCR.getAbsolutePath() ) ;
+			ocrSubtitle.doOCRFile( fileToOCR ) ;
 			if( !common.getTestMode() )
 			{
 				fileToOCR.delete() ;

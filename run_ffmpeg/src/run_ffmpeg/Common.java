@@ -94,6 +94,11 @@ public class Common
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
 	private NumberFormat numFormat = null ;
 
+	public Common()
+	{
+		this( setupLogger( "Common", "log_common.txt" ) ) ;
+	}
+	
 	public Common( Logger log )
 	{
 		if( null == Common.log ) Common.log = log ;

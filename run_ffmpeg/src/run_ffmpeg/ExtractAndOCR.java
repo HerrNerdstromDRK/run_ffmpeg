@@ -1,5 +1,7 @@
 package run_ffmpeg;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 /**
@@ -69,7 +71,10 @@ public class ExtractAndOCR extends Thread
 		// thread as the controller.
 		ExtractAndOCR extractThread = new ExtractAndOCR() ;
 		extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
-		extractPGSFromMKVs.setDrivesAndFoldersToExtract( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+		List< String > localFoldersToExtract = new ArrayList< String >() ;
+		localFoldersToExtract.add( "C:\\Temp" ) ;
+		extractPGSFromMKVs.setDrivesAndFoldersToExtract( localFoldersToExtract ) ;
+//		extractPGSFromMKVs.setDrivesAndFoldersToExtract( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 		extractThread.setRunExtract( extractPGSFromMKVs ) ;
 		
 		ExtractAndOCR OCRThread = new ExtractAndOCR() ;
