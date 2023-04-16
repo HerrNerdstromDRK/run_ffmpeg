@@ -477,23 +477,44 @@ public class Common
 	 */
 	public static Logger setupLogger( final String logFileName, final String className )
 	{
+		return setupLogger( logFileName, className, false ) ;
+	}
+	
+	/**
+	 * Setup a logger stream for the given filename and class.
+	 * @param logFileName
+	 * @param className
+	 * @param forceNewLogger: set to true if a new logger is to be built. It will continue to store the old logger.
+	 * @return
+	 */
+	public static Logger setupLogger( final String logFileName, final String className, boolean forceNewLogger )
+	{
 		// Keep only a single log instance per process
-		if( null == log )
+		boolean logIsNull = (null == log) ? true : false ;
+		
+		// Use localLog as the primary reference in this method
+		// Need to account for three scenarios:
+		// log is null: Create a new localLog, store it as the class log, and return it
+		// log is non-null and forceNewLogger is false: return log (as localLog)
+		// log is non-null and forceNewLogger is true: create a new localLog and return it (do not change log)
+		Logger localLog = log ;
+		if( (null == log) || forceNewLogger )
 		{
 			// First time creating a log stream.
-			// Retrive the log instance and setup the parameters for this process.
-			log = Logger.getLogger( className ) ;
+			// Retrieve the log instance and setup the parameters for this process.
+			localLog = Logger.getLogger( className ) ;
+			
 			try
 			{
 				// Disable default handlers
-				log.setUseParentHandlers( false ) ;
+				localLog.setUseParentHandlers( false ) ;
 				FileHandler logFileHandler = new FileHandler( logFileName ) ;
 				logFileHandler.setFormatter( new MyLogFormatter() );
-				log.addHandler( logFileHandler ) ;
+				localLog.addHandler( logFileHandler ) ;
 
 				ConsoleHandler ch = new ConsoleHandler() ;
 				ch.setFormatter( new MyLogFormatter() ) ;
-				log.addHandler( ch ) ;
+				localLog.addHandler( ch ) ;
 			}
 			catch( Exception theException )
 			{
@@ -501,10 +522,18 @@ public class Common
 						+ logFileName
 						+ ": " + theException ) ;
 			}
-			log.setLevel( Level.ALL ) ;
+			localLog.setLevel( Level.ALL ) ;
+			
+			// Was the log initially null?
+			if( logIsNull )
+			{
+				// First use -- keep this logger as permanent
+				log = localLog ;
+			}
 		}
-		System.out.println( "setupLogger> Established logger: " + log.getName() ) ;
-		return log ;
+
+		System.out.println( "setupLogger> Established logger: " + localLog.getName() ) ;
+		return localLog ;
 	}
 
 	/**

@@ -11,7 +11,6 @@ import java.util.logging.Logger;
  *  the methods to add move requests. It is the responsibility of the caller
  *  to check for thread liveness before terminating the process.
  * @author Dan
- *
  */
 public class MoveFiles
 {
@@ -22,7 +21,7 @@ public class MoveFiles
 //	private transient Common common = null ;
 
 	/// File name to which to log activities for this application.
-//	private final String logFileName = "log_move_files_thread.txt" ;
+	private final static String logFileName = "log_move_files_thread.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
@@ -123,6 +122,10 @@ public class MoveFiles
 		{
 			log.warning( "Exception: " + theException.toString() ) ;
 		}
+	}
+
+	protected static String getLogFileName() {
+		return logFileName;
 	}
 	
 }

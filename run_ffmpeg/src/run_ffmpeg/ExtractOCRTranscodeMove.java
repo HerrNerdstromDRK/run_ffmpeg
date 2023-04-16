@@ -57,7 +57,8 @@ public class ExtractOCRTranscodeMove extends Thread
 		common = new Common( log ) ;
 
 		// Create the MoveFiles handler, which will also start the threads.
-		moveFiles = new MoveFiles( log, common ) ;
+		Logger moveFilesLogger = Common.setupLogger( "MoveFiles", MoveFiles.getLogFileName() ) ;
+		moveFiles = new MoveFiles( moveFilesLogger, common ) ;
 
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
