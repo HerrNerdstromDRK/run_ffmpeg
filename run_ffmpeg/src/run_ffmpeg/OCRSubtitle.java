@@ -22,7 +22,7 @@ public class OCRSubtitle extends Thread
 	private transient boolean keepThreadRunning = true ;
 
 	/// The default number of threads to run.
-	private int defaultNumThreads = 6 ;
+	private int defaultNumThreads = 8 ;
 
 	/// Duration, in milliseconds, between thread liveness checks.
 	private long aliveCheckDuration = 5000 ;

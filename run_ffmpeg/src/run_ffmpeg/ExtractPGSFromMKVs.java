@@ -441,7 +441,7 @@ public class ExtractPGSFromMKVs extends Thread
 	public void setChainA()
 	{
 		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
-		drivesAndFoldersToProbe.addAll( common.addToConvertToEachDrive( common.getAllChainAMKVDrivesAndFolders() ) ) ;
+		drivesAndFoldersToProbe.addAll( common.addToConvertToEachDrive( common.getAllChainAMKVDrives() ) ) ;
 		drivesAndFoldersToProbe.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
 		setDrivesAndFoldersToExtract( drivesAndFoldersToProbe ) ;
 	}
@@ -452,7 +452,7 @@ public class ExtractPGSFromMKVs extends Thread
 	public void setChainB()
 	{
 		List< String > drivesAndFoldersToProbe = new ArrayList< String >() ;
-		drivesAndFoldersToProbe.addAll( common.addToConvertToEachDrive( common.getAllChainBMKVDrivesAndFolders() ) ) ;
+		drivesAndFoldersToProbe.addAll( common.addToConvertToEachDrive( common.getAllChainBMKVDrives() ) ) ;
 		drivesAndFoldersToProbe.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
 		setDrivesAndFoldersToExtract( drivesAndFoldersToProbe ) ;
 	}
