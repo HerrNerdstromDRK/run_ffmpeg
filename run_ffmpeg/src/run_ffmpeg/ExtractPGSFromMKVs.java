@@ -295,7 +295,7 @@ public class ExtractPGSFromMKVs extends Thread
 		boolean useThreads = false ;
 		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
 		extractPGS.getCommon().setTestMode( false ) ;
-		extractPGS.setMkvInputDirectory( "C:\\temp" ) ;
+		extractPGS.setMkvInputDirectory( "c:\\temp" ) ;
 		
 		/**
 		 * The only difference between these two branches is that running with threads

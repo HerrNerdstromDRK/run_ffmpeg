@@ -22,7 +22,7 @@ public class OCRSubtitle extends Thread
 	private transient boolean keepThreadRunning = true ;
 
 	/// The default number of threads to run.
-	private int defaultNumThreads = 8 ;
+	private int defaultNumThreads = 10 ;
 
 	/// Duration, in milliseconds, between thread liveness checks.
 	private long aliveCheckDuration = 5000 ;
@@ -54,8 +54,10 @@ public class OCRSubtitle extends Thread
 		Common common = ocrs.getCommon() ;
 		common.setTestMode( false ) ;
 
-		//		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
-		drivesAndFoldersToOCR.add( "C:\\temp" ) ;
+		drivesAndFoldersToOCR.add( "d:\\temp" ) ;
+		drivesAndFoldersToOCR.add( "c:\\temp" ) ;
+//		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
+		System.out.println( "main> Running on directories: " + drivesAndFoldersToOCR.toString() ) ;
 		for( String directory : drivesAndFoldersToOCR )
 		{
 			List< File > filesToOCR = common.getFilesInDirectoryByExtension( directory, getExtensionsToOCR() ) ;
@@ -232,7 +234,7 @@ public class OCRSubtitle extends Thread
 		List< File > filesToOCR = getFilesToOCR() ;
 		synchronized( filesToOCR )
 		{
-			log.info( "Running OCR on files: " + filesToOCR.toString() ) ;
+			log.info( "Running OCR on " + filesToOCR.size() + " file(s)" ) ;
 		}
 
 		// Create and start the threads.
