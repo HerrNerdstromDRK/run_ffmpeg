@@ -52,13 +52,20 @@ public class ExtractPGSFromMKVs extends Thread
 	/// This is meant to provide a programmatic way of shutting down all of the threads.
 	private transient boolean keepThreadRunning = true ;
 
+	/// The structure used to enable a transcode pipeline.
+	/// transcodePipeline will hold the sup files being generated with this class.
+	/// If transcodePipeline is null, then the pipeline is not enabled and it is ignored.
+	/// Access to transcodePipeline will be guarded with a synchronized block since it will be
+	/// used in a threaded environment.
+	private List< File > transcodePipeline = null ;
+
 	/// Handle to the mongodb
 	private transient MoviesAndShowsMongoDB masMDB = null ;
 
 	/// Handle to the probe info collection to lookup and store probe information for the mkv
 	/// and mp4 files.
 	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
-	
+
 	/// Used to maintain a consistent handle for accessing and updating the probeInfoCollection
 	ProbeDirectories probeDirectories = null ;
 
@@ -93,16 +100,12 @@ public class ExtractPGSFromMKVs extends Thread
 		probeDirectories = new ProbeDirectories( log, common, masMDB, probeInfoCollection ) ;
 
 		// The default set of drives and folders to extract is all of them.
-//		setDrivesAndFoldersToExtract( common.getAllMKVDrivesAndFolders() ) ;
-	}
-	
-	public Common getCommon()
-	{
-		return common ;
+		//		setDrivesAndFoldersToExtract( common.getAllMKVDrivesAndFolders() ) ;
 	}
 
 	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
-			TranscodeFile theFile )
+			TranscodeFile theFile,
+			List< File > supFiles )
 	{
 		// The ffmpegOptionsCommandString will contain only the options to extract subtitles
 		// from the given FFmpegProbeResult
@@ -133,6 +136,7 @@ public class ExtractPGSFromMKVs extends Thread
 			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
 			{
 				outputFileNameWithPath += ".sup" ;
+				supFiles.add( new File( outputFileNameWithPath ) ) ;
 			}
 			else if( stStream.codec_name.equals( codecNameSubTitleSRTString ) )
 			{
@@ -158,8 +162,10 @@ public class ExtractPGSFromMKVs extends Thread
 	{
 		// Build a set of options for an ffmpeg command based on the JSON input
 		// If no suitable subtitles are found, the options string will be empty
+		// supFileNames will hold the names of the sup files ffmpeg will generate
+		List< File > supFiles = new ArrayList< File >() ;
 		ImmutableList.Builder<String> subTitleExtractionOptionsString =
-				buildFFmpegSubTitleExtractionOptionsString( probeResult, fileToSubTitleExtract ) ;
+				buildFFmpegSubTitleExtractionOptionsString( probeResult, fileToSubTitleExtract, supFiles ) ;
 
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
 		if( subTitleExtractionOptionsString.build().isEmpty() )
@@ -178,7 +184,19 @@ public class ExtractPGSFromMKVs extends Thread
 		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
-		common.executeCommand( ffmpegSubTitleExtractCommand ) ;
+		boolean executeSuccess = common.executeCommand( ffmpegSubTitleExtractCommand ) ;
+		if( !executeSuccess )
+		{
+			log.warning( "Failed to extract PGS: " + fileToSubTitleExtract.toString() ) ;
+		}
+		else if( executeSuccess && (transcodePipeline != null) )
+		{
+			// subtitle streams successfully executed and this method is running as part of a pipeline.
+			synchronized( transcodePipeline )
+			{
+				transcodePipeline.addAll( supFiles ) ;
+			}
+		}
 
 		// Unable to know if a subtitle stream is valid before it is written.
 		// Prune any small .sup files created herein.
@@ -233,6 +251,11 @@ public class ExtractPGSFromMKVs extends Thread
 		return extractableSubTitleStreams ;
 	}
 
+	public Common getCommon()
+	{
+		return common ;
+	}
+
 	public List< String > getDrivesAndFoldersToExtract()
 	{
 		List< String > retMe = new ArrayList< String >() ;
@@ -255,6 +278,11 @@ public class ExtractPGSFromMKVs extends Thread
 	public String getStopFileName()
 	{
 		return stopFileName;
+	}
+
+	protected List<File> getTranscodePipeline()
+	{
+		return transcodePipeline;
 	}
 
 	static boolean isAllowableSubTitleLanguage( final String audioLanguage )
@@ -295,8 +323,8 @@ public class ExtractPGSFromMKVs extends Thread
 		boolean useThreads = false ;
 		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
 		extractPGS.getCommon().setTestMode( false ) ;
-		extractPGS.setMkvInputDirectory( "c:\\temp" ) ;
-		
+		extractPGS.setMkvInputDirectory( "C:\\Temp\\Thor Love And Thunder (2022)" ) ;
+
 		/**
 		 * The only difference between these two branches is that running with threads
 		 * will set one chain of drives and folders to each thread and run,
@@ -404,12 +432,29 @@ public class ExtractPGSFromMKVs extends Thread
 		ExtractPGSFromMKVs extractPGS1 = new ExtractPGSFromMKVs() ;
 		ExtractPGSFromMKVs extractPGS2 = new ExtractPGSFromMKVs() ;
 
-		extractPGS1.setChainA() ;
-		extractPGS2.setChainB() ;
+		extractPGS1.setTranscodePipeline( getTranscodePipeline() ) ;
+		extractPGS2.setTranscodePipeline( getTranscodePipeline() ) ;
 
 		log.info( "Starting threads." ) ;
-		extractPGS1.start() ;
-		extractPGS2.start() ;
+		
+		// The presence of a non-null drivesAndFoldersToExtract indicates that this method is being
+		// called from a different thread or for a different purpose.
+		if( drivesAndFoldersToExtract != null )
+		{
+			// Only extract subtitles from the given drives and folders in a single thread.
+			extractPGS1.setDrivesAndFoldersToExtract( drivesAndFoldersToExtract ) ;
+			extractPGS1.start() ;
+		}
+		else
+		{
+			// Use multiple threads for all chain A and B folders
+			extractPGS1.setChainA() ;
+			extractPGS2.setChainB() ;
+			
+			extractPGS1.start() ;
+			extractPGS2.start() ;
+		}
+
 		log.info( "Running threads..." ) ;
 
 		try
@@ -470,6 +515,11 @@ public class ExtractPGSFromMKVs extends Thread
 	public void setKeepThreadRunning( boolean keepThreadRunning )
 	{
 		this.keepThreadRunning = keepThreadRunning;
+	}
+
+	protected synchronized void setTranscodePipeline( List< File > transcodePipeline )
+	{
+		this.transcodePipeline = transcodePipeline;
 	}
 
 	public boolean shouldKeepRunning()

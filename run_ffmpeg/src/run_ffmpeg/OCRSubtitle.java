@@ -55,8 +55,8 @@ public class OCRSubtitle extends Thread
 		common.setTestMode( false ) ;
 
 		drivesAndFoldersToOCR.add( "d:\\temp" ) ;
-		drivesAndFoldersToOCR.add( "c:\\temp" ) ;
-//		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
+		drivesAndFoldersToOCR.add( "N:\\To Convert - TV Shows" ) ;
+		//		drivesAndFoldersToOCR.addAll( common.getAllMKVDrives() ) ;
 		System.out.println( "main> Running on directories: " + drivesAndFoldersToOCR.toString() ) ;
 		for( String directory : drivesAndFoldersToOCR )
 		{
@@ -84,14 +84,20 @@ public class OCRSubtitle extends Thread
 		}
 	}
 
-	public void addFilesToOCR( final List< File > filesToOCR )
+	public void addFilesToOCR( final List< File > newFilesToOCR )
 	{
-		this.filesToOCR.addAll( filesToOCR ) ;
+		synchronized( filesToOCR )
+		{
+			filesToOCR.addAll( newFilesToOCR ) ;
+		}
 	}
 
 	public void addFileToOCR( File newFileToOCR )
 	{
-		filesToOCR.add( newFileToOCR ) ;
+		synchronized( filesToOCR )
+		{
+			filesToOCR.add( newFileToOCR ) ;
+		}
 	}
 
 	/**
@@ -191,9 +197,19 @@ public class OCRSubtitle extends Thread
 			final File fileToOCR = getFileToOCR() ;
 			if( null == fileToOCR )
 			{
-				// Out of jobs. Exit this thread.
-				log.info( "No more jobs for this thread." ) ;
-				return ;
+				// Queue is empty.
+				// Wait for a job to appear or a stop order to be issued.
+//				log.info( "No more jobs for this thread." ) ;
+				try
+				{
+					Thread.sleep( 100 ) ;
+					
+				}
+				catch( Exception theException )
+				{
+					log.warning( "Exception: " + theException.toString() ) ;
+				}
+				continue ;
 			}
 
 			// OCR this file.
@@ -241,25 +257,25 @@ public class OCRSubtitle extends Thread
 		List< OCRSubtitle > ocrThreads = new ArrayList< OCRSubtitle >() ;
 		for( int i = 0 ; i < numThreads ; ++i )
 		{
-			OCRSubtitle ocrs = new OCRSubtitle() ;
+			OCRSubtitle ocrInstance = new OCRSubtitle() ;
 
 			// This is a bit confusing to visualize, but we need to pass along
 			// the file names and extensions to OCR to each subordinate thread.
 			// All threads, including this controller thread, will reference the same
 			// work queue.
-			ocrs.setFilesToOCR( getFilesToOCR() );
-			ocrThreads.add( ocrs ) ;
+			ocrInstance.setFilesToOCR( getFilesToOCR() );
+			ocrThreads.add( ocrInstance ) ;
 
 			// Upon starting the thread, it will begin pulling ocr jobs from the queue and continue
 			// until the queue is empty or the controller thread tells it to stop.
-			ocrs.start() ;
+			ocrInstance.start() ;
 		}
 
 		// This loop is for the controller thread.
 		// The below calls to stopRunningThread() are used to shutdown each individual thread.
 		Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 		long lastAliveCheck = System.currentTimeMillis() ;
-		while( shouldKeepRunning() && ocrJobAvailable() )
+		while( shouldKeepRunning() )
 		{
 			try
 			{
@@ -285,7 +301,12 @@ public class OCRSubtitle extends Thread
 							++numDeadThreads ;
 						}
 					}
-					log.info( "Alive threads: " + numAliveThreads + ", dead threads: " + numDeadThreads ) ;
+					int queueSize = -1 ;
+					synchronized( filesToOCR )
+					{
+						queueSize = filesToOCR.size() ;
+					}
+					log.info( "Alive threads: " + numAliveThreads + ", dead threads: " + numDeadThreads + ", queue size: " + queueSize ) ;
 				}
 			}
 			catch( Exception theException )
