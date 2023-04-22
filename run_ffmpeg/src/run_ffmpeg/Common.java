@@ -563,7 +563,7 @@ public class Common
 			}
 		}
 
-		System.out.println( "setupLogger> Established logger: " + localLog.getName() ) ;
+		log.fine( "Established logger: " + localLog.getName() ) ;
 		return localLog ;
 	}
 

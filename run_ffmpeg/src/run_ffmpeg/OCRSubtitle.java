@@ -99,6 +99,15 @@ public class OCRSubtitle extends Thread
 			filesToOCR.add( newFileToOCR ) ;
 		}
 	}
+	
+	public void addFoldersToOCR( List< String > folderPaths )
+	{
+		for( String theFolder : folderPaths )
+		{
+			List< File > filesToOCR = common.getFilesInDirectoryByExtension( theFolder, getExtensionsToOCR() ) ;
+			addFilesToOCR( filesToOCR ) ;
+		}
+	}
 
 	/**
 	 * Run OCR on a single file. Delete the original file when complete.

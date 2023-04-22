@@ -88,19 +88,24 @@ public class ExtractAndOCR extends Thread
 	public void runThreads()
 	{
 		common.setTestMode( false ) ;
+		
+		// Identify the folders to extract and OCR.
+		List< String > localFoldersToExtract = new ArrayList< String >() ;
+		localFoldersToExtract.add( "C:\\Temp" ) ;
+		
 		// ExtractPGS spawns two additional threads as workers and keeps the owning
 		// thread as the controller.
 		ocrSubtitle = new OCRSubtitle() ;
+		ocrSubtitle.addFoldersToOCR( localFoldersToExtract ) ;
 		
 		// filesToOCR is the mechanism to communicate the successful creation of .sup files
 		// from extractPGSFromMKVs to the ocrSubtitle instances.
+		// Here I only care about the handle to the instance, not what's in it.
 		filesToOCR = ocrSubtitle.getFilesToOCR() ;
 		
 		extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
 		extractPGSFromMKVs.setTranscodePipeline( filesToOCR ) ;
-		
-		List< String > localFoldersToExtract = new ArrayList< String >() ;
-		localFoldersToExtract.add( "C:\\Temp" ) ;
+
 		extractPGSFromMKVs.setDrivesAndFoldersToExtract( localFoldersToExtract ) ;
 //		extractPGSFromMKVs.setDrivesAndFoldersToExtract( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 		
