@@ -81,9 +81,9 @@ public class MoviesAndShowsMongoDB
 			return ;
 		}
 		// Creating a MongoClient and connect to the database server 
-		//	      MongoClient mongo = new MongoClient( "inventory.t43ck.mongodb.net" , 8888 ); 
-//		persistentMongoClient = new MongoClient( "localhost" , 27017 );
-		persistentMongoClient = new MongoClient( "192.168.1.17" , 27017 );
+		//	      MongoClient mongo = new MongoClient( "inventory.t43ck.mongodb.net" , 8888 );
+		persistentMongoClient = new MongoClient( "localhost" , 27017 );
+//		persistentMongoClient = new MongoClient( "192.168.1.17" , 27017 );
 		
 		// Setup the providers for passing Plain Old Java Objects (POJOs) to and from the database
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build();

@@ -67,7 +67,8 @@ public class Common
 	private final String[] allChainAMP4Drives = {
 			"\\\\yoda\\MP4",
 			"\\\\yoda\\MP4_2",
-			"\\\\yoda\\MP4_4"
+			"\\\\yoda\\MP4_4",
+			"\\\\yoda\\MP4_5"
 	} ;
 	private final String[] allChainBMP4Drives = {
 			"\\\\yoda\\MP4_3"
@@ -94,6 +95,11 @@ public class Common
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
 	private NumberFormat numFormat = null ;
 
+	public Common()
+	{
+		this( setupLogger( "Common", "log_common.txt" ) ) ;
+	}
+
 	public Common( Logger log )
 	{
 		if( null == Common.log ) Common.log = log ;
@@ -108,11 +114,11 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
-	
+			//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+
 			retMe.add( moviesFolder ) ;
 			retMe.add( tvShowsFolder ) ;
-//			retMe.add( otherVideosFolder ) ;
+			//			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
 	}
@@ -139,7 +145,7 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + getPathSeparator() + "To Convert" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + getPathSeparator() + "To Convert - TV Shows" ;
-	
+
 			retMe.add( moviesFolder ) ;
 			retMe.add( tvShowsFolder ) ;
 		}
@@ -183,7 +189,10 @@ public class Common
 						inputStreamLine = inputStreamReader.readLine() ;
 						if( inputStreamLine != null )
 						{
-							log.info( "InputStream: " + inputStreamLine ) ;
+							if( !filterOut( inputStreamLine ) )
+							{
+								log.info( "InputStream: " + inputStreamLine ) ;
+							}
 						}
 					}
 					while( errorStreamReader.ready() )
@@ -191,7 +200,10 @@ public class Common
 						errorStreamLine = errorStreamReader.readLine() ;
 						if( errorStreamLine != null )
 						{
-							log.info( "ErrorStream: " + errorStreamLine ) ;
+							if( !filterOut( errorStreamLine ) )
+							{
+								log.info( "ErrorStream: " + errorStreamLine ) ;
+							}
 						}
 					}
 					if( (null == inputStreamLine) && (null == errorStreamLine) )
@@ -202,7 +214,7 @@ public class Common
 					}
 				} // while( process.isAlive() )
 				// Post-condition: Process has terminated.
-				
+
 				// Check if the process has exited.
 				if( process.exitValue() != 0 )
 				{
@@ -229,6 +241,26 @@ public class Common
 	{
 		final File theFile = new File( fileNameWithPath ) ;
 		return theFile.exists() ;
+	}
+
+	/**
+	 * Return true if the given input line of text should be filtered from showing to the user.
+	 * Return false otherwise.
+	 * @param inputLine
+	 * @return
+	 */
+	public boolean filterOut( final String inputLine )
+	{
+		if( inputLine.isEmpty() || inputLine.isBlank() )
+		{
+			return true ;
+		}
+		if( inputLine.contains( "Empty page!!" ) )
+		{
+			// Useless error line from PgsToSRT
+			return true ;
+		}
+		return false ;
 	}
 
 	/**
@@ -479,7 +511,7 @@ public class Common
 	{
 		return setupLogger( logFileName, className, false ) ;
 	}
-	
+
 	/**
 	 * Setup a logger stream for the given filename and class.
 	 * @param logFileName
@@ -491,7 +523,7 @@ public class Common
 	{
 		// Keep only a single log instance per process
 		boolean logIsNull = (null == log) ? true : false ;
-		
+
 		// Use localLog as the primary reference in this method
 		// Need to account for three scenarios:
 		// log is null: Create a new localLog, store it as the class log, and return it
@@ -503,7 +535,7 @@ public class Common
 			// First time creating a log stream.
 			// Retrieve the log instance and setup the parameters for this process.
 			localLog = Logger.getLogger( className ) ;
-			
+
 			try
 			{
 				// Disable default handlers
@@ -523,7 +555,7 @@ public class Common
 						+ ": " + theException ) ;
 			}
 			localLog.setLevel( Level.ALL ) ;
-			
+
 			// Was the log initially null?
 			if( logIsNull )
 			{
@@ -532,7 +564,7 @@ public class Common
 			}
 		}
 
-		System.out.println( "setupLogger> Established logger: " + localLog.getName() ) ;
+		log.fine( "Established logger: " + localLog.getName() ) ;
 		return localLog ;
 	}
 
@@ -758,13 +790,13 @@ public class Common
 	{
 		String mp4DriveWithMostAvailableSpace = "" ;
 		double largestFreeSpaceSoFar = 0.0 ;
-		
+
 		final List< String > allMP4Drives = getAllMP4Drives() ;
 		for( String mp4Drive : allMP4Drives )
 		{
 			final File mp4DriveFile = new File( mp4Drive ) ;
 			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
-	
+
 			if( (null == mp4DriveWithMostAvailableSpace)
 					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
 			{

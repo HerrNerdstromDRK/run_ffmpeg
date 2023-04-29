@@ -119,7 +119,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		List< File > filesToOCR = common.getFilesInDirectoryByExtension( mkvInputDirectory, OCRSubtitle.getExtensionsToOCR() ) ;
 		for( File fileToOCR : filesToOCR )
 		{
-			ocrSubtitle.doOCRFileName( fileToOCR.getAbsolutePath() ) ;
+			ocrSubtitle.doOCRFile( fileToOCR ) ;
 			if( !common.getTestMode() )
 			{
 				fileToOCR.delete() ;
