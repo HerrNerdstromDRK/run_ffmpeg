@@ -18,13 +18,13 @@ public class ExtractAndOCR extends Thread
 	/// two types. The intent here is for the ExtractAndOCR controller thread
 	/// to have a means to issue a stop work for each of the subordinate controller
 	/// threads.
-	private transient ExtractPGSFromMKVs extractPGSFromMKVs = null ; 
+	private transient ExtractPGSFromMKVs extractPGSFromMKV = null ; 
 	private transient OCRSubtitle ocrSubtitle = null ;
-	
+
 	/// The structure used to pass files that have had their subtitles successfully extracted
 	/// to the ocrThread to OCR them.
 	private List< File > filesToOCR = null ;
-	
+
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
 
@@ -37,19 +37,19 @@ public class ExtractAndOCR extends Thread
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private final String stopFileName = "C:\\Temp\\stop_extract_and_ocr.txt" ;
-	
+
 	public ExtractAndOCR()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 	}
-	
+
 	public static void main( String[] args )
 	{
 		ExtractAndOCR controllerThread = new ExtractAndOCR() ;
 		controllerThread.runThreads() ;
 	}
-	
+
 	public String getStopFileName()
 	{
 		return stopFileName;
@@ -69,14 +69,14 @@ public class ExtractAndOCR extends Thread
 		}
 		return retMe ;
 	}
-	
+
 	@Override
 	public void run()
 	{
-		if( extractPGSFromMKVs != null )
+		if( extractPGSFromMKV != null )
 		{
 			// Run the extract method here.
-			extractPGSFromMKVs.runThreads() ;
+			extractPGSFromMKV.runThreads() ;
 		}
 		else
 		{
@@ -87,47 +87,82 @@ public class ExtractAndOCR extends Thread
 
 	public void runThreads()
 	{
+		// Set this to true if we only want to work on local directories, such as c:\temp
+		boolean doLocalOnly = false ;
 		common.setTestMode( false ) ;
-		
+
 		// Identify the folders to extract and OCR.
-		List< String > localFoldersToExtract = new ArrayList< String >() ;
-		localFoldersToExtract.add( "C:\\Temp" ) ;
-		
+		List< String > foldersToOCR = new ArrayList< String >() ;
+		if( doLocalOnly )
+		{
+			foldersToOCR.add( "C:\\Temp" ) ;
+		}
+		else
+		{
+			foldersToOCR.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+			foldersToOCR.addAll( common.addMoviesAndFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+		}
+
 		// ExtractPGS spawns two additional threads as workers and keeps the owning
 		// thread as the controller.
 		ocrSubtitle = new OCRSubtitle() ;
-		ocrSubtitle.addFoldersToOCR( localFoldersToExtract ) ;
-		
+		ocrSubtitle.addFoldersToOCR( foldersToOCR ) ;
+
 		// filesToOCR is the mechanism to communicate the successful creation of .sup files
 		// from extractPGSFromMKVs to the ocrSubtitle instances.
 		// Here I only care about the handle to the instance, not what's in it.
 		filesToOCR = ocrSubtitle.getFilesToOCR() ;
-		
-		extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
-		extractPGSFromMKVs.setTranscodePipeline( filesToOCR ) ;
 
-		extractPGSFromMKVs.setDrivesAndFoldersToExtract( localFoldersToExtract ) ;
-//		extractPGSFromMKVs.setDrivesAndFoldersToExtract( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+		ExtractPGSFromMKVs extractPGSFromMKV1 = new ExtractPGSFromMKVs() ;
+		extractPGSFromMKV1.setTranscodePipeline( filesToOCR ) ;
+		ExtractPGSFromMKVs extractPGSFromMKV2 = new ExtractPGSFromMKVs() ;
+		extractPGSFromMKV2.setTranscodePipeline( filesToOCR ) ;
+
+		List< String > foldersToExtract1 = new ArrayList< String >() ;
+		List< String > foldersToExtract2 = new ArrayList< String >() ;
 		
-		ExtractAndOCR extractThread = new ExtractAndOCR() ;
-		extractThread.setRunExtract( extractPGSFromMKVs ) ;
+		if( doLocalOnly )
+		{
+			foldersToExtract1.add( "C:\\Temp" ) ;
+		}
+		else
+		{
+			foldersToExtract1.addAll( common.addToConvertToEachDrive( common.getAllChainAMKVDrives() ) ) ;
+			foldersToExtract1.addAll( common.addMoviesAndFoldersToEachDrive( common.getAllChainAMKVDrives() ) ) ;
+			foldersToExtract2.addAll( common.addToConvertToEachDrive( common.getAllChainBMKVDrives() ) ) ;
+			foldersToExtract2.addAll( common.addMoviesAndFoldersToEachDrive( common.getAllChainBMKVDrives() ) ) ;
+		}
+		extractPGSFromMKV1.setDrivesAndFoldersToExtract( foldersToExtract1 ) ;
+		extractPGSFromMKV2.setDrivesAndFoldersToExtract( foldersToExtract2 ) ;
 		
 		ExtractAndOCR ocrThread = new ExtractAndOCR() ;
 		ocrThread.setRunOCR( ocrSubtitle ) ;
 		
+		ExtractAndOCR extractThread1 = new ExtractAndOCR() ;
+		extractThread1.setRunExtract( extractPGSFromMKV1 ) ;
+
+		ExtractAndOCR extractThread2 = new ExtractAndOCR() ;
+		extractThread2.setRunExtract( extractPGSFromMKV2 ) ;
+
 		// Start both
 		try
 		{
 			log.info( "Starting threads." ) ;
-			extractThread.start() ;
+			extractThread1.start() ;
+			extractThread2.start() ;
 			ocrThread.start() ;
 			log.info( "Running threads..." ) ;
-			
+
 			while( shouldKeepRunning()
-					&& extractThread.isAlive() )
+					&& (extractThread1.isAlive()
+					|| extractThread2.isAlive()) )
 			{
 				Thread.sleep( 100 ) ;
 			}
+
+			log.info( "Stopping the threads..." ) ;
+			extractPGSFromMKV1.stopRunningThread() ;
+			extractPGSFromMKV2.stopRunningThread() ;
 			
 			// Done extracting subtitles. However, the queue of files to OCR may
 			// not be empty.
@@ -140,14 +175,11 @@ public class ExtractAndOCR extends Thread
 
 			// Post-condition: Either the stop file now exists, or the extract thread has completed
 			//  and the pipeline queue is empty.
-			log.info( "Stopping the threads..." ) ;
-			extractPGSFromMKVs.stopRunningThread() ;
-
-			// This will still allow the last OCR jobs to complete.
 			ocrSubtitle.stopRunningThread() ;
-			
+
 			log.info( "Joining threads..." ) ; 
-			extractThread.join() ;
+			extractThread1.join() ;
+			extractThread1.join() ;
 			ocrThread.join() ;
 		}
 		catch( Exception theException )
@@ -156,10 +188,10 @@ public class ExtractAndOCR extends Thread
 		}
 		log.info( "Complete." ) ;
 	}
-	
+
 	private void setRunExtract( ExtractPGSFromMKVs extractPGSFromMKVs )
 	{
-		this.extractPGSFromMKVs = extractPGSFromMKVs ;
+		this.extractPGSFromMKV = extractPGSFromMKVs ;
 	}
 
 	private void setRunOCR( OCRSubtitle ocrSubtitle )
@@ -171,5 +203,5 @@ public class ExtractAndOCR extends Thread
 	{
 		return !common.shouldStopExecution( getStopFileName() ) ;
 	}
-	
+
 }

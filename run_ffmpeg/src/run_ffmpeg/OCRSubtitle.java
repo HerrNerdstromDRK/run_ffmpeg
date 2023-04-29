@@ -27,6 +27,19 @@ public class OCRSubtitle extends Thread
 	/// Duration, in milliseconds, between thread liveness checks.
 	private long aliveCheckDuration = 5000 ;
 
+	/// Set to true when the current thread is running an OCR; false otherwise
+	private boolean activelyRunningOCR = false ;
+
+	public synchronized boolean isActivelyRunningOCR()
+	{
+		return activelyRunningOCR ;
+	}
+
+	private synchronized void setActivelyRunningOCR( boolean activelyRunningOCR )
+	{
+		this.activelyRunningOCR = activelyRunningOCR;
+	}
+
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_ocr_subtitle.txt" ;
 
@@ -99,7 +112,7 @@ public class OCRSubtitle extends Thread
 			filesToOCR.add( newFileToOCR ) ;
 		}
 	}
-	
+
 	public void addFoldersToOCR( List< String > folderPaths )
 	{
 		for( String theFolder : folderPaths )
@@ -116,6 +129,7 @@ public class OCRSubtitle extends Thread
 	public boolean doOCRFile( final File fileToOCR )
 	{
 		log.info( "Running OCR on file: " + fileToOCR.toString() ) ;
+		setActivelyRunningOCR( true ) ;
 		// Format is:
 		// dotnet PgsToSrt.dll --input video1.fr.sup --output video1.fr.srt --tesseractlanguage fra --tesseractdata path_to_language_files
 		// The output filename will default, as will the language file.
@@ -127,6 +141,7 @@ public class OCRSubtitle extends Thread
 
 		boolean commandSuccess = common.executeCommand( ocrExecuteCommand ) ;
 		log.info( "OCR on file " + fileToOCR.toString() + ": " + commandSuccess ) ;
+		setActivelyRunningOCR( false ) ;
 		return commandSuccess ;
 	}
 
@@ -208,11 +223,11 @@ public class OCRSubtitle extends Thread
 			{
 				// Queue is empty.
 				// Wait for a job to appear or a stop order to be issued.
-//				log.info( "No more jobs for this thread." ) ;
+				//				log.info( "No more jobs for this thread." ) ;
 				try
 				{
 					Thread.sleep( 100 ) ;
-					
+
 				}
 				catch( Exception theException )
 				{
@@ -298,6 +313,7 @@ public class OCRSubtitle extends Thread
 					lastAliveCheck = timeNow ;
 					int numAliveThreads = 0 ;
 					int numDeadThreads = 0 ;
+					int numActiveOCR = 0 ;
 
 					for( OCRSubtitle ocrThread : ocrThreads )
 					{
@@ -309,13 +325,18 @@ public class OCRSubtitle extends Thread
 						{
 							++numDeadThreads ;
 						}
+						if( ocrThread.isActivelyRunningOCR() )
+						{
+							++numActiveOCR ;
+						}
 					}
 					int queueSize = -1 ;
 					synchronized( filesToOCR )
 					{
 						queueSize = filesToOCR.size() ;
 					}
-					log.info( "Alive threads: " + numAliveThreads + ", dead threads: " + numDeadThreads + ", queue size: " + queueSize ) ;
+					log.info( "Alive threads: " + numAliveThreads + ", dead threads: " + numDeadThreads + ", active OCRs: "
+							+ numActiveOCR + ", queue size: " + queueSize ) ;
 				}
 			}
 			catch( Exception theException )
@@ -346,7 +367,7 @@ public class OCRSubtitle extends Thread
 		log.info( "Shut down." ) ;
 	}
 
-	public void setAliveCheckDuration(long aliveCheckDuration)
+	public void setAliveCheckDuration( long aliveCheckDuration )
 	{
 		this.aliveCheckDuration = aliveCheckDuration;
 	}

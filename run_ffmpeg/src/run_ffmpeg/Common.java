@@ -373,6 +373,12 @@ public class Common
 	public List< File > getFilesInDirectoryByExtension( final String directoryPath, final String extension )
 	{
 		List< File > filesInDirectoryWithExtension = new ArrayList< >() ;
+		File directoryPathFile = new File( directoryPath ) ;
+		if( !directoryPathFile.exists() )
+		{
+			return filesInDirectoryWithExtension ;
+		}
+		
 		try
 		{
 			Stream< Path > walk = Files.walk( Paths.get( directoryPath ) ) ;
