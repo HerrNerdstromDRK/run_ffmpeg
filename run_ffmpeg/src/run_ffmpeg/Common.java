@@ -67,7 +67,8 @@ public class Common
 	private final String[] allChainAMP4Drives = {
 			"\\\\yoda\\MP4",
 			"\\\\yoda\\MP4_2",
-			"\\\\yoda\\MP4_4"
+			"\\\\yoda\\MP4_4",
+			"\\\\yoda\\MP4_5"
 	} ;
 	private final String[] allChainBMP4Drives = {
 			"\\\\yoda\\MP4_3"
