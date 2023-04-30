@@ -244,6 +244,23 @@ public class OCRSubtitle extends Thread
 			// If unsuccessful, then something is probably wrong with the file and I don't
 			//  want to try to re-OCR it.
 			// If the OCR was successful, then delete the input (.sup) file.
+			final String srtFileName = Common.replaceExtension( fileToOCR.getAbsolutePath(),  "srt" ) ;
+			File srtFile = new File( srtFileName ) ;
+			if( !srtFile.exists() )
+			{
+				final String fakeSRTFileName = Common.replaceExtension( fileToOCR.getAbsolutePath(),  "fake_srt.srt" ) ;
+				log.info( "Failed to find SRT file " + srtFileName + "; creating fake srt file: " + fakeSRTFileName ) ;
+				File fakeSRTFile = new File( fakeSRTFileName ) ;
+				try
+				{
+					fakeSRTFile.createNewFile() ;
+				}
+				catch( Exception theException )
+				{
+					log.warning( "Exception creating fake SRT file " + fakeSRTFileName + ": " + theException.toString() ) ;
+				}
+			}
+
 			log.info( "Deleting OCR input file: " + fileToOCR.toString() ) ;
 			if( !common.getTestMode() )
 			{
