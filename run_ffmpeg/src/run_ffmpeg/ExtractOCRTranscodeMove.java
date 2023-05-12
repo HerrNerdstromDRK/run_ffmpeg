@@ -104,7 +104,8 @@ public class ExtractOCRTranscodeMove extends Thread
 			// TV Show
 			final String tvShowSeasonName = mkvInputDirectoryFile.getParentFile().getName() ;
 			final String tvShowName = mkvInputDirectoryFile.getParentFile().getParentFile().getName() ;
-			mp4FinalDirectory += "TV Shows"
+			mp4FinalDirectory += common.getPathSeparator()
+					+ "TV Shows"
 					+ common.getPathSeparator()
 					+ tvShowName
 					+ common.getPathSeparator()
