@@ -169,13 +169,13 @@ public class FFmpegProbeResult
 	public String toString()
 	{
 		String retMe =	"{"
-				+ ((null == get_id()) ? "(null id)" : get_id().toString())
-				+ ", fileNameWithPath: " + getFileNameWithPath()
-				+ ", fileNameWithoutPath: " + getFileNameWithoutPath()
-				+ ", fileNameShort: " + getFileNameShort()
+				+ "id: " + ((get_id() != null) ? get_id().toString() : "(null)")
+				+ ", fileNameWithPath: " + ((getFileNameWithPath() != null) ? getFileNameWithPath() : "(null)")
+				+ ", fileNameWithoutPath: " + ((getFileNameWithoutPath() != null) ? getFileNameWithoutPath() : "(null)")
+				+ ", fileNameShort: " + ((getFileNameShort() != null) ? getFileNameShort() : "(null)")
 				+ ", probeTime: " + getProbeTime()
 				+ ", lastModified: " + getLastModified()
-				+ ", streams.size: " + streams.size()
+				+ ", streams.size: " + ((streams != null) ? streams.size() : "(null)")
 				+ "}" ;
 		return retMe ;
 	}

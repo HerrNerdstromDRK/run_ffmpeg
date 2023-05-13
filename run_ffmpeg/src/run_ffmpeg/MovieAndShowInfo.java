@@ -314,6 +314,13 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			retMe += "[" + key + "," + correlatedFile.toString() + "]," ;
 		}
 		retMe += "}" ;
+		
+		retMe += ",correlatedFilesList:{" ;
+		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
+		{
+			retMe += correlatedFileIterator.toString() + "," ;
+		}
+		retMe += "}}" ;
 		return retMe ;
 	}
 

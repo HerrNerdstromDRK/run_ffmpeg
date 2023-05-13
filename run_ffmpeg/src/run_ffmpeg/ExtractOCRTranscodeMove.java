@@ -49,7 +49,7 @@ public class ExtractOCRTranscodeMove extends Thread
 	
 	/// Sort and transcode files from smallest to largest.
 	/// If false, then sort largest to smallest.
-	private boolean sortSmallToLarge = false ;
+	private boolean sortSmallToLarge = true ;
 
 	public ExtractOCRTranscodeMove()
 	{
@@ -102,8 +102,8 @@ public class ExtractOCRTranscodeMove extends Thread
 		else
 		{
 			// TV Show
-			final String tvShowSeasonName = mkvInputDirectoryFile.getParentFile().getName() ;
-			final String tvShowName = mkvInputDirectoryFile.getParentFile().getParentFile().getName() ;
+			final String tvShowSeasonName = mkvInputDirectoryFile.getName() ;
+			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
 			mp4FinalDirectory += common.getPathSeparator()
 					+ "TV Shows"
 					+ common.getPathSeparator()
@@ -160,7 +160,10 @@ public class ExtractOCRTranscodeMove extends Thread
 	public void runFolders()
 	{
 		common.setTestMode( false ) ;
-		List< String > foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+		List< String > foldersToTranscode = new ArrayList< String >() ;
+		//common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+		foldersToTranscode.add( "\\\\yoda\\MKV_Archive10\\To Convert - TV Shows" ) ;
+		
 		runFolders( foldersToTranscode ) ;
 	}
 
@@ -416,7 +419,9 @@ public class ExtractOCRTranscodeMove extends Thread
 		}
 		else
 		{
-			movieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
+			movieAndShowInfo.addMP4File( mp4ProbeResult ) ;
+			movieAndShowInfo.addMKVFile( mkvProbeResult ) ;
+//			movieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
 			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 			movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDFilter,  movieAndShowInfo ) ;
 		}

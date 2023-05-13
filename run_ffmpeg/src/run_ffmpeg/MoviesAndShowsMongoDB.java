@@ -27,6 +27,9 @@ public class MoviesAndShowsMongoDB
 	
 	private MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
+//	private final String mongoDBHostName = "localhost" ;
+	private final String mongoDBHostName = "192.168.1.17" ;
+	private final int mongoDBPortNumber = 27017 ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
 	private final String movieAndShowInfoCollectionName = "movieandshowinfos" ;
@@ -82,8 +85,7 @@ public class MoviesAndShowsMongoDB
 		}
 		// Creating a MongoClient and connect to the database server 
 		//	      MongoClient mongo = new MongoClient( "inventory.t43ck.mongodb.net" , 8888 );
-		persistentMongoClient = new MongoClient( "localhost" , 27017 );
-//		persistentMongoClient = new MongoClient( "192.168.1.17" , 27017 );
+		persistentMongoClient = new MongoClient( mongoDBHostName , mongoDBPortNumber ) ;
 		
 		// Setup the providers for passing Plain Old Java Objects (POJOs) to and from the database
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build();
