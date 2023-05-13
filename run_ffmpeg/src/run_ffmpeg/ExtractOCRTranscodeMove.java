@@ -161,8 +161,8 @@ public class ExtractOCRTranscodeMove extends Thread
 	{
 		common.setTestMode( false ) ;
 //		List< String > foldersToTranscode = new ArrayList< String >() ;
+//		foldersToTranscode.add( "\\\\yoda\\MKV_Archive10\\To Convert - TV Shows" ) ;
 		List< String > foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
-		foldersToTranscode.add( "\\\\yoda\\MKV_Archive10\\To Convert - TV Shows" ) ;
 		
 		runFolders( foldersToTranscode ) ;
 	}
