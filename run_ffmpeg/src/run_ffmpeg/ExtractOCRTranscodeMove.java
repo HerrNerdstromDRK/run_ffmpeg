@@ -49,7 +49,7 @@ public class ExtractOCRTranscodeMove extends Thread
 	
 	/// Sort and transcode files from smallest to largest.
 	/// If false, then sort largest to smallest.
-	private boolean sortSmallToLarge = true ;
+	private boolean sortSmallToLarge = false ;
 
 	public ExtractOCRTranscodeMove()
 	{

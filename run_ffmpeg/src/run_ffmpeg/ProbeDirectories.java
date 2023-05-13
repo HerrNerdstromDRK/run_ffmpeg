@@ -24,6 +24,8 @@ public class ProbeDirectories extends Thread
 	private transient MoviesAndShowsMongoDB masMDB = null ;
 	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 
+	private boolean keepRunning = true ;
+
 	/// Store the drives and folders to probe.
 	/// By default this will be all mp4 and mkv drives and folders, but can be changed below for multi-threaded use.
 	private List< String > drivesAndFoldersToProbe = null ;
@@ -84,35 +86,89 @@ public class ProbeDirectories extends Thread
 
 	private void runThreads()
 	{
-		ProbeDirectories probeDirectories1 = new ProbeDirectories() ;
-		ProbeDirectories probeDirectories2 = new ProbeDirectories() ;
+		// pdThreads will hold all of the ProbeDirectories threads.
+		List< ProbeDirectories > pdThreads = new ArrayList< ProbeDirectories >() ;
 
-		probeDirectories1.setChainA() ;
-		probeDirectories2.setChainB() ;
+		// drivesToProbe has all of the drives to probe.
+		List< String > drivesToProbe = new ArrayList< String >() ;
+		drivesToProbe.addAll( common.getAllMKVDrives() ) ;
+		drivesToProbe.addAll( common.getAllMP4Drives() ) ;
 
-		log.info( "Starting threads." ) ;
-		probeDirectories1.start() ;
-		probeDirectories2.start() ;
-		log.info( "Running threads..." ) ;
-		
+		final long startTime = System.nanoTime() ;
+
+		log.info( "Starting threads..." ) ;
+		for( String driveToProbe : drivesToProbe )
+		{
+			ProbeDirectories pd = new ProbeDirectories() ;
+			List< String > thisDrive = new ArrayList< String >() ;
+			thisDrive.add( driveToProbe ) ;
+			pd.setDrivesAndFoldersToProbe( thisDrive ) ;
+
+			pdThreads.add( pd ) ;
+			pd.start() ;
+		}
+		log.info( "Started " + pdThreads.size() + " threads" ) ;
+
+		//		ProbeDirectories probeDirectories1 = new ProbeDirectories() ;
+		//		ProbeDirectories probeDirectories2 = new ProbeDirectories() ;
+		//
+		//		probeDirectories1.setChainA() ;
+		//		probeDirectories2.setChainB() ;
+
+		//		probeDirectories1.start() ;
+		//		probeDirectories2.start() ;
+
 		try
 		{
 			// Set the stop file to halt execution
-			while( probeDirectories1.shouldKeepRunning()
-					&& (probeDirectories1.isAlive()
-					|| probeDirectories1.isAlive()) )
+			while( shouldKeepRunning() && atLeastOneThreadIsRunning( pdThreads ) )
 			{
 				Thread.sleep( 100 ) ;
 			} // while( keepRunning )
+			// Either the stop running file is present or all threads are now dead
 
-			log.info( "Shutting down threads..." ) ;
-			probeDirectories1.join() ;
-			probeDirectories2.join() ;
+			// In the event that the stop running file is present, stop all threads from running
+			log.info( "Stopping threads..." ) ;
+			for( ProbeDirectories pdThread : pdThreads )
+			{
+				pdThread.stopRunning() ;
+			}
+
+			// Now join each thread
+			log.info( "Joining threads..." ) ;
+			for( ProbeDirectories pdThread : pdThreads )
+			{
+				try
+				{
+					pdThread.join() ;
+				}
+				catch( Exception theException )
+				{
+					log.warning( "Error joining thread: " + theException.toString() ) ;
+				}
+			}
+			final long endTime = System.nanoTime() ;
+
+			log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
+			log.info( "Finished probing all drives and folders." ) ;
 		}
 		catch( Exception e )
 		{
 			log.info( "Exception: " + e.toString() ) ;
 		}
+		log.info( "Shutdown." ) ;
+	}
+
+	public static boolean atLeastOneThreadIsRunning( final List< ProbeDirectories > theThreads )
+	{
+		for( ProbeDirectories theThread : theThreads )
+		{
+			if( theThread.isAlive() )
+			{
+				return true ;
+			}
+		}
+		return false ;
 	}
 
 	@Override
@@ -120,7 +176,7 @@ public class ProbeDirectories extends Thread
 	{
 		probeDirectoriesAndUpdateDB() ;
 	}
-	
+
 	/**
 	 * Return an FFmpegProbeResult corresponding to the given fileToProbe
 	 * if it exists in the database.
@@ -185,8 +241,7 @@ public class ProbeDirectories extends Thread
 
 		final long endTime = System.nanoTime() ;
 
-		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
-		log.info( "Finished probing all drives and folders." ) ;
+		log.info( "Finished probing " + getDrivesAndFoldersToProbe() + ", elapsed time: " + common.makeElapsedTimeString( startTime, endTime ) ) ;
 	}
 
 	public void probeDirectoriesAndUpdateDB( final List< String > directoriesToProbe, final String[] extensions )
@@ -204,7 +259,7 @@ public class ProbeDirectories extends Thread
 				if( !shouldKeepRunning() )
 				{
 					// Stop running
-					log.info( "Shutting down due to presence of stop file" ) ;
+					log.info( "Shutting down thread" ) ;
 					break ;
 				}
 
@@ -223,7 +278,7 @@ public class ProbeDirectories extends Thread
 	{
 		return probeFileAndUpdateDB( fileToProbe, false ) ;
 	}
-	
+
 	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe, boolean forceRefresh )
 	{
 		// Has the file already been probed?
@@ -305,6 +360,11 @@ public class ProbeDirectories extends Thread
 
 	public boolean shouldKeepRunning()
 	{
-		return !common.shouldStopExecution( stopFileName ) ;
+		return (!common.shouldStopExecution( stopFileName ) || !keepRunning) ;
+	}
+
+	public void stopRunning()
+	{
+		keepRunning = false ;
 	}
 }
