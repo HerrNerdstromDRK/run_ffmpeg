@@ -8,6 +8,7 @@ import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.mongodb.MongoClient; 
@@ -54,6 +55,7 @@ public class MoviesAndShowsMongoDB
 	public MoviesAndShowsMongoDB()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		java.util.logging.Logger.getLogger("JULLogger").setLevel(Level.WARNING);
 //		common = new Common( log ) ;
 		loginAndConfigureDatabase() ;
 	}
