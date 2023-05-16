@@ -121,7 +121,6 @@ public class MoveFilesWorkerThread extends Thread
 			catch( Exception theException )
 			{
 				log.warning( "Exception: " + theException.toString() ) ;
-				return ;
 			}
 		} // while( keepRunning )
 	}
