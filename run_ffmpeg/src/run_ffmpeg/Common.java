@@ -503,7 +503,12 @@ public class Common
 	public static String replaceExtension( final String fileName, final String newExtension )
 	{
 		final String fileNameWithoutExtension = removeFileNameExtension( fileName ) ;
-		final String fileNameWithNewExtension = fileNameWithoutExtension + newExtension ;
+		String fileNameWithNewExtension = fileNameWithoutExtension ;
+		if( !newExtension.startsWith( "." ) )
+		{
+			fileNameWithNewExtension += "." ;
+		}
+		fileNameWithNewExtension += newExtension ;
 		return fileNameWithNewExtension ;
 	}
 
