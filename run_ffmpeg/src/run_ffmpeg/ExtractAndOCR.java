@@ -88,14 +88,14 @@ public class ExtractAndOCR extends Thread
 	public void runThreads()
 	{
 		// Set this to true if we only want to work on local directories, such as c:\temp
-		boolean doLocalOnly = false ;
+		boolean doLocalOnly = true ;
 		common.setTestMode( false ) ;
 
 		// Identify the folders to extract and OCR.
 		List< String > foldersToOCR = new ArrayList< String >() ;
 		if( doLocalOnly )
 		{
-			foldersToOCR.add( "C:\\Temp" ) ;
+			foldersToOCR.add( "C:\\Temp\\Battlestar Galactica (2004)\\Season 01" ) ;
 		}
 		else
 		{
@@ -117,24 +117,7 @@ public class ExtractAndOCR extends Thread
 		extractPGSFromMKV1.setTranscodePipeline( filesToOCR ) ;
 		ExtractPGSFromMKVs extractPGSFromMKV2 = new ExtractPGSFromMKVs() ;
 		extractPGSFromMKV2.setTranscodePipeline( filesToOCR ) ;
-
-		List< String > foldersToExtract1 = new ArrayList< String >() ;
-		List< String > foldersToExtract2 = new ArrayList< String >() ;
-		
-		if( doLocalOnly )
-		{
-			foldersToExtract1.add( "C:\\Temp" ) ;
-		}
-		else
-		{
-			foldersToExtract1.addAll( common.addToConvertToEachDrive( common.getAllChainAMKVDrives() ) ) ;
-			foldersToExtract1.addAll( common.addMoviesAndFoldersToEachDrive( common.getAllChainAMKVDrives() ) ) ;
-			foldersToExtract2.addAll( common.addToConvertToEachDrive( common.getAllChainBMKVDrives() ) ) ;
-			foldersToExtract2.addAll( common.addMoviesAndFoldersToEachDrive( common.getAllChainBMKVDrives() ) ) ;
-		}
-		extractPGSFromMKV1.setDrivesAndFoldersToExtract( foldersToExtract1 ) ;
-		extractPGSFromMKV2.setDrivesAndFoldersToExtract( foldersToExtract2 ) ;
-		
+	
 		ExtractAndOCR ocrThread = new ExtractAndOCR() ;
 		ocrThread.setRunOCR( ocrSubtitle ) ;
 		
