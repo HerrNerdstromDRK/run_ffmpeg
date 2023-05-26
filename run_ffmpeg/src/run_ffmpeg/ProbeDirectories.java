@@ -69,9 +69,9 @@ public class ProbeDirectories extends Thread
 
 	public static void main(String[] args)
 	{
-		boolean useTwoThreads = true ;
+		boolean useMultipleThreads = true ;
 		ProbeDirectories probeDirectory = new ProbeDirectories() ;
-		if( useTwoThreads )
+		if( useMultipleThreads )
 		{
 			System.out.println( "ProbeDirectories.main> Running with threads" ) ;
 			probeDirectory.runThreads() ;
@@ -89,34 +89,56 @@ public class ProbeDirectories extends Thread
 		// pdThreads will hold all of the ProbeDirectories threads.
 		List< ProbeDirectories > pdThreads = new ArrayList< ProbeDirectories >() ;
 
-		// drivesToProbe has all of the drives to probe.
-		List< String > drivesToProbe = new ArrayList< String >() ;
-		drivesToProbe.addAll( common.getAllMKVDrives() ) ;
-		drivesToProbe.addAll( common.getAllMP4Drives() ) ;
+		boolean useOneThreadPerDrive = false ;
+		if( useOneThreadPerDrive )
+		{
+			log.info( "Using one probe thread per drive" ) ;
+			
+			// drivesToProbe has all of the drives to probe.
+			List< String > drivesToProbe = new ArrayList< String >() ;
+			drivesToProbe.addAll( common.getAllMKVDrives() ) ;
+			drivesToProbe.addAll( common.getAllMP4Drives() ) ;
+			
+			for( String driveToProbe : drivesToProbe )
+			{
+				ProbeDirectories pd = new ProbeDirectories() ;
+				List< String > thisDrive = new ArrayList< String >() ;
+				thisDrive.add( driveToProbe ) ;
+				pd.setDrivesAndFoldersToProbe( thisDrive ) ;
 
+				pdThreads.add( pd ) ;
+			}
+		}
+		else
+		{
+			// Use one thread per chain
+			log.info( "Using one probe thread for each chain." ) ;
+			
+			List< String > chainADrivesAndFolders = new ArrayList< String >() ;
+			chainADrivesAndFolders.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
+			chainADrivesAndFolders.addAll( common.getAllChainAMP4DrivesAndFolders() ) ;
+
+			List< String > chainBDrivesAndFolders = new ArrayList< String >() ;
+			chainBDrivesAndFolders.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
+			chainBDrivesAndFolders.addAll( common.getAllChainBMP4DrivesAndFolders() ) ;
+			
+			ProbeDirectories chainAProbe = new ProbeDirectories() ;
+			chainAProbe.setDrivesAndFoldersToProbe( chainADrivesAndFolders ) ;
+			
+			ProbeDirectories chainBProbe = new ProbeDirectories() ;
+			chainBProbe.setDrivesAndFoldersToProbe( chainBDrivesAndFolders ) ;
+			
+			pdThreads.add( chainAProbe ) ;
+			pdThreads.add( chainBProbe ) ;
+		}
 		final long startTime = System.nanoTime() ;
 
 		log.info( "Starting threads..." ) ;
-		for( String driveToProbe : drivesToProbe )
+		for( ProbeDirectories theProbeThread : pdThreads )
 		{
-			ProbeDirectories pd = new ProbeDirectories() ;
-			List< String > thisDrive = new ArrayList< String >() ;
-			thisDrive.add( driveToProbe ) ;
-			pd.setDrivesAndFoldersToProbe( thisDrive ) ;
-
-			pdThreads.add( pd ) ;
-			pd.start() ;
+			theProbeThread.start() ;
 		}
 		log.info( "Started " + pdThreads.size() + " threads" ) ;
-
-		//		ProbeDirectories probeDirectories1 = new ProbeDirectories() ;
-		//		ProbeDirectories probeDirectories2 = new ProbeDirectories() ;
-		//
-		//		probeDirectories1.setChainA() ;
-		//		probeDirectories2.setChainB() ;
-
-		//		probeDirectories1.start() ;
-		//		probeDirectories2.start() ;
 
 		try
 		{

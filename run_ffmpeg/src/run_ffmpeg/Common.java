@@ -298,7 +298,7 @@ public class Common
 		{
 			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 			String ffprobeExecuteCommandString = toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
-			log.info( "Execute ffprobe command: " + ffprobeExecuteCommandString ) ;
+			log.info( ffprobeExecuteCommandString ) ;
 
 			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommandString ) ;
 
