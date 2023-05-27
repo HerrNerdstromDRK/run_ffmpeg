@@ -55,7 +55,8 @@ public class MoviesAndShowsMongoDB
 	public MoviesAndShowsMongoDB()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		java.util.logging.Logger.getLogger("JULLogger").setLevel(Level.WARNING);
+		java.util.logging.Logger.getLogger( "org.mongodb.driver" ).setLevel( Level.SEVERE );
+		java.util.logging.Logger.getLogger( "JULLogger" ).setLevel(Level.OFF );
 //		common = new Common( log ) ;
 		loginAndConfigureDatabase() ;
 	}
@@ -96,7 +97,7 @@ public class MoviesAndShowsMongoDB
 		// Login to the database
 //		MongoCredential credential = 
 		MongoCredential.createCredential("dan", "MoviesAndShows", "BqQyH2r5xJuNu2A".toCharArray()); 
-		log.info("Connected to the database successfully" );  
+		log.fine("Connected to the database successfully" );  
 
 		// Configure the database to use the POJO provider and retrieve the handle
 		persistentDatabaseHandle = persistentMongoClient.getDatabase( databaseName ).withCodecRegistry( pojoCodecRegistry ) ;

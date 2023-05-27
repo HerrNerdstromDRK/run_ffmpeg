@@ -89,7 +89,7 @@ public class ProbeDirectories extends Thread
 		// pdThreads will hold all of the ProbeDirectories threads.
 		List< ProbeDirectories > pdThreads = new ArrayList< ProbeDirectories >() ;
 
-		boolean useOneThreadPerDrive = false ;
+		boolean useOneThreadPerDrive = true ;
 		if( useOneThreadPerDrive )
 		{
 			log.info( "Using one probe thread per drive" ) ;
