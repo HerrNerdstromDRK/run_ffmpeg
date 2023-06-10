@@ -143,7 +143,7 @@ public class ProbeDirectories extends Thread
 		try
 		{
 			// Set the stop file to halt execution
-			while( shouldKeepRunning() && atLeastOneThreadIsRunning( pdThreads ) )
+			while( shouldKeepRunning() && atLeastOneThreadIsAlive( pdThreads ) )
 			{
 				Thread.sleep( 100 ) ;
 			} // while( keepRunning )
@@ -181,7 +181,13 @@ public class ProbeDirectories extends Thread
 		log.info( "Shutdown." ) ;
 	}
 
-	public static boolean atLeastOneThreadIsRunning( final List< ProbeDirectories > theThreads )
+	@Override
+	public void run()
+	{
+		probeDirectoriesAndUpdateDB() ;
+	}
+
+	public boolean atLeastOneThreadIsAlive( final List< ProbeDirectories > theThreads )
 	{
 		for( ProbeDirectories theThread : theThreads )
 		{
@@ -192,13 +198,7 @@ public class ProbeDirectories extends Thread
 		}
 		return false ;
 	}
-
-	@Override
-	public void run()
-	{
-		probeDirectoriesAndUpdateDB() ;
-	}
-
+	
 	/**
 	 * Return an FFmpegProbeResult corresponding to the given fileToProbe
 	 * if it exists in the database.

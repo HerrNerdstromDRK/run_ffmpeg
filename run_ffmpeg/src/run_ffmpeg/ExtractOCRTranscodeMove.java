@@ -327,7 +327,7 @@ public class ExtractOCRTranscodeMove extends Thread
 		}
 
 		// Force a refresh of supporting files (.srt).
-		fileToTranscode.buildSubTitleFileList() ;
+		fileToTranscode.buildSubTitleFileLists() ;
 
 		// Make the transcode, mkv final, and mp4 final directories, if necessary.
 		fileToTranscode.makeDirectories() ;
@@ -364,7 +364,7 @@ public class ExtractOCRTranscodeMove extends Thread
 				fileToTranscode.getMKVFinalFileNameWithPath() ) ;
 
 		// Move the srt files also.
-		Iterator< File > srtFileIterator = fileToTranscode.getSRTFileListIterator() ;
+		Iterator< File > srtFileIterator = fileToTranscode.getAllSRTFilesIterator() ;
 		while( srtFileIterator.hasNext() )
 		{
 			File sourceSRTFile = srtFileIterator.next() ;

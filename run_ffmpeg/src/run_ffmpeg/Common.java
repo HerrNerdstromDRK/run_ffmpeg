@@ -60,7 +60,8 @@ public class Common
 	/// The replacement file name for correlated files that are missing. This is used for
 	/// user interface reporting via the web interface.
 	private static final String missingFileSubstituteName = "(none)" ;
-
+	private static final String fakeSRTSubString = "fake_srt" ;
+	
 	/// The directories to probe
 	/// Broken down into the two USB chains so that applications can
 	/// multithread access to the MP4/MKV drives
@@ -151,7 +152,7 @@ public class Common
 		}
 		return retMe ;
 	}
-
+	
 	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
 		return executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
@@ -868,6 +869,11 @@ public class Common
 		}
 		retMe += "}" ;
 		return retMe ;
+	}
+
+	protected static String getFakeSRTSubString()
+	{
+		return fakeSRTSubString;
 	}
 
 }

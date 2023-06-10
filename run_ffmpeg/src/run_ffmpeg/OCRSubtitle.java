@@ -247,7 +247,8 @@ public class OCRSubtitle extends Thread
 			File srtFile = new File( srtFileName ) ;
 			if( !srtFile.exists() )
 			{
-				final String fakeSRTFileName = Common.replaceExtension( fileToOCR.getAbsolutePath(),  ".fake_srt.srt" ) ;
+				final String fakeSRTFileName = Common.replaceExtension( fileToOCR.getAbsolutePath(),  "."
+						+ Common.getFakeSRTSubString() + ".srt" ) ;
 				log.info( "Failed to find SRT file " + srtFileName + "; creating fake srt file: " + fakeSRTFileName ) ;
 				File fakeSRTFile = new File( fakeSRTFileName ) ;
 				try

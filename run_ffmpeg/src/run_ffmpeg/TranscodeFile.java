@@ -44,7 +44,10 @@ public class TranscodeFile
 	private transient TranscodeCommon transcodeCommon = null ;
 
 	// List of subtitle files corresponding to this TranscodeFile
-	private List< File > srtFileList = null ;
+	private List< File > realSRTFileList = null ;
+	// Fake SRT files are those used as placeholders to prevent the subtitle extraction methods
+	// from continually attempting to extract SRT files for those with none or invalid SRTs
+	private List< File > fakeSRTFileList = null ;
 	private List< File > supFileList = null ;
 	private List< File > dvdSubTitleFileList = null ;
 
@@ -118,30 +121,28 @@ public class TranscodeFile
 				getMP4FinalDirectory() ) ;
 
 		buildPaths() ;
-		buildSubTitleFileList() ;
+		buildSubTitleFileLists() ;
 		dvdSubTitleFileList = buildSubTitleFileList( "dvd_subtitle" ) ;
 	}
 
-	public boolean audioHasFivePointOne() {
+	public boolean audioHasFivePointOne()
+	{
 		return _audioHasFivePointOne;
 	}
 
-	public boolean audioHasSevenPointOne() {
+	public boolean audioHasSevenPointOne()
+	{
 		return _audioHasSevenPointOne;
 	}
 
-	public boolean audioHasSixPointOne() {
+	public boolean audioHasSixPointOne()
+	{
 		return _audioHasSixPointOne;
 	}
 
-	public boolean audioHasStereo() {
-		return _audioHasStereo;
-	}
-
-	public void buildSubTitleFileList()
+	public boolean audioHasStereo()
 	{
-		srtFileList = buildSubTitleFileList( "srt" ) ;
-		supFileList = buildSubTitleFileList( "sup" ) ;
+		return _audioHasStereo;
 	}
 
 	private void buildPaths()
@@ -177,10 +178,34 @@ public class TranscodeFile
 		}
 	}
 
+	public void buildSubTitleFileLists()
+	{
+		realSRTFileList = buildSubTitleFileList( "srt" ) ;
+		fakeSRTFileList = buildSubTitleFileList( "srt", true ) ;
+		supFileList = buildSubTitleFileList( "sup" ) ;
+	}
+
+	/**
+	 * Return the SRT file list for the given extension.
+	 * @param extension
+	 * @return
+	 */
 	protected List< File > buildSubTitleFileList( final String extension )
 	{
+		return buildSubTitleFileList( extension, false ) ;
+	}
+	
+	/**
+	 * Build the list of SRT or SUP files associated with the stored MKV file.
+	 * The second argument is used to search exclusively for "fake_subtitle"
+	 * @param extension
+	 * @return
+	 */
+	protected List< File > buildSubTitleFileList( final String extension, final boolean checkOnlyForFakeSRTs )
+	{
+		List< File > theFileList = new ArrayList< File >() ;
 		// Find files that match the mkv file name with srt or sup files
-		// the mkv file name should be like: "Movie name [Unrated] (2001).mkv" where "[Unrated]" may or may
+		// The mkv file name should be like: "Movie name [Unrated] (2001).mkv" where "[Unrated]" may or may
 		//  not exist.
 		// srt files for that file will look like: "Movie name [Unrated] (2001).#.srt" where # is
 		//  a number written as digits (3 not three).
@@ -190,21 +215,37 @@ public class TranscodeFile
 		// Retrieve the filename and remove the extension.
 		// --> Movie name [Unrated] (2001).
 		String fileNameSearchRegex = getMKVFileName() ;
+		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001).mkv"
+		
 		fileNameSearchRegex = fileNameSearchRegex.substring( 0, fileNameSearchRegex.lastIndexOf( '.' ) ) ;
-
+		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001)"
+		
 		// Add the trailing period after the file name as a literal
 		fileNameSearchRegex = fileNameSearchRegex + "\\." ;
-
+		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001)\."
+		
 		// Replace special regex characters with their literal equivalents
 		fileNameSearchRegex = fileNameSearchRegex.replace( "(", "\\(" ).replace( ")", "\\)" ) ;
+		// Post condition: fileNameSearchRegex == "Movie name [Unrated] \(2001\)\."
+		
 		fileNameSearchRegex = fileNameSearchRegex.replace( "[", "\\[" ).replace( "]", "\\]" ) ;
-
+		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\."
+		
 		// Add search parameter for digit character class
-		fileNameSearchRegex += "[0-9]+\\." + extension ;
-
+		fileNameSearchRegex += "[0-9]+\\." ;
+		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\."
+		
+		if( checkOnlyForFakeSRTs )
+		{
+			fileNameSearchRegex += Common.getFakeSRTSubString() + "\\." ;
+			// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\.fake_srt\."
+		}
+		
+		fileNameSearchRegex += extension ;
+		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\.fake_srt\.srt"
+		
 		// Now search for any file that starts with the fileNameWithPath and ends with .srt
 		final File[] filesInDirectory = getMKVInputDirectoryFile().listFiles() ;
-		List< File > theFileList = new ArrayList< File >() ;
 		for( File searchFile : filesInDirectory )
 		{
 			final String searchFileName = searchFile.getName() ;
@@ -265,6 +306,14 @@ public class TranscodeFile
 		return finalDirectoryPath ;
 	}
 	
+	public Iterator< File > getAllSRTFilesIterator()
+	{
+		List< File > allSRTFilesList = new ArrayList< File >() ;
+		allSRTFilesList.addAll( fakeSRTFileList ) ;
+		allSRTFilesList.addAll( realSRTFileList ) ;
+		return allSRTFilesList.iterator() ;
+	}
+	
 	protected FFmpegStream getAudioStreamAt( int index )
 	{
 		if( (index < 0) || (index >= getNumAudioStreams()) )
@@ -310,6 +359,20 @@ public class TranscodeFile
 		return audioStreamsToReturn ;
 	}
 
+	public File getFakeSRTFile( int index )
+	{
+		if( isFakeSRTFileListEmpty() ) return null ;
+		if( index < 0 ) return null ;
+		if( index >= fakeSRTFileList.size() ) return null ;
+		File returnFile = fakeSRTFileList.get( index ) ;
+		return returnFile ;
+	}
+	
+	public Iterator< File > getFakeSRTFileListIterator()
+	{
+		return fakeSRTFileList.iterator() ;
+	}
+
 	/**
 	 * Retrieve the forced subtitle file for this mkv input file. I have yet to see an instance where
 	 *  a file has more than one forced subtitle stream.
@@ -318,7 +381,7 @@ public class TranscodeFile
 	public File getForcedSubTitleFile()
 	{
 		File retMe = null ;
-		for( File srtFile : srtFileList )
+		for( File srtFile : realSRTFileList )
 		{
 			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
 			{
@@ -433,7 +496,8 @@ public class TranscodeFile
 		return getMKVFinalFile().getParent() ;
 	}
 
-	protected File getMKVFinalFile() {
+	protected File getMKVFinalFile()
+	{
 		return mkvFinalFile;
 	}
 
@@ -452,7 +516,8 @@ public class TranscodeFile
 		return getMKVInputFile().getParentFile() ;
 	}
 
-	protected File getMKVInputFile() {
+	protected File getMKVInputFile()
+	{
 		return mkvInputFile;
 	}
 
@@ -514,7 +579,8 @@ public class TranscodeFile
 		return getMP4OutputFile().getAbsolutePath() ;
 	}
 
-	public int getNumAudioStreams() {
+	public int getNumAudioStreams()
+	{
 		return audioStreams.size() ;
 	}
 
@@ -538,18 +604,18 @@ public class TranscodeFile
 		return primaryAudioLanguage ;
 	}
 
-	public File getSRTFile( int index )
+	public File getRealSRTFile( int index )
 	{
-		if( isSRTFileListEmpty() ) return null ;
+		if( isRealSRTFileListEmpty() ) return null ;
 		if( index < 0 ) return null ;
-		if( index >= srtFileList.size() ) return null ;
-		File returnFile = srtFileList.get( index ) ;
+		if( index >= realSRTFileList.size() ) return null ;
+		File returnFile = realSRTFileList.get( index ) ;
 		return returnFile ;
 	}
 
-	public Iterator< File > getSRTFileListIterator()
+	public Iterator< File > getRealSRTFileListIterator()
 	{
-		return srtFileList.iterator() ;
+		return realSRTFileList.iterator() ;
 	}
 
 	public boolean getTranscodeStatus( final String extensionToCheck )
@@ -563,11 +629,13 @@ public class TranscodeFile
 		return false ;
 	}
 
-	public String getTVShowName() {
+	public String getTVShowName()
+	{
 		return tvShowName;
 	}
 
-	public String getTVShowSeasonName() {
+	public String getTVShowSeasonName()
+	{
 		return tvShowSeasonName;
 	}
 
@@ -576,9 +644,14 @@ public class TranscodeFile
 		return !dvdSubTitleFileList.isEmpty() ;
 	}
 
+	public boolean hasFakeSRTInputFiles()
+	{
+		return !fakeSRTFileList.isEmpty() ;
+	}
+
 	public boolean hasForcedSubTitleFile()
 	{
-		for( File srtFile : srtFileList )
+		for( File srtFile : realSRTFileList )
 		{
 			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
 			{
@@ -588,23 +661,34 @@ public class TranscodeFile
 		return false ;
 	}
 
-	public boolean hasSRTInputFiles()
+	public boolean hasRealSRTInputFiles()
 	{
-		return !srtFileList.isEmpty() ;
+		return !realSRTFileList.isEmpty() ;
 	}
 
+	public boolean hasSRTInputFiles()
+	{
+		return hasFakeSRTInputFiles() || hasRealSRTInputFiles() ;
+	}
+	
 	public boolean hasSUPInputFiles()
 	{
 		return !supFileList.isEmpty() ;
 	}
 
-	public boolean isOtherVideo() {
+	public boolean isFakeSRTFileListEmpty()
+	{
+		return fakeSRTFileList.isEmpty() ;
+	}
+
+	public boolean isOtherVideo()
+	{
 		return isOtherVideo;
 	}
 
-	public boolean isSRTFileListEmpty()
+	public boolean isRealSRTFileListEmpty()
 	{
-		return srtFileList.isEmpty() ;
+		return realSRTFileList.isEmpty() ;
 	}
 
 	public boolean isTranscodeComplete()
@@ -632,10 +716,15 @@ public class TranscodeFile
 		common.makeDirectory( getMP4OutputDirectory() ) ;
 		common.makeDirectory( getMP4FinalDirectory() ) ;
 	}
-
-	public int numSRTInputFiles()
+	
+	public int numFakeSRTInputFiles()
 	{
-		return srtFileList.size() ;
+		return fakeSRTFileList.size() ;
+	}
+	
+	public int numRealSRTInputFiles()
+	{
+		return realSRTFileList.size() ;
 	}
 
 	protected void processAudioStreams( List< FFmpegStream > inputStreams )

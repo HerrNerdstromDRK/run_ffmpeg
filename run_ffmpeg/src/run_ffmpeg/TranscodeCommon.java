@@ -218,9 +218,9 @@ public class TranscodeCommon
 		// Afterward, handle the forced subtitles.
 		boolean foundNonForcedSubtTileStream = false ;
 		int inputFileMappingIndex = 1 ;
-		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numSRTInputFiles() ; ++srtFileIndex )
+		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numRealSRTInputFiles() ; ++srtFileIndex )
 		{
-			final File theSRTFile = theTranscodeFile.getSRTFile( srtFileIndex ) ;
+			final File theSRTFile = theTranscodeFile.getRealSRTFile( srtFileIndex ) ;
 			if( !theSRTFile.getName().contains( forcedSubTitleFileNameContains ) )
 			{
 				subTitleTranscodeOptions.add( "-map", "" + inputFileMappingIndex + ":s" ) ;
@@ -505,7 +505,7 @@ public class TranscodeCommon
 		ffmpegCommand.add( "-i", inputFile.getMKVInputFileNameWithPath() ) ;
 	
 		// 3) Include all other input files (such as .srt, except forced subtitles)
-		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
+		for( Iterator< File > fileIterator = inputFile.getAllSRTFilesIterator() ; fileIterator.hasNext() ; )
 		{
 			final File srtFile = fileIterator.next() ;
 			if( !srtFile.getName().contains( forcedSubTitleFileNameContains ) )
