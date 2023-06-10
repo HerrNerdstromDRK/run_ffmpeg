@@ -142,6 +142,41 @@ public class OCRSubtitle extends Thread
 		boolean commandSuccess = common.executeCommand( ocrExecuteCommand ) ;
 		log.info( "OCR on file " + fileToOCR.toString() + ": " + commandSuccess ) ;
 		setActivelyRunningOCR( false ) ;
+
+		final String outputFileName = fileToOCR.getAbsolutePath().replace( ".sup", ".srt" ) ;
+		final File outputFile = new File( outputFileName ) ;
+
+		if( commandSuccess )
+		{
+			if( !outputFile.exists() )
+			{
+				log.warning( "OCR successful, but output file does not exist: " + outputFile.toString() ) ;
+				commandSuccess = false ;
+			}
+			else if( outputFile.length() < Common.getMinimumSRTFileSize() )
+			{
+				log.warning( "OCR successful, but file is too small: " + outputFile.toString() ) ;
+				commandSuccess = false ;
+			}
+		}
+		if( !commandSuccess )
+		{
+			log.warning( "OCR failed; deleting file: " + outputFileName ) ;
+			outputFile.delete() ;
+
+			// Replace with a fake srt file
+			final String fakeSRTOutputFileName = outputFileName.replace( ".srt", "." + Common.getFakeSRTSubString() + ".srt" ) ;
+			File fakeSRTOutputFile = new File( fakeSRTOutputFileName ) ;
+			try
+			{
+				fakeSRTOutputFile.createNewFile() ;
+			}
+			catch( Exception theException )
+			{
+				log.warning( "Exception creating file " + fakeSRTOutputFileName + ": " + theException.toString() ) ;
+			}
+		}
+
 		return commandSuccess ;
 	}
 

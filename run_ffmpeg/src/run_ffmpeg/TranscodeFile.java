@@ -178,11 +178,51 @@ public class TranscodeFile
 		}
 	}
 
-	public void buildSubTitleFileLists()
+	// TODO: Review this code for a better way.
+	protected String buildFinalDirectoryPath( final File inputFile, String inputDirectory )
 	{
-		realSRTFileList = buildSubTitleFileList( "srt" ) ;
-		fakeSRTFileList = buildSubTitleFileList( "srt", true ) ;
-		supFileList = buildSubTitleFileList( "sup" ) ;
+		String finalDirectoryPath = inputDirectory ;
+	
+		// The transcoding could be just for a single directory or show, potentially even
+		// a single season
+		// Be sure to address here.
+		if( isTVShow() )
+		{
+			// Does the original mkvFinalDirectory include the season name? ("Season 04")
+			if( inputDirectory.contains( getTVShowSeasonName() ) )
+			{
+				// No action to update the mkvFinalDirectory
+			}
+			else if( inputDirectory.contains( getTVShowName() ) )
+			{
+				// TV show name is included, but not the season
+				finalDirectoryPath += getTVShowSeasonName() + common.getPathSeparator() ;
+			}
+			else
+			{
+				// Neither tv show nor season name is included
+				finalDirectoryPath += getTVShowName() + common.getPathSeparator()
+				+ getTVShowSeasonName() + common.getPathSeparator() ;
+			}
+		}
+		else
+		{
+			// Similar to above, this file could be part of transcoding many movies or a single movie.
+			// If it's a single movie, then the target directory will have the name of the movie in the path.
+			if( inputDirectory.contains( "(" ) && inputDirectory.contains( ")" ) )
+			{
+				// Contains both open and closing paranthesis, indicating a year, which indicates a movie
+				//				out( "TranscodeFile.buildFinalDirectoryPath> Found movie in the inputDirectory" ) ;
+				// Nothing to do
+			}
+			else
+			{
+				// Does not include movie directory in the path
+				setMovieName( getMKVInputDirectoryFile().getName() ) ;
+				finalDirectoryPath += getMovieName() + common.getPathSeparator() ;
+			}
+		} // if( isTVShow() )
+		return finalDirectoryPath ;
 	}
 
 	/**
@@ -259,53 +299,13 @@ public class TranscodeFile
 		return theFileList ;
 	}
 
-	// TODO: Review this code for a better way.
-	protected String buildFinalDirectoryPath( final File inputFile, String inputDirectory )
+	public void buildSubTitleFileLists()
 	{
-		String finalDirectoryPath = inputDirectory ;
-
-		// The transcoding could be just for a single directory or show, potentially even
-		// a single season
-		// Be sure to address here.
-		if( isTVShow() )
-		{
-			// Does the original mkvFinalDirectory include the season name? ("Season 04")
-			if( inputDirectory.contains( getTVShowSeasonName() ) )
-			{
-				// No action to update the mkvFinalDirectory
-			}
-			else if( inputDirectory.contains( getTVShowName() ) )
-			{
-				// TV show name is included, but not the season
-				finalDirectoryPath += getTVShowSeasonName() + common.getPathSeparator() ;
-			}
-			else
-			{
-				// Neither tv show nor season name is included
-				finalDirectoryPath += getTVShowName() + common.getPathSeparator()
-				+ getTVShowSeasonName() + common.getPathSeparator() ;
-			}
-		}
-		else
-		{
-			// Similar to above, this file could be part of transcoding many movies or a single movie.
-			// If it's a single movie, then the target directory will have the name of the movie in the path.
-			if( inputDirectory.contains( "(" ) && inputDirectory.contains( ")" ) )
-			{
-				// Contains both open and closing paranthesis, indicating a year, which indicates a movie
-				//				out( "TranscodeFile.buildFinalDirectoryPath> Found movie in the inputDirectory" ) ;
-				// Nothing to do
-			}
-			else
-			{
-				// Does not include movie directory in the path
-				setMovieName( getMKVInputDirectoryFile().getName() ) ;
-				finalDirectoryPath += getMovieName() + common.getPathSeparator() ;
-			}
-		} // if( isTVShow() )
-		return finalDirectoryPath ;
+		realSRTFileList = buildSubTitleFileList( "srt" ) ;
+		fakeSRTFileList = buildSubTitleFileList( "srt", true ) ;
+		supFileList = buildSubTitleFileList( "sup" ) ;
 	}
-	
+
 	public Iterator< File > getAllSRTFilesIterator()
 	{
 		List< File > allSRTFilesList = new ArrayList< File >() ;

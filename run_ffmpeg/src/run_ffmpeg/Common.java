@@ -61,37 +61,45 @@ public class Common
 	/// user interface reporting via the web interface.
 	private static final String missingFileSubstituteName = "(none)" ;
 	private static final String fakeSRTSubString = "fake_srt" ;
-	
+
+	/// The size of an SRT file, in bytes, that represents the minimum valid file length.
+	private static final int minimumSRTFileSize = 100 ;
+
 	/// The directories to probe
 	/// Broken down into the two USB chains so that applications can
 	/// multithread access to the MP4/MKV drives
-	private final String[] allChainAMP4Drives = {
-			"\\\\yoda\\MP4",
-			"\\\\yoda\\MP4_2",
-			"\\\\yoda\\MP4_4"
-	} ;
-	private final String[] allChainBMP4Drives = {
-			"\\\\yoda\\MP4_3"
-	} ;
+	private final String[] allChainAMP4Drives =
+		{
+				"\\\\yoda\\MP4",
+				"\\\\yoda\\MP4_2",
+				"\\\\yoda\\MP4_4"
+		} ;
+	private final String[] allChainBMP4Drives =
+		{
+				"\\\\yoda\\MP4_3"
+		} ;
 
-	private final String[] allChainAMKVDrives = {
-			"\\\\yoda\\MKV_Archive2",
-			"\\\\yoda\\MKV_Archive4",
-			"\\\\yoda\\MKV_Archive5",
-			"\\\\yoda\\MKV_Archive6",
-			"\\\\yoda\\MKV_Archive9",
-			"\\\\yoda\\MKV_Archive10"
-	} ;
-	private final String[] allChainBMKVDrives = {
-			"\\\\yoda\\MKV_Archive1",
-			"\\\\yoda\\MKV_Archive3",
-			"\\\\yoda\\MKV_Archive7",
-			"\\\\yoda\\MKV_Archive8" // Min this
-	} ;
-	private final String[] missingFiles = {
-			"\\\\yoda\\MKV_Archive1\\Movies_Missing",
-			"\\\\yoda\\MKV_Archive1\\TV Shows_Missing"
-	} ;
+	private final String[] allChainAMKVDrives =
+		{
+				"\\\\yoda\\MKV_Archive2",
+				"\\\\yoda\\MKV_Archive4",
+				"\\\\yoda\\MKV_Archive5",
+				"\\\\yoda\\MKV_Archive6",
+				"\\\\yoda\\MKV_Archive9",
+				"\\\\yoda\\MKV_Archive10"
+		} ;
+	private final String[] allChainBMKVDrives =
+		{
+				"\\\\yoda\\MKV_Archive1",
+				"\\\\yoda\\MKV_Archive3",
+				"\\\\yoda\\MKV_Archive7",
+				"\\\\yoda\\MKV_Archive8" // Min this
+		} ;
+	private final String[] missingFiles =
+		{
+				"\\\\yoda\\MKV_Archive1\\Movies_Missing",
+				"\\\\yoda\\MKV_Archive1\\TV Shows_Missing"
+		} ;
 
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
 	private NumberFormat numFormat = null ;
@@ -152,7 +160,7 @@ public class Common
 		}
 		return retMe ;
 	}
-	
+
 	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
 		return executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
@@ -379,7 +387,7 @@ public class Common
 		{
 			return filesInDirectoryWithExtension ;
 		}
-		
+
 		try
 		{
 			Stream< Path > walk = Files.walk( Paths.get( directoryPath ) ) ;
@@ -400,6 +408,11 @@ public class Common
 			log.info( " (" + directoryPath + ")> Exception: " + theException ) ;
 		}
 		return filesInDirectoryWithExtension ;
+	}
+
+	public static int getMinimumSRTFileSize()
+	{
+		return minimumSRTFileSize;
 	}
 
 	/**
