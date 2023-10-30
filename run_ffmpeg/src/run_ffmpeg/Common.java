@@ -194,12 +194,20 @@ public class Common
 				while( process.isAlive() )
 				{
 					String inputStreamLine = null ;
+					String lastInputStreamLine = "" ; // never null
 					String errorStreamLine = null ;
+					String lastErrorStreamLine = "" ; // never null
 					while( inputStreamReader.ready() )
 					{
 						inputStreamLine = inputStreamReader.readLine() ;
 						if( inputStreamLine != null )
 						{
+							if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
+							{
+								// Same as last input
+								continue ;
+							}
+							lastInputStreamLine = inputStreamLine ;
 							if( !filterOut( inputStreamLine ) )
 							{
 								log.info( "InputStream: " + inputStreamLine ) ;
@@ -211,6 +219,12 @@ public class Common
 						errorStreamLine = errorStreamReader.readLine() ;
 						if( errorStreamLine != null )
 						{
+							if( errorStreamLine.equalsIgnoreCase( lastErrorStreamLine ) )
+							{
+								// Same as last error input
+								continue ;
+							}
+							lastErrorStreamLine = errorStreamLine ;
 							if( !filterOut( errorStreamLine ) )
 							{
 								log.info( "ErrorStream: " + errorStreamLine ) ;
