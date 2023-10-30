@@ -54,8 +54,10 @@ public class Common
 	private static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
 	private static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
 	private static final String pathToDOTNET = "C:\\Program Files\\dotnet\\dotnet" ;
-	private static final String pathToPGSTOSRTDLL = "D:\\Program Files\\PgsToSrt\\src\\out\\PgsToSrt.dll" ;
+	private static final String pathToPGSTOSRTDLL = "D:\\Program Files\\PgsToSrt\\PgsToSrt.dll" ;
 	private static final String pathToTESSDATA = "D:\\Program Files\\PgsToSrt\\tessdata" ;
+	private static final String tesseractVersion = "5" ;
+	private static final String pathToSubtitleEdit = "D:\\Program Files\\Subtitle Edit\\SubtitleEdit" ;
 
 	/// The replacement file name for correlated files that are missing. This is used for
 	/// user interface reporting via the web interface.
@@ -887,6 +889,16 @@ public class Common
 	protected static String getFakeSRTSubString()
 	{
 		return fakeSRTSubString;
+	}
+
+	protected static String getTesseractVersion()
+	{
+		return tesseractVersion;
+	}
+
+	protected static String getPathtoSubtitleEdit()
+	{
+		return pathToSubtitleEdit;
 	}
 
 }

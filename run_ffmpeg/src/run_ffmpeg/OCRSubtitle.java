@@ -22,7 +22,7 @@ public class OCRSubtitle extends Thread
 	private transient boolean keepThreadRunning = true ;
 
 	/// The default number of threads to run.
-	private int defaultNumThreads = 10 ;
+	private int defaultNumThreads = 6 ;
 
 	/// Duration, in milliseconds, between thread liveness checks.
 	private long aliveCheckDuration = 5000 ;
@@ -134,11 +134,20 @@ public class OCRSubtitle extends Thread
 		// dotnet PgsToSrt.dll --input video1.fr.sup --output video1.fr.srt --tesseractlanguage fra --tesseractdata path_to_language_files
 		// The output filename will default, as will the language file.
 		// However, will need to include path to the tessdata
+		// Gonna try SubtitleEdit for a while.
 		ImmutableList.Builder< String > ocrExecuteCommand = new ImmutableList.Builder<String>() ;
-		ocrExecuteCommand.add( Common.getPathToDotNet(), Common.getPathToPgsToSrtDLL() ) ;
-		ocrExecuteCommand.add( "--input", fileToOCR.getAbsolutePath() ) ;
-		ocrExecuteCommand.add( "--tesseractdata", Common.getPathToTessdata() ) ;
-
+//		ocrExecuteCommand.add( Common.getPathToDotNet(), Common.getPathToPgsToSrtDLL() ) ;
+//		ocrExecuteCommand.add( "--input", fileToOCR.getAbsolutePath() ) ;
+//		ocrExecuteCommand.add( "--tesseractdata", Common.getPathToTessdata() ) ;
+//		ocrExecuteCommand.add( "--tesseractversion", Common.getTesseractVersion() ) ;
+		ocrExecuteCommand.add( Common.getPathtoSubtitleEdit() ) ;
+		ocrExecuteCommand.add( "/convert" ) ;
+		ocrExecuteCommand.add( fileToOCR.getAbsolutePath() ) ;
+		ocrExecuteCommand.add( "subrip" ) ;
+		ocrExecuteCommand.add( "/FixCommonErrors" ) ;
+		ocrExecuteCommand.add( "/RemoveFormatting" ) ;
+		ocrExecuteCommand.add( "/RemoveLineBreaks" ) ;		
+		
 		boolean commandSuccess = common.executeCommand( ocrExecuteCommand ) ;
 		log.info( "OCR on file " + fileToOCR.toString() + ": " + commandSuccess ) ;
 		setActivelyRunningOCR( false ) ;

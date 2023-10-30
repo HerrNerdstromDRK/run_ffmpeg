@@ -28,8 +28,8 @@ public class MoviesAndShowsMongoDB
 	
 	private MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
-//	private final String mongoDBHostName = "localhost" ;
-	private final String mongoDBHostName = "192.168.1.17" ;
+	private final String mongoDBHostName = "localhost" ;
+//	private final String mongoDBHostName = "192.168.1.17" ;
 	private final int mongoDBPortNumber = 27017 ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
