@@ -161,9 +161,10 @@ public class ExtractOCRTranscodeMove extends Thread
 	public void runFolders()
 	{
 		common.setTestMode( false ) ;
-//		List< String > foldersToTranscode = new ArrayList< String >() ;
+		List< String > foldersToTranscode = new ArrayList< String >() ;
 //		foldersToTranscode.add( "\\\\yoda\\MKV_Archive10\\To Convert - TV Shows" ) ;
-		List< String > foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+		foldersToTranscode.add( "C:\\Temp") ;
+//		foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
 		
 		runFolders( foldersToTranscode ) ;
 	}
@@ -304,6 +305,12 @@ public class ExtractOCRTranscodeMove extends Thread
 	 */
 	public void runOneFile( TranscodeFile fileToTranscode, FFmpegProbeResult mkvProbeResult )
 	{
+		if( fileToTranscode.isTranscodeComplete() || fileToTranscode.isTranscodeInProgress() )
+		{
+			// No need to re-accomplish
+			return ;
+		}
+		
 		// Extract subtitle streams.
 		ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
 		// runOneFile() will also prune the .sup files
