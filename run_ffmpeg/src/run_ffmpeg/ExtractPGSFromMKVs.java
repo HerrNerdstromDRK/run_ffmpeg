@@ -323,7 +323,7 @@ public class ExtractPGSFromMKVs extends Thread
 		boolean useThreads = false ;
 		ExtractPGSFromMKVs extractPGS = new ExtractPGSFromMKVs() ;
 		extractPGS.getCommon().setTestMode( false ) ;
-		extractPGS.setMkvInputDirectory( "C:\\Temp\\Thor Love And Thunder (2022)" ) ;
+		extractPGS.setMkvInputDirectory( "E:\\Movies" ) ;
 
 		/**
 		 * The only difference between these two branches is that running with threads

@@ -289,7 +289,7 @@ public class TranscodeFile
 		for( File searchFile : filesInDirectory )
 		{
 			final String searchFileName = searchFile.getName() ;
-			if( searchFileName.matches( fileNameSearchRegex ) )
+			if( searchFileName.matches( fileNameSearchRegex ) || searchFileName.contains( transcodeCommon.getForcedSubTitleFileNameContains() ))
 			{
 				// Found a matching subtitle file
 				log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchRegex ) ;

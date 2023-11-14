@@ -128,23 +128,57 @@ public class ExtractOCRTranscodeMove extends Thread
 	{
 		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
 		final String mkvInputDirectory = mkvInputFile.getParent() ;
+		final File mkvInputDirectoryFile = new File( mkvInputDirectory ) ;
+		String mkvFinalDirectory = mkvInputDirectory ;
 
-		if( !mkvInputDirectory.contains( "To Convert" ) )
+		// Must account for:
+		// - "To Convert" in the path
+		// -- with and without "TV Shows"
+		// - mkv file is in its final directory (moveMKVFiles will be false)
+
+		if( mkvInputDirectory.contains( "To Convert - TV Shows" ) )
 		{
-			// Since the path doesn't include "To Convert" assume the file is in its
-			// final destination.
-			// output == input
-			return mkvInputDirectory ;
+			mkvFinalDirectory = mkvInputDirectory.replace( "To Convert - TV Shows", "TV Shows" ) ;
 		}
-		// Post condition: The given folder is on the To Convert path.
-		if( mkvInputDirectory.contains( "TV Shows" ) )
+		else if( mkvInputDirectory.contains( "To Convert" ) )
 		{
-			// It is a TV Show
-			// Strip the "To Convert - " from the path
-			return mkvInputDirectory.replace( "To Convert - TV Shows", "TV Shows" ) ;
+			mkvFinalDirectory = mkvInputDirectory.replace( "To Convert", "Movies" ) ;
 		}
-		// Otherwise, this is a movie. Remove the "To Convert"
-		return mkvInputDirectory.replace( "To Convert", "Movies" ) ;
+		else if( common.isDoMoveMKVFiles() )
+		{
+			mkvFinalDirectory = common.addPathSeparatorIfNecessary( common.getMKVDriveWithMostAvailableSpace() ) ;
+			if( mkvInputDirectory.contains( "Season " ) )
+			{
+				// TV Show
+				// mkvInputFile will be of the form:
+				// C:\\Temp\\Show Name\\Season 01\\Show Name - S01E01 - Episode Name.mkv
+				final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
+				final String tvShowSeasonName = mkvInputFile.getParentFile().getName() ;
+				mkvFinalDirectory += "TV Shows"
+						+ common.getPathSeparator()
+						+ tvShowName
+						+ common.getPathSeparator()
+						+ tvShowSeasonName ;
+			}
+			else
+			{
+				// Movie
+				// mkvInputFile will be of the form:
+				// C:\\Temp\\Movie Name (2000)\\File Name-behindthescenes.mkv
+				final String movieName = 
+				mkvFinalDirectory += "Movies"
+						+ common.getPathSeparator()
+						+ mkvInputFile.getParentFile().getName() ;
+			}
+		}
+		else
+		{
+			// Leave the mkv file where it is.
+			// Included here for logic transparency
+			// mkvFinalDirectory = mkvInputDirectory ;
+		}
+
+		return mkvFinalDirectory ;
 	}
 
 	public static void main(String[] args)
@@ -160,10 +194,13 @@ public class ExtractOCRTranscodeMove extends Thread
 	 */
 	public void runFolders()
 	{
-		common.setTestMode( false ) ;
+		common.setTestMode( true ) ;
+		common.setDoMoveMKVFiles( true ) ;
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 //		foldersToTranscode.add( "\\\\yoda\\MKV_Archive10\\To Convert - TV Shows" ) ;
 		foldersToTranscode.add( "C:\\Temp") ;
+//		foldersToTranscode.add( "C:\\Temp\\TV Show") ;
+		
 //		foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
 		
 		runFolders( foldersToTranscode ) ;

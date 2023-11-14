@@ -38,6 +38,10 @@ public class Common
 
 	/// Set testMode to true to prevent mutations
 	private static boolean testMode = false ;
+	
+	// Set to true to move the mkv files, false otherwise
+	// Only used for certain applications
+	private static boolean doMoveMKVFiles = true ;
 
 	/// Separator to use to demarc directories
 	// TODO: Make this use the System.property
@@ -827,6 +831,28 @@ public class Common
 		return missingShowMP4Path;
 	}
 
+	public String getMKVDriveWithMostAvailableSpace()
+	{
+		String mkvDriveWithMostAvailableSpace = "" ;
+		double largestFreeSpaceSoFar = 0.0 ;
+
+		final List< String > allMKVDrives = getAllMKVDrives() ;
+		for( String mkvDrive : allMKVDrives )
+		{
+			final File mkvDriveFile = new File( mkvDrive ) ;
+			final double freeSpaceForThisDrive = mkvDriveFile.getFreeSpace() ;
+
+			if( (null == mkvDriveWithMostAvailableSpace)
+					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
+			{
+				// Found a new largest drive.
+				mkvDriveWithMostAvailableSpace = mkvDrive ;
+				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
+			}
+		}
+		return mkvDriveWithMostAvailableSpace ;
+	}
+	
 	public String getMP4DriveWithMostAvailableSpace()
 	{
 		String mp4DriveWithMostAvailableSpace = "" ;
@@ -913,6 +939,16 @@ public class Common
 	protected static String getPathtoSubtitleEdit()
 	{
 		return pathToSubtitleEdit;
+	}
+
+	public boolean isDoMoveMKVFiles()
+	{
+		return doMoveMKVFiles;
+	}
+
+	public void setDoMoveMKVFiles( boolean doMoveMKVFiles )
+	{
+		Common.doMoveMKVFiles = doMoveMKVFiles;
 	}
 
 }

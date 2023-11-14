@@ -508,7 +508,7 @@ public class TranscodeCommon
 		for( Iterator< File > fileIterator = inputFile.getRealSRTFileListIterator() ; fileIterator.hasNext() ; )
 		{
 			final File srtFile = fileIterator.next() ;
-			if( !srtFile.getName().contains( forcedSubTitleFileNameContains ) )
+			if( !srtFile.getName().contains( getForcedSubTitleFileNameContains() ) )
 			{
 				ffmpegCommand.add( "-i", srtFile.getAbsolutePath() ) ;
 			}
