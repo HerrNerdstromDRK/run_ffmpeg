@@ -165,7 +165,6 @@ public class ExtractOCRTranscodeMove extends Thread
 				// Movie
 				// mkvInputFile will be of the form:
 				// C:\\Temp\\Movie Name (2000)\\File Name-behindthescenes.mkv
-				final String movieName = 
 				mkvFinalDirectory += "Movies"
 						+ common.getPathSeparator()
 						+ mkvInputFile.getParentFile().getName() ;
@@ -194,11 +193,11 @@ public class ExtractOCRTranscodeMove extends Thread
 	 */
 	public void runFolders()
 	{
-		common.setTestMode( true ) ;
+		common.setTestMode( false ) ;
 		common.setDoMoveMKVFiles( true ) ;
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 //		foldersToTranscode.add( "\\\\yoda\\MKV_Archive10\\To Convert - TV Shows" ) ;
-		foldersToTranscode.add( "C:\\Temp") ;
+		foldersToTranscode.add( "C:\\Temp\\To Convert") ;
 //		foldersToTranscode.add( "C:\\Temp\\TV Show") ;
 		
 //		foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;

@@ -3,6 +3,7 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
 
 /**
@@ -23,7 +24,7 @@ public class ExtractAndOCR extends Thread
 
 	/// The structure used to pass files that have had their subtitles successfully extracted
 	/// to the ocrThread to OCR them.
-	private List< File > pipeline_extractedFilesToOCR = null ;
+	private PriorityBlockingQueue< File > pipeline_extractedFilesToOCR = null ;
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
@@ -98,9 +99,9 @@ public class ExtractAndOCR extends Thread
 		// Will run three threads: local, chain A, and chain B
 		// The thinking is that each of the three can operate without interfering with each other
 		//  since the primary bottleneck is the drive/network access
-		foldersToExtractAndOCR_ChainA.add( "C:\\Temp" ) ;
-		foldersToExtractAndOCR_Local.add( "E:\\TV Shows" ) ;
-		foldersToExtractAndOCR_Local.add( "E:\\Movies" ) ;
+		foldersToExtractAndOCR_ChainA.add( "C:\\Temp\\To Convert" ) ;
+//		foldersToExtractAndOCR_Local.add( "E:\\TV Shows" ) ;
+//		foldersToExtractAndOCR_Local.add( "E:\\Movies" ) ;
 //		foldersToExtractAndOCR_ChainA.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
 //		foldersToExtractAndOCR_ChainB.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
 

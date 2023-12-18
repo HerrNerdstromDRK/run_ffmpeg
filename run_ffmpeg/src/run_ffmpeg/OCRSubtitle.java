@@ -3,6 +3,7 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
@@ -48,8 +49,9 @@ public class OCRSubtitle extends Thread
 	private final String stopFileName = "C:\\Temp\\stop_ocr_subtitle.txt" ;
 
 	/// The list of filenames to OCR
-	/// Will be used as the job queue.
-	private List< File > filesToOCR = new ArrayList< File >() ;
+	/// Will be used as the job priority queue.
+	/// Run OCR largest to smallest to (hopefully) minimize the time required to execute.
+	private PriorityBlockingQueue< File > filesToOCR = new PriorityBlockingQueue< File >( 50, new FileSortLargeToSmall() ) ;
 
 	/// The extensions that contain image-based subtitles
 	private static String[] extensionsToOCR = { ".sup" } ;
@@ -215,7 +217,7 @@ public class OCRSubtitle extends Thread
 		return extensionsToOCR;
 	}
 
-	public List< File > getFilesToOCR()
+	public PriorityBlockingQueue< File > getFilesToOCR()
 	{
 		return filesToOCR;
 	}
@@ -229,9 +231,16 @@ public class OCRSubtitle extends Thread
 		File fileToOCR = null ;
 		synchronized( filesToOCR )
 		{
-			if( !filesToOCR.isEmpty() )
+			try
 			{
-				fileToOCR = filesToOCR.remove( 0 ) ;
+				if( !filesToOCR.isEmpty() )
+				{
+					fileToOCR = filesToOCR.take() ;
+				}
+			}
+			catch( Exception theException )
+			{
+				log.warning( "Error in take(): " + theException ) ;
 			}
 		}
 		return fileToOCR ;
@@ -332,7 +341,7 @@ public class OCRSubtitle extends Thread
 	public void runThreads( final int numThreads )
 	{
 		// Retrieve all of the drives and folders containing mkv files to find .sup files
-		List< File > filesToOCR = getFilesToOCR() ;
+		PriorityBlockingQueue< File > filesToOCR = getFilesToOCR() ;
 		synchronized( filesToOCR )
 		{
 			log.info( "Running OCR on " + filesToOCR.size() + " file(s)" ) ;
@@ -443,7 +452,7 @@ public class OCRSubtitle extends Thread
 		extensionsToOCR = _extensionsToOCR ;
 	}
 
-	public void setFilesToOCR( List< File > fileNamesToOCR )
+	public void setFilesToOCR( PriorityBlockingQueue< File > fileNamesToOCR )
 	{
 		this.filesToOCR = fileNamesToOCR;
 	}

@@ -3,6 +3,7 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
@@ -57,7 +58,7 @@ public class ExtractPGSFromMKVs extends Thread
 	/// If transcodePipeline is null, then the pipeline is not enabled and it is ignored.
 	/// Access to transcodePipeline will be guarded with a synchronized block since it will be
 	/// used in a threaded environment.
-	private List< File > transcodePipeline = null ;
+	private PriorityBlockingQueue< File > transcodePipeline = null ;
 
 	/// Handle to the mongodb
 	private transient MoviesAndShowsMongoDB masMDB = null ;
@@ -280,7 +281,7 @@ public class ExtractPGSFromMKVs extends Thread
 		return stopFileName;
 	}
 
-	protected List<File> getTranscodePipeline()
+	protected PriorityBlockingQueue< File > getTranscodePipeline()
 	{
 		return transcodePipeline;
 	}
@@ -517,7 +518,7 @@ public class ExtractPGSFromMKVs extends Thread
 		this.keepThreadRunning = keepThreadRunning;
 	}
 
-	protected synchronized void setTranscodePipeline( List< File > transcodePipeline )
+	protected synchronized void setTranscodePipeline( PriorityBlockingQueue< File > transcodePipeline )
 	{
 		this.transcodePipeline = transcodePipeline;
 	}
