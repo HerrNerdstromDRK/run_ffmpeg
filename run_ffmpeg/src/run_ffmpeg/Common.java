@@ -131,8 +131,8 @@ public class Common
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
 			//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
 
-			retMe.add( moviesFolder ) ;
 			retMe.add( tvShowsFolder ) ;
+			retMe.add( moviesFolder ) ;
 			//			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
@@ -784,6 +784,11 @@ public class Common
 		return retMe ;
 	}
 
+	protected static String getFakeSRTSubString()
+	{
+		return fakeSRTSubString;
+	}
+
 	public boolean getIsWindows()
 	{
 		return isWindows ;
@@ -900,14 +905,34 @@ public class Common
 		return pathToPGSTOSRTDLL;
 	}
 
+	protected static String getPathtoSubtitleEdit()
+	{
+		return pathToSubtitleEdit;
+	}
+
 	public static String getPathToTessdata()
 	{
 		return pathToTESSDATA;
 	}
 
+	protected static String getTesseractVersion()
+	{
+		return tesseractVersion;
+	}
+
 	public boolean getTestMode()
 	{
 		return testMode ;
+	}
+
+	public boolean isDoMoveMKVFiles()
+	{
+		return doMoveMKVFiles;
+	}
+
+	public void setDoMoveMKVFiles( boolean doMoveMKVFiles )
+	{
+		Common.doMoveMKVFiles = doMoveMKVFiles;
 	}
 
 	public void setTestMode( boolean newValue )
@@ -924,31 +949,6 @@ public class Common
 		}
 		retMe += "}" ;
 		return retMe ;
-	}
-
-	protected static String getFakeSRTSubString()
-	{
-		return fakeSRTSubString;
-	}
-
-	protected static String getTesseractVersion()
-	{
-		return tesseractVersion;
-	}
-
-	protected static String getPathtoSubtitleEdit()
-	{
-		return pathToSubtitleEdit;
-	}
-
-	public boolean isDoMoveMKVFiles()
-	{
-		return doMoveMKVFiles;
-	}
-
-	public void setDoMoveMKVFiles( boolean doMoveMKVFiles )
-	{
-		Common.doMoveMKVFiles = doMoveMKVFiles;
 	}
 
 }

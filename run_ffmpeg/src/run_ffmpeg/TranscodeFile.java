@@ -19,29 +19,29 @@ public class TranscodeFile
 	/// The following four Files represent the necessary information from which to
 	/// make all decisions necessary, and provide all required information, for use
 	/// with a file to be transcoded.
-	
+
 	/// File representing the input file
 	protected File mkvInputFile = null ;
-	
+
 	/// File representing the final mkv final (in its final location)
 	/// May be the same as the mkvInputFile
 	protected File mkvFinalFile = null ;
-	
+
 	/// File representing the mp4 output file that is built with the transcode.
 	/// May or may not be the same as the mp4FinalFile
 	protected File mp4OutputFile = null ;
-	
+
 	/// File representing the mp4 file in its final location. May be the same as the mp4OutputFile
 	protected File mp4FinalFile = null ;
-	
+
 	/// Logging stream
 	private transient Logger log = null ;
-	
+
 	/// Common methods and variables
 	private transient Common common = null ;
-	
+
 	/// Common transcode methods and variables
-	private transient TranscodeCommon transcodeCommon = null ;
+	//	private transient TranscodeCommon transcodeCommon = null ;
 
 	// List of subtitle files corresponding to this TranscodeFile
 	private List< File > realSRTFileList = null ;
@@ -65,10 +65,10 @@ public class TranscodeFile
 
 	/// tvShowName is the name of the TV show or the movie name
 	protected String tvShowName = "" ;
-	
+
 	/// tvShowSeasonName is the season of the tv show, such as "Season 04", or empty if a movie
 	protected String tvShowSeasonName = "" ;
-	
+
 	/// The name of the movie (with (year)), or empty if tv show
 	protected String movieName = "" ;
 
@@ -102,7 +102,7 @@ public class TranscodeFile
 		setMKVInputFile( mkvInputFile ) ;
 		this.log = log ;
 		common = new Common( log ) ;
-		
+
 		/// Build the mkvFinalFile
 		final String mkvFinalFileNameWithPath = common.addPathSeparatorIfNecessary( mkvFinalDirectory ) + mkvInputFile.getName() ;
 		setMKVFinalFile( new File( mkvFinalFileNameWithPath ) ) ;
@@ -110,15 +110,15 @@ public class TranscodeFile
 		final String mp4OutputFileName = mkvInputFile.getName().replace( ".mkv", ".mp4" ) ;
 		final String mp4OutputFileNameWithPath = common.addPathSeparatorIfNecessary( mp4OutputDirectory ) + mp4OutputFileName ;
 		setMP4OutputFile( new File( mp4OutputFileNameWithPath ) ) ;
-		
+
 		final String mp4FinalFileNameWithPath = common.addPathSeparatorIfNecessary( mp4FinalDirectory ) + mp4OutputFileName ;
 		setMP4FinalFile( new File( mp4FinalFileNameWithPath ) ) ;
 
-		this.transcodeCommon = new TranscodeCommon( log, common,
-				getMKVInputDirectory(),
-				getMKVFinalDirectory(),
-				getMP4OutputDirectory(),
-				getMP4FinalDirectory() ) ;
+		//		this.transcodeCommon = new TranscodeCommon( log, common,
+		//				getMKVInputDirectory(),
+		//				getMKVFinalDirectory(),
+		//				getMP4OutputDirectory(),
+		//				getMP4FinalDirectory() ) ;
 
 		buildPaths() ;
 		buildSubTitleFileLists() ;
@@ -182,7 +182,7 @@ public class TranscodeFile
 	protected String buildFinalDirectoryPath( final File inputFile, String inputDirectory )
 	{
 		String finalDirectoryPath = inputDirectory ;
-	
+
 		// The transcoding could be just for a single directory or show, potentially even
 		// a single season
 		// Be sure to address here.
@@ -234,7 +234,7 @@ public class TranscodeFile
 	{
 		return buildSubTitleFileList( extension, false ) ;
 	}
-	
+
 	/**
 	 * Build the list of SRT or SUP files associated with the stored MKV file.
 	 * The second argument is used to search exclusively for "fake_subtitle"
@@ -254,46 +254,64 @@ public class TranscodeFile
 		// fileNameSearchString is the wildcard/regex search string for the file name (no path)
 		// Retrieve the filename and remove the extension.
 		// --> Movie name [Unrated] (2001).
-		String fileNameSearchRegex = getMKVFileName() ;
+//		String fileNameSearchRegex = getMKVFileName() ;
+		final String fileNameWithoutExtension = getMKVFileName().substring( 0, getMKVFileName().indexOf( "." ) + 1 ) ;
 		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001).mkv"
-		
-		fileNameSearchRegex = fileNameSearchRegex.substring( 0, fileNameSearchRegex.lastIndexOf( '.' ) ) ;
+
+		//		fileNameSearchRegex = fileNameSearchRegex.substring( 0, fileNameSearchRegex.lastIndexOf( '.' ) ) ;
 		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001)"
-		
+
 		// Add the trailing period after the file name as a literal
-		fileNameSearchRegex = fileNameSearchRegex + "\\." ;
+		//		fileNameSearchRegex = fileNameSearchRegex + "." ;
+		//		fileNameSearchRegex = fileNameSearchRegex + "\\." ;
 		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001)\."
-		
+
 		// Replace special regex characters with their literal equivalents
-		fileNameSearchRegex = fileNameSearchRegex.replace( "(", "\\(" ).replace( ")", "\\)" ) ;
+		//		fileNameSearchRegex = fileNameSearchRegex.replace( "(", "\\(" ).replace( ")", "\\)" ) ;
 		// Post condition: fileNameSearchRegex == "Movie name [Unrated] \(2001\)\."
-		
-		fileNameSearchRegex = fileNameSearchRegex.replace( "[", "\\[" ).replace( "]", "\\]" ) ;
+
+		//		fileNameSearchRegex = fileNameSearchRegex.replace( "[", "\\[" ).replace( "]", "\\]" ) ;
 		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\."
-		
+
 		// Add search parameter for digit character class
-		fileNameSearchRegex += "[0-9]+\\." ;
+		//		fileNameSearchRegex += "[0-9]+\\." ;
 		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\."
-		
+
 		if( checkOnlyForFakeSRTs )
 		{
-			fileNameSearchRegex += Common.getFakeSRTSubString() + "\\." ;
+			//			fileNameSearchRegex += Common.getFakeSRTSubString() + "\\." ;
 			// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\.fake_srt\."
 		}
-		
-		fileNameSearchRegex += extension ;
+
+		//		fileNameSearchRegex += extension ;
 		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\.fake_srt\.srt"
-		
+
 		// Now search for any file that starts with the fileNameWithPath and ends with .srt
 		final File[] filesInDirectory = getMKVInputDirectoryFile().listFiles() ;
 		for( File searchFile : filesInDirectory )
 		{
 			final String searchFileName = searchFile.getName() ;
-			if( searchFileName.matches( fileNameSearchRegex ) || searchFileName.contains( transcodeCommon.getForcedSubTitleFileNameContains() ))
+			if( searchFileName.startsWith( fileNameWithoutExtension ) && searchFileName.endsWith( extension ) )
+			{
+				if( checkOnlyForFakeSRTs )
+				{
+					if( searchFileName.contains( Common.getFakeSRTSubString() ) )
+					{
+						theFileList.add( searchFile ) ;
+					}
+				}
+				else
+				{
+					// NOT looking only for fake SRTs, but still matches the file name without extension and the extension
+					theFileList.add( searchFile ) ;
+				}
+			}
+			//			final String searchFileName = searchFile.getName() ;
+			//			if( searchFileName.matches( fileNameSearchRegex ) ) //|| searchFileName.contains( TranscodeCommon.getForcedSubTitleFileNameContains() ))
 			{
 				// Found a matching subtitle file
-				log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchRegex ) ;
-				theFileList.add( searchFile ) ;
+//				log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchRegex ) ;
+//				theFileList.add( searchFile ) ;
 			}
 		}
 		return theFileList ;
@@ -313,7 +331,7 @@ public class TranscodeFile
 		allSRTFilesList.addAll( realSRTFileList ) ;
 		return allSRTFilesList.iterator() ;
 	}
-	
+
 	protected FFmpegStream getAudioStreamAt( int index )
 	{
 		if( (index < 0) || (index >= getNumAudioStreams()) )
@@ -341,14 +359,14 @@ public class TranscodeFile
 				audioStreamsToReturn.add( audioStream ) ;
 				continue ;
 			}
-	
+
 			String audioStreamLanguage = audioStream.tags.get( "language" ) ;
 			if( null == audioStreamLanguage )
 			{
 				log.info( "No language tag found for stream: " + audioStream.toString() ) ;
 				audioStreamLanguage = "*" ;
 			}
-	
+
 			if( languageSearch.equalsIgnoreCase( audioStreamLanguage ) )
 			{
 				// Found a match
@@ -367,7 +385,7 @@ public class TranscodeFile
 		File returnFile = fakeSRTFileList.get( index ) ;
 		return returnFile ;
 	}
-	
+
 	public Iterator< File > getFakeSRTFileListIterator()
 	{
 		return fakeSRTFileList.iterator() ;
@@ -383,7 +401,7 @@ public class TranscodeFile
 		File retMe = null ;
 		for( File srtFile : realSRTFileList )
 		{
-			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
+			if( srtFile.getName().contains( TranscodeCommon.getForcedSubTitleFileNameContains() ) )
 			{
 				retMe = srtFile ;
 				break ;
@@ -426,7 +444,7 @@ public class TranscodeFile
 		// We want the second from last
 		String streamNumberString = tokens[ 2 ] ;
 		Integer streamNumberInteger = Integer.parseInt( streamNumberString ) ;
-	
+
 		return streamNumberInteger.intValue() ;
 	}
 
@@ -438,12 +456,12 @@ public class TranscodeFile
 	public String getMetaDataTitle()
 	{
 		String metaDataTitle = "" ;
-	
+
 		// Remove the extension
 		String fileNameWithoutExtension = getMP4FileName().replace( ".mp4", "" ) ;
-	
+
 		StringTokenizer tokens = new StringTokenizer( fileNameWithoutExtension, "-" ) ;
-	
+
 		// 0 tokens means it is a movie
 		// Example: Transformers (2007)
 		if( 1 == tokens.countTokens() )
@@ -470,7 +488,7 @@ public class TranscodeFile
 			{
 				description = tokens.nextToken().trim() ;
 			}
-	
+
 			metaDataTitle += description ;
 		}
 		return metaDataTitle ;
@@ -485,12 +503,12 @@ public class TranscodeFile
 	{
 		return !getMKVInputDirectory().equals( getMKVFinalDirectory() ) ;
 	}
-	
+
 	public String getMKVFinalDirectory()
 	{
 		return getMKVFinalFile().getParent() ;
 	}
-	
+
 	public String getMKVFinalDirectoryFile()
 	{
 		return getMKVFinalFile().getParent() ;
@@ -534,7 +552,7 @@ public class TranscodeFile
 	{
 		return getMP4FinalFile().getName() ;
 	}
-	
+
 	public boolean getMP4FileShouldMove()
 	{
 		return !getMP4FinalDirectory().equals( getMP4OutputDirectory() ) ;
@@ -544,7 +562,7 @@ public class TranscodeFile
 	{
 		return getMP4FinalFile().getParent() ;
 	}
-	
+
 	public String getMP4FinalDirectoryFile()
 	{
 		return getMP4FinalFile().getParent() ;
@@ -568,12 +586,12 @@ public class TranscodeFile
 	{
 		return getMP4OutputFile().getParent() ;
 	}
-	
+
 	protected File getMP4OutputFile()
 	{
 		return mp4OutputFile;
 	}
-	
+
 	public String getMP4OutputFileNameWithPath()
 	{
 		return getMP4OutputFile().getAbsolutePath() ;
@@ -653,7 +671,7 @@ public class TranscodeFile
 	{
 		for( File srtFile : realSRTFileList )
 		{
-			if( srtFile.getName().contains( transcodeCommon.getForcedSubTitleFileNameContains() ) )
+			if( srtFile.getName().contains( TranscodeCommon.getForcedSubTitleFileNameContains() ) )
 			{
 				return true ;
 			}
@@ -670,7 +688,7 @@ public class TranscodeFile
 	{
 		return hasFakeSRTInputFiles() || hasRealSRTInputFiles() ;
 	}
-	
+
 	public boolean hasSUPInputFiles()
 	{
 		return !supFileList.isEmpty() ;
@@ -716,12 +734,12 @@ public class TranscodeFile
 		common.makeDirectory( getMP4OutputDirectory() ) ;
 		common.makeDirectory( getMP4FinalDirectory() ) ;
 	}
-	
+
 	public int numFakeSRTInputFiles()
 	{
 		return fakeSRTFileList.size() ;
 	}
-	
+
 	public int numRealSRTInputFiles()
 	{
 		return realSRTFileList.size() ;
@@ -731,7 +749,7 @@ public class TranscodeFile
 	{
 		// Pre-condition: inputStreams contains streams only of type audio
 		audioStreams.addAll( inputStreams ) ;
-	
+
 		for( FFmpegStream theInputStream : inputStreams )
 		{
 			if( null == theInputStream.channel_layout )

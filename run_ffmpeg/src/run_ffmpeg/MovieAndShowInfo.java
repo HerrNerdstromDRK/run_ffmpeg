@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -49,7 +50,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
-
+	
 	/**
 	 * Default constructor for serialization/deserialization.
 	 */
@@ -219,6 +220,20 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return largestFile ;
 	}
 
+//	public Iterator< CorrelatedFile > getCorrelatedFilesListIterator()
+//	{
+//		return correlatedFilesList.iterator() ;
+//	}
+	
+	/**
+	 * Not using an iterator here because it was breaking the serialization. *shrug*
+	 * @return
+	 */
+	public List< CorrelatedFile > getCorrelatedFilesList()
+	{
+		return correlatedFilesList ;
+	}
+	
 	public String getMKVLongPath()
 	{
 		return mkvLongPath;

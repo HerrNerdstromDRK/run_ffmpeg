@@ -1,6 +1,7 @@
 package run_ffmpeg;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -114,18 +115,6 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	}
 
 	/**
-	 * Return true if this CorrelatedFile is missing a file.
-	 * This will mean that the number of mkv files is different from the
-	 *  number of mp4 files.
-	 * @return
-	 */
-	public boolean isMissingFile()
-	// TODO: Make this a variable instead of a method.
-	{
-		return (isMissingMKVFile() || isMissingMP4File() ) ;
-	}
-
-	/**
 	 * This method will fill any empty mkv or mp4 files with "(none)" to ensure the
 	 * number of mkv and mp4 files matches for presentation.
 	 */
@@ -210,6 +199,96 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 		}
 	}
 
+	public String getFileName()
+	{
+		return fileName;
+	}
+	
+	/**
+	 * Would use an iterator here but having a problem serializing with mongoDB.
+	 * @return
+	 */
+//	public List< String > getMKVFilesByName()
+//	{
+//		return mkvFilesByName ;
+//	}
+	
+	/**
+	 * Would use an iterator here but having a problem serializing with mongoDB.
+	 * @return
+	 */
+//	public List< String > getMP4FilesByName()
+//	{
+//		return mp4FilesByName ;
+//	}
+
+//	public Iterator< String > getMKVFilesIterator()
+//	{
+//		return mkvFilesByName.iterator() ;
+//	}
+//	
+//	public Iterator< FFmpegProbeResult > getMKVFilesProbeIterator()
+//	{
+//		return mkvFilesByProbe.iterator() ;
+//	}
+//
+//	public Iterator< FFmpegProbeResult > getMP4FilesProbeIterator()
+//	{
+//		return mp4FilesByProbe.iterator() ;
+//	}
+//	
+//	public Iterator< String > getMP4FilesIterator()
+//	{
+//		return mp4FilesByName.iterator() ;
+//	}
+	
+	public int getNumberOfMKVFiles()
+	{
+		return mkvFilesByName.size() ;
+	}
+
+	public int getNumberOfMP4Files()
+	{
+		return mp4FilesByName.size() ;
+	}
+
+	/**
+	 * Return true if this CorrelatedFile is missing a file.
+	 * This will mean that the number of mkv files is different from the
+	 *  number of mp4 files.
+	 * @return
+	 */
+	public boolean isMissingFile()
+	// TODO: Make this a variable instead of a method.
+	{
+		return (isMissingMKVFile() || isMissingMP4File() ) ;
+	}
+
+	public boolean isMissingMKVFile()
+	{
+		return missingMKVFile;
+	}
+
+	public boolean isMissingMP4File()
+	{
+		return missingMP4File;
+	}
+
+	public void setFileName(String fileName)
+	{
+		this.fileName = fileName;
+	}
+
+	public void setMissingMKVFile(boolean missingMKVFile)
+	{
+		this.missingMKVFile = missingMKVFile;
+	}
+
+	public void setMissingMP4File(boolean missingMP4File)
+	{
+		this.missingMP4File = missingMP4File;
+	}
+
 	public String toString()
 	{
 		String retMe = "{fileName:" + fileName
@@ -224,30 +303,6 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 		}
 		retMe += "}" ;
 		return retMe ;
-	}
-
-	public String getFileName() {
-		return fileName;
-	}
-
-	public void setFileName(String fileName) {
-		this.fileName = fileName;
-	}
-
-	public boolean isMissingMKVFile() {
-		return missingMKVFile;
-	}
-
-	public void setMissingMKVFile(boolean missingMKVFile) {
-		this.missingMKVFile = missingMKVFile;
-	}
-
-	public boolean isMissingMP4File() {
-		return missingMP4File;
-	}
-
-	public void setMissingMP4File(boolean missingMP4File) {
-		this.missingMP4File = missingMP4File;
 	}
 
 }

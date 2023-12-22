@@ -131,7 +131,7 @@ public class FFmpegProbeResult
 		return error != null;
 	}
 
-	public void set_id(ObjectId _id)
+	public void set_id( ObjectId _id )
 	{
 		this._id = _id;
 	}

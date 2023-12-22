@@ -1,4 +1,5 @@
 package run_ffmpeg;
+import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.codecs.configuration.CodecProvider;
@@ -8,11 +9,13 @@ import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.mongodb.MongoClient; 
-import com.mongodb.MongoCredential;  
+import com.mongodb.MongoClientSettings;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;  
 
 /**
  * Class that provides instances that interact with the MoviesAndShows database.
@@ -26,7 +29,7 @@ public class MoviesAndShowsMongoDB
 	private transient Logger log = null ;
 //	private transient Common common = null ;
 	
-	private MongoClient persistentMongoClient = null ;
+	private com.mongodb.client.MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
 	private final String mongoDBHostName = "localhost" ;
 //	private final String mongoDBHostName = "192.168.1.17" ;
@@ -88,7 +91,12 @@ public class MoviesAndShowsMongoDB
 		}
 		// Creating a MongoClient and connect to the database server 
 		//	      MongoClient mongo = new MongoClient( "inventory.t43ck.mongodb.net" , 8888 );
-		persistentMongoClient = new MongoClient( mongoDBHostName , mongoDBPortNumber ) ;
+		ServerAddress serverAddress = new ServerAddress( mongoDBHostName, mongoDBPortNumber ) ;
+		MongoClientSettings settings = MongoClientSettings.builder()
+		        .applyToClusterSettings(builder ->
+		               builder.hosts( Arrays.asList( serverAddress ) ) )
+		        .build() ;
+		persistentMongoClient = MongoClients.create( settings ) ;
 		
 		// Setup the providers for passing Plain Old Java Objects (POJOs) to and from the database
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build();
