@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
@@ -70,6 +71,9 @@ public class Common
 
 	/// The size of an SRT file, in bytes, that represents the minimum valid file length.
 	private static final int minimumSRTFileSize = 100 ;
+	
+	private static final String analyzeDurationString = "5G" ;
+	private static final String probeSizeString = "5G" ;
 
 	/// The directories to probe
 	/// Broken down into the two USB chains so that applications can
@@ -122,7 +126,12 @@ public class Common
 		numFormat.setMaximumFractionDigits( 2 ) ;
 	}
 
-	public List< String > addMoviesAndFoldersToEachDrive( final List< String > theDrives )
+	/**
+	 * Add the Movies and TV Shows subfolder names to each directory path given.
+	 * @param theDrives
+	 * @return
+	 */
+	public List< String > addMoviesAndTVShowFoldersToEachDrive( final List< String > theDrives )
 	{
 		List< String > retMe = new ArrayList< String >() ;
 		for( String theDrive : theDrives )
@@ -291,6 +300,36 @@ public class Common
 		}
 		return false ;
 	}
+
+	/**
+		 * Return all directories at the lowest level available inside of the given directoryPath.
+		 * Returns only the lowest level directories, and nothing in between.
+		 */
+		public List< String > findLowestLevelDirectories( final String topLevelDirectory )
+		{
+	//		log.info( "Checking tld: " + topLevelDirectory ) ;
+			List< String > allDirectories = new ArrayList< String >() ;
+			
+			Set< String > dirNames = Stream.of(new File( topLevelDirectory ).listFiles())
+			      .filter(file -> file.isDirectory())
+			      .map(File::getName)
+			      .collect(Collectors.toSet());
+			if( dirNames.isEmpty() )
+			{
+				// Base case -- we are at the lowest level directory.
+				// Add this directory to the list of directories to return.
+				allDirectories.add( topLevelDirectory ) ;
+			}
+			else
+			{
+				for( String dirName : dirNames )
+				{
+	//				log.info( "Calling findLowestLevelDirectories ( " + topLevelDirectory + "\\" + dirName + " )" ) ;
+					allDirectories.addAll( findLowestLevelDirectories( topLevelDirectory + "\\" + dirName ) ) ;
+				}
+			}
+			return allDirectories ;
+		}
 
 	/**
 	 * Probe the given file and report out to the given log stream.
@@ -707,7 +746,7 @@ public class Common
 
 	public List< String > getAllChainAMKVDrivesAndFolders()
 	{
-		return addMoviesAndFoldersToEachDrive( getAllChainAMKVDrives() ) ;
+		return addMoviesAndTVShowFoldersToEachDrive( getAllChainAMKVDrives() ) ;
 	}
 
 	public List< String > getAllChainBMKVDrives()
@@ -718,7 +757,7 @@ public class Common
 
 	public List< String > getAllChainBMKVDrivesAndFolders()
 	{
-		return addMoviesAndFoldersToEachDrive( getAllChainBMKVDrives() ) ;
+		return addMoviesAndTVShowFoldersToEachDrive( getAllChainBMKVDrives() ) ;
 	}
 
 	public List< String > getAllChainAMP4Drives()
@@ -729,7 +768,7 @@ public class Common
 
 	public List< String > getAllChainAMP4DrivesAndFolders()
 	{
-		return addMoviesAndFoldersToEachDrive( getAllChainAMP4Drives() ) ;
+		return addMoviesAndTVShowFoldersToEachDrive( getAllChainAMP4Drives() ) ;
 	}
 
 	public List< String > getAllChainBMP4Drives()
@@ -740,7 +779,7 @@ public class Common
 
 	public List< String > getAllChainBMP4DrivesAndFolders()
 	{
-		return addMoviesAndFoldersToEachDrive( getAllChainBMP4Drives() ) ;
+		return addMoviesAndTVShowFoldersToEachDrive( getAllChainBMP4Drives() ) ;
 	}
 
 	public List< String > getAllDrivesAndFolders()
@@ -782,6 +821,11 @@ public class Common
 		retMe.addAll( getAllChainAMP4DrivesAndFolders() ) ;
 		retMe.addAll( getAllChainBMP4DrivesAndFolders() ) ;
 		return retMe ;
+	}
+
+	public static String getAnalyzeDurationString()
+	{
+		return analyzeDurationString;
 	}
 
 	protected static String getFakeSRTSubString()
@@ -913,6 +957,11 @@ public class Common
 	public static String getPathToTessdata()
 	{
 		return pathToTESSDATA;
+	}
+
+	public static String getProbeSizeString()
+	{
+		return probeSizeString;
 	}
 
 	protected static String getTesseractVersion()

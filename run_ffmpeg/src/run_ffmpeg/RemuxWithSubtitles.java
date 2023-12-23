@@ -1,6 +1,8 @@
 package run_ffmpeg;
 
 import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.ArrayList ;
 import java.util.Iterator;
 import java.util.logging.Logger;
@@ -33,6 +35,9 @@ public class RemuxWithSubtitles extends Thread
 
 	/// Set to true to use threads, false otherwise.
 	private boolean useThreads = false ;
+	
+	/// Used to store synchronized locks to each drive.
+	private SortedMap< String, Object > driveLocks = new TreeMap< String , Object>() ;
 
 	/// Move file thread controller.
 	MoveFiles moveFiles = null ;
@@ -69,24 +74,62 @@ public class RemuxWithSubtitles extends Thread
 		System.out.println( "main> Shutdown." ) ;
 	}
 
+	/**
+	 * Non-static entry point for the core algorithm.
+	 */
 	public void execute()
 	{
 		setUseThreads( false ) ;
+		common.setTestMode( false ) ;
+		buildDriveLocks() ;
 
 		// Get all of the MP4 drives
-		List< String > mp4Drives = common.getAllMP4Drives() ;
-		//mp4Drives = new ArrayList< String >() ;
+		//		List< String > mp4Drives = common.getAllMP4Drives() ;
+		List< String > mp4DrivesWithoutFolders = new ArrayList< String >() ;
+		// This only works on MP4 files and folders, and the folder name must match the database entry
+		//  (\\yoda\MP4 instead of "Q:\")
+		mp4DrivesWithoutFolders.add( "\\\\yoda\\MP4" ) ;
 
-		log.info( "Remuxing " + mp4Drives.toString() + " " + (useThreads ? "with" : "without" ) + " threads" ) ;
+		// Add "Movies" and "TV Shows" to each of MP4 drives
+		List< String > mp4Drives = common.addMoviesAndTVShowFoldersToEachDrive( mp4DrivesWithoutFolders ) ;
+		log.info( "Will remux/retranscode the following top level folders: " + mp4Drives.toString() ) ;
+
+		// Find the lowest level folders in each directory tree. This will be used for searching for MovieAndShowInfos.
+		// The list of folders will be unique -- no duplicates.
+		List< String > mp4MovieAndShowInfoFolders = new ArrayList< String >() ;
+		for( String mp4DriveFolder : mp4Drives )
+		{
+			mp4MovieAndShowInfoFolders.addAll( common.findLowestLevelDirectories( mp4DriveFolder ) ) ;
+		}
+//		log.info( "Remuxing/retranscoding " + mp4MovieAndShowInfoFolders.size() + " movies/tv shows "
+//				+ (useThreads ? "with" : "without" ) + " threads" ) ;
+
+		// Maintain a list of files to remux and one for files to transcode
+		List< TranscodeFile > filesToRemux = new ArrayList< TranscodeFile >() ;
+		List< TranscodeFile > filesToTranscode = new ArrayList< TranscodeFile >() ;
+
+		// Iterate through each mp4Drive and add the files to remux and transcode
+		for( String mp4MovieAndShowInfoFolder : mp4MovieAndShowInfoFolders )
+		{
+			// This method invocation will add the files to each of the lists as appropriate
+			buildRemuxAndTranscodeList( mp4MovieAndShowInfoFolder, filesToRemux, filesToTranscode ) ;
+		}
+		log.info( "remuxing " + filesToRemux.size() + " file(s) and retranscoding " + filesToTranscode + " file(s)" ) ;
+		
+		// This is the important part: remuxing involves reading at max speed from an mkv drive, then
+		//  writing at max speed to an mp4 drive.
+		// Since I can't really know ahead of time which MP4 files correlate to which MKV drives, I need
+		//  to synchronize the use of those resources so they are not max taxed, which might lead to
+		//  a process failure.
 
 		List< RemuxWithSubtitles > remuxThreads = new ArrayList< RemuxWithSubtitles >() ;
-
-		for( String mp4Drive : mp4Drives )
-		{
-			RemuxWithSubtitles rwsWorker = new RemuxWithSubtitles() ;
-			rwsWorker.setDriveToRemux( mp4Drive ) ;
-			remuxThreads.add( rwsWorker ) ;
-		}
+		//
+		//		for( String mp4Drive : mp4DrivesWithFolders )
+		//		{
+		//			RemuxWithSubtitles rwsWorker = new RemuxWithSubtitles() ;
+		//			rwsWorker.setDriveToRemux( mp4Drive ) ;
+		//			remuxThreads.add( rwsWorker ) ;
+		//		}
 
 		for( RemuxWithSubtitles rwsWorker : remuxThreads )
 		{
@@ -101,13 +144,16 @@ public class RemuxWithSubtitles extends Thread
 		{
 			if( !isUseThreads() )
 			{
-				// Not using threads.
-				// Run the first rwsWorker, if it exists
-				RemuxWithSubtitles rwsWorker = remuxThreads.remove( 0 ) ;
-				if( rwsWorker != null )
+				if( !remuxThreads.isEmpty() )
 				{
-					log.info( "Running new worker..." ) ;
-					rwsWorker.run() ;
+					// Not using threads.
+					// Run the first rwsWorker, if it exists
+					RemuxWithSubtitles rwsWorker = remuxThreads.remove( 0 ) ;
+					if( rwsWorker != null )
+					{
+						log.info( "Running new worker..." ) ;
+						rwsWorker.run() ;
+					}
 				}
 			}
 			else // using threads
@@ -154,6 +200,66 @@ public class RemuxWithSubtitles extends Thread
 	}
 
 	/**
+	 * Add each TV Show and Movie mkv that needs to be remuxed or re-transcoded to the
+	 *  either of the provided files list.
+	 * @param mp4DriveWithFolder
+	 * @param filesToRemux
+	 * @param filesToTranscode
+	 */
+	protected void buildRemuxAndTranscodeList( final String mp4DriveWithFolder,
+			List< TranscodeFile > filesToRemux,
+			List< TranscodeFile > filesToTranscode )
+	{
+		Bson findFilesFilter = Filters.eq( "mp4LongPath", mp4DriveWithFolder ) ;
+		FindIterable< MovieAndShowInfo > movieAndShowInfoFindResult = movieAndShowInfoCollection.find( findFilesFilter ) ;
+
+		// Iterate through those shows and check for new SRT file(s)
+		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoFindResult.iterator() ;
+		while( movieAndShowInfoIterator.hasNext() )
+		{
+			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
+			log.info( "Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+			// theMovieAndShowInfo should have information about the movie or show along with
+			// information about the constituent files (mkv and mp4) for it.
+
+			// Retrieve an iterator to the correlated files for this movie or show
+			for( CorrelatedFile theCorrelatedFile : theMovieAndShowInfo.getCorrelatedFilesList() )
+			{
+				TranscodeFile fileToRemuxOrTranscode = buildTranscodeFile( theMovieAndShowInfo, theCorrelatedFile ) ;
+				if( null == fileToRemuxOrTranscode )
+				{
+					// Error reading this MovieAndShowInfo
+					log.warning( "Error in buildTranscodeFile for MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+					continue ;
+				}
+
+				// At this point, the data stored in the database meets the file system.
+				final int needRemuxOrTranscodeStatus = needRemuxOrTranscode( fileToRemuxOrTranscode,
+						fileToRemuxOrTranscode.getMP4FinalFile() ) ;
+				if( 0 == needRemuxOrTranscodeStatus )
+				{
+					// Nothing to do.
+				}
+				else if( 1 == needRemuxOrTranscodeStatus )
+				{
+					// Needs remux.
+					filesToRemux.add( fileToRemuxOrTranscode );
+				}
+				else if( 2 == needRemuxOrTranscodeStatus )
+				{
+					// Needs transcode.
+					filesToTranscode.add( fileToRemuxOrTranscode ) ;
+				}
+				else
+				{
+					log.warning( "Invalid return of " + needRemuxOrTranscodeStatus + " status from needRemuxOrTranscode "
+							+ " for file: " + fileToRemuxOrTranscode.toString() ) ;
+				}
+			} // for( correlatedFile )
+		} // while( movieAndShowInfoIterator.hasNext() )
+	} // buildRemuxAndTranscodeList()
+
+	/**
 	 * Method to remux everything on a single drive. This may be run as an individual thread, or sequentially
 	 *  if single threaded.
 	 */
@@ -166,11 +272,11 @@ public class RemuxWithSubtitles extends Thread
 			return ;
 		}
 		// Add "Movies" and "TV Shows" to the list of folders to remux
-		List< String > driveToRemuxAsList = new ArrayList< String >() ;
-		driveToRemuxAsList.add( getDriveToRemux() ) ;
+		//		List< String > driveToRemuxAsList = new ArrayList< String >() ;
+		//		driveToRemuxAsList.add( getDriveToRemux() ) ;
 		List< String > foldersToRemux = new ArrayList< String >() ; //common.addMoviesAndFoldersToEachDrive( driveToRemuxAsList ) ;
-		foldersToRemux.add( "U:\\TV Shows\\Game Of Thrones\\Season 01" ) ;
-		
+		foldersToRemux.add( "\\\\yoda\\MP4\\Movies\\Avatar (2009)" ) ;
+
 		for( String folderToRemux : foldersToRemux )
 		{
 			if( shouldKeepRunning() )
@@ -182,26 +288,11 @@ public class RemuxWithSubtitles extends Thread
 
 	private void remuxFolder( final String folderToRemux )
 	{
-		// Each folder should be of the form "\\\\yoda\\MP4\\Movies" (or TV Shows)
+		// Each folder should be of the form "\\\\yoda\\MP4\\Movies\\Movie Name (yyyy)" (or TV Show\\Season xx)
 		// Use that path to search the database by mp4LongPath
+		log.info( "Running find on folder: " + folderToRemux ) ;
 
-		// Strip out all the \'s and the file server name
-		// Want something like this: ".*MP4_2.*TV Shows.*" for the search string
-		File yodaMP4MoviesFile = new File( folderToRemux ) ;
-		File yodaMP4 = yodaMP4MoviesFile.getParentFile() ;
-		final String moviesString = yodaMP4MoviesFile.getName() ;
-		final String MP4String = yodaMP4.getName() ;
-
-		String folderToRemuxSearchString = ".*"
-				+ MP4String
-				+ "\\\\.*"
-				+ moviesString
-				+ ".*" ;
-
-		// Find all matching MovieAndShowInfos for this mp4LongPath
-		log.info( "Running find: " + folderToRemuxSearchString ) ;
-
-		Bson findFilesFilter = Filters.regex( "mp4LongPath", folderToRemuxSearchString ) ;
+		Bson findFilesFilter = Filters.eq( "mp4LongPath", folderToRemux ) ;
 		FindIterable< MovieAndShowInfo > movieAndShowInfoFindResult = movieAndShowInfoCollection.find( findFilesFilter ) ;
 
 		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoFindResult.iterator() ;
@@ -236,6 +327,113 @@ public class RemuxWithSubtitles extends Thread
 				}
 			}
 		}
+	}
+
+	/**
+	 * Instantiate the locks that will be used to guard use of the drive via synchronized{}.
+	 * One for each drive with dummy objects that serve as the lock.
+	 */
+	private void buildDriveLocks()
+	{
+		List< String > allDrives = common.getAllMKVDrives() ;
+		allDrives.addAll( common.getAllMP4Drives() ) ;
+		
+		for( String drive : allDrives )
+		{
+			String driveLock = new String( drive ) ;
+			driveLocks.put( drive, driveLock ) ;
+		}
+	}
+	
+	protected TranscodeFile buildTranscodeFile( MovieAndShowInfo theMovieAndShowInfo, CorrelatedFile theCorrelatedFile )
+	{
+		log.info( "Processing movie or show: " + theMovieAndShowInfo.getMovieOrShowName() + ", file: " + theCorrelatedFile.toString() ) ;
+
+		// First determine if the both mp4 and mkv files exist.
+		if( theCorrelatedFile.isMissingFile() )
+		{
+			log.warning( "Missing file in correlated file: " + theCorrelatedFile ) ;
+			return null ;
+		}
+		if( (theCorrelatedFile.getNumberOfMKVFiles() != 1) ||
+				(theCorrelatedFile.getNumberOfMP4Files() != 1) )
+		{
+			log.warning( "More than one MKV or MP4 files in correlated file: " + theCorrelatedFile.toString() ) ;
+			return null ;
+		}
+		// Post condition: No missing files, and only one mp4 and one mkv file.
+
+		final String mkvFileName = theMovieAndShowInfo.getMKVLongPath() + "\\" + theCorrelatedFile.getFileName() + ".mkv" ;
+		final String mp4FileName = theMovieAndShowInfo.getMP4LongPath() + "\\" + theCorrelatedFile.getFileName() + ".mp4" ;
+		final File mkvFile = new File( mkvFileName ) ;
+		final File oldMP4File = new File( mp4FileName ) ;
+
+		// For now, use this criteria to determine if this mp4 should be remuxed (or transcoded):
+		//  If the mkv file or any of its subtitle files are newer than the mp4, then remux/transcode
+
+		// Use a TranscodeFile instance to build the list of SRT files.
+		final String mkvFinalDirectory = theMovieAndShowInfo.getMKVLongPath() ;
+		final String mp4FinalDirectory = theMovieAndShowInfo.getMP4LongPath() ;
+
+		TranscodeFile theTranscodeFile = new TranscodeFile(
+				mkvFile,
+				mkvFinalDirectory,
+				getMP4OutputDirectory(),
+				mp4FinalDirectory,
+				log ) ;
+		return theTranscodeFile ;
+	}
+
+	/**
+	 * Determine if the file needs to be remuxed or retranscoded, or neither.
+	 * @param theTranscodeFile
+	 * @return:
+	 * 	0 if this file needs neither a remux or retranscode.
+	 *  1 if this file needs a remux.
+	 *  2 if this file needs a retranscode.
+	 */
+	protected int needRemuxOrTranscode( final TranscodeFile theTranscodeFile, final File oldMP4File )
+	{
+		boolean needRemux = false ;
+		boolean needTranscode = false ;
+
+		for( Iterator< File > srtFileIterator = theTranscodeFile.getRealSRTFileListIterator() ; srtFileIterator.hasNext() ; )
+		{
+			final File theSRTFile = srtFileIterator.next() ;
+			final String theSRTFileName = theSRTFile.getName() ;
+			//			final long oldMP4FileLastModified = oldMP4File.lastModified() ;
+			//			final long srtFileLastModified = theSRTFile.lastModified() ;
+
+			if( theSRTFile.lastModified() <= oldMP4File.lastModified() )
+			{
+				// The SRT file is older than the mp4 file.
+				// Nothing to do here.
+				continue ;
+			}
+			// Post-Condition: The SRT file is newer than the mp4 file, meaning the subtitle has been updated.
+			// Post-Condition: This MKV file needs to be remuxed or re-transcoded.
+			if( theSRTFileName.contains( TranscodeCommon.getForcedSubTitleFileNameContains() ) )
+			{
+				// This is a forced subtitle srt file.
+				// Need to re-transcode.
+				needTranscode = true ;
+			}
+			else
+			{
+				// Not a forced subtitle srt file, but the srt file is still newer than the mp4 file.
+				needRemux = true ;
+			}
+		} // for( iterator )
+		int retMe = 0 ; // nothing needed
+		if( needTranscode )
+		{
+			retMe = 2 ;
+		}
+		if( needRemux )
+		{
+			retMe = 1 ;
+		}
+		return retMe ;
 	}
 
 	/**
@@ -293,8 +491,8 @@ public class RemuxWithSubtitles extends Thread
 		{
 			final File theSRTFile = srtFileIterator.next() ;
 			final String theSRTFileName = theSRTFile.getName() ;
-			final long oldMP4FileLastModified = oldMP4File.lastModified() ;
-			final long srtFileLastModified = theSRTFile.lastModified() ;
+			//			final long oldMP4FileLastModified = oldMP4File.lastModified() ;
+			//			final long srtFileLastModified = theSRTFile.lastModified() ;
 
 			if( theSRTFile.lastModified() <= oldMP4File.lastModified() )
 			{
@@ -375,7 +573,7 @@ public class RemuxWithSubtitles extends Thread
 			// Should be OK to update the probe result here because it is not being used anywhere else (presently)
 			// in this or the calling algorithm.
 			theMovieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
-			
+
 			// Update the probe information table with the updated probe.
 			Bson probeInfoIDFilter = Filters.eq( "fileNameWithPath", oldMP4File.getAbsolutePath() ) ;
 			if( !common.getTestMode() )
@@ -447,6 +645,17 @@ public class RemuxWithSubtitles extends Thread
 			}
 		}
 		return false ;
+	}
+
+	public Object getDriveLock( final String theDrive )
+	{
+		Object theLock = driveLocks.get( theDrive ) ;
+		if( null == theLock )
+		{
+			log.warning( "Unable to find lock for drive: " + theDrive ) ;
+			theLock = new String( "Broken Lock" ) ;
+		}
+		return theLock ;
 	}
 
 	protected String getDriveToRemux()

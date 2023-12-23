@@ -99,8 +99,8 @@ public class ExtractAndOCR extends Thread
 		// Will run three threads: local, chain A, and chain B
 		// The thinking is that each of the three can operate without interfering with each other
 		//  since the primary bottleneck is the drive/network access
-		foldersToExtractAndOCR_ChainA.add( "C:\\Temp\\To Convert" ) ;
-//		foldersToExtractAndOCR_Local.add( "E:\\TV Shows" ) ;
+//		foldersToExtractAndOCR_ChainA.add( "C:\\Temp\\To Convert" ) ;
+		foldersToExtractAndOCR_Local.add( "Y:\\Movies\\Avatar (2009)" ) ;
 //		foldersToExtractAndOCR_Local.add( "E:\\Movies" ) ;
 //		foldersToExtractAndOCR_ChainA.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
 //		foldersToExtractAndOCR_ChainB.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;

@@ -180,8 +180,8 @@ public class ExtractPGSFromMKVs extends Thread
 		ImmutableList.Builder< String > ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
 		ffmpegSubTitleExtractCommand.add( Common.getPathToFFmpeg() ) ;
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
-		ffmpegSubTitleExtractCommand.add( "-analyzeduration", "100M" ) ;
-		ffmpegSubTitleExtractCommand.add( "-probesize", "100M" ) ;
+		ffmpegSubTitleExtractCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
+		ffmpegSubTitleExtractCommand.add( "-probesize", Common.getProbeSizeString() ) ;
 		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 

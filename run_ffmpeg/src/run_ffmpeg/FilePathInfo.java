@@ -1,11 +1,17 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FilePathInfo
 {
@@ -17,19 +23,19 @@ public class FilePathInfo
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_filepathinfo.txt" ;
-	
+
 	public FilePathInfo()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 	}
-	
+
 	public static void main( String[] args )
 	{
 		FilePathInfo fpi = new FilePathInfo() ;
 		fpi.run() ;
 	}
-	
+
 	public void run()
 	{
 		List< String > fileNames = new ArrayList< >() ;
@@ -38,7 +44,7 @@ public class FilePathInfo
 
 		try
 		{
-//			Pattern yearPattern = Pattern.compile( "^[1-9]\\d*$");
+			//			Pattern yearPattern = Pattern.compile( "^[1-9]\\d*$");
 			Pattern yearPattern = Pattern.compile( "\\b\\d{4}\\b");
 			String[] testYearStrings = {
 					"Name (1999)", // Pass
@@ -60,16 +66,16 @@ public class FilePathInfo
 			{
 				File theFile = new File( fileName ) ;
 				log.info( "**********" ) ;
-				log.info( "main> File: " + theFile ) ;
-				log.info( "main> length(): " + theFile.length() ) ;
-				log.info( "main> getCanonicalPath(): " + theFile.getCanonicalPath() ) ;
-				log.info( "main> getAbsolutePath(): " + theFile.getAbsolutePath() ) ;
-				log.info( "main> getName(): " + theFile.getName() ) ;
-				log.info( "main> getPath(): " + theFile.getPath() ) ;
-				log.info( "main> getParent(): " + theFile.getParent() ) ;
-				log.info( "main> getParentFile().getName(): " + theFile.getParentFile().getName() ) ;
-				log.info( "main> getParentFile().getParent(): " + theFile.getParentFile().getParent() ) ;
-				log.info( "main> getPath(): " + theFile.getPath() ) ;
+				log.info( "File: " + theFile ) ;
+				log.info( "length(): " + theFile.length() ) ;
+				log.info( "getCanonicalPath(): " + theFile.getCanonicalPath() ) ;
+				log.info( "getAbsolutePath(): " + theFile.getAbsolutePath() ) ;
+				log.info( "getName(): " + theFile.getName() ) ;
+				log.info( "getPath(): " + theFile.getPath() ) ;
+				log.info( "getParent(): " + theFile.getParent() ) ;
+				log.info( "getParentFile().getName(): " + theFile.getParentFile().getName() ) ;
+				log.info( "getParentFile().getParent(): " + theFile.getParentFile().getParent() ) ;
+				log.info( "getPath(): " + theFile.getPath() ) ;
 			}
 
 			final List< String > allMP4Drives = common.getAllMP4Drives() ;
@@ -80,12 +86,40 @@ public class FilePathInfo
 				log.info( "Free space on " + mp4Drive + ": " + common.getNumberFormat().format( freeSpace ) + "GB" ) ;
 			}
 			
+			List< String > allDirectories = findLowestLevelDirectories( "\\\\yoda\\MP4" ) ;
+			log.info( "allDirectories: " + allDirectories.toString() ) ;
 		}
 		catch( Exception theException )
 		{
-			log.warning( "main> Exception: " + theException ) ;
+			log.warning( "Exception: " + theException ) ;
 			theException.printStackTrace() ;
 		}
-	} //main()
+	} // run()
 
+	public List< String > findLowestLevelDirectories( final String topLevelDirectory )
+	{
+		log.info( "Checking tld: " + topLevelDirectory ) ;
+		List< String > allDirectories = new ArrayList< String >() ;
+		
+		Set< String > dirNames = Stream.of(new File( topLevelDirectory ).listFiles())
+		      .filter(file -> file.isDirectory())
+		      .map(File::getName)
+		      .collect(Collectors.toSet());
+		if( dirNames.isEmpty() )
+		{
+			// Base case -- we are at the lowest level directory.
+			// Add this directory to the list of directories to return.
+			allDirectories.add( topLevelDirectory ) ;
+		}
+		else
+		{
+			for( String dirName : dirNames )
+			{
+//				log.info( "Calling findLowestLevelDirectories ( " + topLevelDirectory + "\\" + dirName + " )" ) ;
+				allDirectories.addAll( findLowestLevelDirectories( topLevelDirectory + "\\" + dirName ) ) ;
+			}
+		}
+		return allDirectories ;
+	}
+	
 }

@@ -302,7 +302,7 @@ public class TranscodeFile
 				}
 				else
 				{
-					// NOT looking only for fake SRTs, but still matches the file name without extension and the extension
+					// NOT looking only for fake SRTs, but still matches the file name with extension
 					theFileList.add( searchFile ) ;
 				}
 			}
