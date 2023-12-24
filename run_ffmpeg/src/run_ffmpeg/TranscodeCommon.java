@@ -416,6 +416,90 @@ public class TranscodeCommon
 		return doTranscodeVideo;
 	}
 
+	public boolean remuxFile( TranscodeFile inputFile )
+		{
+			// Precondition: ffmpegProbeResult is not null
+			log.info( "Remuxing: " + inputFile ) ;
+		
+			// Perform the options build by these steps:
+			//  1) Setup ffmpeg basic options
+			//  2) Include source file
+			//  3) Include input SRT file(s)
+			//  4) Add video transcode options
+			//  5) Add audio transcode options
+			//  6) Add subtitle transcode options
+			//  7) Add metadata transcode options
+			//  8) Add output filename (.mp4)
+			
+			// ffmpegCommand will hold the command to execute ffmpeg
+			ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
+			
+			// 1) Setup ffmpeg basic options
+			ffmpegCommand.add( Common.getPathToFFmpeg() ) ;
+			
+			// Overwrite existing files
+	//		ffmpegCommand.add( "-y" ) ;
+			
+			// 2) Include source file
+			// Note that the input here is the mp4 file, not the mkv file, since this is a remux of the mp4.
+			ffmpegCommand.add( "-i", inputFile.getMP4FinalFileNameWithPath() ) ;
+		
+			// 3) Include all other input files (such as .srt, except forced subtitles)
+			for( Iterator< File > fileIterator = inputFile.getRealSRTFileListIterator() ; fileIterator.hasNext() ; )
+			{
+				final File srtFile = fileIterator.next() ;
+				if( !srtFile.getName().contains( getForcedSubTitleFileNameContains() ) )
+				{
+					ffmpegCommand.add( "-i", srtFile.getAbsolutePath() ) ;
+				}
+			}
+			
+			//  4) Copy the video
+			ffmpegCommand.add( "-map", "0:v" ) ;
+			ffmpegCommand.add( "-c:v", "copy" ) ;
+			
+			//  5) Copy the audio
+			ffmpegCommand.add( "-map", "0:a" ) ;
+			ffmpegCommand.add( "-c:a", "copy" ) ;
+			
+			//  6) Add subtitle transcode options
+			ffmpegCommand.addAll( buildSubTitleTranscodeOptions( inputFile ).build() ) ;
+			
+			//  7) Add metadata info
+			ffmpegCommand.add( "-copyts" ) ;
+			ffmpegCommand.add( "-c:s", "mov_text" ) ;
+		
+			//  8) Add output filename (.mp4)
+			ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
+		
+			long startTime = System.nanoTime() ;
+			log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
+		
+			// Only execute the transcode if testMode is false
+			boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
+			if( !executeSuccess )
+			{
+				log.info( "Error in execute command" ) ;
+				// Do not move any files since the transcode failed
+				return false ;
+			}
+			
+			long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
+		
+			double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
+			log.info( "Elapsed time to transcode "
+					+ inputFile.getMKVFileName()
+					+ ": "
+					+ common.getNumberFormat().format( timeElapsedInSeconds )
+					+ " seconds, "
+					+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
+					+ " minutes, or "
+					+ common.getNumberFormat().format( timePerGigaByte )
+					+ " seconds per GB" ) ;
+		
+			return true ;
+		}
+
 	public void setDeInterlaceInput( boolean deInterlaceInput )
 	{
 		this.deInterlaceInput = deInterlaceInput;
@@ -525,90 +609,6 @@ public class TranscodeCommon
 		
 		//  7) Add metadata info
 		
-		//  8) Add output filename (.mp4)
-		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
-	
-		long startTime = System.nanoTime() ;
-		log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-	
-		// Only execute the transcode if testMode is false
-		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
-		if( !executeSuccess )
-		{
-			log.info( "Error in execute command" ) ;
-			// Do not move any files since the transcode failed
-			return false ;
-		}
-		
-		long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-	
-		double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
-		log.info( "Elapsed time to transcode "
-				+ inputFile.getMKVFileName()
-				+ ": "
-				+ common.getNumberFormat().format( timeElapsedInSeconds )
-				+ " seconds, "
-				+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
-				+ " minutes, or "
-				+ common.getNumberFormat().format( timePerGigaByte )
-				+ " seconds per GB" ) ;
-	
-		return true ;
-	}
-
-	public boolean remuxFile( TranscodeFile inputFile )
-	{
-		// Precondition: ffmpegProbeResult is not null
-		log.info( "Remuxing: " + inputFile ) ;
-	
-		// Perform the options build by these steps:
-		//  1) Setup ffmpeg basic options
-		//  2) Include source file
-		//  3) Include input SRT file(s)
-		//  4) Add video transcode options
-		//  5) Add audio transcode options
-		//  6) Add subtitle transcode options
-		//  7) Add metadata transcode options
-		//  8) Add output filename (.mp4)
-		
-		// ffmpegCommand will hold the command to execute ffmpeg
-		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
-		
-		// 1) Setup ffmpeg basic options
-		ffmpegCommand.add( Common.getPathToFFmpeg() ) ;
-		
-		// Overwrite existing files
-//		ffmpegCommand.add( "-y" ) ;
-		
-		// 2) Include source file
-		// Note that the input here is the mp4 file, not the mkv file, since this is a remux of the mp4.
-		ffmpegCommand.add( "-i", inputFile.getMP4FinalFileNameWithPath() ) ;
-	
-		// 3) Include all other input files (such as .srt, except forced subtitles)
-		for( Iterator< File > fileIterator = inputFile.getRealSRTFileListIterator() ; fileIterator.hasNext() ; )
-		{
-			final File srtFile = fileIterator.next() ;
-			if( !srtFile.getName().contains( getForcedSubTitleFileNameContains() ) )
-			{
-				ffmpegCommand.add( "-i", srtFile.getAbsolutePath() ) ;
-			}
-		}
-		
-		//  4) Copy the video
-		ffmpegCommand.add( "-map", "0:v" ) ;
-		ffmpegCommand.add( "-c:v", "copy" ) ;
-		
-		//  5) Copy the audio
-		ffmpegCommand.add( "-map", "0:a" ) ;
-		ffmpegCommand.add( "-c:a", "copy" ) ;
-		
-		//  6) Add subtitle transcode options
-		ffmpegCommand.addAll( buildSubTitleTranscodeOptions( inputFile ).build() ) ;
-		
-		//  7) Add metadata info
-		ffmpegCommand.add( "-copyts" ) ;
-		ffmpegCommand.add( "-c:s", "mov_text" ) ;
-	
 		//  8) Add output filename (.mp4)
 		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
 	
