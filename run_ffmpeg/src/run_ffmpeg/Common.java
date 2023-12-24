@@ -92,7 +92,7 @@ public class Common
 	private final String[] allChainAMKVDrives =
 		{
 				"\\\\yoda\\MKV_Archive2",
-				"\\\\yoda\\MKV_Archive4",
+//				"\\\\yoda\\MKV_Archive4",
 				"\\\\yoda\\MKV_Archive5",
 				"\\\\yoda\\MKV_Archive6",
 				"\\\\yoda\\MKV_Archive9",
@@ -573,6 +573,22 @@ public class Common
 		return fileNameWithoutExtension ;
 	}
 
+	/**
+	 * Remove the trailing backslash at the end of a string, if it exists, and return
+	 *  the new string.
+	 * @param input
+	 * @return
+	 */
+	public static String removeTrailingBackslash( final String input )
+	{
+		String retMe = new String( input ) ;
+		if( input.endsWith( "\\" ) )
+		{
+			retMe = input.substring( 0, input.length() - 1 ) ;
+		}
+		return retMe ;
+	}
+	
 	public static String replaceExtension( final String fileName, final String newExtension )
 	{
 		final String fileNameWithoutExtension = removeFileNameExtension( fileName ) ;

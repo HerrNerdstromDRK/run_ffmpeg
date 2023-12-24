@@ -1,7 +1,6 @@
 package run_ffmpeg;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -85,9 +84,22 @@ public class FilePathInfo
 				final double freeSpace = mp4DriveFile.getFreeSpace() / (1024.0 * 1024 * 1024) ;
 				log.info( "Free space on " + mp4Drive + ": " + common.getNumberFormat().format( freeSpace ) + "GB" ) ;
 			}
+	
+			for( String fileName : fileNames )
+			{
+				Path thePath = Paths.get( fileName ) ;
+				log.info( "**********" ) ;
+				log.info( "fileName: " + fileName ) ;
+				log.info( "thePath: " + thePath.toString() ) ;
+				log.info( "getFileName(): " + thePath.getFileName() ) ;
+				log.info( "getFileSystem(): " + thePath.getFileSystem().toString() ) ;
+				log.info( "getNameCount(): " + thePath.getNameCount() ) ;
+				log.info( "getParent(): " + thePath.getParent() ) ;
+				log.info( "getRoot(): " + thePath.getRoot() ) ;
+			}
 			
-			List< String > allDirectories = findLowestLevelDirectories( "\\\\yoda\\MP4" ) ;
-			log.info( "allDirectories: " + allDirectories.toString() ) ;
+//			List< String > allDirectories = findLowestLevelDirectories( "\\\\yoda\\MP4" ) ;
+//			log.info( "allDirectories: " + allDirectories.toString() ) ;
 		}
 		catch( Exception theException )
 		{

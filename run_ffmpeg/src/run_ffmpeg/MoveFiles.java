@@ -1,5 +1,9 @@
 package run_ffmpeg;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -18,7 +22,7 @@ public class MoveFiles
 	private transient Logger log = null ;
 
 	/// Hook in the Common methods and values
-//	private transient Common common = null ;
+	private transient Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private final static String logFileName = "log_move_files_thread.txt" ;
@@ -39,13 +43,13 @@ public class MoveFiles
 	public MoveFiles( Logger log, Common common )
 	{
 		this.log = log ;
-//		this.common = common ;
+		this.common = common ;
 		mkvMoveActionList = new ArrayList< MoveFileInfo >() ;
 		mp4MoveActionList = new ArrayList< MoveFileInfo >() ;
-		
+
 		mkvMoveThreadWorker = new MoveFilesWorkerThread( log, common, mkvMoveActionList, "mkvMoveThreadWorker" ) ;
 		mp4MoveThreadWorker = new MoveFilesWorkerThread( log, common, mp4MoveActionList, "mp4MoveThreadWorker" ) ;
-		
+
 		try
 		{
 			mkvMoveThreadWorker.start() ;
@@ -93,6 +97,58 @@ public class MoveFiles
 	}
 
 	/**
+	 * Perform a synchronous move.
+	 * @param sourcePathAndFileName
+	 * @param destinationPathAndFileName
+	 * @return
+	 */
+	public boolean moveFile( final String sourcePathAndFileName, final String destinationPathAndFileName )
+	{
+		Path moveReturn = null ;
+		final File sourceFile = new File( sourcePathAndFileName ) ;
+
+		log.info( "Moving " + sourcePathAndFileName
+				+ " -> " + destinationPathAndFileName ) ;
+
+		if( !common.getTestMode() )
+		{
+			final long startTime = System.nanoTime() ;
+			try
+			{
+				moveReturn = Files.move( Paths.get( sourcePathAndFileName ), Paths.get( destinationPathAndFileName ) ) ;
+			}
+			catch( Exception theException )
+			{
+				log.warning( "Unable to move file " + sourcePathAndFileName + "->" + destinationPathAndFileName
+						+ ":" + theException.toString() ) ;
+				moveReturn = null ;
+			}
+
+			if( moveReturn != null )
+			{
+				final long endTime = System.nanoTime() ;
+				final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
+				final long fileLength = sourceFile.length() ;
+				final double fileLengthInMB = fileLength / 1e6 ;
+				final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
+
+				log.info( "Successfully moved "
+						+ sourcePathAndFileName 
+						+ " -> "
+						+ destinationPathAndFileName
+						+ "; elapsed time: "
+						+ common.getNumberFormat().format( timeElapsedInSeconds )
+						+ " seconds, "
+						+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
+						+ " minutes; moved " + fileLengthInMB + "MB at "
+						+ common.getNumberFormat().format( MBPerSecond ) + "MB/sec"
+						+ " " + toString() ) ;
+			} // if( moveReturn != null )
+		} // if( testMode )
+		return (moveReturn != null ? true : false) ;
+	}
+
+	/**
 	 * Wait for the move threads to complete their work (action queue is empty), then
 	 *  tell them to halt and wait to join.
 	 */
@@ -108,7 +164,7 @@ public class MoveFiles
 			mkvMoveThreadWorker.stopRunning() ;
 			mkvMoveThreadWorker.join() ;
 			log.info( "mkvMoveThreadWorker shutdown." ) ;
-			
+
 			log.info( "Waiting for mp4MoveThreadWorker to complete..." ) ;
 			while( mp4MoveThreadWorker.hasMoreWork() )
 			{
@@ -127,5 +183,5 @@ public class MoveFiles
 	protected static String getLogFileName() {
 		return logFileName;
 	}
-	
+
 }
