@@ -105,7 +105,7 @@ public class RemuxWithSubtitles extends Thread
 	 */
 	public void execute()
 	{
-		setUseThreads( true ) ;
+		setUseThreads( false ) ;
 		common.setTestMode( true ) ;
 		//		buildDriveLocks() ;
 
@@ -510,6 +510,24 @@ public class RemuxWithSubtitles extends Thread
 	}
 
 	/**
+	 * Queue up a request to move a file.
+	 * @param sourceFileNameWithPath
+	 * @param destinationFileNameWithPath
+	 */
+	protected void moveFile( final TranscodeFile movieOrShowToMove )
+	{
+		assert( movieOrShowToMove != null ) ;
+	
+		// Get the mp4 thread responsible to move this file.
+		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
+		if( mp4Thread != null )
+		{
+			log.info( "Found mp4 thread; adding move job" ) ;
+			mp4Thread.addMovieOrShowToMove( movieOrShowToMove ) ;
+		}
+	}
+
+	/**
 	 * Determine if the file needs to be remuxed or retranscoded, or neither.
 	 * @param theTranscodeFile
 	 * @return:
@@ -676,50 +694,6 @@ public class RemuxWithSubtitles extends Thread
 			// but nothing about its contents, date of creation or modification, or probe information (probe information
 			// is stored in the probe table in the database, but not in the CorrelatedFile in the database).
 		}
-	}
-
-	/**
-	 * Queue up a request to move a file.
-	 * @param sourceFileNameWithPath
-	 * @param destinationFileNameWithPath
-	 */
-	protected void moveFile( final TranscodeFile movieOrShowToMove )
-	{
-		assert( movieOrShowToMove != null ) ;
-
-		// Get the mp4 thread responsible to move this file.
-		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
-		if( mp4Thread != null )
-		{
-			log.info( "Found mp4 thread; adding move job" ) ;
-			mp4Thread.addMovieOrShowToMove( movieOrShowToMove ) ;
-		}
-	}
-
-	/**
-	 * Find the mp4 thread associated with the given mp4FileNameWithPath.
-	 * @param mp4FileNameWithPath
-	 * @return RemuxWithSubtitles object that matches the mp4 file name, or null if none found.
-	 */
-	protected RemuxWithSubtitles getMP4Thread( final String mp4FileNameWithPath )
-	{
-		RemuxWithSubtitles retMe = null ;
-		for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
-		{
-			final String mp4DriveName = entry.getKey() ;
-			if( mp4FileNameWithPath.startsWith( mp4DriveName ) )
-			{
-				// Found a match
-				retMe = entry.getValue() ;
-				break ;
-			}
-		}
-
-		if( null == retMe )
-		{
-			log.warning( "Unable to find mp4 thread matching file: " + mp4FileNameWithPath ) ;
-		}
-		return retMe ;
 	}
 
 	protected boolean transcodeFile( MovieAndShowInfo theMovieAndShowInfo,
@@ -896,6 +870,33 @@ public class RemuxWithSubtitles extends Thread
 	public String getMP4OutputDirectory()
 	{
 		return mp4OutputDirectory;
+	}
+
+	/**
+	 * Find the mp4 thread associated with the given mp4FileNameWithPath.
+	 * @param mp4FileNameWithPath
+	 * @return RemuxWithSubtitles object that matches the mp4 file name, or null if none found.
+	 */
+	protected RemuxWithSubtitles getMP4Thread( final String mp4FileNameWithPath )
+	{
+		RemuxWithSubtitles retMe = null ;
+		final String mp4SearchDriveName = getDriveNameFromPath( mp4FileNameWithPath ) ;
+		for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
+		{
+			final String mp4DriveName = entry.getKey() ;
+			if( mp4SearchDriveName.equalsIgnoreCase( mp4DriveName ) )
+			{
+				// Found a match
+				retMe = entry.getValue() ;
+				break ;
+			}
+		}
+	
+		if( null == retMe )
+		{
+			log.warning( "Unable to find mp4 thread matching file: " + mp4FileNameWithPath ) ;
+		}
+		return retMe ;
 	}
 
 	protected String getStopFileName()
