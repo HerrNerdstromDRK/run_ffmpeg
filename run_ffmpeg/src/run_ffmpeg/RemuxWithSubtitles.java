@@ -105,8 +105,8 @@ public class RemuxWithSubtitles extends Thread
 	 */
 	public void execute()
 	{
-		setUseThreads( false ) ;
-		common.setTestMode( true ) ;
+		setUseThreads( true ) ;
+		common.setTestMode( false ) ;
 		//		buildDriveLocks() ;
 
 		// Get all of the MP4 drives
@@ -455,6 +455,13 @@ public class RemuxWithSubtitles extends Thread
 				getMP4OutputDirectory(),
 				mp4FinalDirectory,
 				log ) ;
+		ProbeDirectories pd = new ProbeDirectories() ;
+		FFmpegProbeResult mkvProbeResult = pd.probeFileAndUpdateDB( mkvFile ) ;
+
+		// Add the FFmpegProbeResult to the TranscodeFile...this will ensure all streams inside the MKV are accounted for
+		// in the transcode parameters.
+		theTranscodeFile.processFFmpegProbeResult( mkvProbeResult ) ;
+		
 		return theTranscodeFile ;
 	}
 
