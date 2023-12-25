@@ -365,8 +365,8 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToRemux,
 			List< TranscodeFile > filesToTranscode )
 	{
-		Bson findFilesFilter = Filters.eq( "mp4LongPath", mp4DriveWithFolder ) ;
-		FindIterable< MovieAndShowInfo > movieAndShowInfoFindResult = movieAndShowInfoCollection.find( findFilesFilter ) ;
+		Bson findMovieAndShowInfoFilter = Filters.eq( "mp4LongPath", mp4DriveWithFolder ) ;
+		FindIterable< MovieAndShowInfo > movieAndShowInfoFindResult = movieAndShowInfoCollection.find( findMovieAndShowInfoFilter ) ;
 
 		// Iterate through those shows and check for new SRT file(s)
 		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoFindResult.iterator() ;
@@ -381,11 +381,17 @@ public class RemuxWithSubtitles extends Thread
 			}
 			// theMovieAndShowInfo should have information about the movie or show along with
 			// information about the constituent files (mkv and mp4) for it.
-
+			
 			// Retrieve an iterator to the correlated files for this movie or show
 			for( CorrelatedFile theCorrelatedFile : theMovieAndShowInfo.getCorrelatedFilesList() )
 			{
-				TranscodeFile fileToRemuxOrTranscode = buildTranscodeFile( theMovieAndShowInfo, theCorrelatedFile ) ;
+				// Retrieve the probe information for the correlated file.
+				final String mkvFileNameWithPath = common.addPathSeparatorIfNecessary( theMovieAndShowInfo.getMKVLongPath() )
+						+ theCorrelatedFile.getFileName()  + ".mkv" ;
+				Bson findProbeInfoFilter = Filters.eq( "fileNameWithPath", mkvFileNameWithPath ) ;
+				FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( findProbeInfoFilter ).first() ;
+				
+				TranscodeFile fileToRemuxOrTranscode = buildTranscodeFile( theMovieAndShowInfo, theCorrelatedFile, mkvProbeResult ) ;
 				if( null == fileToRemuxOrTranscode )
 				{
 					// Error reading this MovieAndShowInfo
@@ -419,7 +425,16 @@ public class RemuxWithSubtitles extends Thread
 		} // while( movieAndShowInfoIterator.hasNext() )
 	} // buildRemuxAndTranscodeList()
 
-	protected TranscodeFile buildTranscodeFile( MovieAndShowInfo theMovieAndShowInfo, CorrelatedFile theCorrelatedFile )
+	/**
+	 * Build a TranscodeFile based on the data provided for the given file.
+	 * @param theMovieAndShowInfo
+	 * @param theCorrelatedFile
+	 * @param mkvProbeResult Could be null.
+	 * @return
+	 */
+	protected TranscodeFile buildTranscodeFile( MovieAndShowInfo theMovieAndShowInfo,
+			CorrelatedFile theCorrelatedFile,
+			FFmpegProbeResult mkvProbeResult )
 	{
 		//		log.info( "Processing movie or show: " + theMovieAndShowInfo.getMovieOrShowName() + ", file: " + theCorrelatedFile.toString() ) ;
 
@@ -459,12 +474,8 @@ public class RemuxWithSubtitles extends Thread
 		// Some remuxes will be on mp4 files with missing mkv files
 		// (Cannot transcode on a missing MKV file.)
 		// Be sure to check if we are referencing a missing mkv file.
-		if( !mkvFileName.contains( Common.getMissingFilePreExtension() )
-				&& !mkvFileName.contains( "_Missing" ) )
+		if( mkvProbeResult != null )
 		{
-			ProbeDirectories pd = new ProbeDirectories() ;
-			FFmpegProbeResult mkvProbeResult = pd.probeFileAndUpdateDB( mkvFile ) ;
-
 			// Add the FFmpegProbeResult to the TranscodeFile...this will ensure all streams inside the MKV are accounted for
 			// in the transcode parameters.
 			theTranscodeFile.processFFmpegProbeResult( mkvProbeResult ) ;
