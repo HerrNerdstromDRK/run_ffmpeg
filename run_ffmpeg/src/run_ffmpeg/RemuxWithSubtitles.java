@@ -455,12 +455,20 @@ public class RemuxWithSubtitles extends Thread
 				getMP4OutputDirectory(),
 				mp4FinalDirectory,
 				log ) ;
-		ProbeDirectories pd = new ProbeDirectories() ;
-		FFmpegProbeResult mkvProbeResult = pd.probeFileAndUpdateDB( mkvFile ) ;
+		
+		// Some remuxes will be on mp4 files with missing mkv files
+		// (Cannot transcode on a missing MKV file.)
+		// Be sure to check if we are referencing a missing mkv file.
+		if( !mkvFileName.contains( Common.getMissingFilePreExtension() )
+				&& !mkvFileName.contains( "_Missing" ) )
+		{
+			ProbeDirectories pd = new ProbeDirectories() ;
+			FFmpegProbeResult mkvProbeResult = pd.probeFileAndUpdateDB( mkvFile ) ;
 
-		// Add the FFmpegProbeResult to the TranscodeFile...this will ensure all streams inside the MKV are accounted for
-		// in the transcode parameters.
-		theTranscodeFile.processFFmpegProbeResult( mkvProbeResult ) ;
+			// Add the FFmpegProbeResult to the TranscodeFile...this will ensure all streams inside the MKV are accounted for
+			// in the transcode parameters.
+			theTranscodeFile.processFFmpegProbeResult( mkvProbeResult ) ;
+		}
 		
 		return theTranscodeFile ;
 	}
