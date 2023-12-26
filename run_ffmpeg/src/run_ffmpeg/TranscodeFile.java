@@ -755,7 +755,7 @@ public class TranscodeFile
 			if( null == theInputStream.channel_layout )
 			{
 				// No channel_layout
-				log.info( "No channel_layout field found for file: " + toString() + " for file " + getMKVInputFile().getAbsolutePath() ) ;
+				log.fine( "No channel_layout field found for file: " + toString() + " for file " + getMKVInputFile().getAbsolutePath() ) ;
 			}
 			else if( theInputStream.channel_layout.contains( "stereo" )
 					|| theInputStream.channel_layout.contains( "2 channels" ) )
@@ -780,7 +780,7 @@ public class TranscodeFile
 			}
 			else if( theInputStream.channel_layout.contains( "4.0" ) )
 			{
-				
+				// TODO
 			}
 			else if( theInputStream.channel_layout.contains( "4.1" ) )
 			{

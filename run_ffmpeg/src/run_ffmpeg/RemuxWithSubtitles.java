@@ -141,6 +141,7 @@ public class RemuxWithSubtitles extends Thread
 
 		// TODO: Download the entire MovieAndShowInfos and ProbeInfos collections for local search.
 		Map< String, MovieAndShowInfo > movieAndShowInfoMap = getAllMovieAndShowInfosKeyedByMP4LongPath() ;
+		Map< String, FFmpegProbeResult > probeInfoMap = getAllProbeInfoResults() ;
 
 		log.info( "Building remux and transcode list; this could take a minute." ) ;
 		// Iterate through each MovieAndShowInfo and add the files to remux and transcode
@@ -148,7 +149,7 @@ public class RemuxWithSubtitles extends Thread
 		{
 			//			String mp4LongPath = masEntry.getKey() ;
 			MovieAndShowInfo theMovieAndShowInfo = masEntry.getValue() ;
-			buildRemuxAndTranscodeList( theMovieAndShowInfo, moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
+			buildRemuxAndTranscodeList( theMovieAndShowInfo, probeInfoMap, moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
 		}
 		//		for( String mp4MovieAndShowInfoFolder : mp4MovieAndShowInfoFolders )
 		//		{
@@ -267,14 +268,41 @@ public class RemuxWithSubtitles extends Thread
 
 		// First, get the entire MovieAndShowInfo collection
 		FindIterable< MovieAndShowInfo > movieAndShowInfoIterable = masMDB.getMovieAndShowInfoCollection().find() ;
+
+		// Walk through the entire collection
 		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoIterable.iterator() ;
 		while( movieAndShowInfoIterator.hasNext() )
 		{
+			// Add each entry into the return Map
 			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
 			String mp4LongPath = theMovieAndShowInfo.getMP4LongPath() ;
 			masInfoMap.put( mp4LongPath, theMovieAndShowInfo ) ;
 		}
 		return masInfoMap ;
+	}
+	
+	/**
+	 * Return all FFmpegProbeResults from the database, keyed by the long file name.
+	 * @return
+	 */
+	public Map< String, FFmpegProbeResult > getAllProbeInfoResults()
+	{
+		Map< String, FFmpegProbeResult > probeInfoMap =
+				new HashMap< String, FFmpegProbeResult >( (int) probeInfoCollection.countDocuments() ) ;
+
+		// First, get the entire probe collection
+		FindIterable< FFmpegProbeResult > probeInfoIterable = probeInfoCollection.find() ;
+
+		// Walk through the entire collection
+		Iterator< FFmpegProbeResult > probeInfoIterator = probeInfoIterable.iterator() ;
+		while( probeInfoIterator.hasNext() )
+		{
+			// Add each entry into the return Map
+			FFmpegProbeResult theProbeResult = probeInfoIterator.next() ;
+			String getFileNameWithPath = theProbeResult.getFileNameWithPath() ;
+			probeInfoMap.put( getFileNameWithPath, theProbeResult ) ;
+		}
+		return probeInfoMap ;
 	}
 
 	/**
@@ -391,6 +419,7 @@ public class RemuxWithSubtitles extends Thread
 	 */
 	protected void buildRemuxAndTranscodeList( //final String mp4DriveWithFolder,
 			MovieAndShowInfo theMovieAndShowInfo,
+			Map< String, FFmpegProbeResult > probeInfoMap,
 			List< TranscodeFile > filesToRemux,
 			List< TranscodeFile > filesToTranscode )
 	{
@@ -403,6 +432,13 @@ public class RemuxWithSubtitles extends Thread
 		//		{
 		//			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
 		log.fine( "Processing MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+		if( theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingMovieMKVPath() )
+				|| theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingTVShowMKVPath() ) )
+		{
+			log.fine( "Skipping movie/show with missing path: " + theMovieAndShowInfo.toString() ) ;
+			return ;
+		}
+		
 		if( theMovieAndShowInfo.getMKVLongPath().contains( "MKV_Archive4" ) )
 		{
 			// Still having a problem with MKV_4; ignore it for now.
@@ -415,12 +451,27 @@ public class RemuxWithSubtitles extends Thread
 		// Retrieve an iterator to the correlated files for this movie or show
 		for( CorrelatedFile theCorrelatedFile : theMovieAndShowInfo.getCorrelatedFilesList() )
 		{
+			if( theCorrelatedFile.isMissingFile() )
+			{
+				// No sense in continuing if the mp4 file is missing:
+				//  if missing the mp4 file, then it needs to be transcoded, not retranscoded.
+				//  if missing the mkv file, then it is also missing any SRT files, so we are not able to remux either.
+				log.fine( "Missing file for correlated file: " + theCorrelatedFile.toString() ) ;
+				continue ;
+			}
+			
 			// Retrieve the probe information for the correlated file.
 			final String mkvFileNameWithPath = common.addPathSeparatorIfNecessary( theMovieAndShowInfo.getMKVLongPath() )
-					+ theCorrelatedFile.getFileName()  + ".mkv" ;
-			Bson findProbeInfoFilter = Filters.eq( "fileNameWithPath", mkvFileNameWithPath ) ;
-			FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( findProbeInfoFilter ).first() ;
-
+					+ theCorrelatedFile.getFileName()  + ".mkv" ;	
+//			Bson findProbeInfoFilter = Filters.eq( "fileNameWithPath", mkvFileNameWithPath ) ;
+//			FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( findProbeInfoFilter ).first() ;
+			FFmpegProbeResult mkvProbeResult = probeInfoMap.get( mkvFileNameWithPath ) ;
+			if( null == mkvProbeResult )
+			{
+				log.warning( "Unable to find probe info for correlated file: " + mkvFileNameWithPath ) ;
+				continue ;
+			}
+			
 			TranscodeFile fileToRemuxOrTranscode = buildTranscodeFile( theMovieAndShowInfo, theCorrelatedFile, mkvProbeResult ) ;
 			if( null == fileToRemuxOrTranscode )
 			{
