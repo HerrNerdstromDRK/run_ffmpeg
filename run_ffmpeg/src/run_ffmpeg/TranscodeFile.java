@@ -755,7 +755,7 @@ public class TranscodeFile
 			if( null == theInputStream.channel_layout )
 			{
 				// No channel_layout
-				log.info( "processaudioStreams> No channel_layout field found for file: " + toString() ) ;
+				log.info( "No channel_layout field found for file: " + toString() + " for file " + getMKVInputFile().getAbsolutePath() ) ;
 			}
 			else if( theInputStream.channel_layout.contains( "stereo" )
 					|| theInputStream.channel_layout.contains( "2 channels" ) )
@@ -774,9 +774,25 @@ public class TranscodeFile
 			{
 				setAudioHasSevenPointOne( true ) ;
 			}
+			else if( theInputStream.channel_layout.contains( "5.0(side)" ) )
+			{
+				// TODO
+			}
+			else if( theInputStream.channel_layout.contains( "4.0" ) )
+			{
+				
+			}
+			else if( theInputStream.channel_layout.contains( "4.1" ) )
+			{
+				
+			}
+			else if( theInputStream.channel_layout.contains( "mono" ) )
+			{
+				
+			}
 			else
 			{
-				log.warning( "TranscodeFile.processAudioStreams> Unknown channel_layout: " + theInputStream.channel_layout ) ;
+				log.warning( "Unknown channel_layout: " + theInputStream.channel_layout + " for file " + getMKVInputFile().getAbsolutePath() ) ;
 			}
 		}
 	}

@@ -70,7 +70,7 @@ public class Common
 	private static final String fakeSRTSubString = "fake_srt" ;
 
 	/// The size of an SRT file, in bytes, that represents the minimum valid file length.
-	private static final int minimumSRTFileSize = 100 ;
+	private static final int minimumSRTFileSize = 25 ;
 	
 	private static final String analyzeDurationString = "5G" ;
 	private static final String probeSizeString = "5G" ;

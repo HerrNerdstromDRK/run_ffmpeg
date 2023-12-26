@@ -164,11 +164,11 @@ public class OCRSubtitle extends Thread
 				log.warning( "OCR successful, but output file does not exist: " + outputFile.toString() ) ;
 				commandSuccess = false ;
 			}
-			else if( outputFile.length() < Common.getMinimumSRTFileSize() )
-			{
-				log.warning( "OCR successful, but file is too small: " + outputFile.toString() ) ;
-				commandSuccess = false ;
-			}
+//			else if( outputFile.length() < Common.getMinimumSRTFileSize() )
+//			{
+//				log.warning( "OCR successful, but file is too small: " + outputFile.toString() ) ;
+//				commandSuccess = false ;
+//			}
 		}
 		if( !commandSuccess )
 		{

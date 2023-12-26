@@ -193,8 +193,8 @@ public class ExtractOCRTranscodeMove extends Thread
 	 */
 	public void runFolders()
 	{
-		common.setTestMode( false ) ;
-		common.setDoMoveMKVFiles( true ) ;
+		common.setTestMode( true ) ;
+		common.setDoMoveMKVFiles( false ) ;
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 		foldersToTranscode.add( "\\\\yoda\\MKV_Archive5\\To Convert - TV Shows" ) ;
 //		foldersToTranscode.add( "C:\\Temp\\To Convert") ;
