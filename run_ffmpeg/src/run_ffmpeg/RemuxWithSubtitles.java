@@ -174,8 +174,8 @@ public class RemuxWithSubtitles extends Thread
 		{
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
-				info( "Starting new thread" ) ;
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
+				info( "Starting thread: " + rwsWorker.getThreadName() ) ;
 				rwsWorker.start() ;
 			}
 		}
@@ -230,8 +230,8 @@ public class RemuxWithSubtitles extends Thread
 			info( "Stopping threads..." ) ;	
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
-				info( "Stopping thread" ) ;
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
+				info( "Stopping thread: " + rwsWorker.getThreadName() ) ;
 				rwsWorker.setKeepRunning( false ) ;
 			}
 		}
@@ -558,7 +558,8 @@ public class RemuxWithSubtitles extends Thread
 
 			// Do NOT provide the transcode files to this worker -- one thread (created below) is responsible
 			// to transcode all files.
-			info( "Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux" ) ;
+			info( "Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux; name: " +
+			rwsWorker.getThreadName() ) ;
 
 			// Finally add the worker to the threadMap.
 			threadMap.put( mp4Drive, rwsWorker ) ;
@@ -572,6 +573,13 @@ public class RemuxWithSubtitles extends Thread
 
 		info( "Created transcode worker thread with " + filesToTranscode.size() + " file(s) to transcode" ) ;
 
+		String workerThreadMapOutput = "threadMap: " ;
+		for( Map.Entry< String, RemuxWithSubtitles > entry : threadMap.entrySet() )
+		{
+			workerThreadMapOutput += entry.getKey() + "," ;
+		}
+		log.info( workerThreadMapOutput ) ;
+		
 		return threadMap ;
 	}
 
