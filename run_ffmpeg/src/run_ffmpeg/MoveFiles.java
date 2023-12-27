@@ -91,6 +91,10 @@ public class MoveFiles
 		}
 	}
 
+	protected static String getLogFileName() {
+		return logFileName;
+	}
+
 	public String getStopFileName()
 	{
 		return stopFileName;
@@ -106,7 +110,8 @@ public class MoveFiles
 	{
 		Path moveReturn = null ;
 		final File sourceFile = new File( sourcePathAndFileName ) ;
-
+		final long fileLength = sourceFile.length() ;
+		
 		log.info( "Moving " + sourcePathAndFileName
 				+ " -> " + destinationPathAndFileName ) ;
 
@@ -128,7 +133,6 @@ public class MoveFiles
 			{
 				final long endTime = System.nanoTime() ;
 				final double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-				final long fileLength = sourceFile.length() ;
 				final double fileLengthInMB = fileLength / 1e6 ;
 				final double MBPerSecond = fileLengthInMB / timeElapsedInSeconds ;
 
@@ -178,10 +182,6 @@ public class MoveFiles
 		{
 			log.warning( "Exception: " + theException.toString() ) ;
 		}
-	}
-
-	protected static String getLogFileName() {
-		return logFileName;
 	}
 
 }

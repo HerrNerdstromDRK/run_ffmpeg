@@ -61,7 +61,10 @@ public class RemuxWithSubtitles extends Thread
 	//	private SortedMap< String, Object > driveLocks = new TreeMap< String , Object>() ;
 
 	/// Move file thread controller.
-	MoveFiles moveFiles = null ;
+	private MoveFiles moveFiles = null ;
+	
+	/// The name of this thread.
+	private String threadName = "main" ;
 
 	/// Handles to the mongodb
 	private transient MoviesAndShowsMongoDB masMDB = null ;
@@ -125,38 +128,35 @@ public class RemuxWithSubtitles extends Thread
 
 		// Add "Movies" and "TV Shows" to each of MP4 drives
 		List< String > mp4Drives = common.addMoviesAndTVShowFoldersToEachDrive( mp4DrivesWithoutFolders ) ;
-		log.info( "Will remux/retranscode the following top level folders: " + mp4Drives.toString() ) ;
+		info( "Will remux/retranscode the following top level folders: " + mp4Drives.toString() ) ;
 
 		// Find the lowest level folders in each directory tree. This will be used for searching for MovieAndShowInfos.
 		// The list of folders will be unique -- no duplicates.
 		List< String > mp4MovieAndShowInfoFolders = new ArrayList< String >() ;
 		for( String mp4DriveFolder : mp4Drives )
 		{
-			log.info( "Finding all subdirectories in " + mp4DriveFolder + "; this may take a minute." ) ;
+			info( "Finding all subdirectories in " + mp4DriveFolder + "; this may take a minute." ) ;
 			mp4MovieAndShowInfoFolders.addAll( common.findLowestLevelDirectories( mp4DriveFolder ) ) ;
 		}
 
-		log.info( "Remuxing/retranscoding " + mp4MovieAndShowInfoFolders.size() + " movies/tv shows "
+		info( "Remuxing/retranscoding " + mp4MovieAndShowInfoFolders.size() + " movies/tv shows "
 				+ (useThreads ? "with" : "without" ) + " threads" ) ;
 
-		// TODO: Download the entire MovieAndShowInfos and ProbeInfos collections for local search.
+		// Download the entire MovieAndShowInfo and ProbeInfo collections locally as a means to optimize.
 		Map< String, MovieAndShowInfo > movieAndShowInfoMap = getAllMovieAndShowInfosKeyedByMP4LongPath() ;
 		Map< String, FFmpegProbeResult > probeInfoMap = getAllProbeInfoResults() ;
 
-		log.info( "Building remux and transcode list; this could take a minute." ) ;
+		info( "Building remux and transcode list; this could take a minute." ) ;
 		// Iterate through each MovieAndShowInfo and add the files to remux and transcode
 		for( Map.Entry< String, MovieAndShowInfo > masEntry : movieAndShowInfoMap.entrySet() )
 		{
-			//			String mp4LongPath = masEntry.getKey() ;
 			MovieAndShowInfo theMovieAndShowInfo = masEntry.getValue() ;
 			buildRemuxAndTranscodeList( theMovieAndShowInfo, probeInfoMap, moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
 		}
-		//		for( String mp4MovieAndShowInfoFolder : mp4MovieAndShowInfoFolders )
-		//		{
-		//			// This method invocation will add the files to each of the lists as appropriate
-		//			buildRemuxAndTranscodeList( mp4MovieAndShowInfoFolder, moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
-		//		}
-		log.info( "remuxing " + moviesAndShowsToRemux.size() + " file(s) and retranscoding " + moviesAndShowsToRetranscode.size() + " file(s)" ) ;
+
+		info( "remuxing " + moviesAndShowsToRemux.size() + " file(s) and retranscoding " + moviesAndShowsToRetranscode.size() + " file(s)" ) ;
+		log.fine( "Remuxing: " + moviesAndShowsToRemux.toString() ) ;
+		log.fine( "Retranscoding: " + moviesAndShowsToRetranscode.toString() ) ;
 
 		// Build a worker thread for each MP4 drive and one as a dedicated thread to transcode.
 		workerThreads = buildWorkerThreads( moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
@@ -174,7 +174,7 @@ public class RemuxWithSubtitles extends Thread
 		{
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
-				log.info( "Starting new thread" ) ;
+				info( "Starting new thread" ) ;
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
 				rwsWorker.start() ;
 			}
@@ -199,7 +199,7 @@ public class RemuxWithSubtitles extends Thread
 					}
 					// Note: run() will check shouldKeepRunning() after each movie or show.
 					RemuxWithSubtitles rwsWorker = entry.getValue() ;
-					//						log.info( "Running new worker..." ) ;
+					//						info( "Running new worker..." ) ;
 
 					// This avoids the situation where all files are remuxed and transcoded,
 					//  which creates a backlog of move functions needed, and probably overruns the
@@ -218,19 +218,19 @@ public class RemuxWithSubtitles extends Thread
 				}
 				catch( Exception theException )
 				{
-					log.warning( "Exception: " + theException.toString() ) ;
+					warning( "Exception: " + theException.toString() ) ;
 				}
 			} // else -- using threads
 		} // while( shouldKeepRunning() && !isAllWorkDone() )
-		log.info( "Shutting down..." ) ;
+		info( "Shutting down..." ) ;
 
 		// Stop threads
 		if( isUseThreads() )
 		{
-			log.info( "Stopping threads..." ) ;	
+			info( "Stopping threads..." ) ;	
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
-				log.info( "Stopping thread" ) ;
+				info( "Stopping thread" ) ;
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
 				rwsWorker.setKeepRunning( false ) ;
 			}
@@ -239,70 +239,22 @@ public class RemuxWithSubtitles extends Thread
 		// Join threads
 		if( isUseThreads() )
 		{
-			log.info( "Joining threads..." ) ;	
+			info( "Joining threads..." ) ;	
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
 				try
 				{
-					log.info( "Joining thread..." ) ;
+					info( "Joining thread: " + rwsWorker.getThreadName() ) ;
 					rwsWorker.join() ;
-					log.info( "Joined." ) ;
+					info( "Joined: " + rwsWorker.getThreadName() ) ;
 				}
 				catch( Exception theException )
 				{
-					log.warning( "Exception: " + theException.toString() ) ;
+					warning( "Exception: " + theException.toString() ) ;
 				}
 			}
 		}
-	}
-
-	/**
-	 * Return all MovieAndShowInfo instances, keyed by mp4LongPath.
-	 * @return
-	 */
-	public Map< String, MovieAndShowInfo > getAllMovieAndShowInfosKeyedByMP4LongPath()
-	{
-		Map< String, MovieAndShowInfo > masInfoMap =
-				new HashMap< String, MovieAndShowInfo >( (int) masMDB.getMovieAndShowInfoCollection().countDocuments() ) ;
-
-		// First, get the entire MovieAndShowInfo collection
-		FindIterable< MovieAndShowInfo > movieAndShowInfoIterable = masMDB.getMovieAndShowInfoCollection().find() ;
-
-		// Walk through the entire collection
-		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoIterable.iterator() ;
-		while( movieAndShowInfoIterator.hasNext() )
-		{
-			// Add each entry into the return Map
-			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
-			String mp4LongPath = theMovieAndShowInfo.getMP4LongPath() ;
-			masInfoMap.put( mp4LongPath, theMovieAndShowInfo ) ;
-		}
-		return masInfoMap ;
-	}
-	
-	/**
-	 * Return all FFmpegProbeResults from the database, keyed by the long file name.
-	 * @return
-	 */
-	public Map< String, FFmpegProbeResult > getAllProbeInfoResults()
-	{
-		Map< String, FFmpegProbeResult > probeInfoMap =
-				new HashMap< String, FFmpegProbeResult >( (int) probeInfoCollection.countDocuments() ) ;
-
-		// First, get the entire probe collection
-		FindIterable< FFmpegProbeResult > probeInfoIterable = probeInfoCollection.find() ;
-
-		// Walk through the entire collection
-		Iterator< FFmpegProbeResult > probeInfoIterator = probeInfoIterable.iterator() ;
-		while( probeInfoIterator.hasNext() )
-		{
-			// Add each entry into the return Map
-			FFmpegProbeResult theProbeResult = probeInfoIterator.next() ;
-			String getFileNameWithPath = theProbeResult.getFileNameWithPath() ;
-			probeInfoMap.put( getFileNameWithPath, theProbeResult ) ;
-		}
-		return probeInfoMap ;
 	}
 
 	/**
@@ -330,7 +282,7 @@ public class RemuxWithSubtitles extends Thread
 				}
 				catch( Exception theException )
 				{
-					log.warning( "Error sleeping: " + theException.toString() ) ;
+					warning( "Error sleeping: " + theException.toString() ) ;
 				}
 			}
 		} // while()
@@ -346,7 +298,7 @@ public class RemuxWithSubtitles extends Thread
 			if( null == theFileToRemux )
 			{
 				// All's fair in multi-threading.
-				log.warning( "Found null file to remux" ) ;
+				warning( "Found null file to remux" ) ;
 			}
 			else
 			{
@@ -361,7 +313,7 @@ public class RemuxWithSubtitles extends Thread
 			if( null == theFileToRetranscode )
 			{
 				// All's fair in multi-threading.
-				log.warning( "Found null file to retranscode" ) ;
+				warning( "Found null file to retranscode" ) ;
 			}
 			else
 			{
@@ -378,11 +330,11 @@ public class RemuxWithSubtitles extends Thread
 			if( null == theFileToMove )
 			{
 				// All's fair in multi-threading.
-				log.warning( "Found null file to move" ) ;
+				warning( "Found null file to move" ) ;
 			}
 			else
 			{
-				log.info( "Moving: " + theFileToMove.getMP4OutputFileNameWithPath()
+				info( "Moving: " + theFileToMove.getMP4OutputFileNameWithPath()
 				+ "->" + theFileToMove.getMP4FinalFileNameWithPath() ) ;
 				if( !common.getTestMode() )
 				{
@@ -391,6 +343,11 @@ public class RemuxWithSubtitles extends Thread
 				didSomeWork = true ;
 			}
 		} // if( transcode )
+		
+		if( !shouldKeepRunning() )
+		{
+			info( "Shutting down this thread..." ) ;
+		}
 		return didSomeWork ;
 	}
 
@@ -468,7 +425,7 @@ public class RemuxWithSubtitles extends Thread
 			FFmpegProbeResult mkvProbeResult = probeInfoMap.get( mkvFileNameWithPath ) ;
 			if( null == mkvProbeResult )
 			{
-				log.warning( "Unable to find probe info for correlated file: " + mkvFileNameWithPath ) ;
+				warning( "Unable to find probe info for correlated file: " + mkvFileNameWithPath ) ;
 				continue ;
 			}
 			
@@ -476,7 +433,7 @@ public class RemuxWithSubtitles extends Thread
 			if( null == fileToRemuxOrTranscode )
 			{
 				// Error reading this MovieAndShowInfo
-				log.warning( "Error in buildTranscodeFile for MovieAndShowInfo: " + theMovieAndShowInfo.toString() + ", skipping" ) ;
+				warning( "Error in buildTranscodeFile for MovieAndShowInfo: " + theMovieAndShowInfo.toString() + ", skipping" ) ;
 				continue ;
 			}
 
@@ -499,7 +456,7 @@ public class RemuxWithSubtitles extends Thread
 			}
 			else
 			{
-				log.warning( "Invalid return of " + needRemuxOrTranscodeStatus + " status from needRemuxOrTranscode "
+				warning( "Invalid return of " + needRemuxOrTranscodeStatus + " status from needRemuxOrTranscode "
 						+ " for file: " + fileToRemuxOrTranscode.toString() ) ;
 			}
 		} // for( correlatedFile )
@@ -517,18 +474,18 @@ public class RemuxWithSubtitles extends Thread
 			CorrelatedFile theCorrelatedFile,
 			FFmpegProbeResult mkvProbeResult )
 	{
-		//		log.info( "Processing movie or show: " + theMovieAndShowInfo.getMovieOrShowName() + ", file: " + theCorrelatedFile.toString() ) ;
+		//		info( "Processing movie or show: " + theMovieAndShowInfo.getMovieOrShowName() + ", file: " + theCorrelatedFile.toString() ) ;
 
 		// First determine if the both mp4 and mkv files exist.
 		if( theCorrelatedFile.isMissingFile() )
 		{
-			log.warning( "Missing file in correlated file: " + theCorrelatedFile ) ;
+			warning( "Missing file in correlated file: " + theCorrelatedFile ) ;
 			return null ;
 		}
 		if( (theCorrelatedFile.getNumberOfMKVFiles() != 1) ||
 				(theCorrelatedFile.getNumberOfMP4Files() != 1) )
 		{
-			log.warning( "More than one MKV or MP4 files in correlated file: " + theCorrelatedFile.toString() ) ;
+			warning( "More than one MKV or MP4 files in correlated file: " + theCorrelatedFile.toString() ) ;
 			return null ;
 		}
 		// Post condition: No missing files, and only one mp4 and one mkv file.
@@ -576,7 +533,7 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToTranscode )
 	{
 		Map< String, RemuxWithSubtitles > threadMap = new TreeMap< String, RemuxWithSubtitles >() ;
-		log.info( "Creating worker threads, one per MP4 drive." ) ;
+		info( "Creating worker threads, one per MP4 drive." ) ;
 
 		// Create a new RWS for each MP4 drive.
 		List< String > mp4Drives = common.getAllMP4Drives() ;
@@ -584,6 +541,7 @@ public class RemuxWithSubtitles extends Thread
 		{
 			// Build a new RWS object to handle this mp4 drive.
 			RemuxWithSubtitles rwsWorker = new RemuxWithSubtitles() ;
+			rwsWorker.setThreadName( mp4Drive ) ;
 			//			rwsWorker.setDriveLocks( this.driveLocks ) ;
 
 			// Populate the RWS object with all remux files for that drive.
@@ -600,7 +558,7 @@ public class RemuxWithSubtitles extends Thread
 
 			// Do NOT provide the transcode files to this worker -- one thread (created below) is responsible
 			// to transcode all files.
-			log.info( "Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux" ) ;
+			info( "Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux" ) ;
 
 			// Finally add the worker to the threadMap.
 			threadMap.put( mp4Drive, rwsWorker ) ;
@@ -611,7 +569,7 @@ public class RemuxWithSubtitles extends Thread
 		transcodeWorkerThread.addMovieOrShowToRetranscode( filesToTranscode ) ;
 		threadMap.put( getTranscodeWorkerThreadName(), transcodeWorkerThread ) ;
 
-		log.info( "Created transcode worker thread with " + filesToTranscode.size() + " file(s) to transcode" ) ;
+		info( "Created transcode worker thread with " + filesToTranscode.size() + " file(s) to transcode" ) ;
 
 		return threadMap ;
 	}
@@ -639,13 +597,13 @@ public class RemuxWithSubtitles extends Thread
 		}
 		catch( Exception theException )
 		{
-			log.warning( "Error when sleeping for a file closure: " + theException.toString() ) ;
+			warning( "Error when sleeping for a file closure: " + theException.toString() ) ;
 		}
 		// Get the mp4 thread responsible to move this file.
 		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
 		if( mp4Thread != null )
 		{
-			log.info( "Found mp4 thread; adding move job" ) ;
+			info( "Found mp4 thread; adding move job" ) ;
 			mp4Thread.addMovieOrShowToMove( movieOrShowToMove ) ;
 		}
 	}
@@ -725,7 +683,7 @@ public class RemuxWithSubtitles extends Thread
 	{
 		// Each folder should be of the form "\\\\yoda\\MP4\\Movies\\Movie Name (yyyy)" (or TV Show\\Season xx)
 		// Use that path to search the database by mp4LongPath
-		log.info( "Running find on file (" + (doRemux ? "remux" : "retranscode") +"): " + fileToRemuxOrRetranscode ) ;
+		info( "Running find on file (" + (doRemux ? "remux" : "retranscode") +"): " + fileToRemuxOrRetranscode ) ;
 
 		final String mp4LongPath = fileToRemuxOrRetranscode.getMP4FinalDirectory() ;
 		Bson findFileFilter = Filters.eq( "mp4LongPath", mp4LongPath ) ;
@@ -736,7 +694,7 @@ public class RemuxWithSubtitles extends Thread
 		{
 			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
 			// Pre-condition: theMovieAndShowInfo is only present here if it needs to be remux'd/retranscoded
-			log.info( "Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+			info( "Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
 			// theMovieAndShowInfo should have information about the movie or show along with
 			// information about the constituent files (mkv and mp4) for it.
 
@@ -753,7 +711,7 @@ public class RemuxWithSubtitles extends Thread
 			if( !operationSuccess )
 			{
 				// Transcode/remux failed.
-				log.warning( "Operation failed" ) ;
+				warning( "Operation failed" ) ;
 				return ;
 			}
 			// Post-condition: Transcode/remux succeeded
@@ -775,7 +733,7 @@ public class RemuxWithSubtitles extends Thread
 			FFmpegProbeResult mp4ProbeResult = common.ffprobeFile( newMP4File, log ) ;
 
 			// Move the new mp4 output file to its destination
-			log.info( "Moving " + newMP4File.getAbsolutePath() + " -> " + oldMP4File.getAbsolutePath() ) ;
+			info( "Moving " + newMP4File.getAbsolutePath() + " -> " + oldMP4File.getAbsolutePath() ) ;
 
 			// Synchronize on the lock object for the destination drive. This assumes that the
 			// mp4 output drive is local and has sufficient throughput for its read to be minimally
@@ -842,7 +800,7 @@ public class RemuxWithSubtitles extends Thread
 		else
 		{
 			// Transcode failed.
-			log.warning( "Transcode failed" ) ;
+			warning( "Transcode failed" ) ;
 			fileToTranscode.unSetTranscodeInProgress() ;
 		}
 		return transcodeSucceeded ;
@@ -917,11 +875,35 @@ public class RemuxWithSubtitles extends Thread
 	//		Object theLock = driveLocks.get( theDrive ) ;
 	//		if( null == theLock )
 	//		{
-	//			log.warning( "Unable to find lock for drive: " + theDrive ) ;
+	//			warning( "Unable to find lock for drive: " + theDrive ) ;
 	//			theLock = new String( "Broken Lock" ) ;
 	//		}
 	//		return theLock ;
 	//	}
+
+	/**
+	 * Return all MovieAndShowInfo instances, keyed by mp4LongPath.
+	 * @return
+	 */
+	public Map< String, MovieAndShowInfo > getAllMovieAndShowInfosKeyedByMP4LongPath()
+	{
+		Map< String, MovieAndShowInfo > masInfoMap =
+				new HashMap< String, MovieAndShowInfo >( (int) masMDB.getMovieAndShowInfoCollection().countDocuments() ) ;
+	
+		// First, get the entire MovieAndShowInfo collection
+		FindIterable< MovieAndShowInfo > movieAndShowInfoIterable = masMDB.getMovieAndShowInfoCollection().find() ;
+	
+		// Walk through the entire collection
+		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoIterable.iterator() ;
+		while( movieAndShowInfoIterator.hasNext() )
+		{
+			// Add each entry into the return Map
+			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
+			String mp4LongPath = theMovieAndShowInfo.getMP4LongPath() ;
+			masInfoMap.put( mp4LongPath, theMovieAndShowInfo ) ;
+		}
+		return masInfoMap ;
+	}
 
 	/**
 	 * Given an absolute path name, return just the machine name and folder.
@@ -1021,9 +1003,33 @@ public class RemuxWithSubtitles extends Thread
 
 		if( null == retMe )
 		{
-			log.warning( "Unable to find mp4 thread matching file: " + mp4FileNameWithPath ) ;
+			warning( "Unable to find mp4 thread matching file: " + mp4FileNameWithPath ) ;
 		}
 		return retMe ;
+	}
+
+	/**
+	 * Return all FFmpegProbeResults from the database, keyed by the long file name.
+	 * @return
+	 */
+	public Map< String, FFmpegProbeResult > getAllProbeInfoResults()
+	{
+		Map< String, FFmpegProbeResult > probeInfoMap =
+				new HashMap< String, FFmpegProbeResult >( (int) probeInfoCollection.countDocuments() ) ;
+	
+		// First, get the entire probe collection
+		FindIterable< FFmpegProbeResult > probeInfoIterable = probeInfoCollection.find() ;
+	
+		// Walk through the entire collection
+		Iterator< FFmpegProbeResult > probeInfoIterator = probeInfoIterable.iterator() ;
+		while( probeInfoIterator.hasNext() )
+		{
+			// Add each entry into the return Map
+			FFmpegProbeResult theProbeResult = probeInfoIterator.next() ;
+			String getFileNameWithPath = theProbeResult.getFileNameWithPath() ;
+			probeInfoMap.put( getFileNameWithPath, theProbeResult ) ;
+		}
+		return probeInfoMap ;
 	}
 
 	protected String getStopFileName()
@@ -1132,6 +1138,26 @@ public class RemuxWithSubtitles extends Thread
 	public boolean shouldKeepRunning()
 	{
 		return (!common.shouldStopExecution( getStopFileName() ) && isKeepRunning()) ;
+	}
+
+	public String getThreadName()
+	{
+		return threadName;
+	}
+
+	public void setThreadName( String threadName )
+	{
+		this.threadName = threadName;
+	}
+	
+	public void info( final String infoString )
+	{
+		log.info( "(" + getThreadName() + ") " + infoString ) ;
+	}
+	
+	public void warning( final String infoString )
+	{
+		log.warning( "(" + getThreadName() + ") " + infoString ) ;
 	}
 
 }
