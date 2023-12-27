@@ -566,6 +566,7 @@ public class RemuxWithSubtitles extends Thread
 
 		// Add the transcode worker thread.
 		RemuxWithSubtitles transcodeWorkerThread = new RemuxWithSubtitles() ;
+		transcodeWorkerThread.setThreadName( "Transcode" ) ;
 		transcodeWorkerThread.addMovieOrShowToRetranscode( filesToTranscode ) ;
 		threadMap.put( getTranscodeWorkerThreadName(), transcodeWorkerThread ) ;
 
