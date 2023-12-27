@@ -224,6 +224,11 @@ public class RemuxWithSubtitles extends Thread
 		} // while( shouldKeepRunning() && !isAllWorkDone() )
 		info( "Shutting down..." ) ;
 
+		// The MoveFiles instance automatically starts two worker threads to move MKV and MP4 files.
+		// They are not used here, but I still need to shut them down cleanly.
+		info( "Shutting down MoveFiles threads." ) ;
+		
+		moveFiles.waitForThreadsToComplete() ;
 		// Stop threads
 		if( isUseThreads() )
 		{
