@@ -343,7 +343,7 @@ public class RemuxWithSubtitles extends Thread
 				+ "->" + theFileToMove.getMP4FinalFileNameWithPath() ) ;
 				if( !common.getTestMode() )
 				{
-					moveFiles.moveFile( theFileToMove.getMP4OutputFileNameWithPath(), theFileToMove.getMP4FinalFileNameWithPath() ) ;
+					MoveFiles.moveFile( theFileToMove.getMP4OutputFileNameWithPath(), theFileToMove.getMP4FinalFileNameWithPath(), log, common ) ;
 				}
 				didSomeWork = true ;
 			}

@@ -106,7 +106,7 @@ public class MoveFiles
 	 * @param destinationPathAndFileName
 	 * @return
 	 */
-	public boolean moveFile( final String sourcePathAndFileName, final String destinationPathAndFileName )
+	public static boolean moveFile( final String sourcePathAndFileName, final String destinationPathAndFileName, Logger log, Common common )
 	{
 		Path moveReturn = null ;
 		final File sourceFile = new File( sourcePathAndFileName ) ;
@@ -145,8 +145,7 @@ public class MoveFiles
 						+ " seconds, "
 						+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
 						+ " minutes; moved " + fileLengthInMB + "MB at "
-						+ common.getNumberFormat().format( MBPerSecond ) + "MB/sec"
-						+ " " + toString() ) ;
+						+ common.getNumberFormat().format( MBPerSecond ) + "MB/sec" ) ;
 			} // if( moveReturn != null )
 		} // if( testMode )
 		return (moveReturn != null ? true : false) ;
