@@ -93,6 +93,8 @@ public class Common
 		{
 				"\\\\yoda\\MKV_Archive2",
 //				"\\\\yoda\\MKV_Archive4",
+				"E:\\Movies",
+				"E:\\TV Shows",
 				"\\\\yoda\\MKV_Archive5",
 				"\\\\yoda\\MKV_Archive6",
 				"\\\\yoda\\MKV_Archive9",
@@ -102,6 +104,8 @@ public class Common
 		{
 				"\\\\yoda\\MKV_Archive1",
 				"\\\\yoda\\MKV_Archive3",
+				"F:\\Movies",
+				"F:\\TV Shows",
 				"\\\\yoda\\MKV_Archive7",
 				"\\\\yoda\\MKV_Archive8" // Min this
 		} ;

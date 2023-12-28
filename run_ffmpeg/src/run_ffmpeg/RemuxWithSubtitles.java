@@ -56,12 +56,6 @@ public class RemuxWithSubtitles extends Thread
 	/// The time, in ms, to wait for a file to sync before attempting to move it.
 	private long fileSyncSleepTime = 5000 ;
 	private final String transcodeWorkerThreadName = "Transcode" ;
-
-	/// Used to store synchronized locks to each drive.
-	//	private SortedMap< String, Object > driveLocks = new TreeMap< String , Object>() ;
-
-	/// Move file thread controller.
-	private MoveFiles moveFiles = null ;
 	
 	/// The name of this thread.
 	private String threadName = "main" ;
@@ -90,9 +84,6 @@ public class RemuxWithSubtitles extends Thread
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 
-		// Create the MoveFiles handler, which will also start the threads.
-		moveFiles = new MoveFiles( log, common ) ;
-
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
@@ -111,9 +102,8 @@ public class RemuxWithSubtitles extends Thread
 	 */
 	public void execute()
 	{
-		setUseThreads( false ) ;
-		common.setTestMode( true ) ;
-		//		buildDriveLocks() ;
+		setUseThreads( true ) ;
+		common.setTestMode( false ) ;
 
 		// Get all of the MP4 drives
 		List< String > mp4DrivesWithoutFolders = common.getAllMP4Drives() ;
@@ -128,25 +118,25 @@ public class RemuxWithSubtitles extends Thread
 
 		// Add "Movies" and "TV Shows" to each of MP4 drives
 		List< String > mp4Drives = common.addMoviesAndTVShowFoldersToEachDrive( mp4DrivesWithoutFolders ) ;
-		info( "Will remux/retranscode the following top level folders: " + mp4Drives.toString() ) ;
+		log.info( getThreadName() + " Will remux/retranscode the following top level folders: " + mp4Drives.toString() ) ;
 
 		// Find the lowest level folders in each directory tree. This will be used for searching for MovieAndShowInfos.
 		// The list of folders will be unique -- no duplicates.
 		List< String > mp4MovieAndShowInfoFolders = new ArrayList< String >() ;
 		for( String mp4DriveFolder : mp4Drives )
 		{
-			info( "Finding all subdirectories in " + mp4DriveFolder + "; this may take a minute." ) ;
+			log.info(  getThreadName() +  "Finding all subdirectories in " + mp4DriveFolder + "; this may take a minute." ) ;
 			mp4MovieAndShowInfoFolders.addAll( common.findLowestLevelDirectories( mp4DriveFolder ) ) ;
 		}
 
-		info( "Remuxing/retranscoding " + mp4MovieAndShowInfoFolders.size() + " movies/tv shows "
+		log.info(  getThreadName() + " Remuxing/retranscoding " + mp4MovieAndShowInfoFolders.size() + " movies/tv shows "
 				+ (useThreads ? "with" : "without" ) + " threads" ) ;
 
 		// Download the entire MovieAndShowInfo and ProbeInfo collections locally as a means to optimize.
 		Map< String, MovieAndShowInfo > movieAndShowInfoMap = getAllMovieAndShowInfosKeyedByMP4LongPath() ;
 		Map< String, FFmpegProbeResult > probeInfoMap = getAllProbeInfoResults() ;
 
-		info( "Building remux and transcode list; this could take a minute." ) ;
+		log.info(  getThreadName() + " Building remux and transcode list; this could take a minute." ) ;
 		// Iterate through each MovieAndShowInfo and add the files to remux and transcode
 		for( Map.Entry< String, MovieAndShowInfo > masEntry : movieAndShowInfoMap.entrySet() )
 		{
@@ -154,9 +144,9 @@ public class RemuxWithSubtitles extends Thread
 			buildRemuxAndTranscodeList( theMovieAndShowInfo, probeInfoMap, moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
 		}
 
-		info( "remuxing " + moviesAndShowsToRemux.size() + " file(s) and retranscoding " + moviesAndShowsToRetranscode.size() + " file(s)" ) ;
-		log.fine( "Remuxing: " + moviesAndShowsToRemux.toString() ) ;
-		log.fine( "Retranscoding: " + moviesAndShowsToRetranscode.toString() ) ;
+		log.info(  getThreadName() + " remuxing " + moviesAndShowsToRemux.size() + " file(s) and retranscoding " + moviesAndShowsToRetranscode.size() + " file(s)" ) ;
+		log.fine(  getThreadName() + " Remuxing: " + moviesAndShowsToRemux.toString() ) ;
+		log.fine(  getThreadName() + " Retranscoding: " + moviesAndShowsToRetranscode.toString() ) ;
 
 		// Build a worker thread for each MP4 drive and one as a dedicated thread to transcode.
 		workerThreads = buildWorkerThreads( moviesAndShowsToRemux, moviesAndShowsToRetranscode ) ;
@@ -175,7 +165,7 @@ public class RemuxWithSubtitles extends Thread
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
-				info( "Starting thread: " + rwsWorker.getThreadName() ) ;
+				log.info( getThreadName() + " Starting thread: " + rwsWorker.getThreadName() ) ;
 				rwsWorker.start() ;
 			}
 		}
@@ -199,7 +189,7 @@ public class RemuxWithSubtitles extends Thread
 					}
 					// Note: run() will check shouldKeepRunning() after each movie or show.
 					RemuxWithSubtitles rwsWorker = entry.getValue() ;
-					//						info( "Running new worker..." ) ;
+					//						log.info( getThreadName() + " Running new worker..." ) ;
 
 					// This avoids the situation where all files are remuxed and transcoded,
 					//  which creates a backlog of move functions needed, and probably overruns the
@@ -218,25 +208,24 @@ public class RemuxWithSubtitles extends Thread
 				}
 				catch( Exception theException )
 				{
-					warning( "Exception: " + theException.toString() ) ;
+					log.warning(  getThreadName() + " Exception: " + theException.toString() ) ;
 				}
 			} // else -- using threads
 		} // while( shouldKeepRunning() && !isAllWorkDone() )
-		info( "Shutting down..." ) ;
+		log.info( getThreadName() + " Shutting down..." ) ;
 
 		// The MoveFiles instance automatically starts two worker threads to move MKV and MP4 files.
 		// They are not used here, but I still need to shut them down cleanly.
-		info( "Shutting down MoveFiles threads." ) ;
+		log.info( getThreadName() + " Shutting down MoveFiles threads." ) ;
 		
-		moveFiles.waitForThreadsToComplete() ;
 		// Stop threads
 		if( isUseThreads() )
 		{
-			info( "Stopping threads..." ) ;	
+			log.info( getThreadName() + " Stopping threads..." ) ;	
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
-				info( "Stopping thread: " + rwsWorker.getThreadName() ) ;
+				log.info( getThreadName() + " Stopping thread: " + rwsWorker.getThreadName() ) ;
 				rwsWorker.setKeepRunning( false ) ;
 			}
 		}
@@ -244,19 +233,19 @@ public class RemuxWithSubtitles extends Thread
 		// Join threads
 		if( isUseThreads() )
 		{
-			info( "Joining threads..." ) ;	
+			log.info( getThreadName() + " Joining threads..." ) ;	
 			for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
 			{
 				RemuxWithSubtitles rwsWorker = entry.getValue() ;
 				try
 				{
-					info( "Joining thread: " + rwsWorker.getThreadName() ) ;
+					log.info( getThreadName() + " Joining thread: " + rwsWorker.getThreadName() ) ;
 					rwsWorker.join() ;
-					info( "Joined: " + rwsWorker.getThreadName() ) ;
+					log.info( getThreadName() + " Joined: " + rwsWorker.getThreadName() ) ;
 				}
 				catch( Exception theException )
 				{
-					warning( "Exception: " + theException.toString() ) ;
+					log.warning(  getThreadName() + " Exception: " + theException.toString() ) ;
 				}
 			}
 		}
@@ -287,7 +276,7 @@ public class RemuxWithSubtitles extends Thread
 				}
 				catch( Exception theException )
 				{
-					warning( "Error sleeping: " + theException.toString() ) ;
+					log.warning(  getThreadName() + " Error sleeping: " + theException.toString() ) ;
 				}
 			}
 		} // while()
@@ -303,7 +292,7 @@ public class RemuxWithSubtitles extends Thread
 			if( null == theFileToRemux )
 			{
 				// All's fair in multi-threading.
-				warning( "Found null file to remux" ) ;
+				log.warning(  getThreadName() + " Found null file to remux" ) ;
 			}
 			else
 			{
@@ -318,7 +307,7 @@ public class RemuxWithSubtitles extends Thread
 			if( null == theFileToRetranscode )
 			{
 				// All's fair in multi-threading.
-				warning( "Found null file to retranscode" ) ;
+				log.warning(  getThreadName() + " Found null file to retranscode" ) ;
 			}
 			else
 			{
@@ -335,11 +324,11 @@ public class RemuxWithSubtitles extends Thread
 			if( null == theFileToMove )
 			{
 				// All's fair in multi-threading.
-				warning( "Found null file to move" ) ;
+				log.warning(  getThreadName() + " Found null file to move" ) ;
 			}
 			else
 			{
-				info( "Moving: " + theFileToMove.getMP4OutputFileNameWithPath()
+				log.info( getThreadName() + " Moving: " + theFileToMove.getMP4OutputFileNameWithPath()
 				+ "->" + theFileToMove.getMP4FinalFileNameWithPath() ) ;
 				if( !common.getTestMode() )
 				{
@@ -351,26 +340,10 @@ public class RemuxWithSubtitles extends Thread
 		
 		if( !shouldKeepRunning() )
 		{
-			info( "Shutting down this thread..." ) ;
+			log.info( getThreadName() + " Shutting down this thread..." ) ;
 		}
 		return didSomeWork ;
 	}
-
-	/**
-	 * Instantiate the locks that will be used to guard use of the drive via synchronized{}.
-	 * One for each drive with dummy objects that serve as the lock.
-	 */
-	//	private void buildDriveLocks()
-	//	{
-	//		List< String > allDrives = common.getAllMKVDrives() ;
-	//		allDrives.addAll( common.getAllMP4Drives() ) ;
-	//
-	//		for( String drive : allDrives )
-	//		{
-	//			String driveLock = new String( drive ) ;
-	//			driveLocks.put( drive, driveLock ) ;
-	//		}
-	//	}
 
 	/**
 	 * Add each TV Show and Movie mkv that needs to be remuxed or re-transcoded to the
@@ -385,19 +358,11 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToRemux,
 			List< TranscodeFile > filesToTranscode )
 	{
-		//		Bson findMovieAndShowInfoFilter = Filters.eq( "mp4LongPath", mp4DriveWithFolder ) ;
-		//		FindIterable< MovieAndShowInfo > movieAndShowInfoFindResult = movieAndShowInfoCollection.find( findMovieAndShowInfoFilter ) ;
-
-		// Iterate through those shows and check for new SRT file(s)
-		//		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoFindResult.iterator() ;
-		//		while( movieAndShowInfoIterator.hasNext() )
-		//		{
-		//			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
-		log.fine( "Processing MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+		log.fine( getThreadName() + " Processing MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
 		if( theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingMovieMKVPath() )
 				|| theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingTVShowMKVPath() ) )
 		{
-			log.fine( "Skipping movie/show with missing path: " + theMovieAndShowInfo.toString() ) ;
+			log.fine( getThreadName() + " Skipping movie/show with missing path: " + theMovieAndShowInfo.toString() ) ;
 			return ;
 		}
 		
@@ -418,7 +383,7 @@ public class RemuxWithSubtitles extends Thread
 				// No sense in continuing if the mp4 file is missing:
 				//  if missing the mp4 file, then it needs to be transcoded, not retranscoded.
 				//  if missing the mkv file, then it is also missing any SRT files, so we are not able to remux either.
-				log.fine( "Missing file for correlated file: " + theCorrelatedFile.toString() ) ;
+				log.fine( getThreadName() + " Missing file for correlated file: " + theCorrelatedFile.toString() ) ;
 				continue ;
 			}
 			
@@ -430,7 +395,7 @@ public class RemuxWithSubtitles extends Thread
 			FFmpegProbeResult mkvProbeResult = probeInfoMap.get( mkvFileNameWithPath ) ;
 			if( null == mkvProbeResult )
 			{
-				warning( "Unable to find probe info for correlated file: " + mkvFileNameWithPath ) ;
+				log.warning(  getThreadName() + " Unable to find probe info for correlated file: " + mkvFileNameWithPath ) ;
 				continue ;
 			}
 			
@@ -438,7 +403,7 @@ public class RemuxWithSubtitles extends Thread
 			if( null == fileToRemuxOrTranscode )
 			{
 				// Error reading this MovieAndShowInfo
-				warning( "Error in buildTranscodeFile for MovieAndShowInfo: " + theMovieAndShowInfo.toString() + ", skipping" ) ;
+				log.warning(  getThreadName() + " Error in buildTranscodeFile for MovieAndShowInfo: " + theMovieAndShowInfo.toString() + ", skipping" ) ;
 				continue ;
 			}
 
@@ -461,7 +426,7 @@ public class RemuxWithSubtitles extends Thread
 			}
 			else
 			{
-				warning( "Invalid return of " + needRemuxOrTranscodeStatus + " status from needRemuxOrTranscode "
+				log.warning(  getThreadName() + " Invalid return of " + needRemuxOrTranscodeStatus + " status from needRemuxOrTranscode "
 						+ " for file: " + fileToRemuxOrTranscode.toString() ) ;
 			}
 		} // for( correlatedFile )
@@ -479,18 +444,18 @@ public class RemuxWithSubtitles extends Thread
 			CorrelatedFile theCorrelatedFile,
 			FFmpegProbeResult mkvProbeResult )
 	{
-		//		info( "Processing movie or show: " + theMovieAndShowInfo.getMovieOrShowName() + ", file: " + theCorrelatedFile.toString() ) ;
+		//		log.info( getThreadName() + " Processing movie or show: " + theMovieAndShowInfo.getMovieOrShowName() + ", file: " + theCorrelatedFile.toString() ) ;
 
 		// First determine if the both mp4 and mkv files exist.
 		if( theCorrelatedFile.isMissingFile() )
 		{
-			warning( "Missing file in correlated file: " + theCorrelatedFile ) ;
+			log.warning(  getThreadName() + " Missing file in correlated file: " + theCorrelatedFile ) ;
 			return null ;
 		}
 		if( (theCorrelatedFile.getNumberOfMKVFiles() != 1) ||
 				(theCorrelatedFile.getNumberOfMP4Files() != 1) )
 		{
-			warning( "More than one MKV or MP4 files in correlated file: " + theCorrelatedFile.toString() ) ;
+			log.warning(  getThreadName() + " More than one MKV or MP4 files in correlated file: " + theCorrelatedFile.toString() ) ;
 			return null ;
 		}
 		// Post condition: No missing files, and only one mp4 and one mkv file.
@@ -538,7 +503,7 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToTranscode )
 	{
 		Map< String, RemuxWithSubtitles > threadMap = new TreeMap< String, RemuxWithSubtitles >() ;
-		info( "Creating worker threads, one per MP4 drive." ) ;
+		log.info( getThreadName() + " Creating worker threads, one per MP4 drive." ) ;
 
 		// Create a new RWS for each MP4 drive.
 		List< String > mp4Drives = common.getAllMP4Drives() ;
@@ -563,7 +528,7 @@ public class RemuxWithSubtitles extends Thread
 
 			// Do NOT provide the transcode files to this worker -- one thread (created below) is responsible
 			// to transcode all files.
-			info( "Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux; name: " +
+			log.info( getThreadName() + " Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux; name: " +
 			rwsWorker.getThreadName() ) ;
 
 			// Finally add the worker to the threadMap.
@@ -576,15 +541,15 @@ public class RemuxWithSubtitles extends Thread
 		transcodeWorkerThread.addMovieOrShowToRetranscode( filesToTranscode ) ;
 		threadMap.put( getTranscodeWorkerThreadName(), transcodeWorkerThread ) ;
 
-		info( "Created transcode worker thread with " + filesToTranscode.size() + " file(s) to transcode" ) ;
+		log.info( getThreadName() + " Created transcode worker thread with " + filesToTranscode.size() + " file(s) to transcode" ) ;
 
 		String workerThreadMapOutput = "threadMap: " ;
 		for( Map.Entry< String, RemuxWithSubtitles > entry : threadMap.entrySet() )
 		{
 			workerThreadMapOutput += entry.getKey() + "," ;
 		}
-		log.info( workerThreadMapOutput ) ;
-		
+		log.info( getThreadName() + " " + workerThreadMapOutput ) ;
+
 		return threadMap ;
 	}
 
@@ -603,7 +568,7 @@ public class RemuxWithSubtitles extends Thread
 		//  an arbitrary sleep to let the file system catch up.
 		try
 		{
-			log.fine( "Sleeping " + getFileSyncSleepTime() + " milliseconds before moveFile()" ) ;
+			log.fine( getThreadName() + " Sleeping " + getFileSyncSleepTime() + " milliseconds before moveFile()" ) ;
 			if( !common.getTestMode() )
 			{
 				Thread.sleep( getFileSyncSleepTime() ) ;
@@ -611,13 +576,13 @@ public class RemuxWithSubtitles extends Thread
 		}
 		catch( Exception theException )
 		{
-			warning( "Error when sleeping for a file closure: " + theException.toString() ) ;
+			log.warning(  getThreadName() + " Error when sleeping for a file closure: " + theException.toString() ) ;
 		}
 		// Get the mp4 thread responsible to move this file.
 		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
 		if( mp4Thread != null )
 		{
-			info( "Found mp4 thread; adding move job" ) ;
+			log.info( getThreadName() + " Found mp4 thread; adding move job" ) ;
 			mp4Thread.addMovieOrShowToMove( movieOrShowToMove ) ;
 		}
 	}
@@ -638,8 +603,6 @@ public class RemuxWithSubtitles extends Thread
 		{
 			final File theSRTFile = srtFileIterator.next() ;
 			final String theSRTFileName = theSRTFile.getName() ;
-			//			final long oldMP4FileLastModified = oldMP4File.lastModified() ;
-			//			final long srtFileLastModified = theSRTFile.lastModified() ;
 
 			if( theSRTFile.lastModified() <= oldMP4File.lastModified() )
 			{
@@ -679,12 +642,8 @@ public class RemuxWithSubtitles extends Thread
 				fileToTranscode.getMKVFinalDirectory(),
 				fileToTranscode.getMP4OutputDirectory(),
 				fileToTranscode.getMP4FinalDirectory() ) ;
-		//		Object driveLock = getDriveLock( getDriveNameFromPath( fileToTranscode.getMP4FinalFileNameWithPath() ) ) ;
 		boolean remuxSucceeded = false ;
-		//		synchronized( driveLock )
-		//		{
 		remuxSucceeded = tCommon.remuxFile( fileToTranscode ) ;
-		//		}
 		return remuxSucceeded ;
 	}
 
@@ -697,7 +656,7 @@ public class RemuxWithSubtitles extends Thread
 	{
 		// Each folder should be of the form "\\\\yoda\\MP4\\Movies\\Movie Name (yyyy)" (or TV Show\\Season xx)
 		// Use that path to search the database by mp4LongPath
-		info( "Running find on file (" + (doRemux ? "remux" : "retranscode") +"): " + fileToRemuxOrRetranscode ) ;
+		log.info( getThreadName() + " Running find on file (" + (doRemux ? "remux" : "retranscode") +"): " + fileToRemuxOrRetranscode ) ;
 
 		final String mp4LongPath = fileToRemuxOrRetranscode.getMP4FinalDirectory() ;
 		Bson findFileFilter = Filters.eq( "mp4LongPath", mp4LongPath ) ;
@@ -708,7 +667,7 @@ public class RemuxWithSubtitles extends Thread
 		{
 			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
 			// Pre-condition: theMovieAndShowInfo is only present here if it needs to be remux'd/retranscoded
-			info( "Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+			log.info( getThreadName() + " Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
 			// theMovieAndShowInfo should have information about the movie or show along with
 			// information about the constituent files (mkv and mp4) for it.
 
@@ -725,7 +684,7 @@ public class RemuxWithSubtitles extends Thread
 			if( !operationSuccess )
 			{
 				// Transcode/remux failed.
-				warning( "Operation failed" ) ;
+				log.warning(  getThreadName() + " Operation failed" ) ;
 				return ;
 			}
 			// Post-condition: Transcode/remux succeeded
@@ -747,18 +706,8 @@ public class RemuxWithSubtitles extends Thread
 			FFmpegProbeResult mp4ProbeResult = common.ffprobeFile( newMP4File, log ) ;
 
 			// Move the new mp4 output file to its destination
-			info( "Moving " + newMP4File.getAbsolutePath() + " -> " + oldMP4File.getAbsolutePath() ) ;
-
-			// Synchronize on the lock object for the destination drive. This assumes that the
-			// mp4 output drive is local and has sufficient throughput for its read to be minimally
-			// intrusive. However, the destination drive will probably be on the RPi, which is
-			// really slow...need to guard the Pi's drives.
-			//				Object destinationDriveSyncLock = getDriveLock( getDriveNameFromPath( oldMP4File.getAbsolutePath() )  ) ;
-			//				synchronized( destinationDriveSyncLock )
-			//				{
-			// This will be a synchronous move (no threads).
+			log.info( getThreadName() + " Moving " + newMP4File.getAbsolutePath() + " -> " + oldMP4File.getAbsolutePath() ) ;
 			moveFile( fileToRemuxOrRetranscode ) ;
-			//				}
 
 			// No need to move the mkv or srt files since this program only deals with the mp4 file(s).
 			// No need to update the mkv probe since the mkv has not changed.
@@ -775,7 +724,6 @@ public class RemuxWithSubtitles extends Thread
 				// in this or the calling algorithm.
 				// NOTE: Shouldn't need to update the correlated file information since it only holds location information, which
 				// is not changing.
-				//				theMovieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
 
 				// Update the probe information table with the updated probe.
 				Bson probeInfoIDFilter = Filters.eq( "fileNameWithPath", oldMP4File.getAbsolutePath() ) ;
@@ -814,7 +762,7 @@ public class RemuxWithSubtitles extends Thread
 		else
 		{
 			// Transcode failed.
-			warning( "Transcode failed" ) ;
+			log.warning(  getThreadName() + " Transcode failed" ) ;
 			fileToTranscode.unSetTranscodeInProgress() ;
 		}
 		return transcodeSucceeded ;
@@ -883,17 +831,6 @@ public class RemuxWithSubtitles extends Thread
 		}
 		return false ;
 	}
-
-	//	public Object getDriveLock( final String theDrive )
-	//	{
-	//		Object theLock = driveLocks.get( theDrive ) ;
-	//		if( null == theLock )
-	//		{
-	//			warning( "Unable to find lock for drive: " + theDrive ) ;
-	//			theLock = new String( "Broken Lock" ) ;
-	//		}
-	//		return theLock ;
-	//	}
 
 	/**
 	 * Return all MovieAndShowInfo instances, keyed by mp4LongPath.
@@ -1017,7 +954,7 @@ public class RemuxWithSubtitles extends Thread
 
 		if( null == retMe )
 		{
-			warning( "Unable to find mp4 thread matching file: " + mp4FileNameWithPath ) ;
+			log.warning(  getThreadName() + " Unable to find mp4 thread matching file: " + mp4FileNameWithPath ) ;
 		}
 		return retMe ;
 	}
@@ -1120,13 +1057,9 @@ public class RemuxWithSubtitles extends Thread
 		return isEmpty ;
 	}
 
-	//	protected void setDriveLocks( SortedMap< String, Object > newDriveLocks )
-	//	{
-	//		this.driveLocks = newDriveLocks ;
-	//	}
-
-	public void setFileSyncSleepTime(long fileSyncSleepTime) {
-		this.fileSyncSleepTime = fileSyncSleepTime;
+	public void setFileSyncSleepTime( long fileSyncSleepTime )
+	{
+		this.fileSyncSleepTime = fileSyncSleepTime ;
 	}
 
 	protected void setKeepRunning( boolean keepRunning )
@@ -1163,15 +1096,4 @@ public class RemuxWithSubtitles extends Thread
 	{
 		this.threadName = threadName;
 	}
-	
-	public void info( final String infoString )
-	{
-		log.info( "(" + getThreadName() + ") " + infoString ) ;
-	}
-	
-	public void warning( final String infoString )
-	{
-		log.warning( "(" + getThreadName() + ") " + infoString ) ;
-	}
-
 }
