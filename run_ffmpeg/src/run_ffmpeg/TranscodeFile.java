@@ -582,9 +582,9 @@ public class TranscodeFile
 		return getMP4OutputFile().getParent() ;
 	}
 
-	public String getMP4OutputDirectoryFile()
+	public File getMP4OutputDirectoryFile()
 	{
-		return getMP4OutputFile().getParent() ;
+		return new File( getMP4OutputFile().getParent() ) ;
 	}
 
 	protected File getMP4OutputFile()

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.io.File ;
+import java.io.FileReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -54,9 +55,9 @@ public class RemuxWithSubtitles extends Thread
 	private Map< String, RemuxWithSubtitles > workerThreads = new TreeMap< String, RemuxWithSubtitles >() ;
 
 	/// The time, in ms, to wait for a file to sync before attempting to move it.
-	private long fileSyncSleepTime = 5000 ;
+	private long fileSyncSleepTime = 500 ;
 	private final String transcodeWorkerThreadName = "Transcode" ;
-	
+
 	/// The name of this thread.
 	private String threadName = "main" ;
 
@@ -217,7 +218,7 @@ public class RemuxWithSubtitles extends Thread
 		// The MoveFiles instance automatically starts two worker threads to move MKV and MP4 files.
 		// They are not used here, but I still need to shut them down cleanly.
 		log.info( getThreadName() + " Shutting down MoveFiles threads." ) ;
-		
+
 		// Stop threads
 		if( isUseThreads() )
 		{
@@ -337,7 +338,7 @@ public class RemuxWithSubtitles extends Thread
 				didSomeWork = true ;
 			}
 		} // if( transcode )
-		
+
 		if( !shouldKeepRunning() )
 		{
 			log.info( getThreadName() + " Shutting down this thread..." ) ;
@@ -365,7 +366,7 @@ public class RemuxWithSubtitles extends Thread
 			log.fine( getThreadName() + " Skipping movie/show with missing path: " + theMovieAndShowInfo.toString() ) ;
 			return ;
 		}
-		
+
 		if( theMovieAndShowInfo.getMKVLongPath().contains( "MKV_Archive4" ) )
 		{
 			// Still having a problem with MKV_4; ignore it for now.
@@ -386,19 +387,19 @@ public class RemuxWithSubtitles extends Thread
 				log.fine( getThreadName() + " Missing file for correlated file: " + theCorrelatedFile.toString() ) ;
 				continue ;
 			}
-			
+
 			// Retrieve the probe information for the correlated file.
 			final String mkvFileNameWithPath = common.addPathSeparatorIfNecessary( theMovieAndShowInfo.getMKVLongPath() )
 					+ theCorrelatedFile.getFileName()  + ".mkv" ;	
-//			Bson findProbeInfoFilter = Filters.eq( "fileNameWithPath", mkvFileNameWithPath ) ;
-//			FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( findProbeInfoFilter ).first() ;
+			//			Bson findProbeInfoFilter = Filters.eq( "fileNameWithPath", mkvFileNameWithPath ) ;
+			//			FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( findProbeInfoFilter ).first() ;
 			FFmpegProbeResult mkvProbeResult = probeInfoMap.get( mkvFileNameWithPath ) ;
 			if( null == mkvProbeResult )
 			{
 				log.warning(  getThreadName() + " Unable to find probe info for correlated file: " + mkvFileNameWithPath ) ;
 				continue ;
 			}
-			
+
 			TranscodeFile fileToRemuxOrTranscode = buildTranscodeFile( theMovieAndShowInfo, theCorrelatedFile, mkvProbeResult ) ;
 			if( null == fileToRemuxOrTranscode )
 			{
@@ -529,7 +530,7 @@ public class RemuxWithSubtitles extends Thread
 			// Do NOT provide the transcode files to this worker -- one thread (created below) is responsible
 			// to transcode all files.
 			log.info( getThreadName() + " Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux; name: " +
-			rwsWorker.getThreadName() ) ;
+					rwsWorker.getThreadName() ) ;
 
 			// Finally add the worker to the threadMap.
 			threadMap.put( mp4Drive, rwsWorker ) ;
@@ -566,23 +567,67 @@ public class RemuxWithSubtitles extends Thread
 		//  the file is in use by another process.
 		// Although it violated the Rule of Time, I currently see no better option than to insert
 		//  an arbitrary sleep to let the file system catch up.
-		try
+
+		// Mitigate this issue by attempting to open the file, with delays in between, up to a certain
+		// number of times.
+		int attemptNumber = 1 ;
+		boolean openedSuccessfully = false ;
+		File testFile = movieOrShowToMove.getMP4OutputFile() ;
+
+		for( ; (attemptNumber <= 10) && !openedSuccessfully ; ++attemptNumber )
 		{
-			log.fine( getThreadName() + " Sleeping " + getFileSyncSleepTime() + " milliseconds before moveFile()" ) ;
-			if( !common.getTestMode() )
+			try
 			{
-				Thread.sleep( getFileSyncSleepTime() ) ;
+				// Try to open a read stream for the file. A locked file should generate an exception.
+				if( !common.getTestMode() )
+				{
+					FileReader fr = new FileReader( testFile ) ;
+					fr.close() ;
+				}
+
+				// If the code reaches this point then it should indicate that the file opened successfully.
+				openedSuccessfully = true ;
 			}
-		}
-		catch( Exception theException )
+			catch( Exception theException )
+			{
+				// Failed to open a reading stream -- the file is still unavailable
+				log.warning( getThreadName() + "Exception while reading " + testFile.getAbsolutePath() + " on attempt number " + attemptNumber ) ;
+			}
+
+			if( !openedSuccessfully )
+			{
+				// Failed to open the file for this attempt
+				try
+				{
+					// Provide some more time for the file system to sync
+					log.info( getThreadName() + " Sleeping " + getFileSyncSleepTime() + " milliseconds before moveFile()"
+							+ " for file " + testFile.getAbsolutePath() ) ;
+					if( !common.getTestMode() )
+					{
+						Thread.sleep( getFileSyncSleepTime() ) ;
+					}
+				}
+				catch( Exception theException )
+				{
+					log.warning(  getThreadName() + " Error when sleeping for a file closure: " + theException.toString() ) ;
+				}
+			}
+		} // for()
+		if( openedSuccessfully )
 		{
-			log.warning(  getThreadName() + " Error when sleeping for a file closure: " + theException.toString() ) ;
+			log.info( getThreadName() + "Successfully opened " + testFile.getAbsolutePath() + " after " + attemptNumber + " attmpts" ) ;
 		}
+		else
+		{
+			log.warning( getThreadName() + "Unable to sync file " + testFile.getAbsolutePath() + " after " + attemptNumber + " attempts" ) ;
+		}
+
+		// For now, continue with an attempt to move the file.
 		// Get the mp4 thread responsible to move this file.
 		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
 		if( mp4Thread != null )
 		{
-			log.info( getThreadName() + " Found mp4 thread; adding move job" ) ;
+			log.fine( getThreadName() + " Found mp4 thread; adding move job for file " + testFile.getAbsoluteFile() ) ;
 			mp4Thread.addMovieOrShowToMove( movieOrShowToMove ) ;
 		}
 	}
@@ -840,10 +885,10 @@ public class RemuxWithSubtitles extends Thread
 	{
 		Map< String, MovieAndShowInfo > masInfoMap =
 				new HashMap< String, MovieAndShowInfo >( (int) masMDB.getMovieAndShowInfoCollection().countDocuments() ) ;
-	
+
 		// First, get the entire MovieAndShowInfo collection
 		FindIterable< MovieAndShowInfo > movieAndShowInfoIterable = masMDB.getMovieAndShowInfoCollection().find() ;
-	
+
 		// Walk through the entire collection
 		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoIterable.iterator() ;
 		while( movieAndShowInfoIterator.hasNext() )
@@ -967,10 +1012,10 @@ public class RemuxWithSubtitles extends Thread
 	{
 		Map< String, FFmpegProbeResult > probeInfoMap =
 				new HashMap< String, FFmpegProbeResult >( (int) probeInfoCollection.countDocuments() ) ;
-	
+
 		// First, get the entire probe collection
 		FindIterable< FFmpegProbeResult > probeInfoIterable = probeInfoCollection.find() ;
-	
+
 		// Walk through the entire collection
 		Iterator< FFmpegProbeResult > probeInfoIterator = probeInfoIterable.iterator() ;
 		while( probeInfoIterator.hasNext() )
