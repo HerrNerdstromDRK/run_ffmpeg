@@ -467,7 +467,7 @@ public class TranscodeCommon
 			
 			//  7) Add metadata info
 			ffmpegCommand.add( "-copyts" ) ;
-			ffmpegCommand.add( "-c:s", "mov_text" ) ;
+//			ffmpegCommand.add( "-c:s", "mov_text" ) ;
 		
 			//  8) Add output filename (.mp4)
 			ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;

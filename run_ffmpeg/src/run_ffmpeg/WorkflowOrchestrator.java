@@ -37,7 +37,7 @@ public class WorkflowOrchestrator
 		common = new Common( log ) ;
 
 		// Establish connection to the database.
-		masMDB = new MoviesAndShowsMongoDB() ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
 	
 		setupThreads() ;
 	}

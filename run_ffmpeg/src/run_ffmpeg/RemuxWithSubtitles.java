@@ -86,7 +86,7 @@ public class RemuxWithSubtitles extends Thread
 		common = new Common( log ) ;
 
 		// Establish connection to the database.
-		masMDB = new MoviesAndShowsMongoDB() ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
@@ -504,6 +504,12 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToTranscode )
 	{
 		Map< String, RemuxWithSubtitles > threadMap = new TreeMap< String, RemuxWithSubtitles >() ;
+		if( !isUseThreads() )
+		{
+			threadMap.put( getThreadName(), this ) ;
+			return threadMap ;
+		}
+		
 		log.info( getThreadName() + " Creating worker threads, one per MP4 drive." ) ;
 
 		// Create a new RWS for each MP4 drive.
@@ -513,7 +519,6 @@ public class RemuxWithSubtitles extends Thread
 			// Build a new RWS object to handle this mp4 drive.
 			RemuxWithSubtitles rwsWorker = new RemuxWithSubtitles() ;
 			rwsWorker.setThreadName( mp4Drive ) ;
-			//			rwsWorker.setDriveLocks( this.driveLocks ) ;
 
 			// Populate the RWS object with all remux files for that drive.
 			int numRemuxEntries = 0 ;
@@ -687,6 +692,14 @@ public class RemuxWithSubtitles extends Thread
 				fileToTranscode.getMKVFinalDirectory(),
 				fileToTranscode.getMP4OutputDirectory(),
 				fileToTranscode.getMP4FinalDirectory() ) ;
+		
+		// Verify that the remux input mp4 file exists.
+		if( !fileToTranscode.getMP4OutputFile().exists() )
+		{
+			log.warning (getThreadName() + " Unable to find mp4OutputFile: " + fileToTranscode.getMP4OutputFile().getAbsolutePath() ) ;
+			return false ;
+		}
+		
 		boolean remuxSucceeded = false ;
 		remuxSucceeded = tCommon.remuxFile( fileToTranscode ) ;
 		return remuxSucceeded ;
@@ -984,6 +997,12 @@ public class RemuxWithSubtitles extends Thread
 	 */
 	protected RemuxWithSubtitles getMP4Thread( final String mp4FileNameWithPath )
 	{
+		if( !isUseThreads() )
+		{
+			// Using a single thread (this)
+			return this ;
+		}
+		
 		RemuxWithSubtitles retMe = null ;
 		final String mp4SearchDriveName = getDriveNameFromPath( mp4FileNameWithPath ) ;
 		for( Map.Entry< String, RemuxWithSubtitles > entry : workerThreads.entrySet() )
@@ -1031,6 +1050,11 @@ public class RemuxWithSubtitles extends Thread
 	protected String getStopFileName()
 	{
 		return stopFileName;
+	}
+
+	public String getThreadName()
+	{
+		return threadName ;
 	}
 
 	public String getTranscodeWorkerThreadName()
@@ -1112,6 +1136,11 @@ public class RemuxWithSubtitles extends Thread
 		this.keepRunning = keepRunning;
 	}
 
+	public void setThreadName( String threadName )
+	{
+		this.threadName = threadName;
+	}
+
 	public void setUseThreads( boolean useThreads )
 	{
 		this.useThreads = useThreads;
@@ -1130,15 +1159,5 @@ public class RemuxWithSubtitles extends Thread
 	public boolean shouldKeepRunning()
 	{
 		return (!common.shouldStopExecution( getStopFileName() ) && isKeepRunning()) ;
-	}
-
-	public String getThreadName()
-	{
-		return threadName;
-	}
-
-	public void setThreadName( String threadName )
-	{
-		this.threadName = threadName;
 	}
 }

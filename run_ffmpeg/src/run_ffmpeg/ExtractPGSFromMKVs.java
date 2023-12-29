@@ -96,7 +96,7 @@ public class ExtractPGSFromMKVs extends Thread
 		transcodeCommon = new TranscodeCommon( log, common, "", "", "", "" ) ;
 
 		// Establish connection to the database.
-		masMDB = new MoviesAndShowsMongoDB() ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 		probeDirectories = new ProbeDirectories( log, common, masMDB, probeInfoCollection ) ;
 

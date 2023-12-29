@@ -61,7 +61,7 @@ public class ExtractOCRTranscodeMove extends Thread
 		moveFiles = new MoveFiles( moveFilesLogger, common ) ;
 
 		// Establish connection to the database.
-		masMDB = new MoviesAndShowsMongoDB() ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 //		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}

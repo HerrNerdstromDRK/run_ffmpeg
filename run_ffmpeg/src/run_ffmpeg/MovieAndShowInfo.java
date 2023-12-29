@@ -49,7 +49,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
-	
+
 	/**
 	 * Default constructor for serialization/deserialization.
 	 */
@@ -219,11 +219,11 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return largestFile ;
 	}
 
-//	public Iterator< CorrelatedFile > getCorrelatedFilesListIterator()
-//	{
-//		return correlatedFilesList.iterator() ;
-//	}
-	
+	//	public Iterator< CorrelatedFile > getCorrelatedFilesListIterator()
+	//	{
+	//		return correlatedFilesList.iterator() ;
+	//	}
+
 	/**
 	 * Not using an iterator here because it was breaking the serialization. *shrug*
 	 * @return
@@ -232,7 +232,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	{
 		return correlatedFilesList ;
 	}
-	
+
 	public String getMKVLongPath()
 	{
 		return mkvLongPath;
@@ -328,7 +328,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			retMe += "[" + key + "," + correlatedFile.toString() + "]," ;
 		}
 		retMe += "}" ;
-		
+
 		retMe += ",correlatedFilesList:{" ;
 		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
 		{

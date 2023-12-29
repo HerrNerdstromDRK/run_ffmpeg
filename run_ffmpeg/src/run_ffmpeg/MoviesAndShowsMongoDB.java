@@ -58,12 +58,23 @@ public class MoviesAndShowsMongoDB
 	public MoviesAndShowsMongoDB()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		init() ;
+	}
+
+	public MoviesAndShowsMongoDB( Logger log )
+	{
+		this.log = log ;
+		init() ;
+	}
+	
+	private void init()
+	{
 		java.util.logging.Logger.getLogger( "org.mongodb.driver" ).setLevel( Level.SEVERE );
 		java.util.logging.Logger.getLogger( "JULLogger" ).setLevel(Level.OFF );
 //		common = new Common( log ) ;
 		loginAndConfigureDatabase() ;
 	}
-
+	
 	/**
 	 * Return a handle to the logged in database.
 	 * If not already logged in, do so now.

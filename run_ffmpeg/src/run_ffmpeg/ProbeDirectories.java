@@ -48,7 +48,7 @@ public class ProbeDirectories extends Thread
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 
-		masMDB = new MoviesAndShowsMongoDB() ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 
 		drivesAndFoldersToProbe = common.getAllDrivesAndFolders() ;

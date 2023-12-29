@@ -151,7 +151,7 @@ public class TranscodeFile
 		if( getMKVInputDirectory().contains( "Season " ) )
 		{
 			// TV Show
-			log.fine( "Found tv show file: " + getMKVInputFileNameWithPath() ) ;
+//			log.fine( "Found tv show file: " + getMKVInputFileNameWithPath() ) ;
 			setTVShow() ;
 
 			setTVShowName( getMKVInputDirectoryFile().getParentFile().getName() ) ;
@@ -160,7 +160,7 @@ public class TranscodeFile
 		else if( getMKVInputDirectory().contains( "(" ) )
 		{
 			// Movie
-			log.fine( "Found movie file: " + getMKVInputFileNameWithPath() ) ;
+//			log.fine( "Found movie file: " + getMKVInputFileNameWithPath() ) ;
 
 			// The formal should be like this:
 			// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
@@ -170,7 +170,7 @@ public class TranscodeFile
 		else
 		{
 			// Other Videos
-			log.fine( "Found Other Videos file: " + getMKVInputFileNameWithPath() ) ;
+//			log.fine( "Found Other Videos file: " + getMKVInputFileNameWithPath() ) ;
 			setOtherVideo( true ) ;
 
 			// Treat this as a movie in most respects, except the path
@@ -254,40 +254,16 @@ public class TranscodeFile
 		// fileNameSearchString is the wildcard/regex search string for the file name (no path)
 		// Retrieve the filename and remove the extension.
 		// --> Movie name [Unrated] (2001).
-//		String fileNameSearchRegex = getMKVFileName() ;
 		final String fileNameWithoutExtension = getMKVFileName().substring( 0, getMKVFileName().indexOf( "." ) + 1 ) ;
-		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001).mkv"
-
-		//		fileNameSearchRegex = fileNameSearchRegex.substring( 0, fileNameSearchRegex.lastIndexOf( '.' ) ) ;
-		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001)"
-
-		// Add the trailing period after the file name as a literal
-		//		fileNameSearchRegex = fileNameSearchRegex + "." ;
-		//		fileNameSearchRegex = fileNameSearchRegex + "\\." ;
-		// Post condition: fileNameSearchRegex == "Movie name [Unrated] (2001)\."
-
-		// Replace special regex characters with their literal equivalents
-		//		fileNameSearchRegex = fileNameSearchRegex.replace( "(", "\\(" ).replace( ")", "\\)" ) ;
-		// Post condition: fileNameSearchRegex == "Movie name [Unrated] \(2001\)\."
-
-		//		fileNameSearchRegex = fileNameSearchRegex.replace( "[", "\\[" ).replace( "]", "\\]" ) ;
-		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\."
-
-		// Add search parameter for digit character class
-		//		fileNameSearchRegex += "[0-9]+\\." ;
-		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\."
-
-		if( checkOnlyForFakeSRTs )
-		{
-			//			fileNameSearchRegex += Common.getFakeSRTSubString() + "\\." ;
-			// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\.fake_srt\."
-		}
-
-		//		fileNameSearchRegex += extension ;
-		// Post condition: fileNameSearchRegex == "Movie name \[Unrated\] \(2001\)\.[0-9]+\.fake_srt\.srt"
 
 		// Now search for any file that starts with the fileNameWithPath and ends with .srt
 		final File[] filesInDirectory = getMKVInputDirectoryFile().listFiles() ;
+		if( null == filesInDirectory )
+		{
+			log.warning( "Found empty directory for file: " + toString() ) ;
+			return theFileList ;
+		}
+		
 		for( File searchFile : filesInDirectory )
 		{
 			final String searchFileName = searchFile.getName() ;
@@ -305,13 +281,6 @@ public class TranscodeFile
 					// NOT looking only for fake SRTs, but still matches the file name with extension
 					theFileList.add( searchFile ) ;
 				}
-			}
-			//			final String searchFileName = searchFile.getName() ;
-			//			if( searchFileName.matches( fileNameSearchRegex ) ) //|| searchFileName.contains( TranscodeCommon.getForcedSubTitleFileNameContains() ))
-			{
-				// Found a matching subtitle file
-//				log.fine( "searchFile (" + searchFile.getName() + ") matches regex: " + fileNameSearchRegex ) ;
-//				theFileList.add( searchFile ) ;
 			}
 		}
 		return theFileList ;
