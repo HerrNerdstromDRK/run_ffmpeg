@@ -694,9 +694,9 @@ public class RemuxWithSubtitles extends Thread
 				fileToTranscode.getMP4FinalDirectory() ) ;
 		
 		// Verify that the remux input mp4 file exists.
-		if( !fileToTranscode.getMP4OutputFile().exists() )
+		if( !fileToTranscode.getMP4FinalFile().exists() )
 		{
-			log.warning (getThreadName() + " Unable to find mp4OutputFile: " + fileToTranscode.getMP4OutputFile().getAbsolutePath() ) ;
+			log.warning (getThreadName() + " Unable to find mp4FinalFile: " + fileToTranscode.getMP4FinalFile().getAbsolutePath() ) ;
 			return false ;
 		}
 		
