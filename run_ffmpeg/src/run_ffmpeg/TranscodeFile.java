@@ -724,7 +724,8 @@ public class TranscodeFile
 			if( null == theInputStream.channel_layout )
 			{
 				// No channel_layout
-				log.fine( "No channel_layout field found for file: " + toString() + " for file " + getMKVInputFile().getAbsolutePath() ) ;
+				// This is not a big deal -- many extras videos lack the channel_layout field 
+//				log.fine( "No channel_layout field found for file: " + toString() + " for file " + getMKVInputFile().getAbsolutePath() ) ;
 			}
 			else if( theInputStream.channel_layout.contains( "stereo" )
 					|| theInputStream.channel_layout.contains( "2 channels" ) )

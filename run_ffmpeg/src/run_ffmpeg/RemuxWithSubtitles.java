@@ -90,19 +90,19 @@ public class RemuxWithSubtitles extends Thread
 
 	public RemuxWithSubtitles( RemuxWithSubtitles rhs )
 	{
-		this() ;
-		rhs.log = log ;
-		rhs.common = common ;
+//		this() ;
+		log = rhs.log ;
+		common = rhs.common ;
 		// logFileName is final
 		// mp4OutputDirectory will not change
 		// stopFileName is final
-		rhs.useThreads = isUseThreads() ;
+		useThreads = rhs.isUseThreads() ;
 		// workerThreads will be default/empty
-		rhs.fileSyncSleepTime = getFileSyncSleepTime() ;
+		fileSyncSleepTime = rhs.getFileSyncSleepTime() ;
 		// transcodeWorkerThreadName will not be changed
-		rhs.masMDB = masMDB ;
-		rhs.movieAndShowInfoCollection = movieAndShowInfoCollection ;
-		rhs.probeInfoCollection = probeInfoCollection ;
+		masMDB = rhs.masMDB ;
+		movieAndShowInfoCollection = rhs.movieAndShowInfoCollection ;
+		probeInfoCollection = rhs.probeInfoCollection ;
 		// moviesAndShowsToRemux/Retranscode/Move will be set dynamically
 		// keepRunning defaults to true		
 	}
@@ -386,7 +386,7 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToRemux,
 			List< TranscodeFile > filesToTranscode )
 	{
-//		log.fine( getName() + " Processing MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+		//		log.fine( getName() + " Processing MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
 		if( theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingMovieMKVPath() )
 				|| theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingTVShowMKVPath() ) )
 		{
@@ -551,7 +551,8 @@ public class RemuxWithSubtitles extends Thread
 			int numRemuxEntries = 0 ;
 			for( TranscodeFile theRemuxFile : filesToRemux )
 			{
-				final String mp4Path = theRemuxFile.getMP4FinalFileNameWithPath() ;
+				// The path separator is important here; otherwise, "\\yoda\\MP4" will match everything
+				final String mp4Path = common.addPathSeparatorIfNecessary( theRemuxFile.getMP4FinalFileNameWithPath() ) ;
 				if( mp4Path.contains( mp4Drive ) )
 				{
 					rwsWorker.addMovieOrShowToRemux( theRemuxFile ) ;
