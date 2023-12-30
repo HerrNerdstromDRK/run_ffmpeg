@@ -90,6 +90,7 @@ public class RemuxWithSubtitles extends Thread
 
 	public RemuxWithSubtitles( RemuxWithSubtitles rhs )
 	{
+		this() ;
 		rhs.log = log ;
 		rhs.common = common ;
 		// logFileName is final
@@ -120,6 +121,7 @@ public class RemuxWithSubtitles extends Thread
 	{
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
+		setName( "main" ) ;
 
 		// Get all of the MP4 drives
 		List< String > mp4DrivesWithoutFolders = common.getAllMP4Drives() ;
