@@ -93,12 +93,12 @@ public class ProbeDirectories extends Thread
 		if( useOneThreadPerDrive )
 		{
 			log.info( "Using one probe thread per drive" ) ;
-			
+
 			// drivesToProbe has all of the drives to probe.
 			List< String > drivesToProbe = new ArrayList< String >() ;
 			drivesToProbe.addAll( common.getAllMKVDrives() ) ;
 			drivesToProbe.addAll( common.getAllMP4Drives() ) ;
-			
+
 			for( String driveToProbe : drivesToProbe )
 			{
 				ProbeDirectories pd = new ProbeDirectories() ;
@@ -113,7 +113,7 @@ public class ProbeDirectories extends Thread
 		{
 			// Use one thread per chain
 			log.info( "Using one probe thread for each chain." ) ;
-			
+
 			List< String > chainADrivesAndFolders = new ArrayList< String >() ;
 			chainADrivesAndFolders.addAll( common.getAllChainAMKVDrivesAndFolders() ) ;
 			chainADrivesAndFolders.addAll( common.getAllChainAMP4DrivesAndFolders() ) ;
@@ -121,13 +121,13 @@ public class ProbeDirectories extends Thread
 			List< String > chainBDrivesAndFolders = new ArrayList< String >() ;
 			chainBDrivesAndFolders.addAll( common.getAllChainBMKVDrivesAndFolders() ) ;
 			chainBDrivesAndFolders.addAll( common.getAllChainBMP4DrivesAndFolders() ) ;
-			
+
 			ProbeDirectories chainAProbe = new ProbeDirectories() ;
 			chainAProbe.setDrivesAndFoldersToProbe( chainADrivesAndFolders ) ;
-			
+
 			ProbeDirectories chainBProbe = new ProbeDirectories() ;
 			chainBProbe.setDrivesAndFoldersToProbe( chainBDrivesAndFolders ) ;
-			
+
 			pdThreads.add( chainAProbe ) ;
 			pdThreads.add( chainBProbe ) ;
 		}
@@ -198,7 +198,7 @@ public class ProbeDirectories extends Thread
 		}
 		return false ;
 	}
-	
+
 	/**
 	 * Return an FFmpegProbeResult corresponding to the given fileToProbe
 	 * if it exists in the database.
@@ -345,7 +345,14 @@ public class ProbeDirectories extends Thread
 		}
 
 		// Push the probe result into the database.
-		probeInfoCollection.insertOne( probeResult ) ;
+		if( probeResult != null )
+		{
+			probeInfoCollection.insertOne( probeResult ) ;
+		}
+		else
+		{
+			log.warning( "Null probeResult for file " + fileToProbe.getAbsolutePath() ) ;
+		}
 		return probeResult ;
 	}
 

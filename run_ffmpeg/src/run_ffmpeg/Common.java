@@ -668,7 +668,7 @@ public class Common
 			}
 		}
 
-		log.fine( "Established logger: " + localLog.getName() ) ;
+//		log.fine( "Established logger: " + localLog.getName() ) ;
 		return localLog ;
 	}
 
