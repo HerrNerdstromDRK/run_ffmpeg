@@ -533,6 +533,7 @@ public class RemuxWithSubtitles extends Thread
 		Map< String, RemuxWithSubtitles > threadMap = new TreeMap< String, RemuxWithSubtitles >() ;
 		if( !isUseThreads() )
 		{
+			log.info( "Running in single thread mode" ) ;
 			threadMap.put( getName(), this ) ;
 			return threadMap ;
 		}
@@ -545,15 +546,17 @@ public class RemuxWithSubtitles extends Thread
 		{
 			// Build a new RWS object to handle this mp4 drive.
 			RemuxWithSubtitles rwsWorker = new RemuxWithSubtitles( this ) ;
-			rwsWorker.setName( mp4Drive ) ;
+			final String mp4DriveWithTrailingBackslashes = common.addPathSeparatorIfNecessary( mp4Drive ) ;
+			rwsWorker.setName( mp4DriveWithTrailingBackslashes ) ;
 
 			// Populate the RWS object with all remux files for that drive.
 			int numRemuxEntries = 0 ;
 			for( TranscodeFile theRemuxFile : filesToRemux )
 			{
 				// The path separator is important here; otherwise, "\\yoda\\MP4" will match everything
+				// mp4Path will be of the form \\yoda\\MP4\\Movies\\Transformers (2009)\\Visual Effects-behindthescenes.mp4
 				final String mp4Path = common.addPathSeparatorIfNecessary( theRemuxFile.getMP4FinalFileNameWithPath() ) ;
-				if( mp4Path.contains( mp4Drive ) )
+				if( mp4DriveWithTrailingBackslashes.startsWith( mp4Path ) )
 				{
 					rwsWorker.addMovieOrShowToRemux( theRemuxFile ) ;
 					++numRemuxEntries ;
@@ -562,15 +565,16 @@ public class RemuxWithSubtitles extends Thread
 
 			// Do NOT provide the transcode files to this worker -- one thread (created below) is responsible
 			// to transcode all files.
-			log.info( getName() + " Worker thread for " + mp4Drive + " contains " + numRemuxEntries + " items to remux; name: " +
-					rwsWorker.getName() ) ;
+			log.info( getName() + " Worker thread for " + mp4DriveWithTrailingBackslashes + " contains " + numRemuxEntries
+					+ " items to remux; name: " + rwsWorker.getName() ) ;
 
 			// Finally add the worker to the threadMap.
+			// Opting to NOT use the mp4DriveWithTrailingBackslashes here
 			threadMap.put( mp4Drive, rwsWorker ) ;
 		}
 
 		// Add the transcode worker thread.
-		RemuxWithSubtitles transcodeWorkerThread = new RemuxWithSubtitles() ;
+		RemuxWithSubtitles transcodeWorkerThread = new RemuxWithSubtitles( this ) ;
 		transcodeWorkerThread.setName( "Transcode" ) ;
 		transcodeWorkerThread.addMovieOrShowToRetranscode( filesToTranscode ) ;
 		threadMap.put( getTranscodeWorkerThreadName(), transcodeWorkerThread ) ;
