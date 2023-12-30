@@ -547,7 +547,7 @@ public class RemuxWithSubtitles extends Thread
 			// Build a new RWS object to handle this mp4 drive.
 			RemuxWithSubtitles rwsWorker = new RemuxWithSubtitles( this ) ;
 			final String mp4DriveWithTrailingBackslashes = common.addPathSeparatorIfNecessary( mp4Drive ) ;
-			rwsWorker.setName( mp4DriveWithTrailingBackslashes ) ;
+			rwsWorker.setName( mp4Drive ) ;
 
 			// Populate the RWS object with all remux files for that drive.
 			int numRemuxEntries = 0 ;
@@ -556,7 +556,7 @@ public class RemuxWithSubtitles extends Thread
 				// The path separator is important here; otherwise, "\\yoda\\MP4" will match everything
 				// mp4Path will be of the form \\yoda\\MP4\\Movies\\Transformers (2009)\\Visual Effects-behindthescenes.mp4
 				final String mp4Path = common.addPathSeparatorIfNecessary( theRemuxFile.getMP4FinalFileNameWithPath() ) ;
-				if( mp4DriveWithTrailingBackslashes.startsWith( mp4Path ) )
+				if( mp4Path.startsWith( mp4DriveWithTrailingBackslashes ) )
 				{
 					rwsWorker.addMovieOrShowToRemux( theRemuxFile ) ;
 					++numRemuxEntries ;
