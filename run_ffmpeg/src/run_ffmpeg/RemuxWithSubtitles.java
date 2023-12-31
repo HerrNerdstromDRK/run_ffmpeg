@@ -90,7 +90,6 @@ public class RemuxWithSubtitles extends Thread
 
 	public RemuxWithSubtitles( RemuxWithSubtitles rhs )
 	{
-//		this() ;
 		log = rhs.log ;
 		common = rhs.common ;
 		// logFileName is final
@@ -360,9 +359,27 @@ public class RemuxWithSubtitles extends Thread
 				+ "->" + theFileToMove.getMP4FinalFileNameWithPath() ) ;
 				if( !common.getTestMode() )
 				{
-					MoveFiles.moveFile( theFileToMove.getMP4OutputFileNameWithPath(), theFileToMove.getMP4FinalFileNameWithPath(), log, common ) ;
+					didSomeWork = MoveFiles.moveFile( theFileToMove.getMP4OutputFileNameWithPath(),
+							theFileToMove.getMP4FinalFileNameWithPath(), log, common ) ;
+					if( !didSomeWork )
+					{
+						// The moveFile() failed. Most often this is because the file has not been properly synced on the drive yet.
+						// Time fixes this problem.
+						// In order to provide time for the file to sync, requeue the file here for a move later.
+						// Note that this file may be the only file in the move queue.
+						// In that case, returning didSomeWork == false here will force the calling method to
+						// perform another remux/retranscode or sleep(), both of which provide more time for the file to sync.
+						// Lastly, storing the move files in a queue will prevent starvation amongst other files that need to
+						// be moved: if this is the first move file in the queue, the rest will be skipped this iteration but
+						// will be ahead of this file on the next iteration.
+						addMovieOrShowToMove( theFileToMove ) ;
+					}
 				}
-				didSomeWork = true ;
+				else
+				{
+					// In test mode, assume the move succeeded
+					didSomeWork = true ;
+				}
 			}
 		} // if( transcode )
 
@@ -600,72 +617,15 @@ public class RemuxWithSubtitles extends Thread
 	{
 		assert( movieOrShowToMove != null ) ;
 
-		// 26-Dec-2023: Having a problem moving files -- quite a few are generating an exception that
-		//  the file is in use by another process.
-		// Although it violated the Rule of Time, I currently see no better option than to insert
-		//  an arbitrary sleep to let the file system catch up.
-
-		// Mitigate this issue by attempting to open the file, with delays in between, up to a certain
-		// number of times.
-		int attemptNumber = 0 ;
-		boolean openedSuccessfully = false ;
-		File testFile = movieOrShowToMove.getMP4OutputFile() ;
-
-		for( ; (attemptNumber <= 10) && !openedSuccessfully ; ++attemptNumber )
-		{
-			try
-			{
-				// Try to open a read stream for the file. A locked file should generate an exception.
-				if( !common.getTestMode() )
-				{
-					FileReader fr = new FileReader( testFile ) ;
-					fr.close() ;
-				}
-
-				// If the code reaches this point then it should indicate that the file opened successfully.
-				openedSuccessfully = true ;
-			}
-			catch( Exception theException )
-			{
-				// Failed to open a reading stream -- the file is still unavailable
-				log.warning( getName() + "Exception while reading " + testFile.getAbsolutePath() + " on attempt number " + attemptNumber ) ;
-			}
-
-			if( !openedSuccessfully )
-			{
-				// Failed to open the file for this attempt
-				try
-				{
-					// Provide some more time for the file system to sync
-					log.info( getName() + " Sleeping " + getFileSyncSleepTime() + " milliseconds before moveFile()"
-							+ " for file " + testFile.getAbsolutePath() ) ;
-					if( !common.getTestMode() )
-					{
-						Thread.sleep( getFileSyncSleepTime() ) ;
-					}
-				}
-				catch( Exception theException )
-				{
-					log.warning(  getName() + " Error when sleeping for a file closure: " + theException.toString() ) ;
-				}
-			}
-		} // for()
-		if( openedSuccessfully )
-		{
-			log.info( getName() + " Successfully opened " + testFile.getAbsolutePath() + " after " + attemptNumber + " attempt(s)" ) ;
-		}
-		else
-		{
-			log.warning( getName() + "Unable to sync file " + testFile.getAbsolutePath() + " after " + attemptNumber + " attempt(s)" ) ;
-		}
-
+		File fileToMove = movieOrShowToMove.getMP4OutputFile() ;
+		
 		// For now, continue with an attempt to move the file.
 		// Get the mp4 thread responsible to move this file.
 		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
 		if( mp4Thread != null )
 		{
-			log.fine( getName() + " Found mp4 thread (" + mp4Thread.getName() + ") adding move job for file " + testFile.getAbsoluteFile()
-			+ "->" + movieOrShowToMove.getMP4FinalFile().getAbsolutePath() ) ;
+			log.fine( getName() + " Found mp4 thread (" + mp4Thread.getName() + ") adding move job for file " + fileToMove.getAbsoluteFile()
+			+ "->" + fileToMove.getAbsolutePath() ) ;
 			mp4Thread.addMovieOrShowToMove( movieOrShowToMove ) ;
 		}
 	}
