@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import java.io.File ;
-import java.io.FileReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -618,7 +617,7 @@ public class RemuxWithSubtitles extends Thread
 		assert( movieOrShowToMove != null ) ;
 
 		File fileToMove = movieOrShowToMove.getMP4OutputFile() ;
-		
+
 		// For now, continue with an attempt to move the file.
 		// Get the mp4 thread responsible to move this file.
 		RemuxWithSubtitles mp4Thread = getMP4Thread( movieOrShowToMove.getMP4FinalFileNameWithPath() ) ;
@@ -715,92 +714,99 @@ public class RemuxWithSubtitles extends Thread
 		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoFindResult.iterator() ;
 		// TODO: Shouldn't only one MovieAndShowInfo match for this find?
 		// Let's count
-		int numMovieAndShowInfosFound = 0 ;
-		while( movieAndShowInfoIterator.hasNext() )
+		if( !movieAndShowInfoIterator.hasNext() )
 		{
-			++numMovieAndShowInfosFound ;
-			MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
-			// Pre-condition: theMovieAndShowInfo is only present here if it needs to be remux'd/retranscoded
-			log.info( getName() + " Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
-			// theMovieAndShowInfo should have information about the movie or show along with
-			// information about the constituent files (mkv and mp4) for it.
+			log.warning( getName() + " Unable to find MovieAndShowInfo for " + fileToRemuxOrRetranscode.toString() ) ;
+			return ;
+		}
 
-			boolean operationSuccess = false ;
-			if( doRemux )
+		MovieAndShowInfo theMovieAndShowInfo = movieAndShowInfoIterator.next() ;
+		// Pre-condition: theMovieAndShowInfo is only present here if it needs to be remux'd/retranscoded
+		log.info( getName() + " Found MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
+		// theMovieAndShowInfo should have information about the movie or show along with
+		// information about the constituent files (mkv and mp4) for it.
+
+		boolean operationSuccess = false ;
+		if( doRemux )
+		{
+			operationSuccess = remuxFile( theMovieAndShowInfo, fileToRemuxOrRetranscode ) ;
+		}
+		else
+		{
+			operationSuccess = transcodeFile( theMovieAndShowInfo, fileToRemuxOrRetranscode ) ;
+		}
+
+		if( !operationSuccess )
+		{
+			// Transcode/remux failed.
+			log.warning(  getName() + " Operation failed for " + (doRemux ? "remux" : "transcode")
+					+ " for file " + fileToRemuxOrRetranscode.toString() ) ;
+			return ;
+		}
+		// Post-condition: Transcode/remux succeeded
+		// Replace the old mp4 file with the new mp4 file.
+
+		// Replace the old mp4 file with the new file.
+		File oldMP4File = fileToRemuxOrRetranscode.getMP4FinalFile() ;
+		File newMP4File = new File( fileToRemuxOrRetranscode.getMP4OutputFileNameWithPath() ) ;
+
+		// First, delete the old mp4 file.
+		log.info( getName() + " Deleting oldMP4File: " + oldMP4File.getAbsolutePath() ) ;
+		if( !common.getTestMode() )
+		{
+			try
 			{
-				operationSuccess = remuxFile( theMovieAndShowInfo, fileToRemuxOrRetranscode ) ;
+				boolean deleteSuccessful = oldMP4File.delete() ;
+				if( !deleteSuccessful )
+				{
+					log.warning( getName() + " Unable to delete file " + oldMP4File.getAbsolutePath() ) ;
+					// Can't really do anything at this point.
+					return ;
+				}
 			}
-			else
+			catch( Exception theException )
 			{
-				operationSuccess = transcodeFile( theMovieAndShowInfo, fileToRemuxOrRetranscode ) ;
+				log.warning( getName() + " Error deleting oldMP4File (" + oldMP4File.getAbsolutePath() + "): " + theException.toString() ) ;
+				return ;
 			}
+		}
 
-			if( !operationSuccess )
-			{
-				// Transcode/remux failed.
-				log.warning(  getName() + " Operation failed" ) ;
-				continue ;
-			}
-			// Post-condition: Transcode/remux succeeded
-			// Replace the old mp4 file with the new mp4 file.
+		// Modify the probe result to indicate the final destination of the mp4 file, versus its temporary
+		//  output directory.
+		// Since the mp4 file is different, update the probe.
+		FFmpegProbeResult mp4ProbeResult = common.ffprobeFile( newMP4File, log ) ;
 
-			// Replace the old mp4 file with the new file.
-			File oldMP4File = fileToRemuxOrRetranscode.getMP4FinalFile() ;
-			File newMP4File = new File( fileToRemuxOrRetranscode.getMP4OutputFileNameWithPath() ) ;
+		// Move the new mp4 output file to its destination
+		log.info( getName() + " Queueing move " + newMP4File.getAbsolutePath() + " -> " + oldMP4File.getAbsolutePath() ) ;
+		moveFile( fileToRemuxOrRetranscode ) ;
 
-			// First, delete the old mp4 file.
-			log.info( getName() + " Deleting oldMP4File: " + oldMP4File.getAbsolutePath() ) ;
+		// No need to move the mkv or srt files since this program only deals with the mp4 file(s).
+		// No need to update the mkv probe since the mkv has not changed.
+		if( mp4ProbeResult != null )
+		{
+			// We probed the new mp4 file while it was sitting in a temporary directory. As a result, it
+			// contains that temporary directory information.
+			// We need to update that directory information before storing the probe in the database.
+			mp4ProbeResult.setFileNameWithPath( oldMP4File.getAbsolutePath() ) ;
+			mp4ProbeResult.setFileNameShort( Common.shortenFileName( oldMP4File.getAbsolutePath() ) ) ;
+
+			// Update the MovieAndShowInfo with the new mp4 file information
+			// Should be OK to update the probe result here because it is not being used anywhere else (presently)
+			// in this or the calling algorithm.
+			// NOTE: Shouldn't need to update the correlated file information since it only holds location information, which
+			// is not changing.
+
+			// Update the probe information table with the updated probe.
+			Bson probeInfoIDFilter = Filters.eq( "fileNameWithPath", oldMP4File.getAbsolutePath() ) ;
 			if( !common.getTestMode() )
 			{
-				try
-				{
-					oldMP4File.delete() ;
-				}
-				catch( Exception theException )
-				{
-					log.warning( getName() + " Error deleting oldMP4File (" + oldMP4File.getAbsolutePath() + "): " + theException.toString() ) ;
-					continue ;
-				}
+				// Should be ok to update the probe database.
+				probeInfoCollection.replaceOne( probeInfoIDFilter, mp4ProbeResult ) ;
 			}
-
-			// Modify the probe result to indicate the final destination of the mp4 file, versus its temporary
-			//  output directory.
-			// Since the mp4 file is different, update the probe.
-			FFmpegProbeResult mp4ProbeResult = common.ffprobeFile( newMP4File, log ) ;
-
-			// Move the new mp4 output file to its destination
-			log.info( getName() + " Queueing move " + newMP4File.getAbsolutePath() + " -> " + oldMP4File.getAbsolutePath() ) ;
-			moveFile( fileToRemuxOrRetranscode ) ;
-
-			// No need to move the mkv or srt files since this program only deals with the mp4 file(s).
-			// No need to update the mkv probe since the mkv has not changed.
-			if( mp4ProbeResult != null )
-			{
-				// We probed the new mp4 file while it was sitting in a temporary directory. As a result, it
-				// contains that temporary directory information.
-				// We need to update that directory information before storing the probe in the database.
-				mp4ProbeResult.setFileNameWithPath( oldMP4File.getAbsolutePath() ) ;
-				mp4ProbeResult.setFileNameShort( Common.shortenFileName( oldMP4File.getAbsolutePath() ) ) ;
-
-				// Update the MovieAndShowInfo with the new mp4 file information
-				// Should be OK to update the probe result here because it is not being used anywhere else (presently)
-				// in this or the calling algorithm.
-				// NOTE: Shouldn't need to update the correlated file information since it only holds location information, which
-				// is not changing.
-
-				// Update the probe information table with the updated probe.
-				Bson probeInfoIDFilter = Filters.eq( "fileNameWithPath", oldMP4File.getAbsolutePath() ) ;
-				if( !common.getTestMode() )
-				{
-					// Should be ok to update the probe database.
-					probeInfoCollection.replaceOne( probeInfoIDFilter, mp4ProbeResult ) ;
-				}
-			} // if( mp4ProbeResult != null )
-			// No need to update the CorrelatedFile: that object only stores information about the location of the file,
-			// but nothing about its contents, date of creation or modification, or probe information (probe information
-			// is stored in the probe table in the database, but not in the CorrelatedFile in the database).
-			log.info( getName() + " Found " + numMovieAndShowInfosFound + " matching MovieAndShowInfos for " + fileToRemuxOrRetranscode.toString() ) ;
-		}
+		} // if( mp4ProbeResult != null )
+		// No need to update the CorrelatedFile: that object only stores information about the location of the file,
+		// but nothing about its contents, date of creation or modification, or probe information (probe information
+		// is stored in the probe table in the database, but not in the CorrelatedFile in the database).
 	}
 
 	protected boolean transcodeFile( MovieAndShowInfo theMovieAndShowInfo,
@@ -1024,7 +1030,7 @@ public class RemuxWithSubtitles extends Thread
 			{
 				// Found a match
 				retMe = entry.getValue() ;
-				log.info( "Found match: " + mp4SearchDriveName + " with " + retMe.getName() ) ;
+				log.fine( "Found match: " + mp4SearchDriveName + " with " + retMe.getName() ) ;
 				break ;
 			}
 		}
