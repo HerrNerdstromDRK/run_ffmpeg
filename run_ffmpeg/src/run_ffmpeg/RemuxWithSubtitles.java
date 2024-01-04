@@ -434,8 +434,6 @@ public class RemuxWithSubtitles extends Thread
 			// Retrieve the probe information for the correlated file.
 			final String mkvFileNameWithPath = common.addPathSeparatorIfNecessary( theMovieAndShowInfo.getMKVLongPath() )
 					+ theCorrelatedFile.getFileName()  + ".mkv" ;	
-			//			Bson findProbeInfoFilter = Filters.eq( "fileNameWithPath", mkvFileNameWithPath ) ;
-			//			FFmpegProbeResult mkvProbeResult = probeInfoCollection.find( findProbeInfoFilter ).first() ;
 			FFmpegProbeResult mkvProbeResult = probeInfoMap.get( mkvFileNameWithPath ) ;
 			if( null == mkvProbeResult )
 			{
@@ -474,7 +472,6 @@ public class RemuxWithSubtitles extends Thread
 						+ " for file: " + fileToRemuxOrTranscode.toString() ) ;
 			}
 		} // for( correlatedFile )
-		//		} // while( movieAndShowInfoIterator.hasNext() )
 	} // buildRemuxAndTranscodeList()
 
 	/**
@@ -712,8 +709,6 @@ public class RemuxWithSubtitles extends Thread
 		FindIterable< MovieAndShowInfo > movieAndShowInfoFindResult = movieAndShowInfoCollection.find( findFileFilter ) ;
 
 		Iterator< MovieAndShowInfo > movieAndShowInfoIterator = movieAndShowInfoFindResult.iterator() ;
-		// TODO: Shouldn't only one MovieAndShowInfo match for this find?
-		// Let's count
 		if( !movieAndShowInfoIterator.hasNext() )
 		{
 			log.warning( getName() + " Unable to find MovieAndShowInfo for " + fileToRemuxOrRetranscode.toString() ) ;
@@ -942,8 +937,9 @@ public class RemuxWithSubtitles extends Thread
 		return pathWithoutEndingBackslash ;
 	}
 
-	public long getFileSyncSleepTime() {
-		return fileSyncSleepTime;
+	public long getFileSyncSleepTime()
+	{
+		return fileSyncSleepTime ;
 	}
 
 	public String getLogFileName()
