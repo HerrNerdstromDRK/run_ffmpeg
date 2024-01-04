@@ -4,7 +4,6 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.logging.Logger;
 
 import org.bson.conversions.Bson;
@@ -110,29 +109,29 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 				mp4FinalDirectory,
 				log ) ;
 
-		// Extract subtitle streams.
-		ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
-		// runOneFile() will also prune the .sup files
-		extractPGSFromMKVs.runOneFile( fileToTranscode ) ;
-
-		OCRSubtitle ocrSubtitle = new OCRSubtitle() ;
-		List< File > filesToOCR = common.getFilesInDirectoryByExtension( mkvInputDirectory, OCRSubtitle.getExtensionsToOCR() ) ;
-		for( File fileToOCR : filesToOCR )
-		{
-			ocrSubtitle.doOCRFile( fileToOCR ) ;
-			if( !common.getTestMode() )
-			{
-				fileToOCR.delete() ;
-			}
-		}
-
-		// Transcode the file.
-		// Force a refresh of supporting files (.srt) by creating a new TranscodeFile
-		fileToTranscode = new TranscodeFile( mkvInputFileWithPath,
-				mkvInputDirectory,
-				getMP4WorkingDirectory(),
-				mp4FinalDirectory,
-				log ) ;
+//		// Extract subtitle streams.
+//		ExtractPGSFromMKVs extractPGSFromMKVs = new ExtractPGSFromMKVs() ;
+//		// runOneFile() will also prune the .sup files
+//		extractPGSFromMKVs.runOneFile( fileToTranscode ) ;
+//
+//		OCRSubtitle ocrSubtitle = new OCRSubtitle() ;
+//		List< File > filesToOCR = common.getFilesInDirectoryByExtension( mkvInputDirectory, OCRSubtitle.getExtensionsToOCR() ) ;
+//		for( File fileToOCR : filesToOCR )
+//		{
+//			ocrSubtitle.doOCRFile( fileToOCR ) ;
+//			if( !common.getTestMode() )
+//			{
+//				fileToOCR.delete() ;
+//			}
+//		}
+//
+//		// Transcode the file.
+//		// Force a refresh of supporting files (.srt) by creating a new TranscodeFile
+//		fileToTranscode = new TranscodeFile( mkvInputFileWithPath,
+//				mkvInputDirectory,
+//				getMP4WorkingDirectory(),
+//				mp4FinalDirectory,
+//				log ) ;
 		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( mkvInputFileWithPath, log ) ;
 		if( null == mkvProbeResult )
 		{

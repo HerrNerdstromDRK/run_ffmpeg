@@ -93,8 +93,7 @@ public class Common
 		{
 				"\\\\yoda\\MKV_Archive2",
 //				"\\\\yoda\\MKV_Archive4",
-				"E:\\Movies",
-				"E:\\TV Shows",
+				"E:\\",
 				"\\\\yoda\\MKV_Archive5",
 				"\\\\yoda\\MKV_Archive6",
 				"\\\\yoda\\MKV_Archive9",
@@ -104,10 +103,9 @@ public class Common
 		{
 				"\\\\yoda\\MKV_Archive1",
 				"\\\\yoda\\MKV_Archive3",
-				"F:\\Movies",
-				"F:\\TV Shows",
+				"F:\\",
 				"\\\\yoda\\MKV_Archive7",
-				"\\\\yoda\\MKV_Archive8" // Min this
+				"\\\\yoda\\MKV_Archive8"
 		} ;
 	private final String[] missingFiles =
 		{
@@ -142,15 +140,22 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-			//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
 
 			retMe.add( tvShowsFolder ) ;
 			retMe.add( moviesFolder ) ;
-			//			retMe.add( otherVideosFolder ) ;
+			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
 	}
 
+	public List< String > addMoviesAndTVShowFoldersToDrive( final String theDrive )
+	{
+		List< String > tempList = new ArrayList< String >() ;
+		tempList.add( theDrive ) ;
+		return addMoviesAndTVShowFoldersToEachDrive( tempList ) ;
+	}
+	
 	/**
 	 * Add trailing path separator ("/" or "\\") if missing.
 	 * @param inputPath
