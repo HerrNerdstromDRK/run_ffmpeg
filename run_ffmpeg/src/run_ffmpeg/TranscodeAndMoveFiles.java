@@ -65,9 +65,9 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
-		common.setDoMoveFiles( false ) ;
-		setSortSmallToLarge( true ) ;
-		boolean extractAllFolders = false ;
+		common.setDoMoveFiles( true ) ;
+		setSortSmallToLarge( false ) ;
+		boolean extractAllFolders = true ;
 		
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
