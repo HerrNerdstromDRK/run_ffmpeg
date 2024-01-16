@@ -31,8 +31,8 @@ public class MoviesAndShowsMongoDB
 	
 	private com.mongodb.client.MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
-//	private final String mongoDBHostName = "localhost" ;
-	private final String mongoDBHostName = "192.168.1.13" ;
+	private final String mongoDBHostName = "localhost" ;
+//	private final String mongoDBHostName = "192.168.1.13" ;
 	private final int mongoDBPortNumber = 27017 ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
@@ -116,7 +116,7 @@ public class MoviesAndShowsMongoDB
 		// Login to the database
 //		MongoCredential credential = 
 		MongoCredential.createCredential("dan", "MoviesAndShows", "BqQyH2r5xJuNu2A".toCharArray()); 
-		log.fine("Connected to the database successfully" );  
+		log.fine( "Connected to the database successfully" );  
 
 		// Configure the database to use the POJO provider and retrieve the handle
 		persistentDatabaseHandle = persistentMongoClient.getDatabase( databaseName ).withCodecRegistry( pojoCodecRegistry ) ;

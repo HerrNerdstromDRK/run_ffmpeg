@@ -7,7 +7,6 @@ import java.util.logging.Logger;
 /**
  * Purpose of this class is to remove all .sup files that are less than a certain
  * size because those files are invalid.
- * @author Dan
  */
 public class PruneSmallSUPFiles
 {

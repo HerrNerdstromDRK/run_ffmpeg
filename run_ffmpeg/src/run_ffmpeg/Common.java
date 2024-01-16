@@ -9,9 +9,11 @@ import java.nio.file.Paths;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.logging.ConsoleHandler;
@@ -42,12 +44,15 @@ public class Common
 	
 	// Set to true to move the mkv files, false otherwise
 	// Only used for certain applications
-	private static boolean doMoveMKVFiles = true ;
+	private static boolean doMoveFiles = true ;
 
 	/// Separator to use to demarc directories
 	// TODO: Make this use the System.property
 	private static String pathSeparator = "\\" ;
 
+	/// The name of the primary file server
+	private static final String primaryFileServerName = "\\\\yoda" ;
+	
 	/// Information about how to record and track missing MKV files.
 	private static final String missingMovieMKVPath = "\\\\yoda\\MKV_Archive1\\Movies_Missing" ;
 	private static final String missingTVShowMKVPath = "\\\\yoda\\MKV_Archive1\\TV Shows_Missing" ;
@@ -396,6 +401,7 @@ public class Common
 			{
 				// Deserialize the JSON streams info from this file
 				result = gson.fromJson( inputBuffer, FFmpegProbeResult.class ) ;
+
 				// TODO: Ensure consistent file path naming using \\yoda as start
 				result.setFileNameWithPath( theFile.getAbsolutePath() ) ;
 				result.setFileNameWithoutPath( theFile.getName() ) ;
@@ -423,10 +429,61 @@ public class Common
 	}
 
 	/**
+	 * Given the list of folders, some of whom may be overlapping on the same drive, separate the folders
+	 *  into one list per drive.
+	 * For example, if foldersToExtract looks like this:
+	 *  ["\\\\yoda\\MKV_Archive1\\To Convert", "\\\\yoda\\MKV_Archive1\\To Convert - TV Shows","E:\","C:\temp"]
+	 * then return this list:
+	 * 	[["\\\\yoda\\MKV_Archive1\\To Convert", "\\\\yoda\\MKV_Archive1\\To Convert - TV Shows"],["E:\"],["C:\temp"]]
+	 * @param foldersToExtract
+	 * @return
+	 */
+	public static Map< String, List< String > > getDrivesAndFolders( final List< String > foldersToExtract )
+	{
+		assert( foldersToExtract != null ) ;
+
+		// This Map is indexed by the drive, with trailing separators.
+		// The value for each index is the list of folders on that drive to extract.
+		Map< String, List< String > > mappedFolders = new HashMap< String, List< String > >() ;
+		for( String folderToExtract : foldersToExtract )
+		{
+			final String theDrive = getDriveWithPathSeparator( folderToExtract ) ;
+			List< String > foldersForThisDrive = mappedFolders.get( theDrive ) ;
+			if( null == foldersForThisDrive )
+			{
+				foldersForThisDrive = new ArrayList< String >() ;
+				mappedFolders.put( theDrive, foldersForThisDrive ) ;
+			}
+			foldersForThisDrive.add( folderToExtract ) ;
+		}
+		return mappedFolders ;
+	}
+	
+	/**
+	 * Return the drive on which the given theFolder resides.
+	 * Examples:
+	 *   - "C:\temp\thefile.mkv" -> "C:\\"
+	 *   - "\\\\yoda\\MKV_Archive1\\To Convert\\Transformers (2006)" -> "\\\\yoda\\MKV_Archive1\\"
+	 * @param theFolder
+	 * @return
+	 */
+	public static String getDriveWithPathSeparator( final String theFolder )
+	{
+		assert( theFolder != null ) ;
+		assert( !theFolder.isEmpty() ) ;
+		assert( !theFolder.isBlank() ) ;
+	
+		Path thePath = Paths.get( theFolder ) ;
+		final String fileRoot = thePath.getRoot().toString() ;
+	
+		return fileRoot ;		
+	}
+	
+	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
 	 * @param inputExtensions
-	 * @return
+	 * @return non-null, but perhaps empty
 	 */
 	public List< File > getFilesInDirectoryByExtension( final String inputDirectory, final String[] inputExtensions )
 	{
@@ -442,7 +499,7 @@ public class Common
 	 * Return a list of files in the directoryPath with the given extension
 	 * @param directoryPath
 	 * @param extension
-	 * @return
+	 * @return non-null, but perhaps empty
 	 */
 	public List< File > getFilesInDirectoryByExtension( final String directoryPath, final String extension )
 	{
@@ -706,6 +763,11 @@ public class Common
 		return retMe ;
 	}
 
+	/**
+	 * Return true if the stop file exists, otherwise return false.
+	 * @param fileName
+	 * @return
+	 */
 	public synchronized boolean shouldStopExecution( final String fileName )
 	{
 		final File stopFile = new File( fileName ) ;
@@ -813,6 +875,14 @@ public class Common
 		return retMe ;
 	}
 
+	public List< String > getAllDrives()
+	{
+		List< String > retMe = new ArrayList< String >() ;
+		retMe.addAll( getAllMKVDrives() ) ;
+		retMe.addAll( getAllMP4Drives() ) ;
+		return retMe ;
+	}
+	
 	public List< String > getAllMKVDrives()
 	{
 		List< String > retMe = new ArrayList< String >() ;
@@ -981,6 +1051,10 @@ public class Common
 		return pathToTESSDATA;
 	}
 
+	public static String getPrimaryfileservername() {
+		return primaryFileServerName;
+	}
+
 	public static String getProbeSizeString()
 	{
 		return probeSizeString;
@@ -996,14 +1070,14 @@ public class Common
 		return testMode ;
 	}
 
-	public boolean isDoMoveMKVFiles()
+	public boolean isDoMoveFiles()
 	{
-		return doMoveMKVFiles;
+		return doMoveFiles;
 	}
 
-	public void setDoMoveMKVFiles( boolean doMoveMKVFiles )
+	public void setDoMoveFiles( boolean doMoveFiles )
 	{
-		Common.doMoveMKVFiles = doMoveMKVFiles;
+		Common.doMoveFiles = doMoveFiles;
 	}
 
 	public void setTestMode( boolean newValue )

@@ -40,6 +40,7 @@ public class FilePathInfo
 		List< String > fileNames = new ArrayList< >() ;
 		fileNames.add( "\\\\yoda\\Backup\\Movies\\Transformers (2007)\\Transformers (2007).mkv" ) ;
 		fileNames.add( "\\\\yoda\\Backup\\Movies\\Transformers (2007)" ) ;
+		fileNames.add( "C:\\temp\\stop.txt" ) ;
 
 		try
 		{
@@ -91,6 +92,7 @@ public class FilePathInfo
 				log.info( "**********" ) ;
 				log.info( "fileName: " + fileName ) ;
 				log.info( "thePath: " + thePath.toString() ) ;
+				log.info( "thePath.getName( 0 ): " + thePath.getName(0 ) ) ;
 				log.info( "getFileName(): " + thePath.getFileName() ) ;
 				log.info( "getFileSystem(): " + thePath.getFileSystem().toString() ) ;
 				log.info( "getNameCount(): " + thePath.getNameCount() ) ;

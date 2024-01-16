@@ -16,88 +16,84 @@ import java.util.logging.Logger;
  *  to check for thread liveness before terminating the process.
  * @author Dan
  */
-public class MoveFiles
+public class MoveFiles extends run_ffmpegControllerThreadTemplate< MoveFilesWorkerThread >
 {
-	/// Setup the logging subsystem
-	private transient Logger log = null ;
-
-	/// Hook in the Common methods and values
-//	private transient Common common = null ;
-
 	/// File name to which to log activities for this application.
-	private final static String logFileName = "log_move_files_thread.txt" ;
+	private final static String logFileName = "log_move_files.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	private final String stopFileName = "C:\\Temp\\stop_move_files_thread.txt" ;
-
-	/// The single instance of this class to execute the thread control
-	private MoveFilesWorkerThread mkvMoveThreadWorker = null ;
-	private MoveFilesWorkerThread mp4MoveThreadWorker = null ;
-
-	/// A list of jobs for each file type to be moved.
-	/// mkvMoveActionList will also include .srt files.
-	protected List< MoveFileInfo > mkvMoveActionList = null ;
-	protected List< MoveFileInfo > mp4MoveActionList = null  ;
+	private final static String stopFileName = "C:\\Temp\\stop_move_files.txt" ;
 
 	public MoveFiles( Logger log, Common common )
 	{
-		this.log = log ;
-//		this.common = common ;
-		mkvMoveActionList = new ArrayList< MoveFileInfo >() ;
-		mp4MoveActionList = new ArrayList< MoveFileInfo >() ;
-
-		mkvMoveThreadWorker = new MoveFilesWorkerThread( log, common, mkvMoveActionList, "mkvMoveThreadWorker" ) ;
-		mp4MoveThreadWorker = new MoveFilesWorkerThread( log, common, mp4MoveActionList, "mp4MoveThreadWorker" ) ;
-
-		try
-		{
-			mkvMoveThreadWorker.start() ;
-			mp4MoveThreadWorker.start() ;
-		}
-		catch( Exception theException )
-		{
-			log.warning( "Exception starting threads: " + theException.toString() ) ;
-		}
+		super( logFileName, stopFileName ) ;
 	}
 
-	public void addMKVFileMove( final String mkvFileNameWithPath, final String mkvDestinationFileNameWithPath )
+	/**
+	 * Build the worker threads for this instance. Since we can only transcode one file at a time, just
+	 *  use a single thread.
+	 */
+	@Override
+	protected List< MoveFilesWorkerThread > buildWorkerThreads()
 	{
-		if( mkvFileNameWithPath.equals( mkvDestinationFileNameWithPath ) )
+		List< String > driveNames = common.getAllDrives() ;
+		List< MoveFilesWorkerThread > workerThreads = new ArrayList< MoveFilesWorkerThread >() ;
+		
+		for( String driveName : driveNames )
 		{
-			// Same file, nothing to do.
-			log.warning( "Input and output files are the same: " + mkvFileNameWithPath ) ;
-			return ;
+			final String threadName = common.addPathSeparatorIfNecessary( driveName ) ;
+
+			MoveFilesWorkerThread workerThread = new MoveFilesWorkerThread( this, log, common ) ;
+			workerThread.setName( threadName ) ;
+			workerThreads.add( workerThread ) ;
 		}
-		MoveFileInfo moveFileInfo = new MoveFileInfo( mkvFileNameWithPath, mkvDestinationFileNameWithPath ) ;
-		synchronized( mkvMoveActionList )
-		{
-			mkvMoveActionList.add( moveFileInfo ) ;
-		}
+		return workerThreads ;
 	}
 
-	public void addMP4FileMove( final String mp4FileNameWithPath, final String mp4DestinationFileNameWithPath )
+	@Override
+	public void Init()
+	{}
+
+	public void queueFileToMove( final String inputFileNameWithPath, final String outputFileNameWithPath )
 	{
-		if( mp4FileNameWithPath.equals( mp4DestinationFileNameWithPath ) )
+		assert( inputFileNameWithPath != null ) ;
+		assert( !inputFileNameWithPath.isEmpty() ) ;
+		assert( !inputFileNameWithPath.isBlank() ) ;
+		assert( outputFileNameWithPath != null ) ;
+		assert( !outputFileNameWithPath.isEmpty() ) ;
+		assert( !outputFileNameWithPath.isBlank() ) ;
+		
+		// Find the drive with the given prefix.
+		boolean foundMatch = false ;
+		MoveFilesWorkerThread[] workerThreads = getWorkerThreads( new MoveFilesWorkerThread[ 0 ] ) ;
+		for( MoveFilesWorkerThread workerThread : workerThreads )
 		{
-			// Same file, nothing to do.
-			log.warning( "Input and output files are the same: " + mp4FileNameWithPath ) ;
-			return ;
+			final String name = workerThread.getName() ;
+			if( outputFileNameWithPath.startsWith( name ) )
+			{
+				// Found the thread responsible for moving files onto the given drive.
+				workerThread.addFileToMove( inputFileNameWithPath, outputFileNameWithPath ) ;
+				foundMatch = true ;
+				break ;
+			}
 		}
-		MoveFileInfo moveFileInfo = new MoveFileInfo( mp4FileNameWithPath, mp4DestinationFileNameWithPath ) ;
-		synchronized( mp4MoveActionList )
+		if( !foundMatch )
 		{
-			mp4MoveActionList.add( moveFileInfo ) ;
-		}
+			log.warning( "Unable to find matching move worker thread for output file: " + outputFileNameWithPath ) ;
+		}		
 	}
-
-	protected static String getLogFileName() {
-		return logFileName;
-	}
-
-	public String getStopFileName()
+	
+	/**
+	 * Quque the mkv and mp4 files to move for the given transcode file.
+	 * @param theFile
+	 */
+	public void queueFileToMove( final TranscodeFile theFile )
 	{
-		return stopFileName;
+		assert( theFile != null ) ;
+		
+		queueFileToMove( theFile.getMKVInputFileNameWithPath(), theFile.getMKVFinalFileNameWithPath() ) ;
+		queueFileToMove( theFile.getMP4OutputFileNameWithPath(), theFile.getMP4FinalFileNameWithPath() ) ;
 	}
 
 	/**
@@ -111,7 +107,7 @@ public class MoveFiles
 		Path moveReturn = null ;
 		final File sourceFile = new File( sourcePathAndFileName ) ;
 		final long fileLength = sourceFile.length() ;
-		
+
 		log.info( "Moving " + sourcePathAndFileName
 				+ " -> " + destinationPathAndFileName ) ;
 
@@ -150,37 +146,4 @@ public class MoveFiles
 		} // if( testMode )
 		return (moveReturn != null ? true : false) ;
 	}
-
-	/**
-	 * Wait for the move threads to complete their work (action queue is empty), then
-	 *  tell them to halt and wait to join.
-	 */
-	public void waitForThreadsToComplete()
-	{
-		try
-		{
-			log.info( "Waiting for mkvMoveThreadWorker to complete..." ) ;
-			while( mkvMoveThreadWorker.hasMoreWork() )
-			{
-				Thread.sleep( 100 ) ;
-			}
-			mkvMoveThreadWorker.stopRunning() ;
-			mkvMoveThreadWorker.join() ;
-			log.info( "mkvMoveThreadWorker shutdown." ) ;
-
-			log.info( "Waiting for mp4MoveThreadWorker to complete..." ) ;
-			while( mp4MoveThreadWorker.hasMoreWork() )
-			{
-				Thread.sleep( 100 ) ;
-			}
-			mp4MoveThreadWorker.stopRunning() ;
-			mp4MoveThreadWorker.join() ;
-			log.info( "mp4MoveThreadWorker shutdown." ) ;
-		}
-		catch( Exception theException )
-		{
-			log.warning( "Exception: " + theException.toString() ) ;
-		}
-	}
-
 }

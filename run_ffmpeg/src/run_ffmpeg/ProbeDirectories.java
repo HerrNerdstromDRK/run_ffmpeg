@@ -2,7 +2,6 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,44 +19,42 @@ import com.mongodb.client.model.Filters;
  *  into the probe database.
  * @author Dan
  */
-public class ProbeDirectories
+public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeDirectoriesWorkerThread >
 {
-	/// Setup the logging subsystem
-	private transient Logger log = null ;
-	private transient Common common = null ;
-
-	private transient MoviesAndShowsMongoDB masMDB = null ;
-	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
-
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
 	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
-
-	/// The structure that contains all worker threads, indexed by the drive being scanned.
-	private transient Map< String, ProbeDirectoriesWorkerThread > threadMap =
-			Collections.synchronizedMap( new HashMap< String, ProbeDirectoriesWorkerThread >() ) ;
-
-	private boolean useThreads = true ;
-	private boolean keepRunning = true ;
-	private final String singleThreadedName = "Single thread" ;
+	
+	/// Keep track if the database has been loaded.
+	private boolean databaseBeenLoaded = false ;
 
 	/// Store the drives to probe.
 	/// By default this will be all mp4 and mkv drives.
 	private List< String > drivesToProbe = new ArrayList< String >() ;
 
 	/// File name to which to log activities for this application.
-	private final String logFileName = "log_probe_directories.txt" ;
+	private static final String logFileName = "log_probe_directories.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	private final String stopFileName = "C:\\Temp\\stop_probe_directories.txt" ;
+	private static final String stopFileName = "C:\\Temp\\stop_probe_directories.txt" ;
 
+	/**
+	 * The default constructor uses the static file names.
+	 */
 	public ProbeDirectories()
 	{
-		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		common = new Common( log ) ;
-
-		masMDB = new MoviesAndShowsMongoDB( log ) ;
-		probeInfoCollection = masMDB.getProbeInfoCollection() ;
+		super( logFileName, stopFileName ) ;
+	}
+	
+	/**
+	 * This constructor is intended for external users of this class and allows passing names of the files used
+	 *  externally.
+	 * @param logFileName
+	 * @param stopFileName
+	 */
+	public ProbeDirectories( final String logFileName, final String stopFileName )
+	{
+		super( logFileName, stopFileName ) ;
 	}
 
 	public ProbeDirectories( Logger log,
@@ -65,86 +62,28 @@ public class ProbeDirectories
 			MoviesAndShowsMongoDB masMDB,
 			MongoCollection< FFmpegProbeResult > probeInfoCollection )
 	{
-		assert( log != null ) ;
-		assert( common != null ) ;
-		assert( masMDB != null ) ;
-		assert( probeInfoCollection != null ) ;
-
-		this.log = log ;
-		this.common = common ;
-		this.masMDB = masMDB ;
-		this.probeInfoCollection = probeInfoCollection ;
+		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 	}
 
 	public static void main(String[] args)
 	{
 		ProbeDirectories probeDirectory = new ProbeDirectories() ;
-		probeDirectory.execute() ;
+		probeDirectory.Init() ;
+		probeDirectory.Execute() ;
 		System.out.println( "Process shut down." ) ;
 	}
 
 	/**
-	 * Execute as the controller thread.
+	 * Override the method called when execution begins.
 	 */
-	public void execute()
+	@Override
+	public void Init()
 	{
 		setUseThreads( true ) ;
+		common.setTestMode( false ) ;
 		loadProbeInfoDatabase() ;
 		drivesToProbe.addAll( common.getAllMKVDrives() ) ;
 		drivesToProbe.addAll( common.getAllMP4Drives() ) ;
-		buildWorkerThreads() ;
-		startThreads() ;
-
-		if( !isUseThreads() )
-		{
-			// Single threaded.
-			// The threadMap should have a single object inside it -- call its run method.
-			assert( 1 == threadMap.size() ) ;
-			ProbeDirectoriesWorkerThread pdwt = threadMap.get( getSingleThreadedName() ) ;
-			assert( pdwt != null ) ;
-
-			// Run the probe method.
-			pdwt.run() ;
-		}
-		else
-		{
-			// Using threads
-			// Just wait for the threads to complete or the shutdown command to be issued.
-			while( shouldKeepRunning() && atLeastOneThreadIsAlive() )
-			{
-				try
-				{
-					Thread.sleep( 100 ) ;
-				}
-				catch( Exception theException )
-				{
-					log.warning( "Error in sleep: " + theException.toString() ) ;
-				}
-			}
-		}
-
-		log.info( "Shutting down" ) ;
-		stopThreads() ;
-		joinThreads() ;
-	}
-
-	protected boolean atLeastOneThreadIsAlive()
-	{
-		if( !isUseThreads() )
-		{
-			return true ;
-		}
-
-		for( Map.Entry< String, ProbeDirectoriesWorkerThread > entry : threadMap.entrySet() )
-		{
-			ProbeDirectoriesWorkerThread pdwt = entry.getValue() ;
-
-			if( pdwt.isAlive() )
-			{
-				return true ;
-			}
-		}
-		return false ;
 	}
 
 	/**
@@ -152,9 +91,11 @@ public class ProbeDirectories
 	 * Each thread will only receive the portion of the probeInfoMap related to its drive.
 	 * Note that this means the drive prefixes must be mutually exclusive.
 	 */
-	protected void buildWorkerThreads()
+	@Override
+	protected List< ProbeDirectoriesWorkerThread > buildWorkerThreads()
 	{
 		assert( !drivesToProbe.isEmpty() ) ;
+		List< ProbeDirectoriesWorkerThread > threads = new ArrayList< ProbeDirectoriesWorkerThread >() ;
 
 		if( isUseThreads() )
 		{
@@ -162,38 +103,39 @@ public class ProbeDirectories
 			// May need to change this later depending on any issues with the file servers.
 			for( String driveToProbe : drivesToProbe )
 			{
-				// Add the folder to probe for this drive.
+				// Add the folders to probe for this drive.
 				List< String > driveAndFoldersToProbe = common.addMoviesAndTVShowFoldersToDrive( driveToProbe ) ;
+				
+				// Retrieve all probe results stored in the database for these folders.
 				Map< String, FFmpegProbeResult > threadProbeInfoMap = getProbeInfoForDrives( driveAndFoldersToProbe ) ; 
 
 				ProbeDirectoriesWorkerThread pdwt = new ProbeDirectoriesWorkerThread( this,
 						log,
 						common,
-						//						masMDB,
 						probeInfoCollection,
 						threadProbeInfoMap,
 						driveAndFoldersToProbe ) ;
 				pdwt.setName( driveToProbe ) ;
-				threadMap.put( driveToProbe, pdwt ) ;
+				threads.add( pdwt ) ;
 			}
 		}
 		else
 		{
 			// Use a single thread. This is done by creating a single worker thread instance and passing it the entire list of
 			// drives and folders, and letting the main loop execute it directly. The worker thread instance will not be started
-			//  -- it will be run directly by the main loop here.
+			//  -- it will be run directly by super class Execute() method.
 			List< String > driveAndFoldersToProbe = common.addMoviesAndTVShowFoldersToEachDrive( drivesToProbe ) ;
 
 			ProbeDirectoriesWorkerThread pdwt = new ProbeDirectoriesWorkerThread( this,
 					log,
 					common,
-					//					masMDB,
 					probeInfoCollection,
 					probeInfoMap,
 					driveAndFoldersToProbe ) ;
-
-			threadMap.put( getSingleThreadedName(), pdwt ) ; 
+			pdwt.setName( getSingleThreadedName() ) ;
+			threads.add( pdwt ) ;
 		}
+		return threads ;
 	}
 
 	/**
@@ -212,6 +154,7 @@ public class ProbeDirectories
 	
 			// Walk through the probeInfoMap to search for long path prefixes.
 			// Can't call get() here because it doesn't have a way to search for startsWith()
+			// (Yes I could add a comparator but I prefer to keep the code clean and easier to debug.)
 			for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
 			{
 				String longPath = entry.getKey() ;
@@ -225,45 +168,17 @@ public class ProbeDirectories
 		return returnMeMap ;
 	}
 
-	public String getSingleThreadedName()
-	{
-		return singleThreadedName ;
-	}
-
-	public boolean isUseThreads()
-	{
-		return useThreads ;
-	}
-
-	protected void joinThreads()
-	{
-		log.info( "Joining threads." ) ;
-		if( isUseThreads() )
-		{
-			for( Map.Entry< String, ProbeDirectoriesWorkerThread > entry : threadMap.entrySet() )
-			{
-				final String key = entry.getKey() ;
-				ProbeDirectoriesWorkerThread pdwt = entry.getValue() ;
-
-				log.info( "Joining thread " + key ) ;
-				try
-				{
-					pdwt.join() ;
-					log.fine( "Joined thread " + key ) ;
-				}
-				catch( Exception theException )
-				{
-					log.warning( "Error joining thread " + key + ": " + theException.toString() ) ;
-				}
-			}
-		}
-	}
-
 	/**
 	 * Load the entire probeInfoCollection into a location in memory for rapid use.
 	 */
 	private void loadProbeInfoDatabase()
 	{
+		if( hasDatabaseBeenLoaded() )
+		{
+			// Already loaded. Nothing to do here.
+			return ;
+		}
+		
 		log.info( "Loading probe info collection" ) ;
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
@@ -279,6 +194,7 @@ public class ProbeDirectories
 			// Store the FFmpegProbeResult
 			probeInfoMap.put( pathToFile, probeResult ) ;
 		} // while( probe....hasNext()
+		setDatabaseBeenLoaded( true ) ;
 		log.info( "Retrieved " + probeInfoMap.size() + " probe entry/entries" ) ;
 	}
 
@@ -308,8 +224,14 @@ public class ProbeDirectories
 	{
 		assert( fileToProbe != null ) ;
 
+		// Make sure the database has been loaded.
+		if( !hasDatabaseBeenLoaded() )
+		{
+			loadProbeInfoDatabase() ;
+		}
+		
 		// Lookup the file in the probeInfoCollection
-		FFmpegProbeResult theProbeResult = probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsoluteFile() ) ).first() ;
+		FFmpegProbeResult theProbeResult = probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsolutePath() ) ).first() ;
 		// theProbeResult may be null if the file has not yet been probed.
 		if( theProbeResult != null )
 		{
@@ -321,7 +243,6 @@ public class ProbeDirectories
 		ProbeDirectoriesWorkerThread pdwt = new ProbeDirectoriesWorkerThread( this,
 				log,
 				common,
-				//				masMDB,
 				probeInfoCollection,
 				probeInfoMap,
 				drivesToProbe ) ;
@@ -329,39 +250,13 @@ public class ProbeDirectories
 		return theProbeResult ;
 	}
 
-	public void setUseThreads( boolean useThreads )
+	public boolean hasDatabaseBeenLoaded()
 	{
-		this.useThreads = useThreads ;
+		return databaseBeenLoaded ;
 	}
 
-	public boolean shouldKeepRunning()
+	public void setDatabaseBeenLoaded( boolean databaseBeenLoaded )
 	{
-		return (!common.shouldStopExecution( stopFileName ) || !keepRunning) ;
-	}
-
-	protected void startThreads()
-	{
-		if( isUseThreads() )
-		{
-			log.info( "Starting threads." ) ;
-			for( Map.Entry< String, ProbeDirectoriesWorkerThread > entry : threadMap.entrySet() )
-			{
-				final String key = entry.getKey() ;
-				ProbeDirectoriesWorkerThread pdwt = entry.getValue() ;
-
-				log.info( "Starting thread " + key ) ;
-				pdwt.start() ;
-			}
-		}
-	}
-
-	public void stopRunning()
-	{
-		keepRunning = false ;
-	}
-
-	protected void stopThreads()
-	{
-		stopRunning() ;
+		this.databaseBeenLoaded = databaseBeenLoaded ;
 	}
 }

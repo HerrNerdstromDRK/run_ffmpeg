@@ -20,4 +20,11 @@
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>log_transcode_and_move_files.txt</name>
+			<type>1</type>
+			<location>D:/eclipse/run_ffmpeg/log_transcode_and_move_files.txt</location>
+		</link>
+	</linkedResources>
 </projectDescription>

@@ -907,4 +907,8 @@ public class TranscodeFile
 		}
 	}
 
+	public FFmpegProbeResult getTheFFmpegProbeResult() {
+		return theFFmpegProbeResult;
+	}
+
 }

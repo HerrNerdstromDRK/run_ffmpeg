@@ -314,7 +314,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 
 	public String toString()
 	{
-		String retMe = "{name: " + getMovieOrShowName()
+		String retMe = "{movieOrShowName: " + getMovieOrShowName()
 		+ ",mkvLongPath:" + getMKVLongPath()
 		+ ",mp4LongPath:" + getMP4LongPath()
 		+ ",TVShowName:" + getTVShowName()

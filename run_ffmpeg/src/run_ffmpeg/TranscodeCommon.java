@@ -68,6 +68,8 @@ public class TranscodeCommon
 			final String mp4OutputDirectory,
 			final String mp4FinalDirectory  )
 	{
+		assert( log != null ) ;
+		assert( common != null ) ;
 		assert( mkvInputDirectory != null ) ;
 		assert( !mkvInputDirectory.isBlank() ) ;
 		
@@ -80,6 +82,21 @@ public class TranscodeCommon
 		this.mkvFinalDirectory = mkvFinalDirectory.isBlank() ? mkvInputDirectory : mkvFinalDirectory ;
 		this.mp4OutputDirectory = mp4OutputDirectory.isBlank() ? mkvInputDirectory : mp4OutputDirectory ;
 		this.mp4FinalDirectory = mp4FinalDirectory.isBlank() ? mkvInputDirectory : mp4FinalDirectory ;
+	}
+	
+	/**
+	 * Convenience constructor.
+	 * @param log
+	 * @param common
+	 * @param theFile
+	 */
+	public TranscodeCommon( Logger log, Common common, TranscodeFile theFile )
+	{
+		this( log, common,
+				theFile.getMKVInputDirectory(),
+				theFile.getMKVFinalDirectory(),
+				theFile.getMP4OutputDirectory(),
+				theFile.getMP4FinalDirectory() ) ;
 	}
 	
 	/**
