@@ -15,7 +15,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 {
 	/// Handle to the MovieAndShowInfo collection
 	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
-	
+
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_transcode_and_move_files.txt" ;
 
@@ -25,10 +25,10 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 
 	/// The list of files to transcode
 	private List< TranscodeAndMoveFileInfo > filesToTranscode = new ArrayList< TranscodeAndMoveFileInfo >() ;
-	
+
 	/// The controller object to manage moving files.
 	private MoveFiles moveFilesController = null ;
-	
+
 	/// The output directory in which to store mp4 files before being moved to their final home.
 	private String mp4OutputDirectory = null ;
 
@@ -55,7 +55,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		tamf.Execute() ;
 		System.out.println( "Process shut down." ) ;
 	}
-	
+
 	/**
 	 * Initialize this object.
 	 */
@@ -68,7 +68,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		common.setDoMoveFiles( true ) ;
 		setSortSmallToLarge( false ) ;
 		boolean extractAllFolders = true ;
-		
+
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 		if( extractAllFolders )
@@ -79,8 +79,8 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		{
 			foldersToTranscode = new ArrayList< String >() ;
 			foldersToTranscode.add( "\\\\yoda\\MKV_Archive3\\To Convert\\The Karate Kid (2010)" ) ;
-//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
-//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
+			//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
+			//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
 		}
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
@@ -101,14 +101,16 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			TranscodeAndMoveFileInfo newFileToTranscode = buildTranscodeFile( theFile ) ;
 			if( newFileToTranscode != null )
 			{
+				// Some conditions, such as an existing mp4 file with newer time markings, will cause
+				// the buildTranscodeFile() to fail. Do so gracefully here.
 				filesToTranscode.add( newFileToTranscode ) ;
 			}
 		}
-//		log.info( "Built transcode files: " ) ;
-//		for( TranscodeFile fileToTranscode : filesToTranscode )
-//		{
-//			log.info( fileToTranscode.toString() ) ;
-//		}
+		//		log.info( "Built transcode files: " ) ;
+		//		for( TranscodeFile fileToTranscode : filesToTranscode )
+		//		{
+		//			log.info( fileToTranscode.toString() ) ;
+		//		}
 	}
 
 	/**
@@ -116,20 +118,68 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	 * @param folderToExtract
 	 * @return The new transcode file or null if unsuccessful
 	 */
-	public TranscodeAndMoveFileInfo buildTranscodeFile( final File inputFile )
+	public TranscodeAndMoveFileInfo buildTranscodeFile( final File mkvFile )
 	{
-		assert( inputFile != null ) ;
-		log.info( "building transcode file: " + inputFile.getAbsolutePath() ) ;
-		
+		assert( mkvFile != null ) ;
+		log.info( "building transcode file: " + mkvFile.getAbsolutePath() ) ;
+
+		// Check for the situation where we are transcoding a file that is already part of 
+		// the destination mkv directory or has an existing mp4 file.
+		// Need to lookup the movie or show based on the first class content of the movie/show name
+		// since we may be transcoding something here that is already in the database with its
+		// final locations included.
+		// Use the MovieAndShowInfo parser to extract all of the relevant information.
+		MovieAndShowInfo testMovieAndShowInfo = new MovieAndShowInfo( mkvFile, log ) ;
+
+		// Use the testMovieAndShowInfo to lookup the correct MovieAndShowInfo by movieOrShowName
+		Bson movieAndShowInfoIDFilter = Filters.eq( "movieOrShowName", testMovieAndShowInfo.getMovieOrShowName() ) ;
+		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
+		if( movieAndShowInfo != null )
+		{
+			// The movie or show already exists in the database.
+			// Check if the target mp4 file also already exists.
+			// TODO: Probably move some of this to MovieAndShowInfo -- I should be able to lookup/remove an mkv or mp4 file.
+			final String mp4LongPath = movieAndShowInfo.getMP4LongPath() ;
+			if( mp4LongPath != null )
+			{
+				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath ) + mkvFile.getName() ;
+				final File mp4File = new File( mp4FileNameWithPath ) ;
+				if( mp4File.exists() )
+				{
+					log.info( "Found that mp4 file " + mp4File.getAbsolutePath() + " exists for mkvFile: " + mkvFile.getAbsolutePath() ) ;
+					if( mkvFile.lastModified() > mp4File.lastModified() )
+					{
+						// An mp4 file corresponding to this mkv file exists and the mkv file is newer.
+						// Need to rebuild the mp4 file.
+						log.info( "Found newer mkv file (" + mkvFile.getAbsolutePath() + ") than existing mp4 file: "
+								+ mp4File.getAbsolutePath() + "; deleting" ) ;
+
+						// TODO: Update the MovieAndShowInfo?
+						if( !common.getTestMode() )
+						{
+							mp4File.delete() ;
+						}
+					}
+					else
+					{
+						// An mp4 file correspond to the mkv file exists but is newer than the mkv file.
+						// Note this but ignore it.
+						log.fine( "Found existing mp4 file for mkv file " + mkvFile.getAbsolutePath() + " but mp4 file is newer. Ignoring mkv file." ) ;
+						return null ;
+					}
+				} // if( mp4File.exists() )
+			} // if( mp4LongPath != null )
+		} // if( movieAndShowInfo != null )
+
 		// Populate the TranscodeAndMoveFileInfo with the TranscodeFile, mkv probe info, and MovieAndShowInfo
 		TranscodeAndMoveFileInfo transcodeAndMoveFileInfo = new TranscodeAndMoveFileInfo() ;
-		
+
 		// Create the FFmpegProbeResult for this file.
-		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( inputFile, log ) ; 
-				//probeDirectories.probeFileAndUpdateDB( inputFile ) ;
+		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( mkvFile, log ) ; 
+		//probeDirectories.probeFileAndUpdateDB( inputFile ) ;
 		if( null == mkvProbeResult )
 		{
-			log.warning( "Unable to create probe input file: " + inputFile.getAbsolutePath() ) ;
+			log.warning( "Unable to create probe input file: " + mkvFile.getAbsolutePath() ) ;
 			return null ;
 		}
 		// Post condition: mkvProbeResult is non-null, and hopefully relevant.
@@ -137,17 +187,6 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// or be cancelled, do NOT insert the mkv probe information into the database.
 		transcodeAndMoveFileInfo.mkvProbeInfo = mkvProbeResult ;
 
-		// Check for the situation where we are transcoding a file that is already part of 
-		// the destination mkv directory.
-		// Need to lookup the movie or show based on the first class content of the movie/show name
-		// since we may be transcoding something here that is already in the database with its
-		// final locations included.
-		// Use the MovieAndShowInfo parser to extract all of the relevant information.
-		MovieAndShowInfo testMovieAndShowInfo = new MovieAndShowInfo( mkvProbeResult, log ) ;
-
-		// Use the testMovieAndShowInfo to lookup the correct MovieAndShowInfo by movieOrShowName
-		Bson movieAndShowInfoIDFilter = Filters.eq( "movieOrShowName", testMovieAndShowInfo.getMovieOrShowName() ) ;
-		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDFilter ).first() ;
 		String mkvFinalDirectory = null ;
 		String mp4FinalDirectory = null ;
 
@@ -200,12 +239,12 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			// Build the directories here based on what data is available.
 			mkvFinalDirectory = makeFinalMKVDirectory( mkvProbeResult, testMovieAndShowInfo ) ;
 			mp4FinalDirectory = makeFinalMP4Directory( mkvProbeResult, testMovieAndShowInfo ) ;
-			
+
 			// Need to create a new MovieAndShowInfo for this item.
 			movieAndShowInfo = new MovieAndShowInfo( mkvProbeResult, log ) ;
 			movieAndShowInfo.setMKVLongPath( mkvFinalDirectory ) ;
 			movieAndShowInfo.setMP4LongPath( mp4FinalDirectory ) ;
-			
+
 			// Update the database with the show or movie information.
 			movieAndShowInfoCollection.insertOne( movieAndShowInfo ) ;
 		}
@@ -219,7 +258,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// The TranscodeFile is used to store all of the relevant information to execute
 		// a transcode.
 		TranscodeFile fileToTranscode = new TranscodeFile(
-				inputFile,
+				mkvFile,
 				mkvFinalDirectory,
 				mp4OutputDirectory,
 				mp4FinalDirectory,
@@ -228,7 +267,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// Add the FFmpegProbeResult to the TranscodeFile as well.
 		fileToTranscode.processFFmpegProbeResult( mkvProbeResult ) ;
 		transcodeAndMoveFileInfo.fileToTranscode = fileToTranscode ;
-		
+
 		return transcodeAndMoveFileInfo ;
 	}
 
@@ -249,11 +288,11 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				filesToTranscode ) ;
 		workerThread.setName( "Transcode" ) ;
 		threads.add( workerThread ) ;
-		
+
 		MoveFilesControllerWrapper mfcw = new MoveFilesControllerWrapper( this, moveFilesController, log, common ) ;
 		mfcw.setName( "MoveFilesControllerWrapper" ) ;
 		threads.add( mfcw ) ;
-		
+
 		return threads ;
 	}
 
@@ -283,12 +322,12 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		final String mkvInputDirectory = mkvInputFile.getParent() ;
 		final File mkvInputDirectoryFile = new File( mkvInputDirectory ) ;
 		String mkvFinalDirectory = mkvInputDirectory ;
-	
+
 		// Must account for:
 		// - "To Convert" in the path
 		// -- with and without "TV Shows"
 		// - mkv file is in its final directory (moveMKVFiles will be false)
-	
+
 		if( mkvInputDirectory.contains( "To Convert - TV Shows" ) )
 		{
 			mkvFinalDirectory = mkvInputDirectory.replace( "To Convert - TV Shows", "TV Shows" ) ;
@@ -323,7 +362,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 						+ mkvInputFile.getParentFile().getName() ;
 			}
 		}
-	
+
 		return mkvFinalDirectory ;
 	}
 
@@ -373,7 +412,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	public void moveFile( TranscodeFile fileToMove )
 	{
 		moveFilesController.queueFileToMove( fileToMove ) ;
-		
+
 		// Move the srt files also.
 		Iterator< File > srtFileIterator = fileToMove.getAllSRTFilesIterator() ;
 		while( srtFileIterator.hasNext() )
@@ -386,7 +425,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			moveFilesController.queueFileToMove( sourceSRTFile.getAbsolutePath(), destinationSRTFileNameWithPath ) ;
 		}
 	}
-	
+
 	public void setMP4OutputDirectory( String mp4OutputDirectory )
 	{
 		this.mp4OutputDirectory = mp4OutputDirectory ;

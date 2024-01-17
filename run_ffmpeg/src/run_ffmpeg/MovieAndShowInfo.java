@@ -80,6 +80,21 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public MovieAndShowInfo( FFmpegProbeResult theProbeResult, Logger log )
 	{
 		File theFile = new File( theProbeResult.getFileNameWithPath() ) ;
+		initObject( theFile ) ;
+	}
+	
+	/**
+	 * Create an instance of MovieAndShowInfo and initialize the instance-level variables.
+	 * @param theFile A File object to be used for name parsing.
+	 * @param log
+	 */
+	public MovieAndShowInfo( final File theFile, Logger log )
+	{
+		initObject( theFile ) ;
+	}
+	
+	private void initObject( final File theFile )
+	{
 		if( theFile.getParent().contains( "Season " ) )
 		{
 			// TV show names will be stored by combining the name of the show with the season
