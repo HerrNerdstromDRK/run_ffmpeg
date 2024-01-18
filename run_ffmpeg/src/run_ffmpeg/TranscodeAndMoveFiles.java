@@ -106,11 +106,6 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				filesToTranscode.add( newFileToTranscode ) ;
 			}
 		}
-		//		log.info( "Built transcode files: " ) ;
-		//		for( TranscodeFile fileToTranscode : filesToTranscode )
-		//		{
-		//			log.info( fileToTranscode.toString() ) ;
-		//		}
 	}
 
 	/**
@@ -438,6 +433,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 
 	public void sortFilesToTranscode( List< File > inputList )
 	{
+		log.fine( "Before sort: " + inputList.toString() ) ;
 		if( isSortSmallToLarge() )
 		{
 			Collections.sort( inputList, new FileSortSmallToLarge() ) ;
@@ -446,6 +442,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		{
 			Collections.sort( inputList, new FileSortLargeToSmall() ) ;
 		}
+		log.fine( "After sort: " + inputList.toString() ) ;
 	}
 
 }

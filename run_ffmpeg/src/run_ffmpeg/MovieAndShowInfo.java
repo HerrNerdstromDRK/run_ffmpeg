@@ -80,6 +80,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public MovieAndShowInfo( FFmpegProbeResult theProbeResult, Logger log )
 	{
 		File theFile = new File( theProbeResult.getFileNameWithPath() ) ;
+		this.log = log ;
 		initObject( theFile ) ;
 	}
 	
@@ -90,6 +91,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public MovieAndShowInfo( final File theFile, Logger log )
 	{
+		this.log = log ;
 		initObject( theFile ) ;
 	}
 	
