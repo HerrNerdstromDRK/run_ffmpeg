@@ -387,7 +387,7 @@ public class Common
 			String inputBuffer = "" ;
 			while( (inputLine = inputStreamReader.readLine()) != null )
 			{
-				log.fine( "" + lineNumber + "> " + inputLine ) ;
+//				log.fine( "" + lineNumber + "> " + inputLine ) ;
 				inputBuffer += inputLine ;
 				++lineNumber ;
 			}
@@ -402,7 +402,6 @@ public class Common
 				// Deserialize the JSON streams info from this file
 				result = gson.fromJson( inputBuffer, FFmpegProbeResult.class ) ;
 
-				// TODO: Ensure consistent file path naming using \\yoda as start
 				result.setFileNameWithPath( theFile.getAbsolutePath() ) ;
 				result.setFileNameWithoutPath( theFile.getName() ) ;
 				result.setFileNameShort( shortenFileName( theFile.getAbsolutePath() ) ) ;
