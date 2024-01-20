@@ -56,6 +56,12 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		System.out.println( "Process shut down." ) ;
 	}
 
+	@Override
+	public void Execute_afterEndMainLoop()
+	{
+		moveFilesController.stopRunning() ;
+	}
+	
 	/**
 	 * Initialize this object.
 	 */
@@ -421,6 +427,15 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		}
 	}
 
+	/**
+	 * Return true if all move files threads queues are empty.
+	 * @return
+	 */
+	protected boolean hasMoreWork()
+	{
+		return (!filesToTranscode.isEmpty() || moveFilesController.hasMoreWork()) ;
+	}
+
 	public void setMP4OutputDirectory( String mp4OutputDirectory )
 	{
 		this.mp4OutputDirectory = mp4OutputDirectory ;
@@ -429,6 +444,21 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	public void setSortSmallToLarge( boolean sortSmallToLarge )
 	{
 		this.sortSmallToLarge = sortSmallToLarge ;
+	}
+
+	/**
+	 * Overload shouldKeepRunning() to watch for status of the queues. If the transcode or any move queue
+	 * has work left, then return true. Return false otherwise.
+	 */
+	@Override
+	public boolean shouldKeepRunning()
+	{
+		// Return true if any of the worker threads (transcode or move files) is doing something
+		if( !hasMoreWork() )
+		{
+			return false ;
+		}
+		return super.shouldKeepRunning() ;
 	}
 
 	public void sortFilesToTranscode( List< File > inputList )

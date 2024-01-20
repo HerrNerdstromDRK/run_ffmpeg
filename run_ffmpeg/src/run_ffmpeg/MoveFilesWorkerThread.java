@@ -105,28 +105,46 @@ public class MoveFilesWorkerThread extends run_ffmpegWorkerThread
 							+ " -> " + moveInfo.getDestinationFilePath().toString() ) ;
 				}
 			}
-		catch( Exception theException )
-		{
-			log.warning( getName() + " Exception: " + theException.toString() ) ;
-		}
-	} // while( keepRunning )
-}
-
-protected MoveFileInfo getNextWorkItem()
-{
-	MoveFileInfo retMe = null ;
-	synchronized( moveActionList )
-	{
-		if( !moveActionList.isEmpty() )
-		{
-			retMe = moveActionList.remove( 0 ) ;
-		}
+			catch( Exception theException )
+			{
+				log.warning( getName() + " Exception: " + theException.toString() ) ;
+			}
+		} // while( keepRunning )
 	}
-	return retMe ;
-}
 
-public boolean shouldKeepRunning()
-{
-	return theController.shouldKeepRunning() ;
-}
+	/**
+	 * Remove a move job from the action queue and return it.
+	 * @return
+	 */
+	protected MoveFileInfo getNextWorkItem()
+	{
+		MoveFileInfo retMe = null ;
+		synchronized( moveActionList )
+		{
+			if( !moveActionList.isEmpty() )
+			{
+				retMe = moveActionList.remove( 0 ) ;
+			}
+		}
+		return retMe ;
+	}
+
+	public boolean shouldKeepRunning()
+	{
+		return theController.shouldKeepRunning() ;
+	}
+	
+	/**
+	 * Return true if at least one more work item is to be accomplished.
+	 * @return
+	 */
+	public boolean hasMoreWork()
+	{
+		boolean isEmpty = false ;
+		synchronized( moveActionList )
+		{
+			isEmpty = moveActionList.isEmpty() ;
+		}
+		return !isEmpty ;
+	}
 }

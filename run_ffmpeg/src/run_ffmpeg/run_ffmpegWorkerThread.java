@@ -18,11 +18,6 @@ public abstract class run_ffmpegWorkerThread extends Thread
 		this.log = log ;
 		this.common = common ;
 	}
-
-//	public boolean hasMoreWork()
-//	{
-//		return this.isAlive() ;
-//	}
 	
 	public boolean isWorkInProgress()
 	{
@@ -39,10 +34,5 @@ public abstract class run_ffmpegWorkerThread extends Thread
 	 * @return
 	 */
 	public abstract boolean shouldKeepRunning() ;
-	
-//	public boolean shouldKeepRunning()
-//	{
-//		return (isWorkInProgress() || hasMoreWork()) ;
-//	}
-	
+
 }

@@ -382,14 +382,14 @@ public class Common
 			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommandString ) ;
 
 			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
-			int lineNumber = 1 ;
+//			int lineNumber = 1 ;
 			String inputLine = null ;
 			String inputBuffer = "" ;
 			while( (inputLine = inputStreamReader.readLine()) != null )
 			{
 //				log.fine( "" + lineNumber + "> " + inputLine ) ;
 				inputBuffer += inputLine ;
-				++lineNumber ;
+//				++lineNumber ;
 			}
 
 			if( process.exitValue() != 0 )

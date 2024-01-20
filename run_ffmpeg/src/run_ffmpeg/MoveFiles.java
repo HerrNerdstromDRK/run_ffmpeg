@@ -55,6 +55,31 @@ public class MoveFiles extends run_ffmpegControllerThreadTemplate< MoveFilesWork
 	public void Init()
 	{}
 
+	@Override
+	public boolean shouldKeepRunning()
+	{
+		return super.shouldKeepRunning() ;
+	}
+	
+	/**
+	 * Return true if at least one worker thread has more work.
+	 * @return
+	 */
+	public boolean hasMoreWork()
+	{
+		final MoveFilesWorkerThread[] theThreads = getWorkerThreads( new MoveFilesWorkerThread[ 0 ] ) ;
+		for( MoveFilesWorkerThread theThread : theThreads )
+		{
+			if( theThread.hasMoreWork() )
+			{
+				return true ;
+			}
+		}
+		
+		// No worker threads have any more work.
+		return false ;
+	}
+	
 	public void queueFileToMove( final String inputFileNameWithPath, final String outputFileNameWithPath )
 	{
 		assert( inputFileNameWithPath != null ) ;

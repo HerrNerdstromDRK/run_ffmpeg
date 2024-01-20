@@ -4,7 +4,7 @@ import java.util.logging.Logger;
 
 public class MoveFilesControllerWrapper extends TranscodeAndMoveFilesWorkerThread
 {
-	private transient TranscodeAndMoveFiles theController = null ;
+	private TranscodeAndMoveFiles theController = null ;
 	private MoveFiles moveFilesController = null ;
 	
 	public MoveFilesControllerWrapper( TranscodeAndMoveFiles theController,

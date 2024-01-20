@@ -255,36 +255,10 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		return threadMap.values().toArray( array ) ;
 	}
 
-//	public boolean hasMoreWork()
-//	{
-//		for( Map.Entry< String, WorkerThreadType > entrySet : threadMap.entrySet() )
-//		{
-//			WorkerThreadType workerThread = entrySet.getValue() ;
-//			if( workerThread.hasMoreWork() || workerThread.isWorkInProgress() )
-//			{
-//				return true ;
-//			}
-//		}
-//		return false ;
-//	}
-
 	public boolean isUseThreads()
 	{
 		return useThreads ;
 	}
-	
-//	public boolean isWorkInProgress()
-//	{
-//		for( Map.Entry< String, WorkerThreadType > entrySet : threadMap.entrySet() )
-//		{
-//			WorkerThreadType workerThread = entrySet.getValue() ;
-//			if( workerThread.isWorkInProgress() )
-//			{
-//				return true ;
-//			}
-//		}
-//		return false ;
-//	}
 
 	protected void joinThreads()
 	{
