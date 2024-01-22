@@ -29,6 +29,9 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	/// The controller object to manage moving files.
 	private MoveFiles moveFilesController = null ;
 
+	/// Reference to the transcode worker thread.
+	private TranscodeAndMoveFilesWorkerThread transcodeThread = null ;
+	
 	/// The output directory in which to store mp4 files before being moved to their final home.
 	private String mp4OutputDirectory = null ;
 
@@ -281,14 +284,14 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	protected List< TranscodeAndMoveFilesWorkerThread > buildWorkerThreads()
 	{
 		List< TranscodeAndMoveFilesWorkerThread > threads = new ArrayList< TranscodeAndMoveFilesWorkerThread >() ;
-		TranscodeAndMoveFilesWorkerThread workerThread = new TranscodeAndMoveFilesWorkerThread(
+		transcodeThread = new TranscodeAndMoveFilesWorkerThread(
 				this,
 				masMDB,
 				log,
 				common,
 				filesToTranscode ) ;
-		workerThread.setName( "Transcode" ) ;
-		threads.add( workerThread ) ;
+		transcodeThread.setName( "Transcode" ) ;
+		threads.add( transcodeThread ) ;
 
 		MoveFilesControllerWrapper mfcw = new MoveFilesControllerWrapper( this, moveFilesController, log, common ) ;
 		mfcw.setName( "MoveFilesControllerWrapper" ) ;
@@ -433,7 +436,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	 */
 	protected boolean hasMoreWork()
 	{
-		return (!filesToTranscode.isEmpty() || moveFilesController.hasMoreWork()) ;
+		return (!filesToTranscode.isEmpty() || transcodeThread.isAlive() || moveFilesController.hasMoreWork()) ;
 	}
 
 	public void setMP4OutputDirectory( String mp4OutputDirectory )
@@ -474,5 +477,4 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		}
 		log.fine( "After sort: " + inputList.toString() ) ;
 	}
-
 }

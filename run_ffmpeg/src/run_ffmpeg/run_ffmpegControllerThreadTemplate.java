@@ -332,5 +332,4 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	{
 		stopRunning() ;
 	}
-
 }

@@ -25,10 +25,6 @@ public class MoveFilesControllerWrapper extends TranscodeAndMoveFilesWorkerThrea
 	{
 		moveFilesController.Init() ;
 		moveFilesController.Execute() ;
-
-		// No longer running.
-		// Shutdown the MoveFiles controller, so it can shutdown its threads as well.
-//		moveFilesController.stopRunning() ;
 	}
 	
 	@Override
@@ -36,5 +32,4 @@ public class MoveFilesControllerWrapper extends TranscodeAndMoveFilesWorkerThrea
 	{
 		return theController.shouldKeepRunning() ;
 	}
-	
 }
