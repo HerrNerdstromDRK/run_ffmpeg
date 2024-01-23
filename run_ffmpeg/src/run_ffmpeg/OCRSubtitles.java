@@ -119,7 +119,7 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 			for( int i = 0 ; i < getDefaultNumThreads() ; ++i )
 			{
 				OCRSubtitlesWorkerThread ocrThread = new OCRSubtitlesWorkerThread( this, log, common ) ;
-				ocrThread.setName( "Thread " + (i + 1) ) ;
+				ocrThread.setName( "OCR Thread " + (i + 1) ) ;
 				threads.add( ocrThread ) ;
 			}
 		}
