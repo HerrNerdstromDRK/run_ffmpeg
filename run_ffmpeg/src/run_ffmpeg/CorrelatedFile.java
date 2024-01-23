@@ -47,7 +47,7 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	 */
 	public void addOrUpdateMKVFile( FFmpegProbeResult theMKVFileProbeResult )
 	{
-		final String shortenedFileName = theMKVFileProbeResult.getFileNameShort().replace( Common.getMissingFilePreExtension(), "" ) ;
+		final String shortenedFileName = theMKVFileProbeResult.getFileNameShort() ;
 		
 		// Remove substitute names included from the mkvFilesByName structure
 		removeFilesByName( mkvFilesByName, shortenedFileName ) ;
@@ -131,6 +131,7 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 			missingMKVFile = true ;
 			mkvFilesByName.add( Common.getMissingFileSubstituteName() ) ;
 		}
+		
 		if( !missingMKVFile )
 		{
 			// Look for the instance where the mkvFilesByName may have a missing file from
@@ -149,6 +150,7 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 			missingMP4File = true ;
 			mp4FilesByName.add( Common.getMissingFileSubstituteName() ) ;
 		}
+		
 		if( !missingMP4File )
 		{
 			// Look for the instance where the mkvFilesByName may have a missing file from
@@ -203,44 +205,6 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 		return fileName;
 	}
 	
-	/**
-	 * Would use an iterator here but having a problem serializing with mongoDB.
-	 * @return
-	 */
-//	public List< String > getMKVFilesByName()
-//	{
-//		return mkvFilesByName ;
-//	}
-	
-	/**
-	 * Would use an iterator here but having a problem serializing with mongoDB.
-	 * @return
-	 */
-//	public List< String > getMP4FilesByName()
-//	{
-//		return mp4FilesByName ;
-//	}
-
-//	public Iterator< String > getMKVFilesIterator()
-//	{
-//		return mkvFilesByName.iterator() ;
-//	}
-//	
-//	public Iterator< FFmpegProbeResult > getMKVFilesProbeIterator()
-//	{
-//		return mkvFilesByProbe.iterator() ;
-//	}
-//
-//	public Iterator< FFmpegProbeResult > getMP4FilesProbeIterator()
-//	{
-//		return mp4FilesByProbe.iterator() ;
-//	}
-//	
-//	public Iterator< String > getMP4FilesIterator()
-//	{
-//		return mp4FilesByName.iterator() ;
-//	}
-	
 	public int getNumberOfMKVFiles()
 	{
 		return mkvFilesByName.size() ;
@@ -258,7 +222,6 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 	 * @return
 	 */
 	public boolean isMissingFile()
-	// TODO: Make this a variable instead of a method.
 	{
 		return (isMissingMKVFile() || isMissingMP4File() ) ;
 	}
@@ -290,7 +253,7 @@ public class CorrelatedFile implements Comparable< CorrelatedFile >
 
 	public String toString()
 	{
-		String retMe = "{fileName:" + fileName
+		String retMe = "{fileName:" + getFileName()
 				+ "," ;
 		for( String probeResult : mkvFilesByName )
 		{

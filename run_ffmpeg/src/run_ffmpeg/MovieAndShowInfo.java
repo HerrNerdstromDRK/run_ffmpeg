@@ -3,9 +3,7 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import org.bson.types.ObjectId;
@@ -45,7 +43,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public List< CorrelatedFile > correlatedFilesList = new ArrayList< CorrelatedFile >() ;
 
 	/// Store the files that have been correlated, indexed by filename
-	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
+	//	private transient Map< String, CorrelatedFile > correlatedFiles = new HashMap< String, CorrelatedFile >() ;
 
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
@@ -83,7 +81,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		this.log = log ;
 		initObject( theFile ) ;
 	}
-	
+
 	/**
 	 * Create an instance of MovieAndShowInfo and initialize the instance-level variables.
 	 * @param theFile A File object to be used for name parsing.
@@ -94,7 +92,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		this.log = log ;
 		initObject( theFile ) ;
 	}
-	
+
 	private void initObject( final File theFile )
 	{
 		if( theFile.getParent().contains( "Season " ) )
@@ -153,19 +151,13 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		// Use on the file name, without the path or extension
 		// Example: "Making Of-behindthescenes.mkv" -> "Making Of-behindthescenes"
 		String fileNameWithoutExtension = Common.removeFileNameExtension( probeResultFile.getName() ) ;
-		if( fileNameWithoutExtension.contains( Common.getMissingFilePreExtension() ) )
-		{
-			// File like: "Making Of-behindthescenes.missing_file" -> "Making Of-behindthescenes"
-			fileNameWithoutExtension = Common.removeFileNameExtension( fileNameWithoutExtension ) ;
-		}
 
 		// First, look for an existing correlated file
-		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
+		CorrelatedFile correlatedFile = findCorrelatedFileByNameWithoutExtension( fileNameWithoutExtension ) ;
 		if( null == correlatedFile )
 		{
 			// Not found, create it.
 			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
-			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
 			correlatedFilesList.add( correlatedFile ) ;
 		}
 		correlatedFile.addOrUpdateMKVFile( mkvProbeResult ) ;
@@ -189,12 +181,11 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		final String fileNameWithoutExtension = probeResultFile.getName().replace( ".mp4", "" ) ;
 
 		// First, look for an existing correlated file
-		CorrelatedFile correlatedFile = correlatedFiles.get( fileNameWithoutExtension ) ;
+		CorrelatedFile correlatedFile = findCorrelatedFileByNameWithoutExtension( fileNameWithoutExtension ) ;
 		if( null == correlatedFile )
 		{
 			// Not found, create it.
 			correlatedFile = new CorrelatedFile( fileNameWithoutExtension ) ;
-			correlatedFiles.put( fileNameWithoutExtension,  correlatedFile ) ;
 			correlatedFilesList.add( correlatedFile ) ;
 		}
 		correlatedFile.addOrUpdateMP4File( mp4ProbeResult ) ;
@@ -204,6 +195,25 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public int compareTo( MovieAndShowInfo rhs )
 	{
 		return movieOrShowName.compareTo( rhs.movieOrShowName ) ;
+	}
+
+	/**
+	 * Retrieve the CorrelatedFile from the list of files. If not found, return null.
+	 * @param fileNameWithoutExtension
+	 * @return
+	 */
+	public CorrelatedFile findCorrelatedFileByNameWithoutExtension( final String fileNameWithoutExtension )
+	{
+		CorrelatedFile retMe = null ;
+		for( CorrelatedFile testFile : correlatedFilesList )
+		{
+			if( testFile.getFileName().equals( fileNameWithoutExtension ) )
+			{
+				retMe = testFile ;
+				break ;
+			}
+		}
+		return retMe ;
 	}
 
 	/**
@@ -336,17 +346,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		+ ",mp4LongPath:" + getMP4LongPath()
 		+ ",TVShowName:" + getTVShowName()
 		+ ",TVShowSeasonName:" + getTVShowSeasonName()
-		+ ",isMissingFile:" + isMissingFile
-		+ ",correlateFiles:{" ;
-		for( Map.Entry< String, CorrelatedFile > set : correlatedFiles.entrySet() )
-		{
-			final String key = set.getKey() ;
-			final CorrelatedFile correlatedFile = set.getValue() ;
-			retMe += "[" + key + "," + correlatedFile.toString() + "]," ;
-		}
-		retMe += "}" ;
-
-		retMe += ",correlatedFilesList:{" ;
+		+ ",isMissingFile:" + isMissingFile + ",correlatedFilesList:{" ;
 		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
 		{
 			retMe += correlatedFileIterator.toString() + "," ;
