@@ -142,11 +142,11 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
 
 			retMe.add( tvShowsFolder ) ;
 			retMe.add( moviesFolder ) ;
-			retMe.add( otherVideosFolder ) ;
+//			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
 	}

@@ -31,7 +31,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 
 	/// Reference to the transcode worker thread.
 	private TranscodeAndMoveFilesWorkerThread transcodeThread = null ;
-	
+
 	/// The output directory in which to store mp4 files before being moved to their final home.
 	private String mp4OutputDirectory = null ;
 
@@ -64,7 +64,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		moveFilesController.stopRunning() ;
 	}
-	
+
 	/**
 	 * Initialize this object.
 	 */
@@ -73,40 +73,38 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( false ) ;
+		common.setTestMode( false) ;
 		common.setDoMoveFiles( true ) ;
 		setSortSmallToLarge( false ) ;
-		boolean extractAllFolders = true ;
 
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
-		if( extractAllFolders )
-		{
-			foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
-		}
-		else
-		{
-			foldersToTranscode = new ArrayList< String >() ;
-			foldersToTranscode.add( "\\\\yoda\\MKV_Archive3\\To Convert\\The Karate Kid (2010)" ) ;
-			//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
-			//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
-		}
+
+		foldersToTranscode = common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ;
+		//		foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+
+		//		foldersToTranscode = new ArrayList< String >() ;
+		//		foldersToTranscode.add( "\\\\yoda\\MKV_Archive3\\To Convert\\The Karate Kid (2010)" ) ;
+		//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
+		//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
+
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
-		// Iterate through each folder and extract the files that need to be transcoded.
+		// Search each folder for files that can be transcoded
 		List< File > allFilesToTranscode = new ArrayList< File >() ;
-		for( String folderToExtract : foldersToTranscode )
-		{
-			List< File > filesInFolder = common.getFilesInDirectoryByExtension( folderToExtract, TranscodeCommon.getTranscodeExtensions() ) ;
-			assert( filesInFolder != null ) ;
-			allFilesToTranscode.addAll( filesInFolder ) ;
-		}
-		log.info( "Found " + allFilesToTranscode.size() + " file(s) to transcode" ) ;
-		sortFilesToTranscode( allFilesToTranscode ) ;
+		FindFiles findFiles = new FindFiles( log, common, masMDB, probeInfoCollection ) ;
+		findFiles.addFoldersToSearch( foldersToTranscode ) ;
+		findFiles.addExtensionsToFind( TranscodeCommon.getTranscodeExtensions() ) ;
+		allFilesToTranscode.addAll( findFiles.getFiles() ) ;
+
+		log.info( "Found " + allFilesToTranscode.size() + " file(s)" ) ;
 
 		// Build a TranscodeFile for each file to transcode to make the code below simpler.
+		// buildTranscodeFile() will check if the destination mp4 file already exists. If so, the method
+		// will return null.
 		for( File theFile : allFilesToTranscode )
 		{
+			// Since this can take a while to process, check if we should keep running.
 			TranscodeAndMoveFileInfo newFileToTranscode = buildTranscodeFile( theFile ) ;
 			if( newFileToTranscode != null )
 			{
@@ -115,17 +113,24 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				filesToTranscode.add( newFileToTranscode ) ;
 			}
 		}
+		//		sortFilesToTranscode( allFilesToTranscode ) ;
+
+		log.info( "Will transcode these files: " ) ;
+		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )
+		{
+			log.info( theFileToTranscode.toString() ) ;
+		}
 	}
 
 	/**
-	 * Build a transcode file for the given input mkv file.
+	 * Build a transcode file for the given input mkv file. If the final mp4 file already exists then return null.
 	 * @param folderToExtract
 	 * @return The new transcode file or null if unsuccessful
 	 */
 	public TranscodeAndMoveFileInfo buildTranscodeFile( final File mkvFile )
 	{
 		assert( mkvFile != null ) ;
-		log.info( "building transcode file: " + mkvFile.getAbsolutePath() ) ;
+		log.fine( "building transcode file: " + mkvFile.getAbsolutePath() ) ;
 
 		// Check for the situation where we are transcoding a file that is already part of 
 		// the destination mkv directory or has an existing mp4 file.
@@ -146,31 +151,31 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			final String mp4LongPath = movieAndShowInfo.getMP4LongPath() ;
 			if( mp4LongPath != null )
 			{
-				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath ) + mkvFile.getName() ;
+				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath ) + mkvFile.getName().replace( ".mkv", ".mp4" ) ;
 				final File mp4File = new File( mp4FileNameWithPath ) ;
 				if( mp4File.exists() )
 				{
-					log.info( "Found that mp4 file " + mp4File.getAbsolutePath() + " exists for mkvFile: " + mkvFile.getAbsolutePath() ) ;
-					if( mkvFile.lastModified() > mp4File.lastModified() )
-					{
-						// An mp4 file corresponding to this mkv file exists and the mkv file is newer.
-						// Need to rebuild the mp4 file.
-						log.info( "Found newer mkv file (" + mkvFile.getAbsolutePath() + ") than existing mp4 file: "
-								+ mp4File.getAbsolutePath() + "; deleting" ) ;
-
-						// TODO: Update the MovieAndShowInfo?
-						if( !common.getTestMode() )
-						{
-							mp4File.delete() ;
-						}
-					}
-					else
-					{
-						// An mp4 file correspond to the mkv file exists but is newer than the mkv file.
-						// Note this but ignore it.
-						log.fine( "Found existing mp4 file for mkv file " + mkvFile.getAbsolutePath() + " but mp4 file is newer. Ignoring mkv file." ) ;
-						return null ;
-					}
+					log.fine( "Found that mp4 file " + mp4File.getAbsolutePath() + " exists for mkvFile: " + mkvFile.getAbsolutePath() ) ;
+					//					if( mkvFile.lastModified() > mp4File.lastModified() )
+					//					{
+					//						// An mp4 file corresponding to this mkv file exists and the mkv file is newer.
+					//						// Need to rebuild the mp4 file.
+					//						log.info( "Found newer mkv file (" + mkvFile.getAbsolutePath() + ") than existing mp4 file: "
+					//								+ mp4File.getAbsolutePath() + "; deleting" ) ;
+					//
+					//						// TODO: Update the MovieAndShowInfo?
+					//						if( !common.getTestMode() )
+					//						{
+					//							mp4File.delete() ;
+					//						}
+					//					}
+					//					else
+					//					{
+					// An mp4 file correspond to the mkv file exists but is newer than the mkv file.
+					// Note this but ignore it.
+					// log.fine( "Found existing mp4 file for mkv file " + mkvFile.getAbsolutePath() + " but mp4 file is newer. Ignoring mkv file." ) ;
+					return null ;
+					//					}
 				} // if( mp4File.exists() )
 			} // if( mp4LongPath != null )
 		} // if( movieAndShowInfo != null )

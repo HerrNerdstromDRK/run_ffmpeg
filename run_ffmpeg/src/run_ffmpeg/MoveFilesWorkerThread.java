@@ -52,6 +52,12 @@ public class MoveFilesWorkerThread extends run_ffmpegWorkerThread
 					Thread.sleep( 100 ) ;
 					continue ;
 				}
+				
+				if( moveInfo.getSourceFilePath().equals( moveInfo.getDestinationFilePath() ) )
+				{
+					// Source and destination files are the same.
+					continue ;
+				}
 
 				if( !Files.exists( moveInfo.getSourceFileDirectoryPath() ) )
 				{
