@@ -346,8 +346,8 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 
 		// Look for usable subtitle streams in the file and retrieve a list of options
 		// for an ffmpeg extract command.
-		// ProbeDirectories will search for the file in the database. If not found, it will probe the file.
-		FFmpegProbeResult probeResult = probeDirectories.probeFileAndUpdateDB( theFileToProcess.getMKVInputFile() ) ;
+		// Do NOT update the database here.
+		FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess.getMKVInputFile(), log ) ;
 		if( null == probeResult )
 		{
 			// Unable to ffprobe the file

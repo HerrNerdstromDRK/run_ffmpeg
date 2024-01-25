@@ -41,7 +41,7 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 			List< String > foldersToProbe )
 	{
 		super( log, common ) ;
-		
+
 		assert( theController != null ) ;
 		assert( probeInfoCollection != null ) ;
 		assert( probeInfoMap != null ) ;
@@ -96,7 +96,7 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 			{
 				return ;
 			}
-			
+
 			final String absolutePath = entry.getKey() ;
 			final FFmpegProbeResult theProbeResult = entry.getValue() ;
 
@@ -144,13 +144,6 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 		assert( probeResult != null ) ;
 		// TODO: Use a pre-scanned filesystem map here.
 
-		// Check for the special case of a missing file.
-		if( fileToProbe.getName().contains( Common.getMissingFilePreExtension() ) )
-		{
-			// Special files never need a refresh.
-			return false ;
-		}
-
 		if( fileToProbe.length() != probeResult.size )
 		{
 			// Size has changed
@@ -197,26 +190,8 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 		// File needs a probe
 		log.fine( getName() + " Probing " + fileToProbe.getAbsolutePath() ) ;
 
-		// Handle the special case that this is a missing file substitute
-		if( fileToProbe.getName().contains( Common.getMissingFilePreExtension() ) )
-		{
-			// Missing file. Do not probe directly
-			log.fine( getName() + " This is a missing file: " + fileToProbe.getAbsolutePath() );
-			probeResult = new FFmpegProbeResult() ;
-			probeResult.setFileNameWithPath( fileToProbe.getAbsolutePath() ) ;
-			probeResult.setFileNameWithoutPath( fileToProbe.getName() ) ;
-			probeResult.setFileNameShort( Common.shortenFileName( fileToProbe.getAbsolutePath() ) ) ;
-			probeResult.probeTime = fileToProbe.lastModified() + 1 ;
-			probeResult.chapters = new ArrayList< FFmpegChapter >() ;
-			probeResult.error = new FFmpegError() ;
-			probeResult.format = new FFmpegFormat() ;
-			probeResult.streams = new ArrayList< FFmpegStream >() ;
-		}
-		else
-		{
-			// Probe the file with ffprobe
-			probeResult = common.ffprobeFile( fileToProbe, log ) ;
-		}
+		// Probe the file with ffprobe
+		probeResult = common.ffprobeFile( fileToProbe, log ) ;
 
 		// Push the probe result into the database.
 		if( probeResult != null )
@@ -299,7 +274,7 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 			+ ", " + common.makeElapsedTimeString( startTime, endTime ) ) ;
 		}
 	} // run()
-	
+
 	public boolean shouldKeepRunning()
 	{
 		return theController.shouldKeepRunning() ;

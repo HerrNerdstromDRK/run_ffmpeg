@@ -23,7 +23,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 {
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
 	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
-	
+
 	/// Keep track if the database has been loaded.
 	private boolean databaseBeenLoaded = false ;
 
@@ -45,7 +45,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	{
 		super( logFileName, stopFileName ) ;
 	}
-	
+
 	/**
 	 * This constructor is intended for external users of this class and allows passing names of the files used
 	 *  externally.
@@ -105,7 +105,14 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 			{
 				// Add the folders to probe for this drive.
 				List< String > driveAndFoldersToProbe = common.addMoviesAndTVShowFoldersToDrive( driveToProbe ) ;
-				
+
+				// No need to add To Convert to probes as the Transcode functions will do that for us.
+//				if( driveToProbe.contains( "MKV" ) )
+//				{
+//					driveAndFoldersToProbe.add( common.addPathSeparatorIfNecessary( driveToProbe ) + "To Convert" ) ;
+//					driveAndFoldersToProbe.add( common.addPathSeparatorIfNecessary( driveToProbe ) + "To Convert - TV Shows" ) ;
+//				}
+
 				// Retrieve all probe results stored in the database for these folders.
 				Map< String, FFmpegProbeResult > threadProbeInfoMap = getProbeInfoForDrives( driveAndFoldersToProbe ) ; 
 
@@ -151,7 +158,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		{
 			// Ensure the trailing \\ is included so \\\\yoda\\MP4 doesn't also pick up all entries for \\\\yoda\\MP4_3
 			final String driveOrFolderToProbeSearch = common.addPathSeparatorIfNecessary( driveOrFolderToProbe ) ;
-	
+
 			// Walk through the probeInfoMap to search for long path prefixes.
 			// Can't call get() here because it doesn't have a way to search for startsWith()
 			// (Yes I could add a comparator but I prefer to keep the code clean and easier to debug.)
@@ -178,7 +185,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 			// Already loaded. Nothing to do here.
 			return ;
 		}
-		
+
 		log.info( "Loading probe info collection" ) ;
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
@@ -229,7 +236,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		{
 			loadProbeInfoDatabase() ;
 		}
-		
+
 		// Lookup the file in the probeInfoCollection
 		FFmpegProbeResult theProbeResult = probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsolutePath() ) ).first() ;
 		// theProbeResult may be null if the file has not yet been probed.

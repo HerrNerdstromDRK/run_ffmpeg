@@ -80,8 +80,8 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-		foldersToTranscode = common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ;
-		//		foldersToTranscode = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
 		//		foldersToTranscode = new ArrayList< String >() ;
 		//		foldersToTranscode.add( "\\\\yoda\\MKV_Archive3\\To Convert\\The Karate Kid (2010)" ) ;
@@ -115,11 +115,11 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		}
 		//		sortFilesToTranscode( allFilesToTranscode ) ;
 
-		log.info( "Will transcode these files: " ) ;
-		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )
-		{
-			log.info( theFileToTranscode.toString() ) ;
-		}
+//		log.info( "Will transcode these files: " ) ;
+//		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )
+//		{
+//			log.info( theFileToTranscode.toString() ) ;
+//		}
 	}
 
 	/**
