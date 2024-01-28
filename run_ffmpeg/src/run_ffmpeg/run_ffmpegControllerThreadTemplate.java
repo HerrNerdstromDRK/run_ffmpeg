@@ -34,6 +34,8 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
 	private String stopFileName = "C:\\Temp\\unnamed_stop_file_name.txt" ;
+	
+	protected String name = "Base class" ;
 
 	public run_ffmpegControllerThreadTemplate( final String logFileName, final String stopFileName )
 	{
@@ -96,11 +98,6 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	 */
 	public void Execute()
 	{
-		//		if( !shouldKeepRunning() )
-		//		{
-		//			log.info( "Stopping process before it started because shouldKeepRunning() returned false." ) ;
-		//			return ;
-		//		}
 		Execute_start() ;
 
 		// Build the worker threads and add them to the internal map
@@ -135,6 +132,8 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		}
 		else
 		{
+//			log.info( getName() + " while()");
+
 			// Using threads
 			// Just wait for the threads to complete or the shutdown command to be issued.
 			while( shouldKeepRunning() && atLeastOneThreadIsAlive() )
@@ -154,15 +153,15 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		Execute_afterEndMainLoop() ;
 
 		Execute_onStartShutdown() ;
-		log.info( "Shutting down" ) ;
+		log.info( getName() + " Shutting down" ) ;
 
 		Execute_beforeStopThreads() ;
-		log.info( "Stopping threads..." ) ;
+		log.info( getName() + " Stopping threads..." ) ;
 		stopThreads() ;
 		Execute_afterStopThreads() ;
 
 		Execute_beforeJointThreads() ;
-		log.info( "Joining threads..." ) ;
+		log.info( getName() + " Joining threads..." ) ;
 		joinThreads() ;
 		Execute_afterJoinThreads() ;
 
@@ -245,6 +244,10 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	 */
 	protected abstract List< WorkerThreadType > buildWorkerThreads() ;
 
+	public String getName() {
+		return name;
+	}
+
 	public String getSingleThreadedName()
 	{
 		return singleThreadedName ;
@@ -269,7 +272,7 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 				final String key = entry.getKey() ;
 				WorkerThreadType workerThread = entry.getValue() ;
 
-				log.info( "Joining thread " + key ) ;
+				log.info( getName() + " Joining thread " + key ) ;
 				try
 				{
 					workerThread.join() ;
@@ -283,10 +286,14 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		}
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public void setUseThreads( boolean useThreads )
 	{
 		this.useThreads = useThreads ;
-		log.info( "Threads: " + useThreads ) ;
+		log.info( getName() + " Threads: " + useThreads ) ;
 	}
 
 	/**
@@ -311,14 +318,31 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	{
 		if( isUseThreads() )
 		{
-			log.info( "Starting threads." ) ;
+			log.info( getName() + " Starting threads." ) ;
 			for( Map.Entry< String, WorkerThreadType > entry : threadMap.entrySet() )
 			{
 				final String key = entry.getKey() ;
 				WorkerThreadType workerThread = entry.getValue() ;
 
-				log.info( "Starting thread " + key ) ;
+				log.info( getName() + " Starting thread " + key ) ;
 				workerThread.start() ;
+				
+				// Wait for the thread to start
+				// Prevent a race condition by checking if the thread should keep running -- this
+				//  avoids the scenario where the thread starts to run then determines it should
+				//  not keep running, all prior to this thread regaining processor time to check
+				//  for isAlive().
+				while( workerThread.shouldKeepRunning() && !workerThread.isAlive() )
+				{
+					try
+					{
+						Thread.sleep( 100 ) ;
+					}
+					catch( Exception theException )
+					{
+						log.warning( "Error sleeping while starting new thread: " + workerThread.getName() ) ;
+					}
+				}
 			}
 		}
 	}

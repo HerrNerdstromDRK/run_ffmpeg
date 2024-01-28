@@ -19,7 +19,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	/// Reference to a PD object to access its probeFileAndUpdateDB() method.
 	/// Will be passed to the worker threads.
 	/// Included here so only one instance of PD is created.
-	private transient ProbeDirectories probeDirectories = null ;
+//	private transient ProbeDirectories probeDirectories = null ;
 
 	/// The list of folders from which to extract subtitles.
 	private List< String > foldersToExtract = null ;
@@ -63,7 +63,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		assert( foldersToExtract != null ) ;
 
 		this.theController = theController ;
-		this.probeDirectories = probeDirectories ;
+//		this.probeDirectories = probeDirectories ;
 		this.foldersToExtract = foldersToExtract ;
 	}
 
@@ -343,7 +343,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			return ;
 		}
 
-		// Skip this file if a .srt file exists in its directory
+		// Skip this file if a .srt file exists in its directory (extract already done).
 		if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 		{
 			log.fine( getName() + " Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMKVInputFileNameWithPath() ) ;

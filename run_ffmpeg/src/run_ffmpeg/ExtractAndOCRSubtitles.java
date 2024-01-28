@@ -26,7 +26,7 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 	/// The structure used to pass files that have had their subtitles successfully extracted
 	/// to the ocrThread to OCR them.
 	/// Extract subtitles->OCR subtitles
-	private PriorityBlockingQueue< File > filePipeline = new PriorityBlockingQueue< File >() ;
+	private PriorityBlockingQueue< File > filePipeline = new PriorityBlockingQueue< File >( 25, new FileSortLargeToSmall() ) ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_extract_and_ocr.txt" ;
@@ -54,14 +54,17 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 	{
 		extractSubtitles = new ExtractSubtitles( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		extractSubtitles.setTranscodePipeline( filePipeline ) ;
+		extractSubtitles.setName( "extractSubtitles" ) ;
 		
 		ocrSubtitles = new OCRSubtitles( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		ocrSubtitles.setFilesToOCR( filePipeline ) ;
+		ocrSubtitles.setName( "ocrSubtitles" ) ;
 	}
 
 	public static void main( String[] args )
 	{
 		ExtractAndOCRSubtitles controllerThread = new ExtractAndOCRSubtitles() ;
+		controllerThread.setName( "ExtractAndOCRSubtitles" ) ;
 		controllerThread.Init() ;
 		controllerThread.Execute() ;
 		System.out.println( "main> Shutdown." ) ;
@@ -129,4 +132,36 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 	{
 		return (extractSubtitles.atLeastOneThreadIsAlive() || ocrSubtitles.atLeastOneThreadIsAlive()) ;
 	}
+	
+	/**
+	 * Look for the condition that the ExtractSubtitles worker thread is dead and the OCRSubtitlesWorkerThread is done with all work.
+	 */
+	@Override
+	public void Execute_mainLoopEnd()
+	{
+		if( extractSubtitles.atLeastOneThreadIsAlive() )
+		{
+			// Still extracting.
+			return ;
+		}
+		// Post-condition: Done extracting.
+		
+		// Wait for when all OCR work is done.
+		if( extractSubtitles.pipelineIsEmpty() && (0 == ocrSubtitles.countActiveOCR()) )
+		{
+			stopRunning() ;
+		}
+	}
+	
+	/**
+	 * Notify the subordinate threads to stop running.
+	 */
+	@Override
+	public void stopRunning()
+	{
+		extractSubtitles.stopRunning() ;
+		ocrSubtitles.stopRunning() ;
+		super.stopRunning() ;
+	}
+	
 }

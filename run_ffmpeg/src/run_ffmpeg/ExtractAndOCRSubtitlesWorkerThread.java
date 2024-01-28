@@ -41,10 +41,12 @@ public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		if( extractSubtitles != null )
 		{
 			extractSubtitles.Execute() ;
+			log.info( getName() + " Shutting down." ) ;
 		}
 		else if( ocrSubtitles != null )
 		{
 			ocrSubtitles.Execute() ;
+			log.info( getName() + " Shutting down." ) ;
 		}
 	}
 

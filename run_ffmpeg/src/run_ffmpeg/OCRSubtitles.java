@@ -171,6 +171,24 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	}
 
 	/**
+	 * Return the number of active OCR actions.
+	 * @return
+	 */
+	public int countActiveOCR()
+	{
+		int numActiveOCR = 0 ;
+		OCRSubtitlesWorkerThread[] workerThreads = getWorkerThreads() ;
+		for( OCRSubtitlesWorkerThread theThread : workerThreads )
+		{
+			if( theThread.isWorkInProgress() )
+			{
+				++numActiveOCR ;
+			}
+		} // for( theThread )
+		return numActiveOCR ;
+	}
+	
+	/**
 	 * Execute one instance of the main loop. This method is called by the super class instance.
 	 * @param numThreads
 	 */
