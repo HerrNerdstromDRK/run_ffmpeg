@@ -2,6 +2,7 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -165,7 +166,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
 			File regularFile = new File( fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
 			pssf.pruneFolder( regularFile.getParent() ) ;
-			
+
 			// Now pass any remaining sup files to the pipeline for OCR and beyond.
 			List< File > remainingSupFiles = new ArrayList< File >() ;
 			for( File checkFile : supFiles )
@@ -273,47 +274,43 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 
 		final long startTime = System.nanoTime() ;
 		setWorkInProgress( true ) ;
+
+		List< TranscodeFile > filesToProcess = new ArrayList< TranscodeFile >() ;
+
+		// Build all of the TranscodeFiles for all folders.
 		for( String folderName : foldersToExtract )
 		{
-			log.info( getName() + " Extracting subtitle files from folder " + folderName ) ;
 			if( !shouldKeepRunning() )
 			{
-				break ;
+				log.info( getName() + " Stopping execution due to presence of stop file" ) ;
+				return ;
 			}
 
-			runOneDirectory( folderName ) ;
-			
-			log.info( getName() + " Completed extracting subtitle files from folder " + folderName ) ;
-		}
-		setWorkInProgress( false ) ;
-		final long endTime = System.nanoTime() ;
+			// Create an instance of TranscodeCommon to access its internal file evaluation methods.
+			TranscodeCommon transcodeCommon = new TranscodeCommon(
+					log,
+					common,
+					folderName,
+					"", // mkvFinalDirectory
+					"", // mp4OutputDirectory
+					"" ) ; // mp4FinalDirectory 
 
-		log.info( getName() + " Completed extracting from drives and folders: " + foldersToExtract.toString() ) ;
-		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
-		log.info( getName() + " Thread shutdown." ) ;
-	}
+			// First, survey the input directory for files to process, and build
+			// a TranscodeFile object for each.
+			filesToProcess.addAll( transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( folderName,
+					TranscodeCommon.getTranscodeExtensions() ) ) ;
+		} // for( folderName )
 
-	/**
-	 * Extract from all files in a given directory.
-	 * @param inputDirectory
-	 */
-	public void runOneDirectory( final String inputDirectory )
-	{
-		// Create an instance of TranscodeCommon to access its internal file evaluation methods.
-		TranscodeCommon transcodeCommon = new TranscodeCommon(
-				log,
-				common,
-				inputDirectory,
-				"", // mkvFinalDirectory
-				"", // mp4OutputDirectory
-				"" ) ; // mp4FinalDirectory 
+		// Extract the largest files first to coincide with the OCR order
+		Collections.sort( filesToProcess, new TranscodeFileSortLargeToSmall() ) ;
 
-		// First, survey the input directory for files to process, and build
-		// a TranscodeFile object for each.
-		List< TranscodeFile > filesToProcess = transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( inputDirectory,
-				TranscodeCommon.getTranscodeExtensions() ) ;
+		log.info( "Extracting " + filesToProcess.size() + " file(s)" ) ;
+//		for( TranscodeFile theFile : filesToProcess )
+//		{
+//			log.info( theFile.toString() ) ;
+//		}
 
-		// Perform the core work of this application
+		// Perform the core work of this application of extracting the files.
 		for( TranscodeFile theFileToProcess : filesToProcess )
 		{
 			if( !shouldKeepRunning() )
@@ -323,7 +320,16 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			}
 			runOneFile( theFileToProcess ) ;
 		}
-	}
+
+		log.info( getName() + " Completed extracting subtitle files from folder " + foldersToExtract ) ;
+
+		setWorkInProgress( false ) ;
+		final long endTime = System.nanoTime() ;
+
+		log.info( getName() + " Completed extracting from drives and folders: " + foldersToExtract.toString() ) ;
+		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
+		log.info( getName() + " Thread shutdown." ) ;
+	} // run()
 
 	/**
 	 * Extract from this one file.
@@ -357,7 +363,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 
 		extractSubtitles( theFileToProcess, probeResult ) ;
 	}
-	
+
 	public boolean shouldKeepRunning()
 	{
 		return theController.shouldKeepRunning() ;

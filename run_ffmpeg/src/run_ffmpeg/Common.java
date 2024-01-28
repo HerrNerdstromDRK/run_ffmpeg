@@ -817,7 +817,7 @@ public class Common
 		}
 		catch( Exception e )
 		{
-			log.info( "TranscodeFile.touchFile> Exception for file " + fileName + ": " + e ) ;
+			log.info( "Exception for file " + fileName + ": " + e ) ;
 		}
 	}
 

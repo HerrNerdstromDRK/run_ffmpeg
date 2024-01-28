@@ -35,6 +35,9 @@ public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		// Calling execute on each object will initiate the entire chain of methods that a controller
 		// thread normally conducts. The only difference is that this object (and its controller object)
 		// tie the two together to form a pipeline.
+		// Note: This code explicitly does *not* call Init() since that method would set the folders
+		// to extract/OCR to whatever is already there -- ExtractAndOCRSubtitles has already configured
+		// each of the subordinate objects appropriately.
 		if( extractSubtitles != null )
 		{
 			extractSubtitles.Execute() ;
