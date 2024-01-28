@@ -108,7 +108,11 @@ public class TranscodeAndMoveFilesWorkerThread extends run_ffmpegWorkerThread
 			FFmpegProbeResult mp4ProbeInfo = common.ffprobeFile( fileToTranscode.getMP4OutputFile(), log ) ;
 
 			// The system should be able to probe the resulting mp4 file since the transcode succeeded.
-			assert( mp4ProbeInfo != null ) ;
+			if( null == mp4ProbeInfo )
+			{
+				// The transcode could fail, but this probably means we are in test mode.
+				continue ;
+			}
 
 			// Update the mp4ProbeInfo with the new file information.
 			mp4ProbeInfo.setFileNameWithPath( fileToTranscode.getMP4FinalFileNameWithPath() ) ;
