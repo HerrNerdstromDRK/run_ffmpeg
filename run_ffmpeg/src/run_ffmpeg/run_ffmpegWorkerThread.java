@@ -35,4 +35,20 @@ public abstract class run_ffmpegWorkerThread extends Thread
 	 */
 	public abstract boolean shouldKeepRunning() ;
 
+	public String toString()
+	{
+		String retMe = "{Name: "
+				+ getName()
+				+ ", State: "
+				+ getState()
+				+ ", Priority: "
+				+ getPriority()
+				+ ", isAlive: "
+				+ isAlive()
+				+ ", isDaemon: "
+				+ isDaemon()
+				+ "}" ;
+		return retMe ;
+	}
+	
 }

@@ -145,9 +145,17 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 				}
 				catch( Exception theException )
 				{
-					log.warning( "Error in sleep: " + theException.toString() ) ;
+					log.warning( getName() + " Error in sleep: " + theException.toString() ) ;
 				}
 				Execute_mainLoopEnd() ;
+			}
+			if( !shouldKeepRunning() )
+			{
+				log.info( getName() + " Shutting down because shouldKeepRunning() is false" ) ;
+			}
+			if( !atLeastOneThreadIsAlive() )
+			{
+				log.info( getName() + " Shutting down because atLeastOneThreadIsAlive() is false" ) ;
 			}
 		} // if( !isUseThreads() )
 		Execute_afterEndMainLoop() ;
@@ -217,6 +225,10 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	public void Execute_end()
 	{}
 
+	/**
+	 * Return true if at least one thread is alive; false otherwise.
+	 * @return
+	 */
 	protected boolean atLeastOneThreadIsAlive()
 	{
 		if( !isUseThreads() )
@@ -227,11 +239,13 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		for( Map.Entry< String, WorkerThreadType > entry : threadMap.entrySet() )
 		{
 			WorkerThreadType workerThread = entry.getValue() ;
-
+//			log.info( getName() + " Checking thread: " + workerThread.toString() ) ;
 			if( workerThread.isAlive() )
 			{
+//				log.info( "Returning true" ) ;
 				return true ;
 			}
+//			log.info( getName() + " Missed isAlive() true check" ) ;
 		}
 		return false ;
 	}
@@ -251,6 +265,20 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	public String getSingleThreadedName()
 	{
 		return singleThreadedName ;
+	}
+
+	public String toString()
+	{
+		String retMe = "{Name: "
+				+ getName()
+				+ ", Threads: " ;
+		for( Map.Entry< String, WorkerThreadType > entry : threadMap.entrySet() )
+		{
+			run_ffmpegWorkerThread workerThread = entry.getValue() ;
+			retMe += workerThread.toString() + "," ;
+		}
+		retMe += "}" ;
+		return retMe ;
 	}
 
 	protected WorkerThreadType[] getWorkerThreads( WorkerThreadType[] array )
@@ -276,18 +304,19 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 				try
 				{
 					workerThread.join() ;
-					log.fine( "Joined thread " + key ) ;
+					log.fine( getName() + " Joined thread " + key ) ;
 				}
 				catch( Exception theException )
 				{
-					log.warning( "Error joining thread " + key + ": " + theException.toString() ) ;
+					log.warning( getName() + " Error joining thread " + key + ": " + theException.toString() ) ;
 				}
 			}
 		}
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public void setName( String name )
+	{
+		this.name = name ;
 	}
 
 	public void setUseThreads( boolean useThreads )
@@ -318,13 +347,13 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	{
 		if( isUseThreads() )
 		{
-			log.info( getName() + " Starting threads." ) ;
+//			log.info( getName() + " Starting threads." ) ;
 			for( Map.Entry< String, WorkerThreadType > entry : threadMap.entrySet() )
 			{
-				final String key = entry.getKey() ;
+//				final String key = entry.getKey() ;
 				WorkerThreadType workerThread = entry.getValue() ;
 
-				log.info( getName() + " Starting thread " + key ) ;
+//				log.info( getName() + " Starting thread " + workerThread.toString() ) ;
 				workerThread.start() ;
 				
 				// Wait for the thread to start
@@ -334,17 +363,23 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 				//  for isAlive().
 				while( workerThread.shouldKeepRunning() && !workerThread.isAlive() )
 				{
+//					if( !shouldKeepRunning() || !workerThread.shouldKeepRunning() )
+//					{
+//						log.info( getName() + " Shutting down before we got started." ) ;
+//					}
+					
 					try
 					{
 						Thread.sleep( 100 ) ;
 					}
 					catch( Exception theException )
 					{
-						log.warning( "Error sleeping while starting new thread: " + workerThread.getName() ) ;
-					}
-				}
-			}
-		}
+						log.warning( getName() + " Error sleeping while starting new thread: " + workerThread.getName() ) ;
+					} // try/catch
+				} // while()
+			} // for()
+			log.info( getName() + " Started threads: " + toString() ) ;
+		} // if( useThreads() )
 	}
 
 	public void stopRunning()
