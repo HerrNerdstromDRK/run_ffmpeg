@@ -282,7 +282,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		{
 			if( !shouldKeepRunning() )
 			{
-				log.info( getName() + " Stopping execution due to presence of stop file" ) ;
+				log.info( getName() + " Stopping execution shouldKeepRunning() returning false" ) ;
 				return ;
 			}
 
@@ -315,7 +315,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		{
 			if( !shouldKeepRunning() )
 			{
-				log.info( getName() + " Stopping execution due to presence of stop file" ) ;
+				log.info( getName() + " Stopping execution shouldKeepRunning returning false" ) ;
 				return ;
 			}
 			runOneFile( theFileToProcess ) ;
@@ -339,7 +339,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	{
 		if( !shouldKeepRunning() )
 		{
-			log.info( getName() + " Stopping execution due to presence of stop file" ) ;
+			log.info( getName() + " Stopping execution shouldKeepRunning returning false" ) ;
 			return ;
 		}
 
