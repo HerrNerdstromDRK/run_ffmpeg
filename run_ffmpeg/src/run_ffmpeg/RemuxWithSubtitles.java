@@ -402,14 +402,6 @@ public class RemuxWithSubtitles extends Thread
 			List< TranscodeFile > filesToRemux,
 			List< TranscodeFile > filesToTranscode )
 	{
-		//		log.fine( getName() + " Processing MovieAndShowInfo: " + theMovieAndShowInfo.toString() ) ;
-		if( theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingMovieMKVPath() )
-				|| theMovieAndShowInfo.getMKVLongPath().contains( common.getMissingTVShowMKVPath() ) )
-		{
-			log.fine( getName() + " Skipping movie/show with missing path: " + theMovieAndShowInfo.toString() ) ;
-			return ;
-		}
-
 		if( theMovieAndShowInfo.getMKVLongPath().contains( "MKV_Archive4" ) )
 		{
 			// Still having a problem with MKV_4; ignore it for now.

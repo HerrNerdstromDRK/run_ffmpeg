@@ -52,13 +52,6 @@ public class Common
 
 	/// The name of the primary file server
 	private static final String primaryFileServerName = "\\\\yoda" ;
-	
-	/// Information about how to record and track missing MKV files.
-	private static final String missingMovieMKVPath = "\\\\yoda\\MKV_Archive1\\Movies_Missing" ;
-	private static final String missingTVShowMKVPath = "\\\\yoda\\MKV_Archive1\\TV Shows_Missing" ;
-	private static final String missingFilePreExtension = ".missing_file" ;
-	private static final String missingMovieMP4Path = "\\\\yoda\\MP4\\Movies" ;
-	private static final String missingShowMP4Path = "\\\\yoda\\MP4\\TV Shows" ;
 
 	/// Paths to external applications
 	private static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
@@ -929,17 +922,6 @@ public class Common
 		return isWindows ;
 	}
 
-	/**
-	 * Return the string that will be included in each fake file to indicate that it is 
-	 *  a missing file (.mkv).
-	 * Includes the preceding '.'
-	 * @return
-	 */
-	public static String getMissingFilePreExtension()
-	{
-		return missingFilePreExtension;
-	}
-
 	public List< String > getMissingFiles()
 	{
 		List< String > retMe = new ArrayList< String >( Arrays.asList( missingFiles ) ) ;
@@ -949,26 +931,6 @@ public class Common
 	public static String getMissingFileSubstituteName()
 	{
 		return missingFileSubstituteName;
-	}
-
-	public String getMissingMovieMKVPath()
-	{
-		return missingMovieMKVPath;
-	}
-
-	public static String getMissingMovieMP4Path()
-	{
-		return missingMovieMP4Path;
-	}
-
-	public String getMissingTVShowMKVPath()
-	{
-		return missingTVShowMKVPath;
-	}
-
-	public static String getMissingTVShowMP4Path()
-	{
-		return missingShowMP4Path;
 	}
 
 	public String getMKVDriveWithMostAvailableSpace()

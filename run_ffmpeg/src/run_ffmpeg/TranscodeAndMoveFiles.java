@@ -73,17 +73,17 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( false ) ;
-		common.setDoMoveFiles( true ) ;
+		common.setTestMode( true ) ;
+		common.setDoMoveFiles( false ) ;
 		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
 //		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
-//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
-		foldersToTranscode.add( "C:\\Temp\\Godzilla Vs Kong (2021)" ) ;
+//		foldersToTranscode.add( "C:\\Temp\\Godzilla Vs Kong (2021)" ) ;
 		//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
 		//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
 
@@ -294,7 +294,11 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				log,
 				common,
 				filesToTranscode ) ;
-		transcodeThread.setName( "Transcode" ) ;
+		
+		// Important that the name of the thread here be alphabetically earlier than the move files threads in
+		// the event that this application is run in single threaded mode -- in that case, if a move files
+		// thread runs first, it will just sit there forever.
+		transcodeThread.setName( "DoTranscode" ) ;
 		threads.add( transcodeThread ) ;
 
 		MoveFilesControllerWrapper mfcw = new MoveFilesControllerWrapper( this, moveFilesController, log, common ) ;

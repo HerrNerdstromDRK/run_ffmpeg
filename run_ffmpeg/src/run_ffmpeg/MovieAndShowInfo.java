@@ -365,12 +365,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		// Note that correlated file names are stored without extension
 		File theProbeResultFile = new File( theProbeResult.getFileNameWithPath() ) ;
 		String fileNameToSearch = Common.removeFileNameExtension( theProbeResultFile.getName() ) ;
-		if( fileNameToSearch.contains( Common.getMissingFilePreExtension() ) )
-		{
-			// If this is a missing file, it will have a second extension that needs
-			// to be removed for this search to succeed.
-			fileNameToSearch = Common.removeFileNameExtension( fileNameToSearch ) ;
-		}
 		CorrelatedFile theCorrelatedFile = null ;
 
 		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )

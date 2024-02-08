@@ -44,9 +44,6 @@ public class WorkflowOrchestrator
 
 	private void setupThreads()
 	{
-		WorkflowStageThread_MakeFakeMKVFiles makeFakeMKVFilesThread = new WorkflowStageThread_MakeFakeMKVFiles(
-				"makeFakeMKVFileThread", log, common, masMDB ) ;
-		threadList.add( makeFakeMKVFilesThread ) ;
 		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
 				"probeFileThread", log, common, masMDB ) ;
 		threadList.add( probeFileThread ) ;

@@ -156,7 +156,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		Map< String, FFmpegProbeResult > returnMeMap = new HashMap< String, FFmpegProbeResult >() ;
 		for( String driveOrFolderToProbe : driveAndFoldersToProbe )
 		{
-			// Ensure the trailing \\ is included so \\\\yoda\\MP4 doesn't also pick up all entries for \\\\yoda\\MP4_3
+			// Ensure the trailing \\ is included so \\\\yoda\\MP4 doesn't also pick up all entries for \\\\yoda\\MP4_2
 			final String driveOrFolderToProbeSearch = common.addPathSeparatorIfNecessary( driveOrFolderToProbe ) ;
 
 			// Walk through the probeInfoMap to search for long path prefixes.

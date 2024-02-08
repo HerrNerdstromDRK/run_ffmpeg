@@ -55,27 +55,6 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 		// Setup the destination directory for the mp4 file
 		// mp4LongPath, if it exists, will NOT have the trailing path separator
 		String mp4FinalDirectory = theJob.getMP4LongPath() ;
-		if( mp4FinalDirectory.equals( Common.getMissingFileSubstituteName() ) )
-		{
-			// mp4LongPath is empty
-			// Find the correct location for this mp4 file.
-			if( movieAndShowInfo.isTVShow() )
-			{
-				// TV Show
-				// In the case of TV shows, the movieOrShowName is like "Show Name_Season Num"
-				mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getMissingTVShowMP4Path() )
-						+ movieAndShowInfo.getTVShowName()
-						+ common.getPathSeparator()
-						+ movieAndShowInfo.getTVShowSeasonName() ;
-			}
-			else
-			{
-				// Movie
-				// In the case of movies, the movieOrShowName should be accurate
-				mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getMissingMovieMP4Path() )
-						+ movieAndShowInfo.getMovieOrShowName() ;
-			}
-		}
 
 		// Setup some variables for use in this method.
 		final String mp4FinalFileNameWithPath = mp4FinalDirectory
