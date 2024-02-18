@@ -81,11 +81,9 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
 //		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
-		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
-//		foldersToTranscode.add( "C:\\Temp\\Godzilla Vs Kong (2021)" ) ;
-		//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
-		//			foldersToTranscode.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
+		foldersToTranscode.add( "C:\\Temp\\To OCR" ) ;
 
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
