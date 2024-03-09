@@ -3,16 +3,10 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
-
-import org.bson.conversions.Bson;
-
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 
 /**
  * This class will check the database and file structures for duplication, integrity, missing files, etc.
@@ -23,20 +17,23 @@ public class CheckLogicalIntegrity
 	private Logger log = null ;
 
 	/// The set of methods and variables for common use.
-//	private Common common = null ;
+	//	private Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_check_logical_integrity.txt" ;
 
 	private MoviesAndShowsMongoDB masMDB = null ;
-	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
-//	private MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
-//	private MongoCollection< HDorSDFile > hDMoviesAndShowsCollection = null ;
-//	private MongoCollection< HDorSDFile > sDMoviesAndShowsCollection = null ;
-	
+	//	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+	//	private MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
+	//	private MongoCollection< HDorSDFile > hDMoviesAndShowsCollection = null ;
+	//	private MongoCollection< HDorSDFile > sDMoviesAndShowsCollection = null ;
+
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
-	private Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
-	
+	private Map< String, FFmpegProbeResult > probeInfoMap = null ;
+
+	/// Store all MovieAndShowInfos stored in the database.
+	private Map< String, MovieAndShowInfo > movieAndShowInfoMap = new HashMap< String, MovieAndShowInfo >() ;
+
 	/// These structures are keyed by the name of the tv show/movie (including the year, for movies), and store a list of
 	///  paths to the tv show/movie.
 	/// Using a Set to ensure uniqueness.
@@ -48,16 +45,30 @@ public class CheckLogicalIntegrity
 	public CheckLogicalIntegrity()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-//		common = new Common( log ) ;
+		//		common = new Common( log ) ;
 
+		initObject() ;
+	}
+
+	public CheckLogicalIntegrity( Common common, Logger log )
+	{
+		this.log = log ;
+
+		initObject() ;
+	}
+
+	private void initObject()
+	{
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB() ;
 
 		// Retrieve the db collections.
-		probeInfoCollection = masMDB.getProbeInfoCollection() ;
-//		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
-//		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
-//		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
+		//		probeInfoCollection = masMDB.getProbeInfoCollection() ;
+		//		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
+		//		hDMoviesAndShowsCollection = masMDB.getHDMoviesAndShowsCollection() ;
+		//		sDMoviesAndShowsCollection = masMDB.getSDMoviesAndShowsCollection() ;
+
+		loadDatabaseInformation() ;
 	}
 
 	public static void main( String[] args )
@@ -66,11 +77,9 @@ public class CheckLogicalIntegrity
 		cli.execute() ;
 		System.out.println( "Shutdown." ) ;
 	}
-	
+
 	public void execute()
 	{
-		loadDatabaseInformation() ;
-
 		log.info( "Checking for duplicate tv show mp4 paths" ) ;
 		checkForDuplicatePaths( tvShowMP4Map ) ;
 
@@ -82,15 +91,71 @@ public class CheckLogicalIntegrity
 
 		log.info( "Checking for duplicate movie mkv paths" ) ;
 		checkForDuplicatePaths( movieMKVMap ) ;
+
+		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
+		checkForMissingMP4Files( movieAndShowInfoMap ) ;
 	}
-	
+
+	/**
+	 * Look for any MKV files that are missing the corresponding MP4 files.
+	 * @param probeInfoMap
+	 */
+	public void checkForMissingMKVFiles( final Map< String, MovieAndShowInfo > movieAndShowInfoMap )
+	{
+		for( Map.Entry< String, MovieAndShowInfo > entryMap : movieAndShowInfoMap.entrySet() )
+		{
+			final MovieAndShowInfo theMovieAndShowInfo = entryMap.getValue() ;
+			if( theMovieAndShowInfo.getMP4LongPath().contains( "Other Videos" ) )
+			{
+				// Ignore home videos
+				continue ;
+			}
+			
+			final List< CorrelatedFile > theCorrelatedFiles = theMovieAndShowInfo.getCorrelatedFilesList() ;
+			for( CorrelatedFile theCorrelatedFile : theCorrelatedFiles )
+			{
+				final String mkvLongPath = theMovieAndShowInfo.getMKVLongPath() ;
+				final String mkvFileNameWithPath = mkvLongPath
+						+ "\\" + theMovieAndShowInfo.getMovieOrShowName()
+						+ "\\" + theCorrelatedFile.getFileName()
+						+ ".mkv" ;
+				if( mkvLongPath.isBlank()
+						|| mkvLongPath.isEmpty()
+						|| mkvLongPath.equals( Common.getMissingFileSubstituteName() ) )
+				{
+					log.info( "Missing mkv file: " + mkvFileNameWithPath ) ;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Look for any MKV files that are missing the corresponding MP4 files.
+	 * @param probeInfoMap
+	 */
+	public void checkForMissingMP4Files( final Map< String, MovieAndShowInfo > movieAndShowInfoMap )
+	{
+		for( Map.Entry< String, MovieAndShowInfo > entryMap : movieAndShowInfoMap.entrySet() )
+		{
+			final MovieAndShowInfo theMovieAndShowInfo = entryMap.getValue() ;
+			final List< CorrelatedFile > theCorrelatedFiles = theMovieAndShowInfo.getCorrelatedFilesList() ;
+			for( CorrelatedFile theCorrelatedFile : theCorrelatedFiles )
+			{
+				if( theCorrelatedFile.isMissingMP4File() )
+				{
+					log.info( "Missing mp4 file for file: " + theMovieAndShowInfo.getMovieOrShowName() + "\\" + theCorrelatedFile.getFileName() ) ;
+				}
+			}
+		}
+	}
+
 	public void checkForDuplicatePaths( Map< String, Set< String > > theMap )
 	{
 		for( Map.Entry< String, Set< String > > entry : theMap.entrySet() )
 		{
 			final String key = entry.getKey() ;
 			final Set< String > value = entry.getValue() ;
-			
+
 			if( 0 == value.size() )
 			{
 				log.warning( "Found empty set for key: " + key ) ;
@@ -101,29 +166,31 @@ public class CheckLogicalIntegrity
 			}
 		}
 	}
-	
+
 	public void loadDatabaseInformation()
 	{
 		log.info( "Loading database information.") ;
-		
-		// First, let's pull the info from the probeInfoCollection
-		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
-		log.fine( "Running find..." ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+		probeInfoMap = masMDB.loadProbeInfoMap() ;
+		loadMovieAndTVMaps() ;
 
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
-		
-		// This loop does several things:
-		// - Stores all FFmpegProbeResults in a single structure
-		// - Stores the path to each mkv and mp4 tv show and movie into separate structures
-		//    TV Show paths are stored as the path to the tv show, not each season: \\\\yoda\\MP4\\TV Shows\\The Office)
-		//     versus ...\\The Office\\Season 01
-		//    Movies are stored similarly: \\\\yoda\\MP4_2\\Movies\Transformers (2009) versus ...\\Transformers (2009)\\Transformers (2009).mkv/mp4
-		while( probeInfoFindResultIterator.hasNext() )
+		movieAndShowInfoMap = masMDB.loadMovieAndShowInfoMap() ;
+	}
+
+	/**
+	 * Store the path to each mkv and mp4 tv show and movie into separate structures
+	 * TV Show paths are stored as the path to the tv show, not each season: \\\\yoda\\MP4\\TV Shows\\The Office)
+	 * versus ...\\The Office\\Season 01
+	 * Movies are stored similarly: \\\\yoda\\MP4_2\\Movies\Transformers (2009) versus ...\\Transformers (2009)\\Transformers (2009).mkv/mp4
+	 */
+	public void loadMovieAndTVMaps()
+	{
+		// Walk through each FFmpegProbeResult and extract the Movie/TV Show info for each.
+		// Place the entries into the corresponding tv or movie map
+		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
 		{
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			final FFmpegProbeResult probeResult = entry.getValue() ;
 			final String pathToFile = probeResult.getFileNameWithPath() ;
-			
+
 			// Store the FFmpegProbeResult
 			probeInfoMap.put( pathToFile, probeResult ) ;
 
@@ -141,7 +208,7 @@ public class CheckLogicalIntegrity
 				log.fine( "Found TV show: " + tvShowName
 						+ ", fullFilePath: " + fullFilePath
 						+ ", pathToTVShow: " + pathToTVShow ) ;
-				
+
 				if( fullFilePath.endsWith( ".mp4" ) )
 				{
 					// mp4 file
@@ -173,7 +240,7 @@ public class CheckLogicalIntegrity
 				{
 					log.warning( "Found an unknown extension for file: " + theFile.toString() ) ;
 				}
-			
+
 			}
 			else if( theFile.getParent().contains( "(" ) )
 			{
@@ -185,7 +252,7 @@ public class CheckLogicalIntegrity
 				log.fine( "Found movie: " + movieName
 						+ ", fullFilePath: " + fullFilePath
 						+ ", pathToMovie: " + pathToMovie ) ;
-				
+
 				if( fullFilePath.endsWith( ".mp4" ) )
 				{
 					// mp4 file
@@ -218,8 +285,8 @@ public class CheckLogicalIntegrity
 					log.warning( "Found an unknown extension for file: " + theFile.toString() ) ;
 				}
 			}
-		} // while( iterator)
-		
+		} // while( iterator )
+
 		log.info( "tvShowMP4Map.size(): " + tvShowMP4Map.size() ) ;
 		log.info( "tvShowMKVMap.size(): " + tvShowMKVMap.size() ) ;
 		log.info( "movieMP4Map.size(): " + movieMP4Map.size() ) ;

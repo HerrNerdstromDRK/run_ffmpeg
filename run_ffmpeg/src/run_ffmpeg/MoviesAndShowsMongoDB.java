@@ -1,15 +1,23 @@
 package run_ffmpeg;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
+import org.bson.conversions.Bson;
+
 import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,12 +35,12 @@ public class MoviesAndShowsMongoDB
 {
 	/// Setup the logging subsystem
 	private transient Logger log = null ;
-//	private transient Common common = null ;
-	
+	//	private transient Common common = null ;
+
 	private com.mongodb.client.MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
 	private final String mongoDBHostName = "localhost" ;
-//	private final String mongoDBHostName = "192.168.1.13" ;
+	//	private final String mongoDBHostName = "192.168.1.13" ;
 	private final int mongoDBPortNumber = 27017 ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
@@ -49,7 +57,7 @@ public class MoviesAndShowsMongoDB
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-//	static private final String stopFileName = "C:\\Temp\\stop_database.txt" ;
+	//	static private final String stopFileName = "C:\\Temp\\stop_database.txt" ;
 
 	/**
 	 * Create a new instance of this class.
@@ -66,15 +74,15 @@ public class MoviesAndShowsMongoDB
 		this.log = log ;
 		init() ;
 	}
-	
+
 	private void init()
 	{
 		java.util.logging.Logger.getLogger( "org.mongodb.driver" ).setLevel( Level.SEVERE );
 		java.util.logging.Logger.getLogger( "JULLogger" ).setLevel(Level.OFF );
-//		common = new Common( log ) ;
+		//		common = new Common( log ) ;
 		loginAndConfigureDatabase() ;
 	}
-	
+
 	/**
 	 * Return a handle to the logged in database.
 	 * If not already logged in, do so now.
@@ -104,17 +112,17 @@ public class MoviesAndShowsMongoDB
 		//	      MongoClient mongo = new MongoClient( "inventory.t43ck.mongodb.net" , 8888 );
 		ServerAddress serverAddress = new ServerAddress( mongoDBHostName, mongoDBPortNumber ) ;
 		MongoClientSettings settings = MongoClientSettings.builder()
-		        .applyToClusterSettings(builder ->
-		               builder.hosts( Arrays.asList( serverAddress ) ) )
-		        .build() ;
+				.applyToClusterSettings(builder ->
+				builder.hosts( Arrays.asList( serverAddress ) ) )
+				.build() ;
 		persistentMongoClient = MongoClients.create( settings ) ;
-		
+
 		// Setup the providers for passing Plain Old Java Objects (POJOs) to and from the database
 		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build();
 		CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
 
 		// Login to the database
-//		MongoCredential credential = 
+		//		MongoCredential credential = 
 		MongoCredential.createCredential("dan", "MoviesAndShows", "BqQyH2r5xJuNu2A".toCharArray()); 
 		log.fine( "Connected to the database successfully" );  
 
@@ -129,13 +137,13 @@ public class MoviesAndShowsMongoDB
 				HDorSDFile.class ) ;
 		return theCollection ;
 	}
-	
+
 	public void dropHDMoviesAndShowCollection()
 	{
 		log.info( "Dropping HDMoviesAndShowsCollection" )  ;
 		getHDMoviesAndShowsCollection().drop() ;
 	}
-	
+
 	public MongoCollection< HDorSDFile > getSDMoviesAndShowsCollection()
 	{
 		log.fine( "Getting SDMoviesAndShowsCollection" )  ;
@@ -143,13 +151,13 @@ public class MoviesAndShowsMongoDB
 				HDorSDFile.class ) ;
 		return theCollection ;
 	}
-	
+
 	public void dropSDMoviesAndShowCollection()
 	{
 		log.info( "Dropping SDMoviesAndShowsCollection" )  ;
 		getSDMoviesAndShowsCollection().drop() ;
 	}
-	
+
 	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
 	{	
 		log.fine( "Getting probeInfoCollection" )  ;
@@ -163,7 +171,7 @@ public class MoviesAndShowsMongoDB
 		log.info( "Dropping probeInfoCollection" )  ;
 		getProbeInfoCollection().drop() ;
 	}
-	
+
 	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
 	{	
 		log.fine( "Getting movieAndShowInfoCollectionName" )  ;
@@ -171,7 +179,7 @@ public class MoviesAndShowsMongoDB
 				MovieAndShowInfo.class ) ;
 		return theCollection ;
 	}
-	
+
 	public void dropMovieAndShowInfoCollection()
 	{
 		log.info( "Dropping movieAndShowInfoCollectionName" )  ;
@@ -186,13 +194,13 @@ public class MoviesAndShowsMongoDB
 				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
 		return theCollection ;
 	}
-	
+
 	public void dropJobRecord_MakeFakeMKVFileInfoCollection()
 	{
 		log.info( "Dropping jobRecord_MakeFakeMKVFilesCollection" )  ;
 		getJobRecord_MakeFakeMKVFileInfoCollection().drop() ;
 	}
-	
+
 	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_TranscodeMKVFileInfoCollection()
 	{	
 		log.fine( "Getting jobRecord_TranscodeMKVFilesCollection" )  ;
@@ -201,19 +209,19 @@ public class MoviesAndShowsMongoDB
 				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
 		return theCollection ;
 	}
-	
+
 	public void dropJobRecord_TranscodeMKVFileInfoCollection()
 	{
 		log.info( "Dropping jobRecord_TranscodeMKVFilesInfoCollection" )  ;
 		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
 	}
-	
+
 	public void dropJobRecord_ProbeFileInfoCollection()
 	{
 		log.info( "Dropping jobRecord_ProbeFileInfoCollection" )  ;
 		getJobRecord_ProbeFileInfoCollection().drop() ;
 	}
-	
+
 	public MongoCollection< JobRecord_ProbeFile > getJobRecord_ProbeFileInfoCollection()
 	{	
 		log.fine( "Getting jobRecord_ProbeFileInfoCollection" )  ;
@@ -222,13 +230,13 @@ public class MoviesAndShowsMongoDB
 				JobRecord_ProbeFile.class ) ;
 		return theCollection ;
 	}
-	
+
 	public void dropJobRecord_UpdateCorrelatedFileInfoCollectionName()
 	{
 		log.info( "Dropping jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
 		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
 	}
-	
+
 	public MongoCollection< JobRecord_UpdateCorrelatedFile > getJobRecord_UpdateCorrelatedFileInfoCollectionName()
 	{	
 		log.fine( "Getting jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
@@ -237,33 +245,63 @@ public class MoviesAndShowsMongoDB
 				JobRecord_UpdateCorrelatedFile.class ) ;
 		return theCollection ;
 	}
-	
-	/*
-	      System.out.println("Credentials ::"+ credential);     
-			System.out.println("Collection MoviesAndShows selected successfully");
-			Document document1 = new Document("title", "MongoDB")
-			.append("description", "database")
-			.append("likes", 100)
-			.append("url", "http://www.tutorialspoint.com/mongodb/")
-			.append("by", "tutorials point");
-			Document document2 = new Document("title", "RethinkDB")
-			.append("description", "database")
-			.append("likes", 200)
-			.append("url", "http://www.tutorialspoint.com/rethinkdb/")
-			.append("by", "tutorials point");
-			List<Document> list = new ArrayList<Document>();
-			list.add(document1);
-			list.add(document2);
-			collection.insertMany(list);
-			// Getting the iterable object
-			FindIterable<Document> iterDoc = collection.find();
-			int i = 1;
-			// Getting the iterator
-			Iterator it = iterDoc.iterator();
-			while (it.hasNext()) {
-				System.out.println(it.next());
-				i++;
-			}
-	   } 
+
+	/**
+	 * Read all FFmpegProbeResults from the database and return them in a map keyed by the long path to the document.
+	 * @return
 	 */
+	public Map< String, FFmpegProbeResult > loadProbeInfoMap()
+	{
+		MongoCollection< FFmpegProbeResult > probeInfoCollection = getProbeInfoCollection() ;
+		Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
+
+		log.fine( "Running probeInfo find..." ) ;
+
+		// First, let's pull the info from the probeInfoCollection
+		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
+		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+
+		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+
+		while( probeInfoFindResultIterator.hasNext() )
+		{
+			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			final String pathToFile = probeResult.getFileNameWithPath() ;
+
+			// Store the FFmpegProbeResult
+			probeInfoMap.put( pathToFile, probeResult ) ;
+		} // while( hasNext() )
+
+		log.fine( "Read " + probeInfoMap.size() + " probeInfo document(s)" ) ;
+		return probeInfoMap ;
+	}
+	
+	/**
+	 * Read all MoveAndShowInfos into a Map and return it to the caller.
+	 * @return
+	 */
+	public Map< String, MovieAndShowInfo > loadMovieAndShowInfoMap()
+	{
+		MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = getMovieAndShowInfoCollection() ;
+		Map< String, MovieAndShowInfo > movieAndShowInfoMap = new HashMap< String, MovieAndShowInfo >() ;
+		
+		log.fine( "Reading all MovieAndShowInfos from the database" ) ;
+		
+		Bson findMovieAndShowInfosFilter = Filters.regex( "movieOrShowName", ".*" ) ;
+		FindIterable< MovieAndShowInfo > movieAndShowInfoResult = movieAndShowInfoCollection.find( findMovieAndShowInfosFilter ) ;
+		Iterator< MovieAndShowInfo > movieAndShowInfoResultIterator = movieAndShowInfoResult.iterator() ;
+		
+		while( movieAndShowInfoResultIterator.hasNext() )
+		{
+			MovieAndShowInfo theMovieAndShowInfoResult = movieAndShowInfoResultIterator.next() ;
+			final String movieOrShowName = theMovieAndShowInfoResult.getMovieOrShowName() ;
+			
+			// Store the MovieAndShowInfo object into the map to return.
+			movieAndShowInfoMap.put( movieOrShowName, theMovieAndShowInfoResult ) ;
+		}
+		
+		log.fine( "Read " + movieAndShowInfoMap.size() + " MovieAndShowInfo document(s)" ) ;
+		return movieAndShowInfoMap ;
+	}
+	
 }
