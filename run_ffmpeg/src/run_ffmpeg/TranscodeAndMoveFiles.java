@@ -83,7 +83,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 //		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 //		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
-		foldersToTranscode.add( "C:\\Temp\\To OCR" ) ;
+		foldersToTranscode.add( "C:\\Temp\\To Move" ) ;
 
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
