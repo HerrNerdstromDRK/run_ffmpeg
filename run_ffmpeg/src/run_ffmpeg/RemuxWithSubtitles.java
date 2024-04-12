@@ -630,7 +630,7 @@ public class RemuxWithSubtitles extends Thread
 	{
 		RemuxOrTranscodeStatusType retMe = RemuxOrTranscodeStatusType.NEED_NOTHING ;
 
-		for( Iterator< File > srtFileIterator = theTranscodeFile.getRealSRTFileListIterator() ; srtFileIterator.hasNext() ; )
+		for( Iterator< File > srtFileIterator = theTranscodeFile.getSRTFileListIterator() ; srtFileIterator.hasNext() ; )
 		{
 			final File theSRTFile = srtFileIterator.next() ;
 			final String theSRTFileName = theSRTFile.getName() ;

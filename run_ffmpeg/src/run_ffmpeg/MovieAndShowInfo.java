@@ -31,9 +31,9 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	/// Example: Godzilla King of the Monsters (2019)
 	public String movieOrShowName = null ;
 
-	/// These two variables are only populated if this is a tv show
-	public String tvShowName = "" ;
-	public String tvShowSeasonName = "" ;
+	/// This variable is only populated if this is a tv show
+	//	public String tvShowSeasonName = "" ;
+	public boolean tvShow = false ;
 
 	/// Set to true if this movie or show is missing at least one mkv or mp4 file
 	public boolean isMissingFile = false ;
@@ -54,6 +54,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	public MovieAndShowInfo()
 	{
 		log = Common.setupLogger( "log_movie_and_show_info.txt", this.getClass().getName() ) ;
+		assert( log != null ) ;
 	}
 
 	/**
@@ -64,7 +65,10 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public MovieAndShowInfo( final String movieOrShowName, Logger log )
 	{
-		this.movieOrShowName = movieOrShowName ;
+		assert( movieOrShowName != null ) ;
+		assert( log != null ) ;
+
+		setMovieOrShowName( movieOrShowName ) ;
 		this.log = log ;
 	}
 
@@ -77,6 +81,8 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public MovieAndShowInfo( FFmpegProbeResult theProbeResult, Logger log )
 	{
+		assert( log != null ) ;
+
 		File theFile = new File( theProbeResult.getFileNameWithPath() ) ;
 		this.log = log ;
 		initObject( theFile ) ;
@@ -89,23 +95,58 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	public MovieAndShowInfo( final File theFile, Logger log )
 	{
+		assert( log != null ) ;
+		assert( theFile != null ) ;
+
 		this.log = log ;
 		initObject( theFile ) ;
+	}
+
+	/**
+	 * Return the show name if it is a tv show, otherwise just return the inputFileName.
+	 * @param inputFileName
+	 * @return
+	 */
+	public static String extractTVShowName( final String inputFileName )
+	{
+		assert( inputFileName != null ) ;
+
+		if( !inputFileName.contains( "Season " ) )
+		{
+			// Not a TV Show Name
+			return inputFileName ;
+		}
+		// Post-Condition: TV Show
+		final File inputFile = new File( inputFileName ) ;
+		return extractTVShowName( inputFile ) ;
+	}
+
+	public static String extractTVShowName( final File inputFile )
+	{
+		assert( inputFile != null ) ;
+
+		if( !inputFile.getAbsolutePath().contains( "Season " ) )
+		{
+			// Not a TV Show
+			return inputFile.getName() ;
+		}
+		final String theTVShowName = inputFile.getParentFile().getParentFile().getName() ;
+		return theTVShowName ;
 	}
 
 	private void initObject( final File theFile )
 	{
 		if( theFile.getParent().contains( "Season " ) )
 		{
-			// TV show names will be stored by combining the name of the show with the season
-			// For example: "Californication_Season 01"
-			final String tvShowNameStrict = theFile.getParentFile().getParentFile().getName() ;
-			final String tvShowSeasonName = theFile.getParentFile().getName() ;
-			final String tvShowName = tvShowNameStrict + "_" + tvShowSeasonName ;
+			// Store tvShowName as "The Expanse" or "Arrested Development (2008)"
+			// Be sure to remove any "Season 01" etc.
+			final String tvShowName = extractTVShowName( theFile ) ;
+			//			final String tvShowSeasonName = theFile.getParentFile().getName() ;
 			log.fine( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
 
-			setTVShowName( tvShowNameStrict ) ;
-			setTVShowSeasonName( tvShowSeasonName ) ;
+			setTVShow( true ) ;
+			//			setTVShowName( tvShowName ) ;
+			//			setTVShowSeasonName( tvShowSeasonName ) ;
 			setMovieOrShowName( tvShowName ) ;
 		}
 		else if( theFile.getParent().contains( "(" ) )
@@ -119,7 +160,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		}
 		else if( theFile.getAbsolutePath().contains( "Other Videos" ) )
 		{
-			// Do nothing for other videos
+			// Do nothing for Other Videos
 		}
 		else
 		{
@@ -127,12 +168,52 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		}
 		if( theFile.getName().endsWith( ".mp4" ) )
 		{
-			setMP4LongPath( theFile.getParent() ) ;
+			if( isTVShow() )
+			{
+				// Strip the "Season XX"
+				setMP4LongPath( theFile.getParentFile().getParent() ) ;
+			}
+			else
+			{
+				setMP4LongPath( theFile.getParent() ) ;
+			}
 		}
 		else
 		{
-			setMKVLongPath( theFile.getParent() ) ;
+			if( isTVShow() )
+			{
+				setMKVLongPath( theFile.getParentFile().getParent() ) ;
+			}
+			else
+			{
+				setMKVLongPath( theFile.getParent() ) ;
+			}
 		}
+	}
+
+	/**
+	 * Strip off any instance of "Season xx" from the given file path and return everything before the Season xx.
+	 * @param inputFilePath
+	 * @return
+	 */
+	public static String stripSeasonNameDirectory( final String inputFilePath )
+	{
+		if( !inputFilePath.contains( "Season " ) )
+		{
+			return inputFilePath ;
+		}
+		// Post condition: inputFileNameWithPath is a tvShow with a Season directory in the path.
+		final File inputFile = new File( inputFilePath ) ;
+
+		// Most likely, inputFileNameWithPath is of the form: "\\\\yoda\\MKV_ArchiveX\\TV Shows\\Show Name\\Season xx"
+		// Need to strip out Season xx
+		String returnFilePath = inputFile.getParent() ;
+		while( returnFilePath.contains( "Season " ) )
+		{
+			File nextInputFile = new File( returnFilePath ) ;
+			returnFilePath = nextInputFile.getParent() ;
+		}
+		return returnFilePath ;
 	}
 
 	/**
@@ -146,7 +227,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		if( null == mkvLongPath )
 		{
 			// empty mkvLongPath, update it here
-			mkvLongPath = probeResultParentPath ;
+			mkvLongPath = stripSeasonNameDirectory( probeResultParentPath ) ;
 		}
 		// Use on the file name, without the path or extension
 		// Example: "Making Of-behindthescenes.mkv" -> "Making Of-behindthescenes"
@@ -174,7 +255,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		if( null == mp4LongPath )
 		{
 			// empty mkvLongPath, update it here
-			mp4LongPath = probeResultParentPath ;
+			mp4LongPath = stripSeasonNameDirectory( probeResultParentPath ) ;
 		}
 
 		// Use on the file name, without the path or extension
@@ -246,11 +327,6 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return largestFile ;
 	}
 
-	//	public Iterator< CorrelatedFile > getCorrelatedFilesListIterator()
-	//	{
-	//		return correlatedFilesList.iterator() ;
-	//	}
-
 	/**
 	 * Not using an iterator here because it was breaking the serialization. *shrug*
 	 * @return
@@ -275,20 +351,20 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return mp4LongPath;
 	}
 
-	public String getTVShowName()
-	{
-		return tvShowName;
-	}
+	//	public String getTVShowName()
+	//	{
+	//		return tvShowName;
+	//	}
 
-	public String getTVShowSeasonName()
-	{
-		return tvShowSeasonName;
-	}
-
-	public boolean isTVShow()
-	{
-		return !getTVShowSeasonName().isBlank() ;
-	}
+	//	public String getTVShowSeasonName()
+	//	{
+	//		return tvShowSeasonName;
+	//	}
+	//
+	//	public boolean isTVShow()
+	//	{
+	//		return !getTVShowSeasonName().isBlank() ;
+	//	}
 
 	/**
 	 * Walk through the map of files associated with this Movie or TV Show and build
@@ -329,23 +405,24 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		this.mp4LongPath = mp4LongPath;
 	}
 
-	public void setTVShowName( String tvShowName )
-	{
-		this.tvShowName = tvShowName;
-	}
+	//	public void setTVShowName( String tvShowName )
+	//	{
+	//		this.tvShowName = tvShowName;
+	//	}
 
-	public void setTVShowSeasonName( String tvShowSeasonName )
-	{
-		this.tvShowSeasonName = tvShowSeasonName;
-	}
+	//	public void setTVShowSeasonName( String tvShowSeasonName )
+	//	{
+	//		this.tvShowSeasonName = tvShowSeasonName;
+	//	}
 
 	public String toString()
 	{
 		String retMe = "{movieOrShowName: " + getMovieOrShowName()
 		+ ",mkvLongPath:" + getMKVLongPath()
 		+ ",mp4LongPath:" + getMP4LongPath()
-		+ ",TVShowName:" + getTVShowName()
-		+ ",TVShowSeasonName:" + getTVShowSeasonName()
+		//		+ ",TVShowName:" + getTVShowName()
+		//		+ ",TVShowSeasonName:" + getTVShowSeasonName()
+		+ ",tvShow: " + isTVShow()
 		+ ",isMissingFile:" + isMissingFile + ",correlatedFilesList:{" ;
 		for( CorrelatedFile correlatedFileIterator : correlatedFilesList )
 		{
@@ -394,5 +471,15 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 			// MP4 file
 			theCorrelatedFile.addOrUpdateMP4File( theProbeResult ) ;
 		}
+	}
+
+	public boolean isTVShow()
+	{
+		return tvShow ;
+	}
+
+	public void setTVShow( boolean newTVShow )
+	{
+		tvShow = newTVShow ;
 	}
 }

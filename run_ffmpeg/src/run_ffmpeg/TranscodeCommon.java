@@ -462,7 +462,7 @@ public class TranscodeCommon
 			ffmpegCommand.add( "-i", inputFile.getMP4FinalFileNameWithPath() ) ;
 		
 			// 3) Include all other input files (such as .srt, except forced subtitles)
-			for( Iterator< File > fileIterator = inputFile.getRealSRTFileListIterator() ; fileIterator.hasNext() ; )
+			for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
 			{
 				final File srtFile = fileIterator.next() ;
 				if( !srtFile.getName().contains( getForcedSubTitleFileNameContains() ) )
@@ -606,7 +606,7 @@ public class TranscodeCommon
 		ffmpegCommand.add( "-i", inputFile.getMKVInputFileNameWithPath() ) ;
 	
 		// 3) Include all other input files (such as .srt, except forced subtitles)
-		for( Iterator< File > fileIterator = inputFile.getRealSRTFileListIterator() ; fileIterator.hasNext() ; )
+		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
 		{
 			final File srtFile = fileIterator.next() ;
 			if( !srtFile.getName().contains( getForcedSubTitleFileNameContains() ) )

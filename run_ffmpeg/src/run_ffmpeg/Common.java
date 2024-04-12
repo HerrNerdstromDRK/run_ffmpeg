@@ -65,7 +65,6 @@ public class Common
 	/// The replacement file name for correlated files that are missing. This is used for
 	/// user interface reporting via the web interface.
 	private static final String missingFileSubstituteName = "(none)" ;
-	private static final String fakeSRTSubString = "fake_srt" ;
 
 	/// The size of an SRT file, in bytes, that represents the minimum valid file length.
 	private static final int minimumSRTFileSize = 25 ;
@@ -101,11 +100,6 @@ public class Common
 				"\\\\yoda\\MKV_Archive3",
 				"\\\\yoda\\MKV_Archive7",
 				"\\\\yoda\\MKV_Archive8"
-		} ;
-	private final String[] missingFiles =
-		{
-				"\\\\yoda\\MKV_Archive1\\Movies_Missing",
-				"\\\\yoda\\MKV_Archive1\\TV Shows_Missing"
 		} ;
 
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
@@ -544,6 +538,30 @@ public class Common
 		return retMe ;
 	}
 
+	/**
+	 * Return the season string for a given file.
+	 * For example, for the inputFile of "\\\\yoda\\MP4\\TV Shows\\Scrubs\\Season 06\\Scrubs - S06E01 - episode name.mkv"
+	 *  return "Season 06"
+	 * If this is a movie file, and has no season, just return the empty String.
+	 * @param inputFile Is a file, not a path.
+	 * @return
+	 */
+	public static String getSeasonString( final File inputFile )
+	{
+		assert( inputFile != null ) ;
+		assert( inputFile.getAbsolutePath().contains( "." ) ) ;
+		
+		if( !inputFile.getAbsolutePath().contains( "Season " ) )
+		{
+			return "" ;
+		}
+		// Post condition: TV Show with "Season XX" name
+		
+		// Get to the segment with the season string
+		String seasonString = inputFile.getParentFile().getName() ;
+		return seasonString ;
+	}
+	
 	public List< File > getSubDirectories( final File directoryPathFile )
 	{
 		File[] directories = directoryPathFile.listFiles( File::isDirectory ) ;
@@ -912,20 +930,9 @@ public class Common
 		return analyzeDurationString;
 	}
 
-	protected static String getFakeSRTSubString()
-	{
-		return fakeSRTSubString;
-	}
-
 	public boolean getIsWindows()
 	{
 		return isWindows ;
-	}
-
-	public List< String > getMissingFiles()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( missingFiles ) ) ;
-		return retMe ;
 	}
 
 	public static String getMissingFileSubstituteName()

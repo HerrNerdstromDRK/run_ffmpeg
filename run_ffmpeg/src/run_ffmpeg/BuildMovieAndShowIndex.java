@@ -97,7 +97,7 @@ public class BuildMovieAndShowIndex
 			mapEntry = new MovieAndShowInfo( movieOrTVShowName, log ) ;
 			storageMap.put( movieOrTVShowName, mapEntry ) ;
 		}
-		// Post condition: theShow is non-null and exists in the storageMap.
+		// Post condition: mapEntry is non-null and exists in the storageMap.
 		// Note that addMP4File/addMKVFile below will build correlations for each file.
 		if( isMP4 )
 		{
@@ -122,8 +122,8 @@ public class BuildMovieAndShowIndex
 		log.info( "Building movie index..." ) ;
 
 		// First, let's pull the info from the probeInfoCollection
-		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
 		log.info( "Running find..." ) ;
+		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
 		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
 
 		int numMovies = 0 ;
@@ -131,26 +131,25 @@ public class BuildMovieAndShowIndex
 		int numOtherVideos = 0 ;
 		int numParseErrors = 0 ;
 
+		// Walk through the list of probe records
 		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 		while( probeInfoFindResultIterator.hasNext() )
 		{
 			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			File theFile = new File( probeResult.getFileNameWithPath() ) ;
-			if( theFile.getParent().contains( "Season " ) )
+			if( theFile.getParent().contains( "TV Shows" ) )
 			{
 				// TV Show
 				++numTVShows ;
 
-				// TV show names will be stored by combining the name of the show with the season
-				// For example: "Californication_Season 01"
-				final String tvShowNameStrict = theFile.getParentFile().getParentFile().getName() ;
-				final String tvShowSeasonName = theFile.getParentFile().getName() ;
-				final String tvShowName = tvShowNameStrict + "_" + tvShowSeasonName ;
+				final String tvShowName = theFile.getParentFile().getParentFile().getName() ;
+//				final String tvShowSeasonName = theFile.getParentFile().getName() ;
 				log.fine( "Found TV show: " + tvShowName + ", filename: " + theFile.getName() ) ;
 
 				MovieAndShowInfo entry = addEntryToMap( tvShowMap, tvShowName, probeResult, theFile ) ;
-				entry.setTVShowName( tvShowNameStrict ) ;
-				entry.setTVShowSeasonName( tvShowSeasonName ) ;
+				entry.setMovieOrShowName( tvShowName ) ;
+				entry.setTVShow( true ) ;
+//				entry.setTVShowSeasonName( tvShowSeasonName ) ;
 			}
 			else if( theFile.getParent().contains( "(" ) )
 			{
@@ -291,6 +290,9 @@ public class BuildMovieAndShowIndex
 		{
 			//			String movieOrShowName = set.getKey() ;
 			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
+			
+			// This will build the correlated files inside of the movieAndShowInfo
+			// Do this once for each file
 			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 			moviesAndShowsInfo.add( movieAndShowInfo ) ;
 		}

@@ -73,15 +73,15 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( false ) ;
-		common.setDoMoveFiles( true ) ;
+		common.setTestMode( true ) ;
+		common.setDoMoveFiles( false ) ;
 		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
-//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+		//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
 		foldersToTranscode.add( "C:\\Temp\\To Move" ) ;
 
@@ -112,11 +112,11 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		}
 		//		sortFilesToTranscode( allFilesToTranscode ) ;
 
-//		log.info( "Will transcode these files: " ) ;
-//		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )
-//		{
-//			log.info( theFileToTranscode.toString() ) ;
-//		}
+		//		log.info( "Will transcode these files: " ) ;
+		//		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )
+		//		{
+		//			log.info( theFileToTranscode.toString() ) ;
+		//		}
 	}
 
 	/**
@@ -148,26 +148,14 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			final String mp4LongPath = movieAndShowInfo.getMP4LongPath() ;
 			if( mp4LongPath != null )
 			{
-				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath ) + mkvFile.getName().replace( ".mkv", ".mp4" ) ;
+				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath )
+					+ common.addPathSeparatorIfNecessary( Common.getSeasonString( mkvFile ) ) 
+					+ common.addPathSeparatorIfNecessary( mkvFile.getName().replace( ".mkv", ".mp4" ) ) ;
 				final File mp4File = new File( mp4FileNameWithPath ) ;
 				if( mp4File.exists() )
 				{
 					log.fine( "Found that mp4 file " + mp4File.getAbsolutePath() + " exists for mkvFile: " + mkvFile.getAbsolutePath() ) ;
-					//					if( mkvFile.lastModified() > mp4File.lastModified() )
-					//					{
-					//						// An mp4 file corresponding to this mkv file exists and the mkv file is newer.
-					//						// Need to rebuild the mp4 file.
-					//						log.info( "Found newer mkv file (" + mkvFile.getAbsolutePath() + ") than existing mp4 file: "
-					//								+ mp4File.getAbsolutePath() + "; deleting" ) ;
-					//
-					//						// TODO: Update the MovieAndShowInfo?
-					//						if( !common.getTestMode() )
-					//						{
-					//							mp4File.delete() ;
-					//						}
-					//					}
-					//					else
-					//					{
+
 					// An mp4 file correspond to the mkv file exists but is newer than the mkv file.
 					// Note this but ignore it.
 					// log.fine( "Found existing mp4 file for mkv file " + mkvFile.getAbsolutePath() + " but mp4 file is newer. Ignoring mkv file." ) ;
@@ -176,13 +164,15 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				} // if( mp4File.exists() )
 			} // if( mp4LongPath != null )
 		} // if( movieAndShowInfo != null )
-
+		
+		// seasonString could be empty or a valid season string, but not null
+		String seasonString = Common.getSeasonString( mkvFile ) ;
+		
 		// Populate the TranscodeAndMoveFileInfo with the TranscodeFile, mkv probe info, and MovieAndShowInfo
 		TranscodeAndMoveFileInfo transcodeAndMoveFileInfo = new TranscodeAndMoveFileInfo() ;
 
 		// Create the FFmpegProbeResult for this file.
 		FFmpegProbeResult mkvProbeResult = common.ffprobeFile( mkvFile, log ) ; 
-		//probeDirectories.probeFileAndUpdateDB( inputFile ) ;
 		if( null == mkvProbeResult )
 		{
 			log.warning( "Unable to create probe input file: " + mkvFile.getAbsolutePath() ) ;
@@ -216,6 +206,11 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			{
 				// Valid mkv long path
 				mkvFinalDirectory = movieAndShowInfo.getMKVLongPath() ;
+				if( !seasonString.isBlank() )
+				{
+					mkvFinalDirectory = common.addPathSeparatorIfNecessary( mkvFinalDirectory ) + seasonString ;
+				}
+				
 			}
 
 			// Do the same for the mp4 path
@@ -232,6 +227,10 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			{
 				// Valid mp4 long path
 				mp4FinalDirectory = movieAndShowInfo.getMP4LongPath() ;
+				if( !seasonString.isBlank() )
+				{
+					mp4FinalDirectory =  common.addPathSeparatorIfNecessary( mp4FinalDirectory ) + seasonString ;
+				}
 			}
 			if( changedMovieAndShowInfo )
 			{
@@ -292,7 +291,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				log,
 				common,
 				filesToTranscode ) ;
-		
+
 		// Important that the name of the thread here be alphabetically earlier than the move files threads in
 		// the event that this application is run in single threaded mode -- in that case, if a move files
 		// thread runs first, it will just sit there forever.
