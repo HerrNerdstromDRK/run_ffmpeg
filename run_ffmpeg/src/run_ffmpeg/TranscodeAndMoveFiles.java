@@ -110,7 +110,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				filesToTranscode.add( newFileToTranscode ) ;
 			}
 		}
-		//		sortFilesToTranscode( allFilesToTranscode ) ;
+		sortFilesToTranscode( allFilesToTranscode ) ;
 
 		//		log.info( "Will transcode these files: " ) ;
 		//		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )

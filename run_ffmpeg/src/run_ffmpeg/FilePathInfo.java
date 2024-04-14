@@ -1,6 +1,7 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -85,7 +86,7 @@ public class FilePathInfo
 				final double freeSpace = mp4DriveFile.getFreeSpace() / (1024.0 * 1024 * 1024) ;
 				log.info( "Free space on " + mp4Drive + ": " + common.getNumberFormat().format( freeSpace ) + "GB" ) ;
 			}
-	
+
 			for( String fileName : fileNames )
 			{
 				Path thePath = Paths.get( fileName ) ;
@@ -99,9 +100,32 @@ public class FilePathInfo
 				log.info( "getParent(): " + thePath.getParent() ) ;
 				log.info( "getRoot(): " + thePath.getRoot() ) ;
 			}
+
+			//			List< String > allDirectories = findLowestLevelDirectories( "\\\\yoda\\MP4" ) ;
+			//			log.info( "allDirectories: " + allDirectories.toString() ) ;
+
+			File filterTestDirectoryPath = new File( "C:\\Temp" ) ;
+			log.info( "Checking for empty directories in " + filterTestDirectoryPath.getAbsolutePath() ) ;
 			
-//			List< String > allDirectories = findLowestLevelDirectories( "\\\\yoda\\MP4" ) ;
-//			log.info( "allDirectories: " + allDirectories.toString() ) ;
+			FileFilter emptyDirectoryFileFilter = new FileFilter()
+			{
+				public boolean accept( File dir )
+				{          
+					if( dir.isDirectory() && (0 == dir.list().length) )
+					{
+						return true ;
+					}
+					else
+					{
+						return false ;
+					}
+				}
+			};
+			final File[] filterTestDirectoryList = filterTestDirectoryPath.listFiles( emptyDirectoryFileFilter ) ;
+			for( File theFile : filterTestDirectoryList )
+			{
+				log.info( "Found empty directory: " + theFile.getAbsolutePath() ) ;
+			}
 		}
 		catch( Exception theException )
 		{
@@ -114,11 +138,11 @@ public class FilePathInfo
 	{
 		log.info( "Checking tld: " + topLevelDirectory ) ;
 		List< String > allDirectories = new ArrayList< String >() ;
-		
+
 		Set< String > dirNames = Stream.of(new File( topLevelDirectory ).listFiles())
-		      .filter(file -> file.isDirectory())
-		      .map(File::getName)
-		      .collect(Collectors.toSet());
+				.filter(file -> file.isDirectory())
+				.map(File::getName)
+				.collect(Collectors.toSet());
 		if( dirNames.isEmpty() )
 		{
 			// Base case -- we are at the lowest level directory.
@@ -129,11 +153,11 @@ public class FilePathInfo
 		{
 			for( String dirName : dirNames )
 			{
-//				log.info( "Calling findLowestLevelDirectories ( " + topLevelDirectory + "\\" + dirName + " )" ) ;
+				//				log.info( "Calling findLowestLevelDirectories ( " + topLevelDirectory + "\\" + dirName + " )" ) ;
 				allDirectories.addAll( findLowestLevelDirectories( topLevelDirectory + "\\" + dirName ) ) ;
 			}
 		}
 		return allDirectories ;
 	}
-	
+
 }

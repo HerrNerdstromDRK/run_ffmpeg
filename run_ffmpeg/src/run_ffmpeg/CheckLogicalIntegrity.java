@@ -1,6 +1,7 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,7 +18,7 @@ public class CheckLogicalIntegrity
 	private Logger log = null ;
 
 	/// The set of methods and variables for common use.
-	//	private Common common = null ;
+	private Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_check_logical_integrity.txt" ;
@@ -45,7 +46,7 @@ public class CheckLogicalIntegrity
 	public CheckLogicalIntegrity()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		//		common = new Common( log ) ;
+		common = new Common( log ) ;
 
 		initObject() ;
 	}
@@ -75,7 +76,7 @@ public class CheckLogicalIntegrity
 	{
 		CheckLogicalIntegrity cli = new CheckLogicalIntegrity() ;
 		cli.execute() ;
-		System.out.println( "Shutdown." ) ;
+		System.out.println( "CheckLogicalIntegrity> Shutdown." ) ;
 	}
 
 	public void execute()
@@ -94,8 +95,45 @@ public class CheckLogicalIntegrity
 
 //		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
 		checkForMissingMP4Files( movieAndShowInfoMap ) ;
+		
+		checkForEmptyFolders() ;
 	}
-
+	
+	/**
+	 * Walk through the MKV and MP4 directory structures and report any empty folders. This is used to identify
+	 * any shows/movies that may have been moved without updating the database.
+	 */
+	public void checkForEmptyFolders()
+	{
+		FileFilter emptyDirectoryFileFilter = new FileFilter()
+		{
+			public boolean accept( File dir )
+			{          
+				if( dir.isDirectory() && (0 == dir.list().length) )
+				{
+					return true ;
+				}
+				else
+				{
+					return false ;
+				}
+			}
+		};
+		
+		List< String > allFolders = common.getAllDrivesAndFolders() ;
+		for( String theFolder : allFolders )
+		{
+			log.info( "Checking for empty folders in: " + theFolder ) ;
+			
+			final File theFolderFile = new File( theFolder ) ;			
+			final File[] filterDirectoryList = theFolderFile.listFiles( emptyDirectoryFileFilter ) ;
+			for( File theFile : filterDirectoryList )
+			{
+				log.info( "Found empty folder: " + theFile.getAbsolutePath() ) ;
+			}
+		}
+	}
+	
 	/**
 	 * Look for any MKV files that are missing the corresponding MP4 files.
 	 * @param probeInfoMap
