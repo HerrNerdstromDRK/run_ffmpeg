@@ -100,7 +100,7 @@ public class CheckLogicalIntegrity
 
 		listSpecialEditionMovies() ;
 
-//		checkForEmptyFolders() ;
+		checkForEmptyFolders() ;
 	}
 
 	/**
