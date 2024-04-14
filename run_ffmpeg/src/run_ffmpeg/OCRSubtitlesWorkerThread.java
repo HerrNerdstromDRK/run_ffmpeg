@@ -101,6 +101,12 @@ public class OCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			log.warning( getName() + " Output file does not exist: " + outputFile.getAbsolutePath() ) ;
 			commandSuccess = false ;
 		}
+		
+		if( outputFile.length() < 10 )
+		{
+			log.warning( getName() + " Output file too small: " + outputFile.getAbsolutePath() ) ;
+			commandSuccess = false ;
+		}
 
 		if( !commandSuccess )
 		{
