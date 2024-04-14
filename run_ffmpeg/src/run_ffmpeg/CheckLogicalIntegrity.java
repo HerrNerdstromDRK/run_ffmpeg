@@ -2,6 +2,8 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -93,12 +95,14 @@ public class CheckLogicalIntegrity
 		log.info( "Checking for duplicate movie mkv paths" ) ;
 		checkForDuplicatePaths( movieMKVMap ) ;
 
-//		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
+		//		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
 		checkForMissingMP4Files( movieAndShowInfoMap ) ;
-		
-		checkForEmptyFolders() ;
+
+		listSpecialEditionMovies() ;
+
+//		checkForEmptyFolders() ;
 	}
-	
+
 	/**
 	 * Walk through the MKV and MP4 directory structures and report any empty folders. This is used to identify
 	 * any shows/movies that may have been moved without updating the database.
@@ -119,12 +123,12 @@ public class CheckLogicalIntegrity
 				}
 			}
 		};
-		
+
 		List< String > allFolders = common.getAllDrivesAndFolders() ;
 		for( String theFolder : allFolders )
 		{
 			log.info( "Checking for empty folders in: " + theFolder ) ;
-			
+
 			final File theFolderFile = new File( theFolder ) ;			
 			final File[] filterDirectoryList = theFolderFile.listFiles( emptyDirectoryFileFilter ) ;
 			for( File theFile : filterDirectoryList )
@@ -133,7 +137,7 @@ public class CheckLogicalIntegrity
 			}
 		}
 	}
-	
+
 	/**
 	 * Look for any MKV files that are missing the corresponding MP4 files.
 	 * @param probeInfoMap
@@ -148,7 +152,7 @@ public class CheckLogicalIntegrity
 				// Ignore home videos
 				continue ;
 			}
-			
+
 			final List< CorrelatedFile > theCorrelatedFiles = theMovieAndShowInfo.getCorrelatedFilesList() ;
 			for( CorrelatedFile theCorrelatedFile : theCorrelatedFiles )
 			{
@@ -202,6 +206,72 @@ public class CheckLogicalIntegrity
 			{
 				log.info( "Found duplicates for key " + key + ": " + value.toString() ) ;
 			}
+		}
+	}
+
+	/**
+	 * Print to console all movies with special editions (like extended, uncut, etc.) so that I can
+	 * check if they are shown on the Plex movie list.
+	 * Pre-condition: probeInfoMap is already populated.
+	 */
+	public void listSpecialEditionMovies()
+	{
+		// Will store the movies by file name without path.
+		List< String > specialEditionMovies = new ArrayList< String >() ;
+
+		// Walk through the probeInfoMap
+		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
+		{
+			// The key is the path to the file.
+			final String pathToFile = entry.getKey() ;
+
+			// Keep only mp4 files
+			if( !pathToFile.endsWith( ".mp4" ) )
+			{
+				continue ;
+			}
+			
+			// Skip tv shows
+			if( pathToFile.contains( "Season " ) )
+			{
+				continue ;
+			}
+
+			// Skip Other Videos
+			if( pathToFile.contains( "Other Videos" ) )
+			{
+				continue ;
+			}
+			// Post-condition: This is a movie
+
+			if( !pathToFile.contains( "] (" ) )
+			{
+				// Not a special edition/release
+				continue ;
+			}
+			// Post-condition: This is a special edition movie.
+//			log.info( "Found special edition movie: " + pathToFile ) ;
+			
+			final File theFile = new File( pathToFile ) ;
+			String fileName = theFile.getName() ;
+			
+			// Strip out any leading words that Plex ignores
+			if( fileName.startsWith( "The " ) )
+			{
+				fileName = fileName.substring( 4 ) ;
+			}
+			else if( fileName.startsWith( "A " ) )
+			{
+				fileName = fileName.substring( 2 ) ;
+			}
+			
+			specialEditionMovies.add( fileName ) ;
+		}
+		Collections.sort( specialEditionMovies ) ;
+		
+		for( String fileName : specialEditionMovies )
+		{
+			log.info( fileName ) ;
 		}
 	}
 

@@ -81,7 +81,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
 		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
-		//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
 		foldersToTranscode.add( "C:\\Temp\\To Transcode" ) ;
 
@@ -93,6 +93,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		findFiles.addFoldersToSearch( foldersToTranscode ) ;
 		findFiles.addExtensionsToFind( TranscodeCommon.getTranscodeExtensions() ) ;
 		allFilesToTranscode.addAll( findFiles.getFiles() ) ;
+		sortFilesToTranscode( allFilesToTranscode ) ;
 
 		log.info( "Found " + allFilesToTranscode.size() + " file(s)" ) ;
 
@@ -110,7 +111,6 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				filesToTranscode.add( newFileToTranscode ) ;
 			}
 		}
-		sortFilesToTranscode( allFilesToTranscode ) ;
 
 		//		log.info( "Will transcode these files: " ) ;
 		//		for( TranscodeAndMoveFileInfo theFileToTranscode : filesToTranscode )
