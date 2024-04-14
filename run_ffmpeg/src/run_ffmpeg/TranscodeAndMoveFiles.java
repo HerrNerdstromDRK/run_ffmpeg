@@ -73,8 +73,8 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( true ) ;
-		common.setDoMoveFiles( false ) ;
+		common.setTestMode( false ) ;
+		common.setDoMoveFiles( true ) ;
 		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
@@ -83,7 +83,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 		//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 
-		foldersToTranscode.add( "C:\\Temp\\To Move" ) ;
+		foldersToTranscode.add( "C:\\Temp\\To Transcode" ) ;
 
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 

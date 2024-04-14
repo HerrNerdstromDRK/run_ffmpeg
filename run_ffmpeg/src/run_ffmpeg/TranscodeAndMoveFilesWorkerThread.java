@@ -110,6 +110,13 @@ public class TranscodeAndMoveFilesWorkerThread extends run_ffmpegWorkerThread
 			// The system should be able to probe the resulting mp4 file since the transcode succeeded.
 			if( null == mp4ProbeInfo )
 			{
+				if( common.getTestMode() )
+				{
+					// Running in test mode will fail to generate an mp4 output file.
+					// Still add the file to move while in test mode to check the move file algorithms
+					theController.moveFile( fileToTranscode ) ;
+				}
+				
 				// The transcode could fail, but this probably means we are in test mode.
 				continue ;
 			}
