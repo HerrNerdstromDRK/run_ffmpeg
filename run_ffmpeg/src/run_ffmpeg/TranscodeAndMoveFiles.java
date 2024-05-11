@@ -73,8 +73,8 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( false ) ;
-		common.setDoMoveFiles( true ) ;
+		common.setTestMode( true ) ;
+		common.setDoMoveFiles( false ) ;
 		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
@@ -82,8 +82,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 
 		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
-
-		foldersToTranscode.add( "C:\\Temp\\To Transcode" ) ;
+//		foldersToTranscode.add( "K:\\To Convert - TV Shows\\Rick And Morty" ) ;
 
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
@@ -150,7 +149,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			{
 				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath )
 					+ common.addPathSeparatorIfNecessary( Common.getSeasonString( mkvFile ) ) 
-					+ common.addPathSeparatorIfNecessary( mkvFile.getName().replace( ".mkv", ".mp4" ) ) ;
+					+ mkvFile.getName().replace( ".mkv", ".mp4" ) ;
 				final File mp4File = new File( mp4FileNameWithPath ) ;
 				if( mp4File.exists() )
 				{
