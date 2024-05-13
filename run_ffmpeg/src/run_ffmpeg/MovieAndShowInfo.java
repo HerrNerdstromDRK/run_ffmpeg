@@ -134,6 +134,11 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		return theTVShowName ;
 	}
 
+	/**
+	 * Initialize the object.
+	 * In the event this is a TV show, be sure to strip off the trailing "Season XX" from the end of the paths.
+	 * @param theFile
+	 */
 	private void initObject( final File theFile )
 	{
 		if( theFile.getParent().contains( "Season " ) )

@@ -101,6 +101,7 @@ public class TranscodeAndMoveFilesWorkerThread extends run_ffmpegWorkerThread
 
 			// It would be clumsy to add code here to use findOne() followed by replaceOne() in the event a findOne() succeeds for this mkv,
 			// so just delete it and insert the new mkv (2 calls instead of 3).
+			// Delete the temporary probe info prior to changing it to the new/final path.
 			probeInfoCollection.deleteOne( Filters.eq( "fileNameWithPath", fileToTranscode.getMKVFinalFileNameWithPath() ) ) ;
 			probeInfoCollection.insertOne( mkvProbeInfo ) ;
 

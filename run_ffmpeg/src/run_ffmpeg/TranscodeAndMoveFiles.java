@@ -73,14 +73,15 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( true ) ;
-		common.setDoMoveFiles( false ) ;
+		common.setTestMode( false ) ;
+		common.setDoMoveFiles( true ) ;
 		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+//		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
 		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 //		foldersToTranscode.add( "K:\\To Convert - TV Shows\\Rick And Morty" ) ;
 
@@ -147,6 +148,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			final String mp4LongPath = movieAndShowInfo.getMP4LongPath() ;
 			if( mp4LongPath != null )
 			{
+				// 
 				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath )
 					+ common.addPathSeparatorIfNecessary( Common.getSeasonString( mkvFile ) ) 
 					+ mkvFile.getName().replace( ".mkv", ".mp4" ) ;
@@ -339,6 +341,15 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		if( mkvInputDirectory.contains( "To Convert - TV Shows" ) )
 		{
 			mkvFinalDirectory = mkvInputDirectory.replace( "To Convert - TV Shows", "TV Shows" ) ;
+			final File mkvInputDirectoryWithSeasonName = new File( mkvFinalDirectory ) ;
+			mkvFinalDirectory = mkvInputDirectoryWithSeasonName.getParentFile().getAbsolutePath() ;
+			
+			// Be sure to strip out the trailing "Season XX/"
+//			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
+////			final String tvShowSeasonName = mkvInputFile.getParentFile().getName() ;
+//			mkvFinalDirectory += "TV Shows"
+//					+ common.getPathSeparator()
+//					+ tvShowName ;
 		}
 		else if( mkvInputDirectory.contains( "To Convert" ) )
 		{
@@ -353,12 +364,10 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				// mkvInputFile will be of the form:
 				// C:\\Temp\\Show Name\\Season 01\\Show Name - S01E01 - Episode Name.mkv
 				final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
-				final String tvShowSeasonName = mkvInputFile.getParentFile().getName() ;
+//				final String tvShowSeasonName = mkvInputFile.getParentFile().getName() ;
 				mkvFinalDirectory += "TV Shows"
 						+ common.getPathSeparator()
-						+ tvShowName
-						+ common.getPathSeparator()
-						+ tvShowSeasonName ;
+						+ tvShowName ;
 			}
 			else
 			{
@@ -405,14 +414,12 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		else
 		{
 			// TV Show
-			final String tvShowSeasonName = mkvInputDirectoryFile.getName() ;
+//			final String tvShowSeasonName = mkvInputDirectoryFile.getName() ;
 			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
 			mp4FinalDirectory += common.getPathSeparator()
 					+ "TV Shows"
 					+ common.getPathSeparator()
-					+ tvShowName
-					+ common.getPathSeparator()
-					+ tvShowSeasonName ;
+					+ tvShowName ;
 		}
 		return mp4FinalDirectory ;
 	}
