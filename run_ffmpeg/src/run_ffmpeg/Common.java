@@ -107,7 +107,7 @@ public class Common
 
 	public Common()
 	{
-		this( setupLogger( "Common", "log_common.txt" ) ) ;
+		this( setupLogger( "log_common.txt", "Common" ) ) ;
 	}
 
 	public Common( Logger log )
