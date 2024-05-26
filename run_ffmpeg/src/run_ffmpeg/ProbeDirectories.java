@@ -82,8 +82,8 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
 		loadProbeInfoDatabase() ;
-		drivesToProbe.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
-		drivesToProbe.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMP4Drives() ) ) ;
+		drivesToProbe.addAll( common.getAllMKVDrives() ) ;
+		drivesToProbe.addAll( common.getAllMP4Drives() ) ;
 	}
 
 	/**
