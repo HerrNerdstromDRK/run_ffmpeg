@@ -18,7 +18,7 @@ public class TranscodeCommon
 	private String mp4FinalDirectory = null ;
 
 	/// Default location for MP4 working directory.
-	private final static String defaultMP4OutputDirectory = "D:\\Temp" ;
+	private final static String defaultMP4OutputDirectory = "c:\\Temp" ;
 	
 	/// Set whether or not to transcode video
 	/// This is usually true, however the option here to disable video transcode is intended to be used
