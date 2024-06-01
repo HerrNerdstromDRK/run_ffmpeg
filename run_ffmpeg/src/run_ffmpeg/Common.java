@@ -113,7 +113,7 @@ public class Common
 	public Common( Logger log )
 	{
 		if( null == Common.log ) Common.log = log ;
-		numFormat = NumberFormat.getInstance( new Locale( "en", "US" ) ) ;
+		numFormat = NumberFormat.getInstance( new Locale.Builder().setLanguage( "en" ).setRegion( "US" ).build() ) ;
 		numFormat.setMaximumFractionDigits( 2 ) ;
 	}
 

@@ -105,6 +105,10 @@ public class FilePathInfo
 			//			log.info( "allDirectories: " + allDirectories.toString() ) ;
 
 			File filterTestDirectoryPath = new File( "C:\\Temp" ) ;
+			if( !filterTestDirectoryPath.exists() )
+			{
+				filterTestDirectoryPath = new File( "C:\\tmp" ) ;
+			}
 			log.info( "Checking for empty directories in " + filterTestDirectoryPath.getAbsolutePath() ) ;
 			
 			FileFilter emptyDirectoryFileFilter = new FileFilter()
