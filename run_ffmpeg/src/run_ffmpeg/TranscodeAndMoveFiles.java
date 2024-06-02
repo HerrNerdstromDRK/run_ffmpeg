@@ -48,7 +48,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		moveFilesController = new MoveFiles( log, common ) ;
-		mp4OutputDirectory = TranscodeCommon.getDefaultMP4OutputDirectory() ;
+		mp4OutputDirectory = common.getPathToDefaultMP4OutputDirectory() ;
 	}
 
 	public static void main( String[] args )
@@ -259,7 +259,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 
 		// mp4OutputDirectory is the location where we will store the transcoded
 		// mp4 output files before moving to their end destination (if different from output directory).
-		final String mp4OutputDirectory = TranscodeCommon.getDefaultMP4OutputDirectory() ;
+		final String mp4OutputDirectory = common.getPathToDefaultMP4OutputDirectory() ;
 
 		// The TranscodeFile is used to store all of the relevant information to execute
 		// a transcode.

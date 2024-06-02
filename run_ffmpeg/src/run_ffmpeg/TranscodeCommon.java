@@ -18,7 +18,7 @@ public class TranscodeCommon
 	private String mp4FinalDirectory = null ;
 
 	/// Default location for MP4 working directory.
-	private final static String defaultMP4OutputDirectory = "c:\\Temp" ;
+//	private final static String defaultMP4OutputDirectory = "c:\\Temp" ;
 	
 	/// Set whether or not to transcode video
 	/// This is usually true, however the option here to disable video transcode is intended to be used
@@ -65,7 +65,7 @@ public class TranscodeCommon
 	
 	public TranscodeCommon( Logger log, Common common, final String mkvInputDirectory,
 			final String mkvFinalDirectory,
-			final String mp4OutputDirectory,
+			final String Directory,
 			final String mp4FinalDirectory  )
 	{
 		assert( log != null ) ;
@@ -80,7 +80,7 @@ public class TranscodeCommon
 		// However, they should still be valid.
 		this.mkvInputDirectory = mkvInputDirectory ;
 		this.mkvFinalDirectory = mkvFinalDirectory.isBlank() ? mkvInputDirectory : mkvFinalDirectory ;
-		this.mp4OutputDirectory = mp4OutputDirectory.isBlank() ? mkvInputDirectory : mp4OutputDirectory ;
+		this.mp4OutputDirectory = ((null == mp4OutputDirectory) || mp4OutputDirectory.isBlank()) ? mkvInputDirectory : mp4OutputDirectory ;
 		this.mp4FinalDirectory = mp4FinalDirectory.isBlank() ? mkvInputDirectory : mp4FinalDirectory ;
 	}
 	
@@ -338,10 +338,10 @@ public class TranscodeCommon
 		return audioStreamTranscodeOptions;
 	}
 
-	protected static String getDefaultMP4OutputDirectory()
-	{
-		return defaultMP4OutputDirectory;
-	}
+//	protected static String getDefaultMP4OutputDirectory()
+//	{
+//		return defaultMP4OutputDirectory;
+//	}
 
 	public static String getForcedSubTitleFileNameContains()
 	{
@@ -452,7 +452,7 @@ public class TranscodeCommon
 			ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
 			
 			// 1) Setup ffmpeg basic options
-			ffmpegCommand.add( Common.getPathToFFmpeg() ) ;
+			ffmpegCommand.add( common.getPathToFFmpeg() ) ;
 			
 			// Overwrite existing files
 	//		ffmpegCommand.add( "-y" ) ;
@@ -593,7 +593,7 @@ public class TranscodeCommon
 		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
 		
 		// 1) Setup ffmpeg basic options
-		ffmpegCommand.add( Common.getPathToFFmpeg() ) ;
+		ffmpegCommand.add( common.getPathToFFmpeg() ) ;
 		
 		// Overwrite existing files
 		ffmpegCommand.add( "-y" ) ;

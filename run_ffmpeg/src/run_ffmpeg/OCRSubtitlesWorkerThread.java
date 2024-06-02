@@ -82,7 +82,7 @@ public class OCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		//		ocrExecuteCommand.add( "--input", fileToOCR.getAbsolutePath() ) ;
 		//		ocrExecuteCommand.add( "--tesseractdata", Common.getPathToTessdata() ) ;
 		//		ocrExecuteCommand.add( "--tesseractversion", Common.getTesseractVersion() ) ;
-		ocrExecuteCommand.add( Common.getPathtoSubtitleEdit() ) ;
+		ocrExecuteCommand.add( common.getPathToSubtitleEdit() ) ;
 		ocrExecuteCommand.add( "/convert" ) ;
 		ocrExecuteCommand.add( fileToOCR.getAbsolutePath() ) ;
 		ocrExecuteCommand.add( "subrip" ) ;

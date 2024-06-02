@@ -41,7 +41,7 @@ public class Common
 
 	/// Set testMode to true to prevent mutations
 	private static boolean testMode = false ;
-	
+
 	// Set to true to move the mkv files, false otherwise
 	// Only used for certain applications
 	private static boolean doMoveFiles = true ;
@@ -53,17 +53,37 @@ public class Common
 	/// The name of the primary file server
 	private static final String primaryFileServerName = "\\\\yoda" ;
 
+	private static final String[] pathsToFFMPEG =
+		{
+				"c:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
+				"d:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe"
+		} ;
+
+	private static final String[] pathsToFFPROBE =
+		{
+				"c:\\Program Files\\ffmpeg\\bin\\ffprobe.exe",
+				"d:\\Program Files\\ffmpeg\\bin\\ffprobe.exe"
+		} ;
+	
+	private static final String[] pathsToSubtitleEdit =
+		{
+				"c:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe",
+				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
+		} ;
+	
+	private static final String[] pathsToDefaultMP4OutputDirectory =
+		{
+				"d:\\temp",
+				"d:\\tmp",
+				"c:\\temp",
+				"c:\\tmp"
+		} ;
+
 	/// Paths to external applications
-//	private static final String pathToFFMPEG = "D:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
-	private static final String pathToFFMPEG = "c:\\Program Files\\ffmpeg\\bin\\ffmpeg" ;
-	private static final String pathToFFPROBE = "c:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
-//	private static final String pathToFFPROBE = "D:\\Program Files\\ffmpeg\\bin\\ffprobe" ;
-//	private static final String pathToDOTNET = "C:\\Program Files\\dotnet\\dotnet" ;
-//	private static final String pathToPGSTOSRTDLL = "D:\\Program Files\\PgsToSrt\\PgsToSrt.dll" ;
-//	private static final String pathToTESSDATA = "D:\\Program Files\\PgsToSrt\\tessdata" ;
-//	private static final String tesseractVersion = "5" ;
-//	private static final String pathToSubtitleEdit = "D:\\Program Files\\Subtitle Edit\\SubtitleEdit" ;
-	private static final String pathToSubtitleEdit = "c:\\Program Files\\Subtitle Edit\\SubtitleEdit" ;
+	private String pathToFFMPEG = null ;
+	private String pathToFFPROBE = null ;
+	private String pathToSubtitleEdit = null ;
+	private String pathToDefaultMP4OutputDirectory = null ;
 
 	/// The replacement file name for correlated files that are missing. This is used for
 	/// user interface reporting via the web interface.
@@ -71,7 +91,7 @@ public class Common
 
 	/// The size of an SRT file, in bytes, that represents the minimum valid file length.
 	private static final int minimumSRTFileSize = 25 ;
-	
+
 	private static final String analyzeDurationString = "5G" ;
 	private static final String probeSizeString = "5G" ;
 
@@ -118,6 +138,67 @@ public class Common
 		if( null == Common.log ) Common.log = log ;
 		numFormat = NumberFormat.getInstance( new Locale.Builder().setLanguage( "en" ).setRegion( "US" ).build() ) ;
 		numFormat.setMaximumFractionDigits( 2 ) ;
+		setupPaths() ;
+	}
+
+	protected void setupPaths()
+	{
+		for( String testLocation : pathsToFFMPEG )
+		{
+			if( (new File( testLocation )).isFile() )
+			{
+				// Found the file
+				setPathToFFmpeg( testLocation ) ;
+				break ;
+			}
+		}
+		if( null == getPathToFFmpeg() )
+		{
+			log.warning( "Unable to find ffmpeg" ) ;
+		}
+		
+		for( String testLocation : pathsToFFPROBE )
+		{
+			if( (new File( testLocation )).isFile() )
+			{
+				// Found the file
+				setPathToFFprobe( testLocation ) ;
+				break ;
+			}
+		}
+		if( null == getPathToFFprobe() )
+		{
+			log.warning( "Unable to find ffprobe" ) ;
+		}
+		
+		for( String testLocation : pathsToSubtitleEdit )
+		{
+			if( (new File( testLocation )).isFile() )
+			{
+				// Found the file
+				setPathToSubtitleEdit( testLocation ) ;
+				break ;
+			}
+		}
+		if( null == getPathToSubtitleEdit() )
+		{
+			log.warning( "Unable to find SubtitleEdit" ) ;
+		}
+		
+		for( String testLocation : pathsToDefaultMP4OutputDirectory )
+		{
+			if( (new File( testLocation )).isFile() )
+			{
+				// Found the file
+				setPathToDefaultMP4OutputDirectory( testLocation ) ;
+				break ;
+			}
+		}
+		if( null == getPathToDefaultMP4OutputDirectory() )
+		{
+			log.warning( "Unable to find defaultMP4OutputDirectory" ) ;
+		}
+
 	}
 
 	/**
@@ -132,11 +213,11 @@ public class Common
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
 			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
-//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
+			//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
 
 			retMe.add( tvShowsFolder ) ;
 			retMe.add( moviesFolder ) ;
-//			retMe.add( otherVideosFolder ) ;
+			//			retMe.add( otherVideosFolder ) ;
 		}
 		return retMe ;
 	}
@@ -147,7 +228,7 @@ public class Common
 		tempList.add( theDrive ) ;
 		return addMoviesAndTVShowFoldersToEachDrive( tempList ) ;
 	}
-	
+
 	/**
 	 * Add trailing path separator ("/" or "\\") if missing.
 	 * @param inputPath
@@ -177,11 +258,6 @@ public class Common
 		return retMe ;
 	}
 
-	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
-	{
-		return executeCommand( toStringForCommandExecution( theCommand.build() ) ) ;
-	}
-
 	/**
 	 * Execute the given command.
 	 * Return true if successful, false otherwise.
@@ -189,9 +265,9 @@ public class Common
 	 * @param theCommand
 	 * @return
 	 */
-	public boolean executeCommand( final String theCommand )
+	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
-		log.info( "theCommand: " + theCommand ) ;
+		log.info( "theCommand: " + theCommand.toString() ) ;
 		boolean retMe = true ;
 
 		// Only execute the command if we are NOT in test mode
@@ -200,7 +276,7 @@ public class Common
 			try
 			{
 				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
-				final Process process = Runtime.getRuntime().exec( theCommand ) ;
+				final Process process = Runtime.getRuntime().exec( theCommand.build().toArray( new String[ 1 ] ) ) ;
 
 				BufferedReader inputStreamReader = process.inputReader() ;
 				BufferedReader errorStreamReader =  process.errorReader() ;
@@ -303,34 +379,34 @@ public class Common
 	}
 
 	/**
-		 * Return all directories at the lowest level available inside of the given directoryPath.
-		 * Returns only the lowest level directories, and nothing in between.
-		 */
-		public List< String > findLowestLevelDirectories( final String topLevelDirectory )
+	 * Return all directories at the lowest level available inside of the given directoryPath.
+	 * Returns only the lowest level directories, and nothing in between.
+	 */
+	public List< String > findLowestLevelDirectories( final String topLevelDirectory )
+	{
+		//		log.info( "Checking tld: " + topLevelDirectory ) ;
+		List< String > allDirectories = new ArrayList< String >() ;
+
+		Set< String > dirNames = Stream.of(new File( topLevelDirectory ).listFiles())
+				.filter(file -> file.isDirectory())
+				.map(File::getName)
+				.collect(Collectors.toSet());
+		if( dirNames.isEmpty() )
 		{
-	//		log.info( "Checking tld: " + topLevelDirectory ) ;
-			List< String > allDirectories = new ArrayList< String >() ;
-			
-			Set< String > dirNames = Stream.of(new File( topLevelDirectory ).listFiles())
-			      .filter(file -> file.isDirectory())
-			      .map(File::getName)
-			      .collect(Collectors.toSet());
-			if( dirNames.isEmpty() )
-			{
-				// Base case -- we are at the lowest level directory.
-				// Add this directory to the list of directories to return.
-				allDirectories.add( topLevelDirectory ) ;
-			}
-			else
-			{
-				for( String dirName : dirNames )
-				{
-	//				log.info( "Calling findLowestLevelDirectories ( " + topLevelDirectory + "\\" + dirName + " )" ) ;
-					allDirectories.addAll( findLowestLevelDirectories( topLevelDirectory + "\\" + dirName ) ) ;
-				}
-			}
-			return allDirectories ;
+			// Base case -- we are at the lowest level directory.
+			// Add this directory to the list of directories to return.
+			allDirectories.add( topLevelDirectory ) ;
 		}
+		else
+		{
+			for( String dirName : dirNames )
+			{
+				//				log.info( "Calling findLowestLevelDirectories ( " + topLevelDirectory + "\\" + dirName + " )" ) ;
+				allDirectories.addAll( findLowestLevelDirectories( topLevelDirectory + "\\" + dirName ) ) ;
+			}
+		}
+		return allDirectories ;
+	}
 
 	/**
 	 * Probe the given file and report out to the given log stream.
@@ -369,17 +445,17 @@ public class Common
 			String ffprobeExecuteCommandString = toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
 			log.info( ffprobeExecuteCommandString ) ;
 
-			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommandString ) ;
+			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ;
 
 			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
-//			int lineNumber = 1 ;
+			//			int lineNumber = 1 ;
 			String inputLine = null ;
 			String inputBuffer = "" ;
 			while( (inputLine = inputStreamReader.readLine()) != null )
 			{
-//				log.fine( "" + lineNumber + "> " + inputLine ) ;
+				//				log.fine( "" + lineNumber + "> " + inputLine ) ;
 				inputBuffer += inputLine ;
-//				++lineNumber ;
+				//				++lineNumber ;
 			}
 
 			if( process.exitValue() != 0 )
@@ -447,7 +523,7 @@ public class Common
 		}
 		return mappedFolders ;
 	}
-	
+
 	/**
 	 * Return the drive on which the given theFolder resides.
 	 * Examples:
@@ -461,13 +537,13 @@ public class Common
 		assert( theFolder != null ) ;
 		assert( !theFolder.isEmpty() ) ;
 		assert( !theFolder.isBlank() ) ;
-	
+
 		Path thePath = Paths.get( theFolder ) ;
 		final String fileRoot = thePath.getRoot().toString() ;
-	
+
 		return fileRoot ;		
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -553,18 +629,18 @@ public class Common
 	{
 		assert( inputFile != null ) ;
 		assert( inputFile.getAbsolutePath().contains( "." ) ) ;
-		
+
 		if( !inputFile.getAbsolutePath().contains( "Season " ) )
 		{
 			return "" ;
 		}
 		// Post condition: TV Show with "Season XX" name
-		
+
 		// Get to the segment with the season string
 		String seasonString = inputFile.getParentFile().getName() ;
 		return seasonString ;
 	}
-	
+
 	public List< File > getSubDirectories( final File directoryPathFile )
 	{
 		File[] directories = directoryPathFile.listFiles( File::isDirectory ) ;
@@ -664,7 +740,7 @@ public class Common
 		}
 		return retMe ;
 	}
-	
+
 	public static String replaceExtension( final String fileName, final String newExtension )
 	{
 		final String fileNameWithoutExtension = removeFileNameExtension( fileName ) ;
@@ -740,7 +816,7 @@ public class Common
 			}
 		}
 
-//		log.fine( "Established logger: " + localLog.getName() ) ;
+		//		log.fine( "Established logger: " + localLog.getName() ) ;
 		return localLog ;
 	}
 
@@ -895,7 +971,7 @@ public class Common
 		retMe.addAll( getAllMP4Drives() ) ;
 		return retMe ;
 	}
-	
+
 	public List< String > getAllMKVDrives()
 	{
 		List< String > retMe = new ArrayList< String >() ;
@@ -964,7 +1040,7 @@ public class Common
 		}
 		return mkvDriveWithMostAvailableSpace ;
 	}
-	
+
 	public String getMP4DriveWithMostAvailableSpace()
 	{
 		String mp4DriveWithMostAvailableSpace = "" ;
@@ -992,35 +1068,25 @@ public class Common
 		return numFormat ;
 	}
 
-//	public static String getPathToDotNet()
-//	{
-//		return pathToDOTNET;
-//	}
+	public String getPathToDefaultMP4OutputDirectory()
+	{
+		return pathToDefaultMP4OutputDirectory ;
+	}
 
-	public static String getPathToFFmpeg()
+	public String getPathToFFmpeg()
 	{
 		return pathToFFMPEG;
 	}
 
-	public static String getPathToFFprobe()
+	public String getPathToFFprobe()
 	{
 		return pathToFFPROBE;
 	}
 
-//	public static String getPathToPgsToSrtDLL()
-//	{
-//		return pathToPGSTOSRTDLL;
-//	}
-
-	protected static String getPathtoSubtitleEdit()
+	protected String getPathToSubtitleEdit()
 	{
 		return pathToSubtitleEdit;
 	}
-
-//	public static String getPathToTessdata()
-//	{
-//		return pathToTESSDATA;
-//	}
 
 	public static String getPrimaryfileservername() {
 		return primaryFileServerName;
@@ -1030,11 +1096,6 @@ public class Common
 	{
 		return probeSizeString;
 	}
-
-//	protected static String getTesseractVersion()
-//	{
-//		return tesseractVersion;
-//	}
 
 	public boolean getTestMode()
 	{
@@ -1046,9 +1107,29 @@ public class Common
 		return doMoveFiles;
 	}
 
+	public void setPathToDefaultMP4OutputDirectory( final String pathToDefaultMP4OutputDirectory )
+	{
+		this.pathToDefaultMP4OutputDirectory = pathToDefaultMP4OutputDirectory ;
+	}
+
 	public void setDoMoveFiles( boolean doMoveFiles )
 	{
 		Common.doMoveFiles = doMoveFiles;
+	}
+
+	public void setPathToFFmpeg( final String pathToFFMPEG )
+	{
+		this.pathToFFMPEG = pathToFFMPEG ;
+	}
+
+	public void setPathToFFprobe( final String pathToFFPROBE )
+	{
+		this.pathToFFPROBE = pathToFFPROBE ;
+	}
+
+	public void setPathToSubtitleEdit( final String pathToSubtitleEdit )
+	{
+		this.pathToSubtitleEdit = pathToSubtitleEdit ;
 	}
 
 	public void setTestMode( boolean newValue )

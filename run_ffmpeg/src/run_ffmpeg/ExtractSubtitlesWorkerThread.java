@@ -147,7 +147,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 
 		// Build the ffmpeg command
 		ImmutableList.Builder< String > ffmpegSubTitleExtractCommand = new ImmutableList.Builder<String>() ;
-		ffmpegSubTitleExtractCommand.add( Common.getPathToFFmpeg() ) ;
+		ffmpegSubTitleExtractCommand.add( common.getPathToFFmpeg() ) ;
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
 		ffmpegSubTitleExtractCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
 		ffmpegSubTitleExtractCommand.add( "-probesize", Common.getProbeSizeString() ) ;
