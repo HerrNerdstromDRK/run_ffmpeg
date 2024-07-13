@@ -267,7 +267,7 @@ public class Common
 	 */
 	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
-		log.info( "theCommand: " + theCommand.toString() ) ;
+		log.info( "theCommand: " + theCommand.build().toArray( new String[ 1 ] ) ) ;
 		boolean retMe = true ;
 
 		// Only execute the command if we are NOT in test mode
