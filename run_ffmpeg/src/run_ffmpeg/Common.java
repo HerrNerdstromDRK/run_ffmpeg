@@ -187,7 +187,7 @@ public class Common
 		
 		for( String testLocation : pathsToDefaultMP4OutputDirectory )
 		{
-			if( (new File( testLocation )).isFile() )
+			if( (new File( testLocation )).isDirectory() )
 			{
 				// Found the file
 				setPathToDefaultMP4OutputDirectory( testLocation ) ;
@@ -1088,7 +1088,8 @@ public class Common
 		return pathToSubtitleEdit;
 	}
 
-	public static String getPrimaryfileservername() {
+	public static String getPrimaryfileservername()
+	{
 		return primaryFileServerName;
 	}
 
