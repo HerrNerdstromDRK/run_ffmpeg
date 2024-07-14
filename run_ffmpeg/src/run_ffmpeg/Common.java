@@ -277,7 +277,7 @@ public class Common
 	 */
 	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
-		log.info( "theCommand: " + theCommand.build().toString() ) ;
+		log.info( "theCommand: " + Arrays.toString( theCommand.build().toArray( new String[ 1 ] ) ) ) ;
 		boolean retMe = true ;
 
 		// Only execute the command if we are NOT in test mode
@@ -286,7 +286,7 @@ public class Common
 			try
 			{
 				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
-				final ProcessBuilder theProcessBuilder = new ProcessBuilder( toStringForCommandExecution( theCommand.build() ) ) ;
+				final ProcessBuilder theProcessBuilder = new ProcessBuilder( theCommand.build().toArray( new String[ 1 ] ) ) ;
 				final Process process = theProcessBuilder.start() ;
 				
 				BufferedReader inputStreamReader = process.inputReader() ;
@@ -298,23 +298,8 @@ public class Common
 					String lastInputStreamLine = "" ; // never null
 					String errorStreamLine = null ;
 					String lastErrorStreamLine = "" ; // never null
-					while( inputStreamReader.ready() )
-					{
-						inputStreamLine = inputStreamReader.readLine() ;
-						if( inputStreamLine != null )
-						{
-							if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
-							{
-								// Same as last input
-								continue ;
-							}
-							lastInputStreamLine = inputStreamLine ;
-							if( !filterOut( inputStreamLine ) )
-							{
-								log.info( "InputStream: " + inputStreamLine ) ;
-							}
-						}
-					}
+					
+					// Read the error stream first
 					while( errorStreamReader.ready() )
 					{
 						errorStreamLine = errorStreamReader.readLine() ;
@@ -332,6 +317,23 @@ public class Common
 							}
 						}
 					}
+					while( inputStreamReader.ready() )
+					{
+						inputStreamLine = inputStreamReader.readLine() ;
+						if( inputStreamLine != null )
+						{
+							if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
+							{
+								// Same as last input
+								continue ;
+							}
+							lastInputStreamLine = inputStreamLine ;
+							if( !filterOut( inputStreamLine ) )
+							{
+								log.info( "InputStream: " + inputStreamLine ) ;
+							}
+						}
+					}
 					if( (null == inputStreamLine) && (null == errorStreamLine) )
 					{
 						// Neither stream had data.
@@ -346,13 +348,13 @@ public class Common
 				{
 					// Error occurred
 					retMe = false ;
-					log.info( "Process exitValue() return error: " + process.exitValue() + ", returning false from method" ) ;
+					log.warning( "Process exitValue() return error: " + process.exitValue() + ", returning false from method; info: " + process.info().toString() ) ;
 				}
 			}
 			catch( Exception theException )
 			{
 				retMe = false ;
-				log.info( "Exception: " + theException + " for command: " + theCommand ) ;
+				log.warning( "Exception: " + theException + " for command: " + theCommand ) ;
 			}
 		}
 		return retMe ;
@@ -453,10 +455,10 @@ public class Common
 		try
 		{
 			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
-			String ffprobeExecuteCommandString = toStringForCommandExecution( ffprobeExecuteCommand.build() ) ;
-			log.info( ffprobeExecuteCommandString ) ;
+			log.info( Arrays.toString( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ) ;
 
-			final Process process = Runtime.getRuntime().exec( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ;
+			final ProcessBuilder theProcessBuilder = new ProcessBuilder( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ;
+			final Process process = theProcessBuilder.start() ;
 
 			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
 			//			int lineNumber = 1 ;

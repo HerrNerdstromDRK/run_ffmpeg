@@ -388,7 +388,7 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		for( Map.Entry< String, WorkerThreadType > entry : threadMap.entrySet() )
 		{
 			run_ffmpegWorkerThread theWorkerThread = entry.getValue() ;
-			log.info( theWorkerThread.toString() ) ;
+			log.fine( theWorkerThread.toString() ) ;
 		}
 	}
 

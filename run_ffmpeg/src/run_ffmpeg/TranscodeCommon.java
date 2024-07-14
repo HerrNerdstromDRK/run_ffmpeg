@@ -183,7 +183,7 @@ public class TranscodeCommon
 			audioTranscodeOptions.add( "-map", "0:a:" + audioInputStreamNumber ) ;
 			audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;
 			audioTranscodeOptions.add( "-metadata:s:a:" + outputStreamNumber,
-					"title=\"" + theAudioStream.getTagByName( "title" ) + "\"" ) ;
+					"title=" + theAudioStream.getTagByName( "title" ) ) ;
 			++outputStreamNumber ;
 			
 			if( (0 == audioInputStreamNumber) && addAudioStereoStream )
@@ -193,7 +193,7 @@ public class TranscodeCommon
 				audioTranscodeOptions.add( "-map", "0:a:" + audioInputStreamNumber ) ;
 				audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;
 				audioTranscodeOptions.add( "-ac", "2" ) ;
-				audioTranscodeOptions.add( "-metadata:s:a:"  + outputStreamNumber, "title=\"Stereo\"" ) ;
+				audioTranscodeOptions.add( "-metadata:s:a:"  + outputStreamNumber, "title=Stereo" ) ;
 				// Skip one output stream number
 				++outputStreamNumber ;
 			}
@@ -242,7 +242,7 @@ public class TranscodeCommon
 			{
 				subTitleTranscodeOptions.add( "-map", "" + inputFileMappingIndex + ":s" ) ;
 				subTitleTranscodeOptions.add( "-metadata:s:s:" + inputFileMappingIndex, "language=eng" ) ;
-				subTitleTranscodeOptions.add( "-metadata:s:s:" + inputFileMappingIndex, "title=\"eng\"" ) ;
+				subTitleTranscodeOptions.add( "-metadata:s:s:" + inputFileMappingIndex, "title=eng" ) ;
 				++inputFileMappingIndex ;
 				foundNonForcedSubtTileStream = true ;
 			}
@@ -310,7 +310,7 @@ public class TranscodeCommon
 			videoTranscodeOptions.add( "-vcodec", "libx264" ) ;
 			videoTranscodeOptions.add( "-crf", "17" ) ;
 			videoTranscodeOptions.add( "-movflags", "+faststart" ) ;
-			videoTranscodeOptions.add( "-metadata", "title=\"" + inputFile.getMetaDataTitle() + "\"" ) ;
+			videoTranscodeOptions.add( "-metadata", "title=" + inputFile.getMetaDataTitle() ) ;
 		}
 		else
 		{
@@ -636,7 +636,7 @@ public class TranscodeCommon
 		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
 		if( !executeSuccess )
 		{
-			log.info( "Error in execute command" ) ;
+			log.warning( "Error in execute command" ) ;
 			// Do not move any files since the transcode failed
 			return false ;
 		}
