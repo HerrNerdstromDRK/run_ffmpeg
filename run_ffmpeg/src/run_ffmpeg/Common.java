@@ -278,7 +278,6 @@ public class Common
 	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
 		log.info( "theCommand: " + theCommand.build().toString() ) ;
-		log.info( "theCommand: " + arrayToString( theCommand.build().toArray( new String[ 1 ] ) ) ) ;
 		boolean retMe = true ;
 
 		// Only execute the command if we are NOT in test mode
@@ -874,41 +873,6 @@ public class Common
 		final File stopFile = new File( fileName ) ;
 		boolean fileExists = stopFile.exists() ;
 		return fileExists ;
-	}
-
-	public String[] toStringArrayForCommandExecution( final ImmutableList< String > theList )
-	{
-		String[] retMe = new String[ theList.size() ] ;
-
-		int outputListIndex = 0 ;
-		for( Iterator< String > listIterator = theList.iterator() ; listIterator.hasNext() ; )
-		{
-			// Any file names with spaces must be encapsulated in double quotes, except for those
-			// items that already start with "
-			String outputToken = "" ;
-			String iteratorString = listIterator.next() ;
-			if( iteratorString.contains( " " ) && !iteratorString.startsWith( "\"" ) && !iteratorString.endsWith( "\"" ) )
-			{
-				outputToken += "\"" ;
-			}
-			outputToken += iteratorString ;
-
-			// Any file names with spaces must be encapsulated in double quotes, except for those
-			// items that already start with "
-			if( iteratorString.contains( " " ) && !iteratorString.startsWith( "\"" ) && !iteratorString.endsWith( "\"" ) )
-			{
-				outputToken += "\"" ;
-			}
-
-//			if( listIterator.hasNext() )
-//			{
-//				// At least one more item remaining, add a space
-//				retMe += " " ;
-//			}
-			
-			retMe[ outputListIndex++ ] = outputToken ;
-		}
-		return retMe ;
 	}
 	
 	public String toStringForCommandExecution( final ImmutableList< String > theList )
