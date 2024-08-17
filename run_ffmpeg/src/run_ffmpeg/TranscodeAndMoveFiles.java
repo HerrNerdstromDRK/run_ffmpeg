@@ -77,14 +77,14 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		common.setDoMoveFiles( true ) ;
 		setSortSmallToLarge( false ) ;
 
+		
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-		
 //		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 //		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
 		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
-		foldersToTranscode.add( "E:\\\\The Sopranos" ) ;
+//		foldersToTranscode.add( "E:\\\\The Sopranos" ) ;
 	
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
