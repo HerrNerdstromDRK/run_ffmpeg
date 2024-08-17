@@ -85,6 +85,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 		foldersToTranscode.add( "E:\\\\The Sopranos" ) ;
 
+		
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
 		// Search each folder for files that can be transcoded
