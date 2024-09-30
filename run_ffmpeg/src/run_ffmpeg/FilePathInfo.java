@@ -90,7 +90,7 @@ public class FilePathInfo
 			for( String fileName : fileNames )
 			{
 				Path thePath = Paths.get( fileName ) ;
-				log.info( "**********" ) ;
+				log.info( "********** Path" ) ;
 				log.info( "fileName: " + fileName ) ;
 				log.info( "thePath: " + thePath.toString() ) ;
 				log.info( "thePath.getName( 0 ): " + thePath.getName(0 ) ) ;
