@@ -36,7 +36,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	private String mp4OutputDirectory = null ;
 
 	/// Set to true to sort files small to large. Otherwise, they will be sorted large to small.
-	private boolean sortSmallToLarge = true ;
+	private boolean sortSmallToLarge = false ;
 
 	public TranscodeAndMoveFiles()
 	{
@@ -73,17 +73,17 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( false ) ;
-		common.setDoMoveFiles( true ) ;
-		setSortSmallToLarge( true ) ;
+		common.setTestMode( true ) ;
+		common.setDoMoveFiles( false ) ;
+		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 //		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
-		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
-//		foldersToTranscode.add( "E:\\\\The Sopranos" ) ;
+//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+//		foldersToTranscode.add( "D:\\\\Dan Pictures\\\\2024-10" ) ;
 	
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
@@ -92,6 +92,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		FindFiles findFiles = new FindFiles( log, common, masMDB, probeInfoCollection ) ;
 		findFiles.addFoldersToSearch( foldersToTranscode ) ;
 		findFiles.addExtensionsToFind( TranscodeCommon.getTranscodeExtensions() ) ;
+//		findFiles.addExtensionsToFind( new String[] { ".MP4" } ) ;
 		allFilesToTranscode.addAll( findFiles.getFiles() ) ;
 		sortFilesToTranscode( allFilesToTranscode ) ;
 
