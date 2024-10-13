@@ -141,7 +141,8 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 */
 	private void initObject( final File theFile )
 	{
-		if( theFile.getParent().contains( "Season " ) )
+		// Look for a "Season " in the path. However, if "Season " is followed by a (year) then it is a movie.
+		if( theFile.getParent().contains( "Season " ) && !theFile.getParent().contains( "Season (" ) )
 		{
 			// Store tvShowName as "The Expanse" or "Arrested Development (2008)"
 			// Be sure to remove any "Season 01" etc.
