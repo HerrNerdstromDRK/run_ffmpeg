@@ -135,7 +135,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	}
 
 	/**
-	 * Initialize the object.
+	 * Initialize the object. Test.
 	 * In the event this is a TV show, be sure to strip off the trailing "Season XX" from the end of the paths.
 	 * @param theFile
 	 */
