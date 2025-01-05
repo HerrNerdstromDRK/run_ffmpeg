@@ -95,7 +95,7 @@ public class CheckLogicalIntegrity
 		log.info( "Checking for duplicate movie mkv paths" ) ;
 		checkForDuplicatePaths( movieMKVMap ) ;
 
-		//		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
+		//checkForMissingMKVFiles( movieAndShowInfoMap ) ;
 		checkForMissingMP4Files( movieAndShowInfoMap ) ;
 
 		listSpecialEditionMovies() ;

@@ -307,7 +307,8 @@ public class TranscodeCommon
 		if( doTranscodeVideo )
 		{
 			if( isDeInterlaceInput() )	videoTranscodeOptions.add( "-vf", "yadif=1" ) ;
-			videoTranscodeOptions.add( "-vcodec", "libx264" ) ;
+			videoTranscodeOptions.add( "-vcodec", "libx265" ) ;
+			videoTranscodeOptions.add( "-tag:v", "hvc1" ) ;			
 			videoTranscodeOptions.add( "-crf", "17" ) ;
 			videoTranscodeOptions.add( "-movflags", "+faststart" ) ;
 			videoTranscodeOptions.add( "-metadata", "title=" + inputFile.getMetaDataTitle() ) ;

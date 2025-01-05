@@ -74,17 +74,18 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
-		common.setDoMoveFiles( true ) ;
+		common.setDoMoveFiles( false ) ;
 		setSortSmallToLarge( false ) ;
 
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 //		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
 //		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
-//		foldersToTranscode.add( "D:\\\\Dan Pictures\\\\2024-10" ) ;
-	
+//		foldersToTranscode.add( "J:\\\\To Transcode\\The Wild Robot (2024)" ) ;
+		foldersToTranscode.add( "D:\\\\temp\\Test" ) ;
+				
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
 		// Search each folder for files that can be transcoded
