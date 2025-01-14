@@ -1,0 +1,35 @@
+package run_ffmpeg;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class TheTVDB_seriesClass
+{
+	public String status = "" ;
+	public dataClass data = new dataClass() ;
+
+	public class dataClass
+	{
+		public List< TheTVDB_aliasClass > aliases = new ArrayList< TheTVDB_aliasClass >() ;
+		public Integer averageRuntime = null ;
+		public String country = "" ;
+		public Integer defaultSeasonType = null ;
+		public String firstAired = "" ;
+		public Integer id = null ;
+		public String image = "" ;
+		public Boolean isOrderRandomized = null ;
+		public String lastAired = "" ;
+		public String lastUpdated = "" ;
+		public String name = "" ;
+		public List< String > nameTranslations = new ArrayList< String >() ;
+		public String nextAired = "" ;
+		public String originalCountry = "" ;
+		public String originalLanguage = "" ;
+		public String overview = "" ;
+		public List< String > overviewTranslations = new ArrayList< String >() ;
+		public Integer score = null ;
+		public String slug = "" ;
+		public TheTVDB_statusClass status = new TheTVDB_statusClass() ;
+		public String year = "" ;
+	}
+}

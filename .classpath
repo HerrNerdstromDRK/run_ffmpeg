@@ -36,5 +36,9 @@
 			<attribute name="optional" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/temp/swagger/target/openapi-java-client-4.7.10.jar"/>
+	<classpathentry kind="lib" path="D:/temp/swagger/target/openapi-java-client-4.7.10-javadoc.jar"/>
+	<classpathentry kind="lib" path="D:/temp/swagger/target/openapi-java-client-4.7.10-sources.jar"/>
+	<classpathentry kind="lib" path="D:/temp/swagger/target/openapi-java-client-4.7.10-tests.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

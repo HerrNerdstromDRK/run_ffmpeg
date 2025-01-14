@@ -4,7 +4,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -179,8 +178,12 @@ public class MatchArchives
 			if( theFile.isDirectory() )
 			{
 				log.fine( "Found folder: " + theFile.toString() ) ;
-
+				
 				final String path = theFile.getAbsolutePath() ;
+				if( !path.contains( "(" ) )
+				{
+					log.info( "Missing year: " + theFile.getAbsolutePath() ) ;
+				}
 				int lastSpaceIndex = path.lastIndexOf( "\\" ) ;
 
 				if( lastSpaceIndex != -1 )
