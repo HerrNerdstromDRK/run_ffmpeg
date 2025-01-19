@@ -56,5 +56,4 @@ public class TheTVDB_searchResponse
 		final String loginRequestJson = loginRequestGson.toJson( this ) ;
 		return loginRequestJson.toString() ;
 	}
-	
 }

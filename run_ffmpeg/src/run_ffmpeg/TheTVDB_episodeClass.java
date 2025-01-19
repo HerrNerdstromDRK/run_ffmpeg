@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 public class TheTVDB_episodeClass
 {
 	public BigInteger id = null ;
@@ -24,5 +26,12 @@ public class TheTVDB_episodeClass
 	public String seasonName = "" ;
 	public String lastUpdated = "" ;
 	public String finalType = "" ;
-	public String year = "" ;	
+	public String year = "" ;
+	
+	public String toString()
+	{
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
+	}
 }

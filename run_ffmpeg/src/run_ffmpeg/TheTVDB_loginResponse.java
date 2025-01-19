@@ -3,7 +3,7 @@ package run_ffmpeg;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
+import com.google.gson.Gson;
 
 public class TheTVDB_loginResponse
 {
@@ -12,7 +12,8 @@ public class TheTVDB_loginResponse
 
 	public String toString()
 	{
-		String retMe = "{ status: "  + ", " + StringUtils.join( data, "," ) + "}" ;
-		return retMe ;
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
 	}
 }

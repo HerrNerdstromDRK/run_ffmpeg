@@ -3,6 +3,8 @@ package run_ffmpeg;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+
 public class TheTVDB_seriesEpisodesClass 
 {
 	public String status = "" ;
@@ -38,5 +40,12 @@ public class TheTVDB_seriesEpisodesClass
 		public String slug = "" ;
 		public TheTVDB_statusClass status = new TheTVDB_statusClass() ;
 		public String year = "" ;
+	}
+	
+	public String toString()
+	{
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
 	}
 }
