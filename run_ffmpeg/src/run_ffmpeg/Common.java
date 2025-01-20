@@ -51,7 +51,7 @@ public class Common
 	private static String pathSeparator = "\\" ;
 
 	/// The name of the primary file server
-	private static final String primaryFileServerName = "\\\\yoda" ;
+	private static final String primaryFileServerName = "\\\\skywalker" ;
 
 	private static final String[] pathsToFFMPEG =
 		{
@@ -85,7 +85,7 @@ public class Common
 	private String pathToSubtitleEdit = null ;
 	private String pathToDefaultMP4OutputDirectory = null ;
 
-	/// The replacement file name for correlated files that are missing. This is used for
+	/// The replacement file name for correlated files that are missing. This is for
 	/// user interface reporting via the web interface.
 	private static final String missingFileSubstituteName = "(none)" ;
 
@@ -95,13 +95,25 @@ public class Common
 	private static final String analyzeDurationString = "5G" ;
 	private static final String probeSizeString = "5G" ;
 
+	private static final String pathToMP4s = primaryFileServerName + "\\Media\\MP4" ;
+	private static final String pathToMKVs = primaryFileServerName + "\\Media\\MKV" ;
+	private static final String pathToMP4TVShows = pathToMP4s + "\\TV_Shows" ;
+	private static final String pathToMP4Movies = pathToMP4s + "\\Movies" ;
+	private static final String pathToMKVTVShows = pathToMKVs + "\\TV_Shows" ;
+	private static final String pathToMKVMovies = pathToMKVs + "\\Movies" ;
+	private static final String pathToOCRInputDirectory = primaryFileServerName + "\\Media\\To OCR" ;
+	
+	/// The string to search for in file paths to determine if this is a tv show
+	private static final String tvPathCheckString = "TV_Shows" ;
+	
 	/// The directories to probe
 	/// Broken down into the two USB chains so that applications can
 	/// multithread access to the MP4/MKV drives
 	private final String[] allChainAMP4Drives =
 		{
-				"\\\\yoda\\MP4",
-				"\\\\yoda\\MP4_2"
+				pathToMP4s
+//				"\\\\yoda\\MP4",
+//				"\\\\yoda\\MP4_2"
 		} ;
 	private final String[] allChainBMP4Drives =
 		{
@@ -109,20 +121,21 @@ public class Common
 
 	private final String[] allChainAMKVDrives =
 		{
-				"\\\\yoda\\MKV_Archive2",
-				"\\\\yoda\\MKV_Archive4",
-				"\\\\yoda\\MKV_Archive5",
-				"\\\\yoda\\MKV_Archive6",
-				"\\\\yoda\\MKV_Archive9",
-				"\\\\yoda\\MKV_Archive10",
-				"\\\\yoda\\MKV_Archive11"
+				pathToMKVs
+//				"\\\\yoda\\MKV_Archive2",
+//				"\\\\yoda\\MKV_Archive4",
+//				"\\\\yoda\\MKV_Archive5",
+//				"\\\\yoda\\MKV_Archive6",
+//				"\\\\yoda\\MKV_Archive9",
+//				"\\\\yoda\\MKV_Archive10",
+//				"\\\\yoda\\MKV_Archive11"
 		} ;
 	private final String[] allChainBMKVDrives =
 		{
-				"\\\\yoda\\MKV_Archive1",
-				"\\\\yoda\\MKV_Archive3",
-				"\\\\yoda\\MKV_Archive7",
-				"\\\\yoda\\MKV_Archive8"
+//				"\\\\yoda\\MKV_Archive1",
+//				"\\\\yoda\\MKV_Archive3",
+//				"\\\\yoda\\MKV_Archive7",
+//				"\\\\yoda\\MKV_Archive8"
 		} ;
 
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
@@ -212,7 +225,7 @@ public class Common
 		for( String theDrive : theDrives )
 		{
 			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV Shows" ;
+			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV_Shows" ;
 			//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
 
 			retMe.add( tvShowsFolder ) ;
@@ -1031,50 +1044,50 @@ public class Common
 	{
 		return missingFileSubstituteName;
 	}
-
-	public String getMKVDriveWithMostAvailableSpace()
-	{
-		String mkvDriveWithMostAvailableSpace = "" ;
-		double largestFreeSpaceSoFar = 0.0 ;
-
-		final List< String > allMKVDrives = getAllMKVDrives() ;
-		for( String mkvDrive : allMKVDrives )
-		{
-			final File mkvDriveFile = new File( mkvDrive ) ;
-			final double freeSpaceForThisDrive = mkvDriveFile.getFreeSpace() ;
-
-			if( (null == mkvDriveWithMostAvailableSpace)
-					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
-			{
-				// Found a new largest drive.
-				mkvDriveWithMostAvailableSpace = mkvDrive ;
-				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
-			}
-		}
-		return mkvDriveWithMostAvailableSpace ;
-	}
-
-	public String getMP4DriveWithMostAvailableSpace()
-	{
-		String mp4DriveWithMostAvailableSpace = "" ;
-		double largestFreeSpaceSoFar = 0.0 ;
-
-		final List< String > allMP4Drives = getAllMP4Drives() ;
-		for( String mp4Drive : allMP4Drives )
-		{
-			final File mp4DriveFile = new File( mp4Drive ) ;
-			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
-
-			if( (null == mp4DriveWithMostAvailableSpace)
-					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
-			{
-				// Found a new largest drive.
-				mp4DriveWithMostAvailableSpace = mp4Drive ;
-				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
-			}
-		}
-		return mp4DriveWithMostAvailableSpace ;
-	}
+//
+//	public String getMKVDriveWithMostAvailableSpace()
+//	{
+//		String mkvDriveWithMostAvailableSpace = "" ;
+//		double largestFreeSpaceSoFar = 0.0 ;
+//
+//		final List< String > allMKVDrives = getAllMKVDrives() ;
+//		for( String mkvDrive : allMKVDrives )
+//		{
+//			final File mkvDriveFile = new File( mkvDrive ) ;
+//			final double freeSpaceForThisDrive = mkvDriveFile.getFreeSpace() ;
+//
+//			if( (null == mkvDriveWithMostAvailableSpace)
+//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
+//			{
+//				// Found a new largest drive.
+//				mkvDriveWithMostAvailableSpace = mkvDrive ;
+//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
+//			}
+//		}
+//		return mkvDriveWithMostAvailableSpace ;
+//	}
+//
+//	public String getMP4DriveWithMostAvailableSpace()
+//	{
+//		String mp4DriveWithMostAvailableSpace = "" ;
+//		double largestFreeSpaceSoFar = 0.0 ;
+//
+//		final List< String > allMP4Drives = getAllMP4Drives() ;
+//		for( String mp4Drive : allMP4Drives )
+//		{
+//			final File mp4DriveFile = new File( mp4Drive ) ;
+//			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
+//
+//			if( (null == mp4DriveWithMostAvailableSpace)
+//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
+//			{
+//				// Found a new largest drive.
+//				mp4DriveWithMostAvailableSpace = mp4Drive ;
+//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
+//			}
+//		}
+//		return mp4DriveWithMostAvailableSpace ;
+//	}
 
 	public NumberFormat getNumberFormat()
 	{
@@ -1160,6 +1173,52 @@ public class Common
 		}
 		retMe += "}" ;
 		return retMe ;
+	}
+
+	public static String getPathToMP4s ()
+	{
+		return pathToMP4s ;
+	}
+
+	public static String getPathToMKVs()
+	{
+		return pathToMKVs ;
+	}
+
+	public static String getPathToMP4TVShows()
+	{
+		return pathToMP4TVShows ;
+	}
+
+	public static String getPathToMP4Movies()
+	{
+		return pathToMP4Movies ;
+	}
+
+	public static String getPathToMKVTVShows()
+	{
+		return pathToMKVTVShows ;
+	}
+	
+	public static String getPathToMKVMovies()
+	{
+		return pathToMKVMovies ;
+	}
+
+	public static String getPathToOCRInputDirectory()
+	{
+		return pathToOCRInputDirectory ;
+	}
+	
+	public static String getTVPathCheckString()
+	{
+		return tvPathCheckString ;
+	}
+	
+	public static boolean isTVShowPath( final String inputPath )
+	{
+		assert( inputPath != null ) ;
+		return inputPath.contains( getTVPathCheckString() ) ;
 	}
 
 }
