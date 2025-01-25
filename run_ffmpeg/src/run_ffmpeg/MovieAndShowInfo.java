@@ -172,6 +172,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 		{
 			log.warning( "Parse error for file: " + theFile.getAbsolutePath() ) ;
 		}
+		
 		if( theFile.getName().endsWith( ".mp4" ) )
 		{
 			if( isTVShow() )
