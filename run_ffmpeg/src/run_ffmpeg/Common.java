@@ -95,13 +95,16 @@ public class Common
 	private static final String analyzeDurationString = "5G" ;
 	private static final String probeSizeString = "5G" ;
 
+	private static final String moviesFolderName = "Movies" ;
+	private static final String tvShowsFolderName = "TV_Shows" ;
+	private static final String otherVideosFolderName = "Other_Videos" ;
 	private static final String pathToMP4s = primaryFileServerName + "\\Media\\MP4" ;
 	private static final String pathToMKVs = primaryFileServerName + "\\Media\\MKV" ;
-	private static final String pathToMP4TVShows = pathToMP4s + "\\TV_Shows" ;
-	private static final String pathToMP4Movies = pathToMP4s + "\\Movies" ;
-	private static final String pathToMKVTVShows = pathToMKVs + "\\TV_Shows" ;
-	private static final String pathToMKVMovies = pathToMKVs + "\\Movies" ;
-	private static final String pathToOCRInputDirectory = primaryFileServerName + "\\Media\\To OCR" ;
+	private static final String pathToMP4TVShows = pathToMP4s + "\\" + tvShowsFolderName ;
+	private static final String pathToMP4Movies = pathToMP4s + "\\" + moviesFolderName ;
+	private static final String pathToMKVTVShows = pathToMKVs + "\\" + tvShowsFolderName ;
+	private static final String pathToMKVMovies = pathToMKVs + "\\" + moviesFolderName ;
+	private static final String pathToOCRInputDirectory = pathToMKVs + "\\To OCR" ;
 	
 	/// The string to search for in file paths to determine if this is a tv show
 	private static final String tvPathCheckString = "TV_Shows" ;
@@ -1213,6 +1216,21 @@ public class Common
 	public static String getTVPathCheckString()
 	{
 		return tvPathCheckString ;
+	}
+
+	public static String getMoviesFolderName()
+	{
+		return moviesFolderName;
+	}
+
+	public static String getTVShowsFolderName()
+	{
+		return tvShowsFolderName;
+	}
+
+	public static String getOtherVideosFolderName()
+	{
+		return otherVideosFolderName;
 	}
 	
 	public static boolean isTVShowPath( final String inputPath )

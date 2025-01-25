@@ -137,7 +137,7 @@ public class BuildMovieAndShowIndex
 		{
 			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			File theFile = new File( probeResult.getFileNameWithPath() ) ;
-			if( theFile.getParent().contains( "TV Shows" ) )
+			if( theFile.getParent().contains( Common.getTVShowsFolderName() ) )
 			{
 				// TV Show
 				++numTVShows ;
@@ -163,7 +163,7 @@ public class BuildMovieAndShowIndex
 				// movieName should be of the form "Transformers (2007)"
 				addEntryToMap( movieMap, movieName, probeResult, theFile ) ;
 			}
-			else if( theFile.getAbsolutePath().contains( "Other Videos" ) )
+			else if( theFile.getAbsolutePath().contains( Common.getOtherVideosFolderName() ) )
 			{
 				// Do nothing for other videos
 				++numOtherVideos ;
