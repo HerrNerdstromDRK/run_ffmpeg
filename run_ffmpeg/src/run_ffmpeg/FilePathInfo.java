@@ -41,6 +41,7 @@ public class FilePathInfo
 		List< String > fileNames = new ArrayList< >() ;
 		fileNames.add( "\\\\yoda\\Backup\\Movies\\Transformers (2007)\\Transformers (2007).mkv" ) ;
 		fileNames.add( "\\\\yoda\\Backup\\Movies\\Transformers (2007)" ) ;
+		fileNames.add( "d:\\temp\\Test (2025)\\Season 01\\Test - S01E01 - Test Name.mkv" ) ;
 		fileNames.add( "C:\\temp\\stop.txt" ) ;
 
 		try
@@ -94,11 +95,12 @@ public class FilePathInfo
 				log.info( "fileName: " + fileName ) ;
 				log.info( "thePath: " + thePath.toString() ) ;
 				log.info( "thePath.getName( 0 ): " + thePath.getName(0 ) ) ;
-				log.info( "getFileName(): " + thePath.getFileName() ) ;
-				log.info( "getFileSystem(): " + thePath.getFileSystem().toString() ) ;
-				log.info( "getNameCount(): " + thePath.getNameCount() ) ;
-				log.info( "getParent(): " + thePath.getParent() ) ;
-				log.info( "getRoot(): " + thePath.getRoot() ) ;
+				log.info( "thePath.getFileName(): " + thePath.getFileName() ) ;
+				log.info( "thePath.getFileSystem(): " + thePath.getFileSystem().toString() ) ;
+				log.info( "thePath.getNameCount(): " + thePath.getNameCount() ) ;
+				log.info( "thePath.getParent(): " + thePath.getParent() ) ;
+				log.info( "thePath.getParent().getFileName(): " + thePath.getParent().getFileName() ) ;
+				log.info( "thePath.getRoot(): " + thePath.getRoot() ) ;
 			}
 
 			//			List< String > allDirectories = findLowestLevelDirectories( "\\\\yoda\\MP4" ) ;

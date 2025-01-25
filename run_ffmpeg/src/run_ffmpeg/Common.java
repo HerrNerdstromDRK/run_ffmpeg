@@ -1236,7 +1236,7 @@ public class Common
 	public static boolean isTVShowPath( final String inputPath )
 	{
 		assert( inputPath != null ) ;
-		return inputPath.contains( getTVPathCheckString() ) ;
+		return ((inputPath.contains( "Season " ) && !inputPath.contains( "Season (" )) || inputPath.contains( getTVPathCheckString() ) ) ;
 	}
 
 }

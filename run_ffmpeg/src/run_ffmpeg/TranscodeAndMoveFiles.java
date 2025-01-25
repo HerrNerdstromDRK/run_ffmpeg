@@ -1,6 +1,8 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -80,11 +82,11 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		// Populate the list of folders to transcode.
 		List< String > foldersToTranscode = new ArrayList< String >() ;
 
-//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
-//		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
-//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
+		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
+		//		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
+		//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
 		foldersToTranscode.add( "d:\\temp\\Test (2025)" ) ;
-//		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode" ) ;
+		//		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode" ) ;
 
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
@@ -93,7 +95,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		FindFiles findFiles = new FindFiles( log, common, masMDB, probeInfoCollection ) ;
 		findFiles.addFoldersToSearch( foldersToTranscode ) ;
 		findFiles.addExtensionsToFind( TranscodeCommon.getTranscodeExtensions() ) ;
-//		findFiles.addExtensionsToFind( new String[] { ".MP4" } ) ;
+		//		findFiles.addExtensionsToFind( new String[] { ".MP4" } ) ;
 		allFilesToTranscode.addAll( findFiles.getFiles() ) ;
 		sortFilesToTranscode( allFilesToTranscode ) ;
 
@@ -152,8 +154,8 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 			{
 				// 
 				final String mp4FileNameWithPath = common.addPathSeparatorIfNecessary( mp4LongPath )
-					+ common.addPathSeparatorIfNecessary( Common.getSeasonString( mkvFile ) ) 
-					+ mkvFile.getName().replace( ".mkv", ".mp4" ) ;
+						+ common.addPathSeparatorIfNecessary( Common.getSeasonString( mkvFile ) ) 
+						+ mkvFile.getName().replace( ".mkv", ".mp4" ) ;
 				final File mp4File = new File( mp4FileNameWithPath ) ;
 				if( mp4File.exists() )
 				{
@@ -167,10 +169,10 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 				} // if( mp4File.exists() )
 			} // if( mp4LongPath != null )
 		} // if( movieAndShowInfo != null )
-		
+
 		// seasonString could be empty or a valid season string, but not null
 		String seasonString = Common.getSeasonString( mkvFile ) ;
-		
+
 		// Populate the TranscodeAndMoveFileInfo with the TranscodeFile, mkv probe info, and MovieAndShowInfo
 		TranscodeAndMoveFileInfo transcodeAndMoveFileInfo = new TranscodeAndMoveFileInfo() ;
 
@@ -329,69 +331,40 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	 */
 	protected String makeFinalMKVDirectory( final FFmpegProbeResult mkvProbeResult, MovieAndShowInfo testMovieAndShowInfo )
 	{
+		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
+
+		final String mkvInputDirectory = mkvInputFile.getParent() ;
+		final File mkvInputDirectoryFile = new File( mkvInputDirectory ) ;
+		String mkvFinalDirectory = mkvInputDirectory ;
+
+		final Path mkvInputFilePath = Paths.get( mkvProbeResult.getFileNameWithPath() ) ;
+		mkvFinalDirectory = common.addPathSeparatorIfNecessary( Common.getPathToMKVs() ) ;
+		
 		if( Common.isTVShowPath( mkvProbeResult.getFileNameWithPath() ) )
 		{
-			return Common.getPathToMKVTVShows() ;
+			// TV Show
+			// mkvInputFile will be of the form:
+			// C:\\Temp\\Show Name\\Season 01\\Show Name - S01E01 - Episode Name.mkv
+			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
+			final String tvShowSeasonName = mkvInputFilePath.getParent().getFileName().toString() ;
+			
+			mkvFinalDirectory += Common.getTVShowsFolderName()
+					+ common.getPathSeparator()
+					+ tvShowName
+					+ common.getPathSeparator()
+					+ tvShowSeasonName ;
 		}
 		else
 		{
-			return Common.getPathToMKVMovies() ;
+			// Movie
+			// mkvInputFile will be of the form:
+			// C:\\Temp\\Movie Name (2000)\\File Name-behindthescenes.mkv
+			final String movieName = mkvInputFile.getParentFile().getName() ;
+			mkvFinalDirectory += Common.getMoviesFolderName()
+					+ common.getPathSeparator()
+					+ movieName ;
 		}
-//		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
-//		
-//		
-//		final String mkvInputDirectory = mkvInputFile.getParent() ;
-//		final File mkvInputDirectoryFile = new File( mkvInputDirectory ) ;
-//		String mkvFinalDirectory = mkvInputDirectory ;
-//
-//		// Must account for:
-//		// - "To Convert" in the path
-//		// -- with and without "TV Shows"
-//		// - mkv file is in its final directory (moveMKVFiles will be false)
-//
-//		if( mkvInputDirectory.contains( "To Convert - TV Shows" ) )
-//		{
-//			mkvFinalDirectory = mkvInputDirectory.replace( "To Convert - TV Shows", "TV Shows" ) ;
-//			final File mkvInputDirectoryWithSeasonName = new File( mkvFinalDirectory ) ;
-//			mkvFinalDirectory = mkvInputDirectoryWithSeasonName.getParentFile().getAbsolutePath() ;
-//			
-//			// Be sure to strip out the trailing "Season XX/"
-////			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
-//////			final String tvShowSeasonName = mkvInputFile.getParentFile().getName() ;
-////			mkvFinalDirectory += "TV Shows"
-////					+ common.getPathSeparator()
-////					+ tvShowName ;
-//		}
-//		else if( mkvInputDirectory.contains( "To Convert" ) )
-//		{
-//			mkvFinalDirectory = mkvInputDirectory.replace( "To Convert", "Movies" ) ;
-//		}
-//		else
-//		{
-//			mkvFinalDirectory = common.addPathSeparatorIfNecessary( common.getMKVDriveWithMostAvailableSpace() ) ;
-//			if( mkvInputDirectory.contains( "Season " ) )
-//			{
-//				// TV Show
-//				// mkvInputFile will be of the form:
-//				// C:\\Temp\\Show Name\\Season 01\\Show Name - S01E01 - Episode Name.mkv
-//				final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
-////				final String tvShowSeasonName = mkvInputFile.getParentFile().getName() ;
-//				mkvFinalDirectory += "TV Shows"
-//						+ common.getPathSeparator()
-//						+ tvShowName ;
-//			}
-//			else
-//			{
-//				// Movie
-//				// mkvInputFile will be of the form:
-//				// C:\\Temp\\Movie Name (2000)\\File Name-behindthescenes.mkv
-//				mkvFinalDirectory += "Movies"
-//						+ common.getPathSeparator()
-//						+ mkvInputFile.getParentFile().getName() ;
-//			}
-//		}
-//
-//		return mkvFinalDirectory ;
+		return mkvFinalDirectory ;
 	}
 
 	/**
@@ -407,41 +380,40 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	 */
 	protected String makeFinalMP4Directory( final FFmpegProbeResult mkvProbeResult, MovieAndShowInfo testMovieAndShowInfo )
 	{
+		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
+
+		final String mkvInputDirectory = mkvInputFile.getParent() ;
+		final File mkvInputDirectoryFile = new File( mkvInputDirectory ) ;
+		String mp4FinalDirectory = mkvInputDirectory ;
+
+		final Path mkvInputFilePath = Paths.get( mkvProbeResult.getFileNameWithPath() ) ;
+		mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getPathToMKVs() ) ;
+		
 		if( Common.isTVShowPath( mkvProbeResult.getFileNameWithPath() ) )
 		{
-			return Common.getPathToMP4TVShows() ;
+			// TV Show
+			// mkvInputFile will be of the form:
+			// C:\\Temp\\Show Name\\Season 01\\Show Name - S01E01 - Episode Name.mkv
+			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
+			final String tvShowSeasonName = mkvInputFilePath.getParent().getFileName().toString() ;
+			
+			mp4FinalDirectory += Common.getTVShowsFolderName()
+					+ common.getPathSeparator()
+					+ tvShowName
+					+ common.getPathSeparator()
+					+ tvShowSeasonName ;
 		}
 		else
 		{
-			return Common.getPathToMP4Movies() ;
+			// Movie
+			// mkvInputFile will be of the form:
+			// C:\\Temp\\Movie Name (2000)\\File Name-behindthescenes.mkv
+			final String movieName = mkvInputFile.getParentFile().getName() ;
+			mp4FinalDirectory += Common.getMoviesFolderName()
+					+ common.getPathSeparator()
+					+ movieName ;
 		}
-		
-//		String mp4FinalDirectory = common.getMP4DriveWithMostAvailableSpace() ;
-//		final File mkvInputFile = new File( mkvProbeResult.getFileNameWithPath() ) ;
-//		//		final String mkvInputDirectory = mkvInputFile.getParent() ;
-//		final File mkvInputDirectoryFile = new File( mkvInputFile.getParentFile().getAbsolutePath() ) ;
-//
-//		if( !testMovieAndShowInfo.isTVShow() )
-//		{
-//			// Movie
-//			// Create the mp4LongPath
-//			// mp4DriveWithMostSpaceAvailable will be of the form "\\yoda\\MP4"
-//			mp4FinalDirectory += common.getPathSeparator()
-//					+ "Movies"
-//					+ common.getPathSeparator()
-//					+ testMovieAndShowInfo.getMovieOrShowName() ;
-//		}
-//		else
-//		{
-//			// TV Show
-////			final String tvShowSeasonName = mkvInputDirectoryFile.getName() ;
-//			final String tvShowName = mkvInputDirectoryFile.getParentFile().getName() ;
-//			mp4FinalDirectory += common.getPathSeparator()
-//					+ "TV Shows"
-//					+ common.getPathSeparator()
-//					+ tvShowName ;
-//		}
-//		return mp4FinalDirectory ;
+		return mp4FinalDirectory ;
 	}
 
 	public void moveFile( TranscodeFile fileToMove )
