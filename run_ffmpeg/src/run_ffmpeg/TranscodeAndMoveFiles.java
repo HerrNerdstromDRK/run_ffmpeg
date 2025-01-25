@@ -75,7 +75,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 	{
 		// This object only works with threads enabled.
 		setUseThreads( true ) ;
-		common.setTestMode( false ) ;
+		common.setTestMode( true ) ;
 		common.setDoMoveFiles( false ) ;
 		setSortSmallToLarge( false ) ;
 
@@ -85,8 +85,8 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 		//		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
 		//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
-//		foldersToTranscode.add( "d:\\temp\\Test (2025)" ) ;
-		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode" ) ;
+		foldersToTranscode.add( "d:\\temp\\Test (2025)" ) ;
+//		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode" ) ;
 //		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode\\Sex And The City 2 (2010)" ) ;
 		
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
