@@ -136,7 +136,8 @@ public class TranscodeAndMoveFilesWorkerThread extends run_ffmpegWorkerThread
 			movieAndShowInfo.addMKVFile( mkvProbeInfo ) ;
 			movieAndShowInfo.addMP4File( mp4ProbeInfo ) ;
 			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
-			movieAndShowInfoCollection.replaceOne( Filters.eq( "mkvLongPath", movieAndShowInfo.mkvLongPath ), movieAndShowInfo ) ;
+			movieAndShowInfoCollection.deleteOne( Filters.eq( "mkvLongPath", movieAndShowInfo.mkvLongPath ) ) ;
+			movieAndShowInfoCollection.insertOne( movieAndShowInfo ) ;
 
 			// Move the mkv, srt, and mp4 files
 			theController.moveFile( fileToTranscode ) ;

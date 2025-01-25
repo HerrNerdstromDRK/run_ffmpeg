@@ -241,8 +241,8 @@ public class TranscodeCommon
 			if( !theSRTFile.getName().contains( forcedSubTitleFileNameContains ) )
 			{
 				subTitleTranscodeOptions.add( "-map", "" + inputFileMappingIndex + ":s" ) ;
-				subTitleTranscodeOptions.add( "-metadata:s:" + inputFileMappingIndex, "language=eng" ) ;
-				subTitleTranscodeOptions.add( "-metadata:s:" + inputFileMappingIndex, "title=eng" ) ;
+				subTitleTranscodeOptions.add( "-metadata:s:s:" + srtFileIndex, "language=\"eng\"" ) ;
+				subTitleTranscodeOptions.add( "-metadata:s:s:" + srtFileIndex, "title=\"English\"" ) ;
 				++inputFileMappingIndex ;
 				foundNonForcedSubtTileStream = true ;
 			}
