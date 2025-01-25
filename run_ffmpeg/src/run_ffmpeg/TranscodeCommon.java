@@ -183,7 +183,7 @@ public class TranscodeCommon
 			audioTranscodeOptions.add( "-map", "0:a:" + audioInputStreamNumber ) ;
 			audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;
 			audioTranscodeOptions.add( "-metadata:s:a:" + outputStreamNumber,
-					"title=" + theAudioStream.getTagByName( "title" ) ) ;
+					"title=\"" + theAudioStream.getTagByName( "title" ) +"\"" ) ;
 			++outputStreamNumber ;
 			
 			if( (0 == audioInputStreamNumber) && addAudioStereoStream )
@@ -311,7 +311,7 @@ public class TranscodeCommon
 			videoTranscodeOptions.add( "-tag:v", "hvc1" ) ;			
 			videoTranscodeOptions.add( "-crf", "17" ) ;
 			videoTranscodeOptions.add( "-movflags", "+faststart" ) ;
-			videoTranscodeOptions.add( "-metadata", "title=" + inputFile.getMetaDataTitle() ) ;
+			videoTranscodeOptions.add( "-metadata", "title=\"" + inputFile.getMetaDataTitle() + "\"" ) ;
 		}
 		else
 		{

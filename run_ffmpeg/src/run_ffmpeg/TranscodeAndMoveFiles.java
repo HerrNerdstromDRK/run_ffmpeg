@@ -85,9 +85,10 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		//		foldersToTranscode.addAll( common.addMoviesAndTVShowFoldersToEachDrive( common.getAllMKVDrives() ) ) ;
 		//		foldersToTranscode.add( "\\\\yoda\\\\MKV_Archive10\\To Convert\\Harold And Kumar Escape From Guantanamo Bay (2008)" ) ;
 		//		foldersToTranscode.addAll( common.addToConvertToEachDrive( common.getAllMKVDrives() ) ) ;
-		foldersToTranscode.add( "d:\\temp\\Test (2025)" ) ;
-		//		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode" ) ;
-
+//		foldersToTranscode.add( "d:\\temp\\Test (2025)" ) ;
+		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode" ) ;
+//		foldersToTranscode.add( Common.getPathToMKVs() + "\\To Transcode\\Sex And The City 2 (2010)" ) ;
+		
 		log.info( "Will transcode these folders: " + foldersToTranscode.toString() ) ;
 
 		// Search each folder for files that can be transcoded
@@ -387,7 +388,7 @@ public class TranscodeAndMoveFiles extends run_ffmpegControllerThreadTemplate< T
 		String mp4FinalDirectory = mkvInputDirectory ;
 
 		final Path mkvInputFilePath = Paths.get( mkvProbeResult.getFileNameWithPath() ) ;
-		mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getPathToMKVs() ) ;
+		mp4FinalDirectory = common.addPathSeparatorIfNecessary( Common.getPathToMP4s() ) ;
 		
 		if( Common.isTVShowPath( mkvProbeResult.getFileNameWithPath() ) )
 		{
