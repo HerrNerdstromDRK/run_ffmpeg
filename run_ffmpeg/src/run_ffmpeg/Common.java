@@ -114,7 +114,11 @@ public class Common
 	/// multithread access to the MP4/MKV drives
 	private final String[] allChainAMP4Drives =
 		{
-				pathToMP4s
+				"\\\\skywalker\\Media",
+				"\\\\skywalker\\Media",
+				"\\\\skywalker\\Media\\MP4",
+				"\\\\skywalker\\Media\\To Delete"
+//				pathToMP4s
 //				"\\\\yoda\\MP4",
 //				"\\\\yoda\\MP4_2"
 		} ;
@@ -124,21 +128,21 @@ public class Common
 
 	private final String[] allChainAMKVDrives =
 		{
-				pathToMKVs
-//				"\\\\yoda\\MKV_Archive2",
+//				pathToMKVs
+				"\\\\yoda\\MKV_Archive2",
 //				"\\\\yoda\\MKV_Archive4",
-//				"\\\\yoda\\MKV_Archive5",
-//				"\\\\yoda\\MKV_Archive6",
-//				"\\\\yoda\\MKV_Archive9",
+				"\\\\yoda\\MKV_Archive5",
+				"\\\\yoda\\MKV_Archive6",
+				"\\\\yoda\\MKV_Archive9",
 //				"\\\\yoda\\MKV_Archive10",
 //				"\\\\yoda\\MKV_Archive11"
 		} ;
 	private final String[] allChainBMKVDrives =
 		{
 //				"\\\\yoda\\MKV_Archive1",
-//				"\\\\yoda\\MKV_Archive3",
-//				"\\\\yoda\\MKV_Archive7",
-//				"\\\\yoda\\MKV_Archive8"
+				"\\\\yoda\\MKV_Archive3",
+				"\\\\yoda\\MKV_Archive7",
+				"\\\\yoda\\MKV_Archive8"
 		} ;
 
 	/// Class-wide NumberFormat for ease of use in reporting data statistics

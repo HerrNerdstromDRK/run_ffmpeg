@@ -7,6 +7,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 import com.google.common.collect.ImmutableList;
+import com.google.gson.Gson;
 
 /**
  * Store the data returned from an ffprobe invocation.
@@ -168,16 +169,20 @@ public class FFmpegProbeResult
 
 	public String toString()
 	{
-		String retMe =	"{"
-				+ "id: " + ((get_id() != null) ? get_id().toString() : "(null)")
-				+ ", fileNameWithPath: " + ((getFileNameWithPath() != null) ? getFileNameWithPath() : "(null)")
-				+ ", fileNameWithoutPath: " + ((getFileNameWithoutPath() != null) ? getFileNameWithoutPath() : "(null)")
-				+ ", fileNameShort: " + ((getFileNameShort() != null) ? getFileNameShort() : "(null)")
-				+ ", probeTime: " + getProbeTime()
-				+ ", lastModified: " + getLastModified()
-				+ ", streams.size: " + ((streams != null) ? streams.size() : "(null)")
-				+ "}" ;
-		return retMe ;
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
+		
+//		String retMe =	"{"
+//				+ "id: " + ((get_id() != null) ? get_id().toString() : "(null)")
+//				+ ", fileNameWithPath: " + ((getFileNameWithPath() != null) ? getFileNameWithPath() : "(null)")
+//				+ ", fileNameWithoutPath: " + ((getFileNameWithoutPath() != null) ? getFileNameWithoutPath() : "(null)")
+//				+ ", fileNameShort: " + ((getFileNameShort() != null) ? getFileNameShort() : "(null)")
+//				+ ", probeTime: " + getProbeTime()
+//				+ ", lastModified: " + getLastModified()
+//				+ ", streams.size: " + ((streams != null) ? streams.size() : "(null)")
+//				+ "}" ;
+//		return retMe ;
 	}
 
 }

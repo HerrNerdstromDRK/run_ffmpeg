@@ -95,8 +95,8 @@ public class CheckLogicalIntegrity
 		log.info( "Checking for duplicate movie mkv paths" ) ;
 		checkForDuplicatePaths( movieMKVMap ) ;
 
-		//checkForMissingMKVFiles( movieAndShowInfoMap ) ;
-		checkForMissingMP4Files( movieAndShowInfoMap ) ;
+		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
+		//checkForMissingMP4Files( movieAndShowInfoMap ) ;
 
 		listSpecialEditionMovies() ;
 
@@ -131,9 +131,12 @@ public class CheckLogicalIntegrity
 
 			final File theFolderFile = new File( theFolder ) ;			
 			final File[] filterDirectoryList = theFolderFile.listFiles( emptyDirectoryFileFilter ) ;
-			for( File theFile : filterDirectoryList )
+			if( filterDirectoryList != null )
 			{
-				log.info( "Found empty folder: " + theFile.getAbsolutePath() ) ;
+				for( File theFile : filterDirectoryList )
+				{
+					log.info( "Found empty folder: " + theFile.getAbsolutePath() ) ;
+				}
 			}
 		}
 	}
@@ -230,7 +233,7 @@ public class CheckLogicalIntegrity
 			{
 				continue ;
 			}
-			
+
 			// Skip tv shows
 			if( pathToFile.contains( "Season " ) )
 			{
@@ -250,11 +253,11 @@ public class CheckLogicalIntegrity
 				continue ;
 			}
 			// Post-condition: This is a special edition movie.
-//			log.info( "Found special edition movie: " + pathToFile ) ;
-			
+			//			log.info( "Found special edition movie: " + pathToFile ) ;
+
 			final File theFile = new File( pathToFile ) ;
 			String fileName = theFile.getName() ;
-			
+
 			// Strip out any leading words that Plex ignores
 			if( fileName.startsWith( "The " ) )
 			{
@@ -264,11 +267,11 @@ public class CheckLogicalIntegrity
 			{
 				fileName = fileName.substring( 2 ) ;
 			}
-			
+
 			specialEditionMovies.add( fileName ) ;
 		}
 		Collections.sort( specialEditionMovies ) ;
-		
+
 		for( String fileName : specialEditionMovies )
 		{
 			log.info( fileName ) ;
