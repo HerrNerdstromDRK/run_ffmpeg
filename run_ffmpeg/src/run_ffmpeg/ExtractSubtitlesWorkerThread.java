@@ -96,7 +96,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 					+ theFile.getMKVFileName().replace( ".mkv", "" ) ;
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
-			outputFileNameWithPath += "." + streamIndex ;
+			outputFileNameWithPath += ".en." + streamIndex ;
 			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
 			{
 				outputFileNameWithPath += ".sup" ;

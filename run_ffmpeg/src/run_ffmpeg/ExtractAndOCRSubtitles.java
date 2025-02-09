@@ -84,8 +84,8 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 
 		// Build the list of folders to extract and OCR
 		List< String > foldersToExtractAndOCR = new ArrayList< String >() ;
-//		foldersToExtractAndOCR.add( "D:\\temp\\To OCR" ) ;
-		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
+		foldersToExtractAndOCR.add( "D:\\temp\\To OCR" ) ;
+//		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
 //		foldersToExtractAndOCR.add( "\\\\yoda\\MKV_Archive3\\TV Shows" ) ;
 
 		// Pass the list of folders to the extract object
@@ -94,7 +94,7 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 		// Also pass the list of folders to the ocr object since those folders may have existing .sup files to ocr
 		ocrSubtitles.addFoldersToOCR( foldersToExtractAndOCR ) ;
 		
-		log.info( "Running extract and OCR on " + foldersToExtractAndOCR.size() + " folder(s)" ) ;
+		log.info( "Running extract and OCR on " + foldersToExtractAndOCR.size() + " folder(s): " + foldersToExtractAndOCR.toString() ) ;
 	}
 	
 	/**

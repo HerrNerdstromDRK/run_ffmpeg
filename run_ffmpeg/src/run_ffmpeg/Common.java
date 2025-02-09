@@ -97,6 +97,8 @@ public class Common
 
 	private static final String moviesFolderName = "Movies" ;
 	private static final String tvShowsFolderName = "TV_Shows" ;
+	private static final String pathToMovies = primaryFileServerName + "\\Media\\" + moviesFolderName ;
+	private static final String pathToTVShows = primaryFileServerName + "\\Media\\" + tvShowsFolderName ;
 	private static final String otherVideosFolderName = "Other_Videos" ;
 	private static final String pathToMP4s = primaryFileServerName + "\\Media\\MP4" ;
 	private static final String pathToMKVs = primaryFileServerName + "\\Media\\MKV" ;
@@ -1235,6 +1237,16 @@ public class Common
 	public static String getOtherVideosFolderName()
 	{
 		return otherVideosFolderName;
+	}
+	
+	public static String getPathToMovies()
+	{
+		return pathToMovies ;
+	}
+	
+	public static String getPathToTVShows()
+	{
+		return pathToTVShows ;
 	}
 	
 	public static boolean isTVShowPath( final String inputPath )

@@ -31,12 +31,10 @@ public class MatchArchives
 	protected Vector< String > otherMovies = new Vector< String >() ;
 
 	protected String[] myTVShowLocations = {
-			"\\\\yoda\\MP4\\TV Shows",
-			"\\\\skywalker\\Media\\MP4\\TV_Shows"
+			"\\\\skywalker\\Media\\TV_Shows"
 	} ;
 	protected String[] myMovieLocations = {
-			"\\\\yoda\\MP4\\Movies",
-			"\\\\skywalker\\Media\\MP4\\Movies"
+			"\\\\skywalker\\Media\\Movies"
 	} ;
 	protected String[] otherTVShowLocations = {
 			"\\\\skywalker\\usbshare1-2\\TV"
