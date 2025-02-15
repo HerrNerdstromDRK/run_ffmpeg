@@ -1,8 +1,8 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -30,9 +30,13 @@ public class RenameSubtitleFiles
 	
 	public void execute()
 	{
+		common.setTestMode( false ) ;
+		
 		final String pathToMovies = Common.getPathToMovies() ;
 		final String pathToTVShows = Common.getPathToTVShows() ;
 
+//		execute( "\\\\skywalker\\usbshare1-2\\For Josh" ) ;
+//		execute( "\\\\skywalker\\Media\\TV_Shows\\The Tudors (2007)\\Season 01" ) ;
 		execute( pathToMovies ) ;
 		execute( pathToTVShows ) ;
 	}
@@ -118,10 +122,32 @@ public class RenameSubtitleFiles
 			String archiveFileName = "" ;
 			try
 			{
-				Path newFilePath = Paths.get( newFileNameWithPath ) ;
 				Path srtFileParentPath = srtFile.toPath().getParent() ;
 				archiveFileName = srtFileParentPath.toString() + "\\OLD - " + srtFile.getName() ;
-				log.info( "srtFile: " + srtFile.getAbsolutePath() + ", archiveFileName: " + archiveFileName + ", newFilePath: " + newFilePath.toString() ) ;
+				
+				// Setup the Files for copy/rename
+				final File oldFile = srtFile ;
+//				final File archiveFile = new File( archiveFileName ) ;
+				final File renamedFile = new File( newFileNameWithPath ) ;
+				
+				final Path oldPath = oldFile.toPath() ;
+//				final Path archivePath = archiveFile.toPath() ;
+				final Path renamedPath = renamedFile.toPath() ;
+				
+//				log.info( "oldPath: " + oldPath + ", archivePath: " + archivePath + ", renamedPath: " + renamedPath ) ;
+				
+				// Copy the current file to the archive file
+//				log.info( "Copying" + oldFile.getAbsolutePath() + " to " + archiveFile.getAbsolutePath() ) ;
+//				if( !common.getTestMode() )
+//				{
+//					Files.copy( oldPath, archivePath ) ;
+//				}
+				
+				log.info( "Renaming " + oldPath + " to " + renamedPath ) ;
+				if( !common.getTestMode() )
+				{
+					Files.move( oldPath,  renamedPath ) ;
+				}
 			}
 			catch( Exception theException )
 			{
