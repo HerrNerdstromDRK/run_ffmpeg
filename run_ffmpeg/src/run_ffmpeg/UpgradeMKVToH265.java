@@ -37,10 +37,11 @@ public class UpgradeMKVToH265
 	public void execute()
 	{
 		List< String > directoriesToUpgrade = new ArrayList< String >() ;
-		final String pathToMKVs = Common.getPrimaryfileservername() + "\\Media\\TV_Shows\\Californication (2007)" ;
-		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
+//		final String pathToMKVs = Common.getPrimaryfileservername() + "\\Media\\TV_Shows\\Californication (2007)" ;
+//		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
-		directoriesToUpgrade.add( pathToMKVs ) ;
+//		directoriesToUpgrade.add( pathToMKVs ) ;
+		directoriesToUpgrade.add( "d:\\temp\\Test (2025)" ) ;
 		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
 		
 		List< File > filesEndingWithMKV = new ArrayList< File >() ;
@@ -115,7 +116,7 @@ public class UpgradeMKVToH265
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
 //		ffmpegCommand.add( "-vcodec", "libx265" ) ;
 		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
-		ffmpegCommand.add( "-crf", "0" ) ;
+//		ffmpegCommand.add( "-crf", "0" ) ;
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
 		ffmpegCommand.add( "-metadata", "-title=" + getTitle( inputFile ) ) ;
 				
@@ -127,7 +128,7 @@ public class UpgradeMKVToH265
 		
 		// Add output filename
 		final String outputFileName = tmpDir + "\\" + inputFile.getName() ;
-		log.info( "outputFileName: " + outputFileName ) ;
+//		log.info( "outputFileName: " + outputFileName ) ;
 		ffmpegCommand.add( outputFileName ) ;
 		
 		long startTime = System.nanoTime() ;
@@ -154,6 +155,9 @@ public class UpgradeMKVToH265
 				+ " minutes, or "
 				+ common.getNumberFormat().format( timePerGigaByte )
 				+ " seconds per GB" ) ;
+		
+		// Replace the original file with the HEVC file.
+		
 	}
 	
 	public String getTitle( final File inputFile )

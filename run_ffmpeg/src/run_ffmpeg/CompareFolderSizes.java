@@ -32,8 +32,8 @@ public class CompareFolderSizes
 
 	public static void main( String[] args )
 	{
-		final String inputFolder1 = new String( "\\\\skywalker\\Media\\MKV\\MKV_Archive10\\Movies" ) ;
-		final String inputFolder2 = new String( "\\\\yoda\\MKV_Archive10\\Movies" ) ;
+		final String inputFolder1 = new String( "\\\\skywalker\\Media\\Staging\\TV_Shows" ) ;
+		final String inputFolder2 = new String( "\\\\yoda\\MKV_Archive7\\TV_Shows" ) ;
 
 		CompareFolderSizes cfs = new CompareFolderSizes() ;
 		cfs.run( inputFolder1, inputFolder2 ) ;

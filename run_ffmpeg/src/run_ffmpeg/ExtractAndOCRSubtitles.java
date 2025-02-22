@@ -84,7 +84,7 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 
 		// Build the list of folders to extract and OCR
 		List< String > foldersToExtractAndOCR = new ArrayList< String >() ;
-		foldersToExtractAndOCR.add( "D:\\temp\\To OCR" ) ;
+		foldersToExtractAndOCR.add( "D:\\temp\\To OCR\\Star Trek Voyager (1995)" ) ;
 //		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
 //		foldersToExtractAndOCR.add( "\\\\yoda\\MKV_Archive3\\TV Shows" ) ;
 
