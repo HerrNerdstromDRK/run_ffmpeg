@@ -228,7 +228,7 @@ public class TheTVDB
 					|| (null == seriesEpisodesInfo.data.episodes)
 					|| seriesEpisodesInfo.data.episodes.isEmpty() )
 			{
-				log.warning( "Found empty episodes for show " + showName + " (" + showId.toString() + "), seasonNumber: " + seasonNumber ) ;
+				log.fine( "Found empty episodes for show " + showName + " (" + showId.toString() + "), seasonNumber: " + seasonNumber ) ;
 				break ;
 			}
 			// Post condition: Found object for this show and season number
@@ -261,7 +261,7 @@ public class TheTVDB
 
 				seasonInfo.addEpisode( episodeNumber, episodeName ) ;
 			}
-			log.info( "Added " + seasonInfo.numEpisodes + " episode(s) for show " + showName + " season " + seasonNumber ) ;
+			log.fine( "Added " + seasonInfo.numEpisodes + " episode(s) for show " + showName + " season " + seasonNumber ) ;
 
 			showInfo.addSeason( seasonNumber, seasonInfo ) ;
 		}
