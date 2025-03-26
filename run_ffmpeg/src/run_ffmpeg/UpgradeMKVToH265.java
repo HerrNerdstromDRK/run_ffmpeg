@@ -41,7 +41,7 @@ public class UpgradeMKVToH265
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
 //		directoriesToUpgrade.add( pathToMKVs ) ;
-		directoriesToUpgrade.add( "d:\\temp\\Test (2025)" ) ;
+		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006)\\Season 01" ) ;
 		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
 		
 		List< File > filesEndingWithMKV = new ArrayList< File >() ;
@@ -106,17 +106,17 @@ public class UpgradeMKVToH265
 		ffmpegCommand.add( "-y" ) ;
 		
 		// Not exactly sure what these do but it seems to help reduce errors on some files.
-//		ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
-//		ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
+		ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
+		ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
 		
 		// Include source file
 		ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
 		
 		// Transcode to H265
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
-//		ffmpegCommand.add( "-vcodec", "libx265" ) ;
-		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
-//		ffmpegCommand.add( "-crf", "0" ) ;
+		ffmpegCommand.add( "-preset", "placebo" ) ;
+		ffmpegCommand.add( "-crf", "0" ) ;
+//		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
 		ffmpegCommand.add( "-metadata", "-title=" + getTitle( inputFile ) ) ;
 				

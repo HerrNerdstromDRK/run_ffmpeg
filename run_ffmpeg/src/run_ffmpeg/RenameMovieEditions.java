@@ -1,16 +1,9 @@
 package run_ffmpeg;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -76,7 +69,7 @@ public class RenameMovieEditions
 			// Post-condition: movieDirectory is a directory.
 
 			final String origDirectoryAbsolutePathString = movieDirectory.getAbsolutePath() ;
-			Path origPath = movieDirectory.toPath() ;
+//			Path origPath = movieDirectory.toPath() ;
 
 			if( !origDirectoryAbsolutePathString.contains( "{" ) )
 			{
@@ -89,7 +82,7 @@ public class RenameMovieEditions
 			List< Path > curlyFiles = null ;
 			try
 			{
-				curlyFiles = findFiles( origDirectoryAbsolutePathString, ".*\\{.*\\}.*" ) ;
+				curlyFiles = common.findFiles( origDirectoryAbsolutePathString, ".*\\{.*\\}.*" ) ;
 			}
 			catch( Exception theException )
 			{
@@ -283,7 +276,7 @@ public class RenameMovieEditions
 				// that regex will interpret as special characters. Use the Pattern.quote() method
 				// to replace each regex special character with a literal.
 				final String pattern = Pattern.quote( fileNameWithoutExtension ) + "\\..*" ;
-				bracketFiles = findFiles( movieDirectory.getAbsolutePath(), pattern ) ;
+				bracketFiles = common.findFiles( movieDirectory.getAbsolutePath(), pattern ) ;
 			}
 			catch( Exception theException )
 			{
@@ -378,7 +371,7 @@ public class RenameMovieEditions
 		File retMe = null ;
 		try
 		{
-			List< Path > pathList = findFiles( movieDirectory.getAbsolutePath(), "^.*\\[.*\\].*(mkv|mp4)$" ) ;
+			List< Path > pathList = common.findFiles( movieDirectory.getAbsolutePath(), "^.*\\[.*\\].*(mkv|mp4)$" ) ;
 			for( Path thePath : pathList )
 			{
 				log.info( "Found bracket file: " + thePath.toString() ) ;
@@ -397,36 +390,6 @@ public class RenameMovieEditions
 			return null ;
 		}
 		return retMe ;
-	}
-
-	public List< Path > findFiles( final String directoryPath, final String pattern ) throws IOException
-	{
-		List< Path > matchedFiles = new ArrayList<>() ;
-		Path startingDir = Paths.get( directoryPath ) ;
-		Pattern regexPattern = Pattern.compile( pattern ) ;
-
-		FileVisitor< Path > visitor = new SimpleFileVisitor< Path >()
-		{
-			@Override
-			public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
-			{
-				if( regexPattern.matcher( file.getFileName().toString() ).matches() )
-				{
-					matchedFiles.add( file ) ;
-				}
-				return FileVisitResult.CONTINUE ;
-			}
-
-			@Override
-			public FileVisitResult visitFileFailed( Path file, IOException exc )
-			{
-				log.warning( "Failed to access file: " + file + ". Reason: " + exc.getMessage() ) ;
-				return FileVisitResult.CONTINUE ;
-			}
-		};
-
-		Files.walkFileTree( startingDir, visitor ) ;
-		return matchedFiles ;
 	}
 
 	/**
