@@ -1,6 +1,7 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -36,12 +37,14 @@ public class UpgradeMKVToH265
 	
 	public void execute()
 	{
+		common.setTestMode( false ) ;
+		
 		List< String > directoriesToUpgrade = new ArrayList< String >() ;
-//		final String pathToMKVs = Common.getPrimaryfileservername() + "\\Media\\TV_Shows\\Californication (2007)" ;
+//		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\TV_Shows\\Californication (2007)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
 //		directoriesToUpgrade.add( pathToMKVs ) ;
-		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006)\\Season 01" ) ;
+		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006)" ) ;
 		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
 		
 		List< File > filesEndingWithMKV = new ArrayList< File >() ;
@@ -127,9 +130,9 @@ public class UpgradeMKVToH265
 		ffmpegCommand.add( "-c:s", "copy" ) ;
 		
 		// Add output filename
-		final String outputFileName = tmpDir + "\\" + inputFile.getName() ;
-//		log.info( "outputFileName: " + outputFileName ) ;
-		ffmpegCommand.add( outputFileName ) ;
+		final String outputFileNameWithPath = tmpDir + "\\" + inputFile.getName() ;
+//		log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
+		ffmpegCommand.add( outputFileNameWithPath ) ;
 		
 		long startTime = System.nanoTime() ;
 		log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
@@ -157,7 +160,37 @@ public class UpgradeMKVToH265
 				+ " seconds per GB" ) ;
 		
 		// Replace the original file with the HEVC file.
-		
+		try
+		{
+			final String origFileName = inputFile.getName() ;
+			final Path origFilePath = inputFile.toPath() ;
+
+			// First move the original file to "OLD - <origFileName>
+			final String oldFileName = "OLD " + origFileName ;
+			final String oldFileNameWithPath = common.addPathSeparatorIfNecessary( inputFile.getParent() ) + oldFileName ;
+			final File oldFile = new File( oldFileNameWithPath ) ;
+			final Path oldFilePath = oldFile.toPath() ;
+			
+			log.info( "Moving " + inputFile.getAbsolutePath() + " to " + oldFilePath.toString() ) ;
+			if( !common.getTestMode() )
+			{
+				Files.move( origFilePath, oldFilePath ) ;
+			}
+			
+			// Finally, move the temp output file to the original file
+			final File newFileInTempLocationFile = new File( outputFileNameWithPath ) ;
+			final Path newFileInTempLocationPath = newFileInTempLocationFile.toPath() ;
+						
+			log.info( "Moving " + newFileInTempLocationPath.toString() + " to " + origFilePath.toString() ) ;
+			if( !common.getTestMode() )
+			{
+				Files.move( newFileInTempLocationPath,  origFilePath ) ;
+			}			
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Error moving files: " + theException.toString() ) ;
+		}		
 	}
 	
 	public String getTitle( final File inputFile )
@@ -174,7 +207,7 @@ public class UpgradeMKVToH265
 			final String[] tokens = tvShowEpisode.split( " - " ) ;
 			for( String token : tokens )
 			{
-				log.info( "Token: " + token ) ;
+				log.fine( "Token: " + token ) ;
 			}
 			if( tokens.length != 3 )
 			{
