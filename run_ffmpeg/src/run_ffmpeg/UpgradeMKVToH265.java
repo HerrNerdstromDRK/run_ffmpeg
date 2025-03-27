@@ -117,8 +117,9 @@ public class UpgradeMKVToH265
 		
 		// Transcode to H265
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
-		ffmpegCommand.add( "-preset", "placebo" ) ;
-		ffmpegCommand.add( "-crf", "0" ) ;
+		ffmpegCommand.add( "-preset", "medium" ) ;
+		ffmpegCommand.add( "--lossless" ) ;
+//		ffmpegCommand.add( "-crf", "0" ) ;
 //		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
 		ffmpegCommand.add( "-metadata", "-title=" + getTitle( inputFile ) ) ;
