@@ -44,7 +44,7 @@ public class UpgradeMKVToH265
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
 //		directoriesToUpgrade.add( pathToMKVs ) ;
-		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006)" ) ;
+		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 00" ) ;
 		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
 		
 		List< File > filesEndingWithMKV = new ArrayList< File >() ;
@@ -117,9 +117,9 @@ public class UpgradeMKVToH265
 		
 		// Transcode to H265
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
-		ffmpegCommand.add( "-preset", "medium" ) ;
-		ffmpegCommand.add( "-x265-params", "lossless=1" ) ;
-//		ffmpegCommand.add( "-crf", "0" ) ;
+		ffmpegCommand.add( "-preset", "slow" ) ;
+//		ffmpegCommand.add( "-x265-params", "lossless=1" ) ;
+		ffmpegCommand.add( "-crf", "10" ) ;
 //		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
 		ffmpegCommand.add( "-metadata", "-title=" + getTitle( inputFile ) ) ;
@@ -175,7 +175,7 @@ public class UpgradeMKVToH265
 			log.info( "Moving " + inputFile.getAbsolutePath() + " to " + oldFilePath.toString() ) ;
 			if( !common.getTestMode() )
 			{
-				Files.move( origFilePath, oldFilePath ) ;
+//				Files.move( origFilePath, oldFilePath ) ;
 			}
 			
 			// Finally, move the temp output file to the original file
@@ -185,7 +185,7 @@ public class UpgradeMKVToH265
 			log.info( "Moving " + newFileInTempLocationPath.toString() + " to " + origFilePath.toString() ) ;
 			if( !common.getTestMode() )
 			{
-				Files.move( newFileInTempLocationPath,  origFilePath ) ;
+//				Files.move( newFileInTempLocationPath,  origFilePath ) ;
 			}			
 		}
 		catch( Exception theException )
