@@ -131,10 +131,6 @@ public class Common
 		{
 				"\\\\\\skywalker\\Media"
 		} ;
-<<<<<<< HEAD
-		{} ;
-=======
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	private final String[] allChainBMKVDrives =
 		{} ;
 
