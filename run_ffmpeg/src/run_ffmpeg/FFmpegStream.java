@@ -2,6 +2,8 @@ package run_ffmpeg;
 
 import java.util.Map;
 
+import com.google.gson.Gson;
+
 /**
  * Data representing an ffmpeg/ffprobe stream.
  * @author Dan
@@ -78,19 +80,8 @@ public class FFmpegStream
 
 	public String toString()
 	{
-		String retMe = "{"
-				+ index
-				+ "," + codec_name
-				+ "," + codec_type ;
-		if( tags.containsKey( "title" ) )
-		{
-			retMe += "," + tags.get( "title" ) ;
-		}
-		if( tags.containsKey( "language" ) )
-		{
-			retMe += "," + tags.get( "language" ) ;
-		}
-		retMe += "}" ;
-		return retMe ;
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
 	}
 }

@@ -2,27 +2,37 @@ package run_ffmpeg;
 
 import java.util.Map;
 
-public class FFmpegFormat {
-	  public String filename;
-	  public int nb_streams;
-	  public int nb_programs;
+import com.google.gson.Gson;
 
-	  public String format_name;
-	  public String format_long_name;
-	  public double start_time;
+public class FFmpegFormat
+{
+	public String filename;
+	public int nb_streams;
+	public int nb_programs;
 
-	  /** Duration in seconds */
-	  // TODO Change this to java.time.Duration
-	  public double duration;
+	public String format_name;
+	public String format_long_name;
+	public double start_time;
 
-	  /** File size in bytes */
-	  public long size;
+	/** Duration in seconds */
+	// TODO Change this to java.time.Duration
+	public double duration;
 
-	  /** Bitrate */
-	  public long bit_rate;
+	/** File size in bytes */
+	public long size;
 
-	  public int probe_score;
+	/** Bitrate */
+	public long bit_rate;
 
-	  public Map<String, String> tags;
+	public int probe_score;
+
+	public Map<String, String> tags;
+
+	public String toString()
+	{
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
 	}
+}
 

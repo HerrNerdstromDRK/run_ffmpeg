@@ -76,9 +76,9 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 	@Override
 	public void Init()
 	{
-		setUseThreads( false ) ;
+		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
-		
+
 		extractSubtitles.setUseThreads( isUseThreads() ) ;
 		ocrSubtitles.setUseThreads( isUseThreads() ) ;
 
@@ -87,6 +87,7 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 //		foldersToExtractAndOCR.add( "D:\\temp\\To OCR") ;
 //		foldersToExtractAndOCR.add( "E:\\To OCR") ;
 		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\TV_Shows" ) ;
+//		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\TV_Shows\\Smallville (2001)\\Season 08" ) ;
 //		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\TV_Shows\\House Of The Dragon (2022)\\Season 02") ;
 //		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
 //		foldersToExtractAndOCR.add( "\\\\yoda\\MKV_Archive3\\TV Shows" ) ;

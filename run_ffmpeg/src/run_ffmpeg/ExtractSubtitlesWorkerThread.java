@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
@@ -19,7 +20,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	/// Reference to a PD object to access its probeFileAndUpdateDB() method.
 	/// Will be passed to the worker threads.
 	/// Included here so only one instance of PD is created.
-//	private transient ProbeDirectories probeDirectories = null ;
+	//	private transient ProbeDirectories probeDirectories = null ;
 
 	/// The list of folders from which to extract subtitles.
 	private List< String > foldersToExtract = null ;
@@ -63,11 +64,11 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		assert( foldersToExtract != null ) ;
 
 		this.theController = theController ;
-//		this.probeDirectories = probeDirectories ;
+		//		this.probeDirectories = probeDirectories ;
 		this.foldersToExtract = foldersToExtract ;
 	}
 
-	public ImmutableList.Builder<String> buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
+	public ImmutableList.Builder< String > buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
 			TranscodeFile theFile,
 			List< File > supFiles )
 	{
@@ -80,6 +81,29 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		List< FFmpegStream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
 		for( FFmpegStream stStream : extractableSubTitleStreams )
 		{
+			// TEST: Looking for a way to determine if the file has a valid subtitle stream
+			// Trying by checking if this subtitle stream has a tag named "NUMBER_OF_BYTES-eng" and its value is at least 250
+			// -- lowest I've seen for a valid subtitle stream is 30025
+			Map< String, String > tags = stStream.tags ;
+			if( !tags.isEmpty() )
+			{
+				final String numberOfBytesEngString = tags.get( "NUMBER_OF_BYTES-eng" ) ;
+				log.info( "numberOfBytesEngString: " + numberOfBytesEngString ) ;
+				Integer numberOfBytesEngInteger = Integer.valueOf( numberOfBytesEngString ) ;
+				if( numberOfBytesEngInteger.intValue() < 250 )
+				{
+					// Invalid stream?
+					log.info( "Skipping subtitle stream because its number of bytes is too small: " + numberOfBytesEngString + " < 250" ) ;
+					continue ;
+				}
+			}
+			
+//			if( stStream.duration < 1.0 )
+//			{
+//				// No valid subtitle stream
+//				log.info( "Skipping subtitle stream due to short duration: " + stStream.duration ) ;
+//				continue ;
+//			}
 			final int streamIndex = stStream.index ;
 
 			// So far, I know of two subtitle types I can work with: pgs and srt
@@ -96,7 +120,13 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 					+ theFile.getMKVFileName().replace( ".mkv", "" ) ;
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
-			outputFileNameWithPath += ".en." + streamIndex ;
+			outputFileNameWithPath += ".en" ;
+			if( extractableSubTitleStreams.size() > 1 )
+			{
+				// More than one stream -- include a stream id.
+				outputFileNameWithPath += "." + streamIndex ;
+			}
+			
 			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
 			{
 				outputFileNameWithPath += ".sup" ;
@@ -180,7 +210,6 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			// The addFilesToPipeline() method will handle a null pipeline.
 			theController.addFilesToPipeline( remainingSupFiles ) ;
 		}
-
 	}
 
 	/**
@@ -305,10 +334,10 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		Collections.sort( filesToProcess, new TranscodeFileSortLargeToSmall() ) ;
 
 		log.info( "Extracting " + filesToProcess.size() + " file(s)" ) ;
-//		for( TranscodeFile theFile : filesToProcess )
-//		{
-//			log.info( theFile.toString() ) ;
-//		}
+		//		for( TranscodeFile theFile : filesToProcess )
+		//		{
+		//			log.info( theFile.toString() ) ;
+		//		}
 
 		// Perform the core work of this application of extracting the files.
 		for( TranscodeFile theFileToProcess : filesToProcess )
