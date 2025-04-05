@@ -41,7 +41,7 @@ public class UpgradeMKVToH265
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
 //		directoriesToUpgrade.add( pathToMKVs ) ;
-		directoriesToUpgrade.add( "d:\\temp\\Test (2025)" ) ;
+//		directoriesToUpgrade.add( "d:\\temp\\Test (2025)" ) ;
 		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
 		
 		List< File > filesEndingWithMKV = new ArrayList< File >() ;
@@ -99,7 +99,7 @@ public class UpgradeMKVToH265
 	{
 		log.info( "Upgrading file " + inputFile.getAbsolutePath() ) ;
 		
-		final String tmpDir = "d:\\temp" ;
+		final String tmpDir = common.getPathToTmpDir() ;
 		
 		// Build the ffmpeg command
 		// ffmpegCommand will hold the command to execute ffmpeg

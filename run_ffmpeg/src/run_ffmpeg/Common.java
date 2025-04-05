@@ -84,6 +84,7 @@ public class Common
 	private String pathToFFPROBE = null ;
 	private String pathToSubtitleEdit = null ;
 	private String pathToDefaultMP4OutputDirectory = null ;
+	private String pathToTmpDir = null ;
 
 	/// The replacement file name for correlated files that are missing. This is for
 	/// user interface reporting via the web interface.
@@ -200,7 +201,19 @@ public class Common
 		{
 			log.warning( "Unable to find defaultMP4OutputDirectory" ) ;
 		}
-
+		
+		if( (new File( "d:\\temp" )).isDirectory() )
+		{
+			pathToTmpDir = "d:\\temp" ;
+		}
+		else if( (new File( "c:\\temp" )).isDirectory() )
+		{
+			pathToTmpDir = "c:\\temp" ;
+		}
+		else
+		{
+			log.warning( "Unable to find tmp dir" ) ;
+		}
 	}
 
 	/**
@@ -1101,6 +1114,11 @@ public class Common
 	protected String getPathToSubtitleEdit()
 	{
 		return pathToSubtitleEdit;
+	}
+
+	public String getPathToTmpDir()
+	{
+		return pathToTmpDir ;
 	}
 
 	public static String getPrimaryfileservername()
