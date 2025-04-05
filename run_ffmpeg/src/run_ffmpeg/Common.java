@@ -2,10 +2,15 @@ package run_ffmpeg;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,6 +25,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -64,13 +70,13 @@ public class Common
 				"c:\\Program Files\\ffmpeg\\bin\\ffprobe.exe",
 				"d:\\Program Files\\ffmpeg\\bin\\ffprobe.exe"
 		} ;
-	
+
 	private static final String[] pathsToSubtitleEdit =
 		{
 				"c:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe",
 				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
-	
+
 	private static final String[] pathsToDefaultMP4OutputDirectory =
 		{
 				"d:\\temp",
@@ -108,23 +114,37 @@ public class Common
 	private static final String pathToMKVTVShows = pathToMKVs + "\\" + tvShowsFolderName ;
 	private static final String pathToMKVMovies = pathToMKVs + "\\" + moviesFolderName ;
 	private static final String pathToOCRInputDirectory = pathToMKVs + "\\To OCR" ;
-	
+
 	/// The string to search for in file paths to determine if this is a tv show
 	private static final String tvPathCheckString = "TV_Shows" ;
-	
+
 	/// The directories to probe
 	/// Broken down into the two USB chains so that applications can
 	/// multithread access to the MP4/MKV drives
 	private final String[] allChainAMP4Drives =
 		{
 				"\\\\skywalker\\Media"
+<<<<<<< HEAD
+=======
+				//				pathToMP4s
+				//				"\\\\yoda\\MP4",
+				//				"\\\\yoda\\MP4_2"
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		} ;
 	private final String[] allChainBMP4Drives =
 		{} ;
+<<<<<<< HEAD
+=======
+
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	private final String[] allChainAMKVDrives =
+<<<<<<< HEAD
 		{
 				"\\\\\\skywalker\\Media"
 		} ;
+=======
+		{} ;
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	private final String[] allChainBMKVDrives =
 		{} ;
 
@@ -159,7 +179,7 @@ public class Common
 		{
 			log.warning( "Unable to find ffmpeg" ) ;
 		}
-		
+
 		for( String testLocation : pathsToFFPROBE )
 		{
 			if( (new File( testLocation )).isFile() )
@@ -173,7 +193,7 @@ public class Common
 		{
 			log.warning( "Unable to find ffprobe" ) ;
 		}
-		
+
 		for( String testLocation : pathsToSubtitleEdit )
 		{
 			if( (new File( testLocation )).isFile() )
@@ -187,7 +207,7 @@ public class Common
 		{
 			log.warning( "Unable to find SubtitleEdit" ) ;
 		}
-		
+
 		for( String testLocation : pathsToDefaultMP4OutputDirectory )
 		{
 			if( (new File( testLocation )).isDirectory() )
@@ -282,7 +302,7 @@ public class Common
 		}
 		return retMe ;
 	}
-	
+
 	/**
 	 * Execute the given command.
 	 * Return true if successful, false otherwise.
@@ -303,7 +323,7 @@ public class Common
 				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 				final ProcessBuilder theProcessBuilder = new ProcessBuilder( theCommand.build().toArray( new String[ 1 ] ) ) ;
 				final Process process = theProcessBuilder.start() ;
-				
+
 				BufferedReader inputStreamReader = process.inputReader() ;
 				BufferedReader errorStreamReader =  process.errorReader() ;
 
@@ -313,7 +333,7 @@ public class Common
 					String lastInputStreamLine = "" ; // never null
 					String errorStreamLine = null ;
 					String lastErrorStreamLine = "" ; // never null
-					
+
 					// Read the error stream first
 					while( errorStreamReader.ready() )
 					{
@@ -404,6 +424,53 @@ public class Common
 			return true ;
 		}
 		return false ;
+	}
+
+	/**
+	 * Finds all files in a given directory path that match the pattern.
+	 * @param directoryPath
+	 * @param pattern
+	 * @return
+	 * @throws IOException
+	 */
+	public List< Path > findFiles( final String directoryPath, final String pattern )
+	{
+		assert( directoryPath != null ) ;
+		assert( pattern != null ) ;
+
+		List< Path > matchedFiles = new ArrayList<>() ;
+		Path startingDir = Paths.get( directoryPath ) ;
+		Pattern regexPattern = Pattern.compile( pattern ) ;
+
+		FileVisitor< Path > visitor = new SimpleFileVisitor< Path >()
+		{
+			@Override
+			public FileVisitResult visitFile( Path file, BasicFileAttributes attrs )
+			{
+				if( regexPattern.matcher( file.getFileName().toString() ).matches() )
+				{
+					matchedFiles.add( file ) ;
+				}
+				return FileVisitResult.CONTINUE ;
+			}
+
+			@Override
+			public FileVisitResult visitFileFailed( Path file, IOException exc )
+			{
+				log.warning( "Failed to access file: " + file + ". Reason: " + exc.getMessage() ) ;
+				return FileVisitResult.CONTINUE ;
+			}
+		};
+
+		try
+		{
+			Files.walkFileTree( startingDir, visitor ) ;
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Exceptoin while finding pattern \"" + pattern + "\" in directory " + directoryPath + ": " + theException.toString() ) ;
+		}
+		return matchedFiles ;
 	}
 
 	/**
@@ -891,7 +958,7 @@ public class Common
 		boolean fileExists = stopFile.exists() ;
 		return fileExists ;
 	}
-	
+
 	public String toStringForCommandExecution( final ImmutableList< String > theList )
 	{
 		String retMe = "" ;
@@ -1046,50 +1113,50 @@ public class Common
 	{
 		return missingFileSubstituteName;
 	}
-//
-//	public String getMKVDriveWithMostAvailableSpace()
-//	{
-//		String mkvDriveWithMostAvailableSpace = "" ;
-//		double largestFreeSpaceSoFar = 0.0 ;
-//
-//		final List< String > allMKVDrives = getAllMKVDrives() ;
-//		for( String mkvDrive : allMKVDrives )
-//		{
-//			final File mkvDriveFile = new File( mkvDrive ) ;
-//			final double freeSpaceForThisDrive = mkvDriveFile.getFreeSpace() ;
-//
-//			if( (null == mkvDriveWithMostAvailableSpace)
-//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
-//			{
-//				// Found a new largest drive.
-//				mkvDriveWithMostAvailableSpace = mkvDrive ;
-//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
-//			}
-//		}
-//		return mkvDriveWithMostAvailableSpace ;
-//	}
-//
-//	public String getMP4DriveWithMostAvailableSpace()
-//	{
-//		String mp4DriveWithMostAvailableSpace = "" ;
-//		double largestFreeSpaceSoFar = 0.0 ;
-//
-//		final List< String > allMP4Drives = getAllMP4Drives() ;
-//		for( String mp4Drive : allMP4Drives )
-//		{
-//			final File mp4DriveFile = new File( mp4Drive ) ;
-//			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
-//
-//			if( (null == mp4DriveWithMostAvailableSpace)
-//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
-//			{
-//				// Found a new largest drive.
-//				mp4DriveWithMostAvailableSpace = mp4Drive ;
-//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
-//			}
-//		}
-//		return mp4DriveWithMostAvailableSpace ;
-//	}
+	//
+	//	public String getMKVDriveWithMostAvailableSpace()
+	//	{
+	//		String mkvDriveWithMostAvailableSpace = "" ;
+	//		double largestFreeSpaceSoFar = 0.0 ;
+	//
+	//		final List< String > allMKVDrives = getAllMKVDrives() ;
+	//		for( String mkvDrive : allMKVDrives )
+	//		{
+	//			final File mkvDriveFile = new File( mkvDrive ) ;
+	//			final double freeSpaceForThisDrive = mkvDriveFile.getFreeSpace() ;
+	//
+	//			if( (null == mkvDriveWithMostAvailableSpace)
+	//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
+	//			{
+	//				// Found a new largest drive.
+	//				mkvDriveWithMostAvailableSpace = mkvDrive ;
+	//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
+	//			}
+	//		}
+	//		return mkvDriveWithMostAvailableSpace ;
+	//	}
+	//
+	//	public String getMP4DriveWithMostAvailableSpace()
+	//	{
+	//		String mp4DriveWithMostAvailableSpace = "" ;
+	//		double largestFreeSpaceSoFar = 0.0 ;
+	//
+	//		final List< String > allMP4Drives = getAllMP4Drives() ;
+	//		for( String mp4Drive : allMP4Drives )
+	//		{
+	//			final File mp4DriveFile = new File( mp4Drive ) ;
+	//			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
+	//
+	//			if( (null == mp4DriveWithMostAvailableSpace)
+	//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
+	//			{
+	//				// Found a new largest drive.
+	//				mp4DriveWithMostAvailableSpace = mp4Drive ;
+	//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
+	//			}
+	//		}
+	//		return mp4DriveWithMostAvailableSpace ;
+	//	}
 
 	public NumberFormat getNumberFormat()
 	{
@@ -1206,7 +1273,7 @@ public class Common
 	{
 		return pathToMKVTVShows ;
 	}
-	
+
 	public static String getPathToMKVMovies()
 	{
 		return pathToMKVMovies ;
@@ -1216,7 +1283,7 @@ public class Common
 	{
 		return pathToOCRInputDirectory ;
 	}
-	
+
 	public static String getTVPathCheckString()
 	{
 		return tvPathCheckString ;
@@ -1236,17 +1303,17 @@ public class Common
 	{
 		return otherVideosFolderName;
 	}
-	
+
 	public static String getPathToMovies()
 	{
 		return pathToMovies ;
 	}
-	
+
 	public static String getPathToTVShows()
 	{
 		return pathToTVShows ;
 	}
-	
+
 	public static boolean isTVShowPath( final String inputPath )
 	{
 		assert( inputPath != null ) ;

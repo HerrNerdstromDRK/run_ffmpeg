@@ -40,7 +40,9 @@ public class TheTVDB
 			.put( "A Pup Named Scooby-Doo (1988)", Integer.valueOf( 73546 ) )
 			.put( "Archer (2009)", Integer.valueOf( 110381 ) )
 			.put( "Arrested Development (2003)", Integer.valueOf( 72173 ) )
+			.put( "Ahsoka (2024)", Integer.valueOf( 393187 ) )
 			.put( "Attack On Pearl Harbor A Day Of Infamy (2007)", Integer.valueOf( 377374 ) )
+			.put( "Avatar The Last Airbender (2024)", Integer.valueOf( 385925 ) )
 			.put( "Marvels Avengers Assemble (2013)", Integer.valueOf( 264030 ) )
 			.put( "Band Of Brothers (2001)", Integer.valueOf( 74205 ) )
 			.put( "Banshee (2013)", Integer.valueOf( 259765 ) )
@@ -68,6 +70,7 @@ public class TheTVDB
 			.put( "Gunpowder (2017)", Integer.valueOf( 334069 ) )
 			.put( "Heroes (2006)", Integer.valueOf( 79501 ) )
 			.put( "Homeland (2011)", Integer.valueOf( 247897 ) )
+			.put( "House (2004)", Integer.valueOf( 73255 ) )
 			.put( "House Of The Dragon (2022)", Integer.valueOf( 371572 ) )
 			.put( "In Living Color (1990)", Integer.valueOf( 78441 ) )
 			.put( "Its Always Sunny In Philadelphia (2005)", Integer.valueOf( 75805 ) )
@@ -78,6 +81,7 @@ public class TheTVDB
 			.put( "MASH (1972)", Integer.valueOf( 70994 ) )
 			.put( "Mickey Mouse Clubhouse (2006)", Integer.valueOf( 79854 ) )
 			.put( "NCIS (2003)", Integer.valueOf( 72108 ) )
+			.put( "Obi-Wan Kenobi (2022)", Integer.valueOf( 393199 ) )
 			.put( "Orange Is The New Black (2013)", Integer.valueOf( 264586 ) )
 			.put( "P90X (2004)", Integer.valueOf( 396098 ) )
 			.put( "P90X3 (2013)", Integer.valueOf( 394398 ) )
@@ -105,7 +109,11 @@ public class TheTVDB
 			.put( "Star Trek Strange New Worlds (2022)", Integer.valueOf( 382389 ) )
 			.put( "Star Trek The Next Generation (1987)", Integer.valueOf( 71470 ) )
 			.put( "Star Trek Voyager (1995)", Integer.valueOf( 74550 ))
+			.put( "Star Wars Rebels (2014)", Integer.valueOf( 283468 ) )
 			.put( "Star Wars The Clone Wars (2008)", Integer.valueOf( 83268 ) )
+			.put( "Star Wars Skeleton Crew (2024)", Integer.valueOf( 420600 ) )
+			.put( "Star Wars Tales Of The Empire (2024)", Integer.valueOf( 448549 ) )
+			.put( "Star Wars Tales Of The Jedi (2022)", Integer.valueOf( 420659 ) )
 			.put( "Stargate Atlantis (2004)", Integer.valueOf( 70851 ) )
 			.put( "Stargate SG-1 (1997)", Integer.valueOf( 72449 ) )
 			.put( "Stargate Origins (2018)", Integer.valueOf( 339552 ))
@@ -114,9 +122,13 @@ public class TheTVDB
 			.put( "Ted Lasso (2020)", Integer.valueOf( 383203 ) )
 			.put( "The A-Team (1983)", Integer.valueOf( 77904 ) )
 			.put( "The Big Bang Theory (2007)", Integer.valueOf( 80379 ) )
+			.put( "The Book Of Boba Fett (2021)", Integer.valueOf( 393589 ) )
 			.put( "The Expanse (2015)", Integer.valueOf( 280619 ) )
 			.put( "The Good Place (2016)", Integer.valueOf( 311711 ) )
+			.put( "The Last Of Us (2023)", Integer.valueOf( 392256 ) )
 			.put( "The Legend Of Korra (2012)", Integer.valueOf( 251085 ) )
+			.put( "The Lord Of The Rings The Rings Of Power (2022)", Integer.valueOf( 367506 ) )
+			.put( "The Mandalorian (2019)", Integer.valueOf( 361753 ) )
 			.put( "The Office (2005)", Integer.valueOf( 73244 ) )
 			.put( "The Orville (2017)", Integer.valueOf( 328487 ))
 			.put( "The Scooby-Doo Show (1976)", Integer.valueOf( 73817 ) )
@@ -126,9 +138,12 @@ public class TheTVDB
 			.put( "The Walking Dead (2010)", Integer.valueOf( 153021 ) )
 			.put( "The West Wing (1999)", Integer.valueOf( 72521 ) )
 			.put( "Tom And Jerry Tales (2006)", Integer.valueOf( 82837 ) )
+			.put( "Tom Clancys Jack Ryan (2018)", Integer.valueOf( 336261 ) )
 			.put( "True Blood (2008)", Integer.valueOf( 82283 ) )
 			.put( "United States of Tara (2009)", Integer.valueOf( 83463 ) )
+			.put( "Vikings (2013)", Integer.valueOf( 260449 ) )
 			.put( "Weeds (2005)", Integer.valueOf( 74845 ) )
+			.put( "Wednesday (2022)", Integer.valueOf( 397060 ) )
 			.put( "Whats New Scooby-Doo (2002)", Integer.valueOf( 80119 ) )
 			.build() ;
 
@@ -228,7 +243,7 @@ public class TheTVDB
 					|| (null == seriesEpisodesInfo.data.episodes)
 					|| seriesEpisodesInfo.data.episodes.isEmpty() )
 			{
-				log.warning( "Found empty episodes for show " + showName + " (" + showId.toString() + "), seasonNumber: " + seasonNumber ) ;
+				log.fine( "Found empty episodes for show " + showName + " (" + showId.toString() + "), seasonNumber: " + seasonNumber ) ;
 				break ;
 			}
 			// Post condition: Found object for this show and season number
@@ -261,7 +276,7 @@ public class TheTVDB
 
 				seasonInfo.addEpisode( episodeNumber, episodeName ) ;
 			}
-			log.info( "Added " + seasonInfo.numEpisodes + " episode(s) for show " + showName + " season " + seasonNumber ) ;
+			log.fine( "Added " + seasonInfo.numEpisodes + " episode(s) for show " + showName + " season " + seasonNumber ) ;
 
 			showInfo.addSeason( seasonNumber, seasonInfo ) ;
 		}

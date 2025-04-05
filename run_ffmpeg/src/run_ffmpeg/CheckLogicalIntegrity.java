@@ -83,22 +83,22 @@ public class CheckLogicalIntegrity
 
 	public void execute()
 	{
-		log.info( "Checking for duplicate tv show mp4 paths" ) ;
-		checkForDuplicatePaths( tvShowMP4Map ) ;
-
-		log.info( "Checking for duplicate tv show mkv paths" ) ;
-		checkForDuplicatePaths( tvShowMKVMap ) ;
-
-		log.info( "Checking for duplicate movie mp4 paths" ) ;
-		checkForDuplicatePaths( movieMP4Map ) ;
-
-		log.info( "Checking for duplicate movie mkv paths" ) ;
-		checkForDuplicatePaths( movieMKVMap ) ;
-
-		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
-		//checkForMissingMP4Files( movieAndShowInfoMap ) ;
-
-		listSpecialEditionMovies() ;
+//		log.info( "Checking for duplicate tv show mp4 paths" ) ;
+//		checkForDuplicatePaths( tvShowMP4Map ) ;
+//
+//		log.info( "Checking for duplicate tv show mkv paths" ) ;
+//		checkForDuplicatePaths( tvShowMKVMap ) ;
+//
+//		log.info( "Checking for duplicate movie mp4 paths" ) ;
+//		checkForDuplicatePaths( movieMP4Map ) ;
+//
+//		log.info( "Checking for duplicate movie mkv paths" ) ;
+//		checkForDuplicatePaths( movieMKVMap ) ;
+//
+//		checkForMissingMKVFiles( movieAndShowInfoMap ) ;
+//		//checkForMissingMP4Files( movieAndShowInfoMap ) ;
+//
+//		listSpecialEditionMovies() ;
 
 		checkForEmptyFolders() ;
 	}
