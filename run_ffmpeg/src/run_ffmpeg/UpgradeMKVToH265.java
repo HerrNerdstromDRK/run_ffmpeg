@@ -54,6 +54,12 @@ public class UpgradeMKVToH265
 		for( File mkvFile : filesEndingWithMKV )
 		{
 			log.info( "Checking file: " + mkvFile.getAbsolutePath() ) ;
+			if( mkvFile.getAbsolutePath().contains( "OLD - " ) )
+			{
+				// Old file -- ignore it.
+				log.fine( "Ignoring old file: " + mkvFile.getAbsolutePath() ) ;
+				continue ;
+			}
 			
 			FFmpegProbeResult probeResult = common.ffprobeFile( mkvFile, log ) ;
 			log.fine( "ffprobe result for file " + mkvFile.getAbsolutePath() + ": " + probeResult.toString() ) ;
