@@ -124,27 +124,14 @@ public class Common
 	private final String[] allChainAMP4Drives =
 		{
 				"\\\\skywalker\\Media"
-<<<<<<< HEAD
-=======
-				//				pathToMP4s
-				//				"\\\\yoda\\MP4",
-				//				"\\\\yoda\\MP4_2"
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		} ;
 	private final String[] allChainBMP4Drives =
 		{} ;
-<<<<<<< HEAD
-=======
-
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	private final String[] allChainAMKVDrives =
-<<<<<<< HEAD
 		{
 				"\\\\\\skywalker\\Media"
 		} ;
-=======
 		{} ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	private final String[] allChainBMKVDrives =
 		{} ;
 

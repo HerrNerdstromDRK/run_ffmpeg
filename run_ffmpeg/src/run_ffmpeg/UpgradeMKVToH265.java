@@ -1,7 +1,6 @@
 package run_ffmpeg;
 
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -44,11 +43,8 @@ public class UpgradeMKVToH265
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
 //		directoriesToUpgrade.add( pathToMKVs ) ;
-<<<<<<< HEAD
 //		directoriesToUpgrade.add( "d:\\temp\\Test (2025)" ) ;
-=======
 		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 00" ) ;
->>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
 		
 		List< File > filesEndingWithMKV = new ArrayList< File >() ;
