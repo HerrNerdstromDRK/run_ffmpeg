@@ -131,7 +131,10 @@ public class Common
 		{
 				"\\\\\\skywalker\\Media"
 		} ;
+<<<<<<< HEAD
 		{} ;
+=======
+>>>>>>> branch 'main' of https://github.com/HerrNerdstromDRK/run_ffmpeg
 	private final String[] allChainBMKVDrives =
 		{} ;
 
@@ -208,7 +211,7 @@ public class Common
 		{
 			log.warning( "Unable to find defaultMP4OutputDirectory" ) ;
 		}
-		
+
 		if( (new File( "d:\\temp" )).isDirectory() )
 		{
 			pathToTmpDir = "d:\\temp" ;
