@@ -88,22 +88,25 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			if( !tags.isEmpty() )
 			{
 				final String numberOfBytesEngString = tags.get( "NUMBER_OF_BYTES-eng" ) ;
-				log.info( "numberOfBytesEngString: " + numberOfBytesEngString ) ;
-				Integer numberOfBytesEngInteger = Integer.valueOf( numberOfBytesEngString ) ;
-				if( numberOfBytesEngInteger.intValue() < 250 )
+				if( numberOfBytesEngString != null )
 				{
-					// Invalid stream?
-					log.info( "Skipping subtitle stream because its number of bytes is too small: " + numberOfBytesEngString + " < 250" ) ;
-					continue ;
+					log.info( "numberOfBytesEngString: " + numberOfBytesEngString ) ;
+					Integer numberOfBytesEngInteger = Integer.valueOf( numberOfBytesEngString ) ;
+					if( numberOfBytesEngInteger.intValue() < 250 )
+					{
+						// Invalid stream?
+						log.info( "Skipping subtitle stream because its number of bytes is too small: " + numberOfBytesEngString + " < 250" ) ;
+						continue ;
+					}
 				}
 			}
-			
-//			if( stStream.duration < 1.0 )
-//			{
-//				// No valid subtitle stream
-//				log.info( "Skipping subtitle stream due to short duration: " + stStream.duration ) ;
-//				continue ;
-//			}
+
+			//			if( stStream.duration < 1.0 )
+			//			{
+			//				// No valid subtitle stream
+			//				log.info( "Skipping subtitle stream due to short duration: " + stStream.duration ) ;
+			//				continue ;
+			//			}
 			final int streamIndex = stStream.index ;
 
 			// So far, I know of two subtitle types I can work with: pgs and srt
@@ -126,7 +129,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 				// More than one stream -- include a stream id.
 				outputFileNameWithPath += "." + streamIndex ;
 			}
-			
+
 			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
 			{
 				outputFileNameWithPath += ".sup" ;
