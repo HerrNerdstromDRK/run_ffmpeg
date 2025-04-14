@@ -128,7 +128,7 @@ public class UpgradeMKVToH265
 		ffmpegCommand.add( "-crf", "10" ) ;
 //		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
-		ffmpegCommand.add( "-metadata", "-title=" + getTitle( inputFile ) ) ;
+		ffmpegCommand.add( "-metadata", "title=" + getTitle( inputFile ) ) ;
 				
 		// Copy audio and subtitles
 //		ffmpegCommand.add( "-map", "0:a" ) ;

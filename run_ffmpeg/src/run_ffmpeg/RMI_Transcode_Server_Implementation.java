@@ -29,13 +29,18 @@ public class RMI_Transcode_Server_Implementation extends UnicastRemoteObject imp
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
+		common.setTestMode( true ) ;
 	}
 
 	@Override
-	public boolean transcodeFilePart( final String fileNameWithPath, final int inputFileStartTime, final int frameDuration ) throws RemoteException
+	public boolean transcodeFilePart( final String inputFileNameWithPath,
+			final int inputFileStartTimeSeconds,
+			final int durationSeconds )
+					throws RemoteException
 	{
-		final File inputFile = new File( fileNameWithPath ) ;
-		log.info( "Upgrading file " + inputFile.getAbsolutePath() ) ;
+		final File inputFile = new File( inputFileNameWithPath ) ;
+		log.info( "Upgrading file " + inputFile.getAbsolutePath() + " starting at " + inputFileStartTimeSeconds + " second(s) and continuing for "
+				+ durationSeconds + " second(s)" ) ;
 
 		final String tmpDir = common.getPathToTmpDir() ;
 
@@ -50,11 +55,13 @@ public class RMI_Transcode_Server_Implementation extends UnicastRemoteObject imp
 		ffmpegCommand.add( "-y" ) ;
 
 		// Not exactly sure what these do but it seems to help reduce errors on some files.
-		ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
-		ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
+//		ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
+//		ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
 
 		// Include source file
 		ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
+		ffmpegCommand.add( "-ss", "00:00:" + inputFileStartTimeSeconds ) ;
+		ffmpegCommand.add( "-t", "00:00:" + durationSeconds ) ;
 
 		// Transcode to H265
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
@@ -63,7 +70,7 @@ public class RMI_Transcode_Server_Implementation extends UnicastRemoteObject imp
 		ffmpegCommand.add( "-crf", "10" ) ;
 		//			ffmpegCommand.add( "-tag:v", "hvc1" ) ;
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
-		ffmpegCommand.add( "-metadata", "-title=" + getTitle( inputFile ) ) ;
+		ffmpegCommand.add( "-metadata", "title=" + getTitle( inputFile ) ) ;
 
 		// Copy audio and subtitles
 		//			ffmpegCommand.add( "-map", "0:a" ) ;
@@ -72,8 +79,12 @@ public class RMI_Transcode_Server_Implementation extends UnicastRemoteObject imp
 		ffmpegCommand.add( "-c:s", "copy" ) ;
 
 		// Add output filename
-		final String outputFileNameWithPath = tmpDir + "\\" + inputFile.getName() ;
-		//			log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
+		final String outputFileNameWithPath = tmpDir
+				+ common.getPathSeparator()
+				+ Common.stripExtensionFromFileName( inputFile.getName() )
+				+ "_" + inputFileStartTimeSeconds
+				+ "." + Common.getExtension( inputFileNameWithPath ) ;
+		log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
 		ffmpegCommand.add( outputFileNameWithPath ) ;
 
 		final long startTime = System.nanoTime() ;

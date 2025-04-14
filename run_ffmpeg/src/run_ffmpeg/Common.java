@@ -575,6 +575,70 @@ public class Common
 	}
 
 	/**
+	 * Get the Group of Pictures result from a given file.
+	 * @param theFile
+	 * @param log
+	 * @return
+	 */
+	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )
+	{	
+		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
+		FFmpegProbeFrames result = null ;
+
+		ImmutableList.Builder< String > ffprobeExecuteCommand = new ImmutableList.Builder< String >() ;
+		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
+
+		// Add option "-v quiet" to suppress the normal ffprobe output
+		ffprobeExecuteCommand.add( "-show_frames" ) ;
+		ffprobeExecuteCommand.add( "-select_streams", "v:0" ) ;
+		ffprobeExecuteCommand.add( "-print_format", "json" ) ;
+
+		// Finally, add the input file
+		ffprobeExecuteCommand.add( theFile.getAbsolutePath() ) ;
+
+		// Build the GSON parser for the JSON input
+		GsonBuilder builder = new GsonBuilder(); 
+		builder.setPrettyPrinting(); 
+		Gson gson = builder.create();
+
+		try
+		{
+			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
+			log.info( Arrays.toString( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ) ;
+
+			final ProcessBuilder theProcessBuilder = new ProcessBuilder( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ;
+			final Process process = theProcessBuilder.start() ;
+
+			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
+//			int lineNumber = 1 ;
+			String inputLine = null ;
+			String inputBuffer = "" ;
+			while( (inputLine = inputStreamReader.readLine()) != null )
+			{
+//				log.fine( "" + lineNumber + "> " + inputLine ) ;
+				inputBuffer += inputLine ;
+//				++lineNumber ;
+			}
+
+			if( process.exitValue() != 0 )
+			{
+				log.warning( "Error running ffprobe on file " + theFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
+				result = null ; // already null, but just for clarity
+			}
+			else
+			{
+				// Deserialize the JSON frames info from this file
+				result = gson.fromJson( inputBuffer, FFmpegProbeFrames.class ) ;
+			}
+		}
+		catch( Exception theException )
+		{
+			theException.printStackTrace() ;
+		}
+		return result.frames ;
+	}
+	
+	/**
 	 * Given the list of folders, some of whom may be overlapping on the same drive, separate the folders
 	 *  into one list per drive.
 	 * For example, if foldersToExtract looks like this:
@@ -625,6 +689,21 @@ public class Common
 		return fileRoot ;		
 	}
 
+	/**
+	 * Return the extension, without '.', of the given filename.
+	 * @param fileNameWithExtension
+	 * @return
+	 */
+	public static String getExtension( final String fileNameWithExtension )
+	{
+		assert( fileNameWithExtension != null ) ;
+		assert( fileNameWithExtension.contains( "." ) ) ;
+		assert( fileNameWithExtension.length() >= 5 ) ;
+		
+		final String extension = fileNameWithExtension.substring( fileNameWithExtension.length() - 3 ) ;
+		return extension ;
+	}
+	
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -1224,6 +1303,21 @@ public class Common
 		testMode = newValue ;
 	}
 
+	/**
+	 * Returns a copy of the string without extension or '.'.
+	 * Assumes extension is three characters.
+	 * @param fileNameWithExtension
+	 * @return
+	 */
+	public static String stripExtensionFromFileName( final String fileNameWithExtension )
+	{
+		assert( fileNameWithExtension != null ) ;
+		assert( fileNameWithExtension.contains( "." ) ) ;
+		
+		final String fileNameWithoutExtension = fileNameWithExtension.substring( 0, fileNameWithExtension.length() - 4 ) ;
+		return fileNameWithoutExtension ;
+	}
+	
 	public String toString( final String[] inputArray )
 	{
 		String retMe = "{" ;

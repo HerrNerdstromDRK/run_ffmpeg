@@ -173,9 +173,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 			else
 			{
 				foldersToExtract = new ArrayList< String >() ;
-				foldersToExtract.add( "C:\\Temp\\To OCR" ) ;
-				foldersToExtract.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Children Of Men (2006)" ) ;
-				foldersToExtract.add( "\\\\yoda\\MKV_Archive9\\To Convert\\Daddys Home (2015)" ) ;
+				foldersToExtract.add( "\\\\skywalker\\Media\\Staging\\Archer (2009)" ) ;
 			}
 		}
 	}

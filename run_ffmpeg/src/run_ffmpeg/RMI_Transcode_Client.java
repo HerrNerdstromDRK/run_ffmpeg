@@ -35,8 +35,9 @@ public class RMI_Transcode_Client
 		{
 			Registry registry = LocateRegistry.getRegistry( "localhost", 12345 ) ;
 
-			final String fileNameWithPath = "\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006)\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv" ;
-			FFmpegProbeResult probeResult = common.ffprobeFile( new File( fileNameWithPath ), log ) ;
+			final String fileNameWithPath = "\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 03\\Rick And Morty - S03E106 - Inside Pickle Rick.mkv" ;
+			File inputFile = new File( fileNameWithPath ) ;
+			FFmpegProbeResult probeResult = common.ffprobeFile( inputFile, log ) ;
 			if( null == probeResult )
 			{
 				log.warning( "Null probeResult for file " + fileNameWithPath ) ;
@@ -91,14 +92,18 @@ public class RMI_Transcode_Client
 			}
 			log.info( "Number of parts: " + startTimesInSeconds.size() ) ;			
 
-			RMI_Transcode_Server_Interface serverImpl = (RMI_Transcode_Server_Interface) registry.lookup( "RMI_Transcode_Server") ;
-			log.info( "Calling transcodeFilePart()" ) ;
-
-			for( Integer startTime : startTimesInSeconds )
-			{
-				boolean success = serverImpl.transcodeFilePart( fileNameWithPath, startTime, durationPerPartInSeconds ) ;
-				log.info( "(" + fileNameWithPath + ", " + startTime + ", " + durationPerPartInSeconds + "): " + success ) ;
-			}
+			// Get the Group of Pictures frames
+			List< FFmpegProbeFrame > inputFileFrames = common.ffprobe_getVideoFrames( inputFile, log ) ;
+			log.info( "inputFileFrames: " + inputFileFrames.toString() ) ;
+			
+//			RMI_Transcode_Server_Interface serverImpl = (RMI_Transcode_Server_Interface) registry.lookup( "RMI_Transcode_Server") ;
+//			log.info( "Calling transcodeFilePart()" ) ;
+//
+//			for( Integer startTime : startTimesInSeconds )
+//			{
+//				boolean success = serverImpl.transcodeFilePart( fileNameWithPath, startTime, durationPerPartInSeconds ) ;
+//				log.info( "(" + fileNameWithPath + ", " + startTime + ", " + durationPerPartInSeconds + "): " + success ) ;
+//			}
 		}
 		catch( Exception theException )
 		{
