@@ -3,6 +3,7 @@ package run_ffmpeg;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class FFmpegProbeFrames
 {
@@ -10,8 +11,10 @@ public class FFmpegProbeFrames
 	
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		GsonBuilder builder = new GsonBuilder(); 
+		builder.setPrettyPrinting(); 
+		Gson gson = builder.create();
+		final String loginRequestJson = gson.toJson( this ) ;
 		return loginRequestJson.toString() ;
 	}
 }

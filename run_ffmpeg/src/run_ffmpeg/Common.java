@@ -555,6 +555,7 @@ public class Common
 				result.setProbeTime( System.currentTimeMillis() ) ;
 				result.setSize( theFile.length() ) ;
 				result.setLastModified( theFile.lastModified() ) ;
+				log.fine( result.toString() ) ;
 			}
 		}
 		catch( Exception theException )
@@ -574,13 +575,19 @@ public class Common
 		return ffprobeFile( new File( theFile.getMKVInputFileNameWithPath() ), log ) ;
 	}
 
+	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )
+	{
+		return ffprobe_getVideoFrames( theFile, log, false ) ;
+	}
+
 	/**
 	 * Get the Group of Pictures result from a given file.
 	 * @param theFile
 	 * @param log
+	 * @param minimalOnly: If true, then only return the frame and 'key_frame' flag.
 	 * @return
 	 */
-	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )
+	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log, boolean minimalOnly )
 	{	
 		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
 		FFmpegProbeFrames result = null ;
@@ -589,8 +596,15 @@ public class Common
 		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
 
 		// Add option "-v quiet" to suppress the normal ffprobe output
-		ffprobeExecuteCommand.add( "-show_frames" ) ;
 		ffprobeExecuteCommand.add( "-select_streams", "v:0" ) ;
+		ffprobeExecuteCommand.add( "-show_frames" ) ;
+
+		if( minimalOnly )
+		{
+			ffprobeExecuteCommand.add( "-show_entries", "frame=key_frame" ) ;
+		}
+
+		//		ffprobeExecuteCommand.add( "-skip_frame", "nokey" ) ;
 		ffprobeExecuteCommand.add( "-print_format", "json" ) ;
 
 		// Finally, add the input file
@@ -610,14 +624,14 @@ public class Common
 			final Process process = theProcessBuilder.start() ;
 
 			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
-//			int lineNumber = 1 ;
+			//			int lineNumber = 1 ;
 			String inputLine = null ;
 			String inputBuffer = "" ;
 			while( (inputLine = inputStreamReader.readLine()) != null )
 			{
-//				log.fine( "" + lineNumber + "> " + inputLine ) ;
+				//				log.fine( "" + lineNumber + "> " + inputLine ) ;
 				inputBuffer += inputLine ;
-//				++lineNumber ;
+				//				++lineNumber ;
 			}
 
 			if( process.exitValue() != 0 )
@@ -637,7 +651,7 @@ public class Common
 		}
 		return result.frames ;
 	}
-	
+
 	/**
 	 * Given the list of folders, some of whom may be overlapping on the same drive, separate the folders
 	 *  into one list per drive.
@@ -699,9 +713,17 @@ public class Common
 		assert( fileNameWithExtension != null ) ;
 		assert( fileNameWithExtension.contains( "." ) ) ;
 		assert( fileNameWithExtension.length() >= 5 ) ;
-		
+
 		final String extension = fileNameWithExtension.substring( fileNameWithExtension.length() - 3 ) ;
 		return extension ;
+	}
+	
+	public static String getFileNameWithoutExtension( final File inputFile )
+	{
+		final String fileName = inputFile.getName() ;
+		final String extension = getExtension( fileName ) ;
+		final String fileNameWithoutExtension = fileName.replace( "." + extension, "" ) ;
+		return fileNameWithoutExtension ;
 	}
 	
 	/**
@@ -1313,11 +1335,11 @@ public class Common
 	{
 		assert( fileNameWithExtension != null ) ;
 		assert( fileNameWithExtension.contains( "." ) ) ;
-		
+
 		final String fileNameWithoutExtension = fileNameWithExtension.substring( 0, fileNameWithExtension.length() - 4 ) ;
 		return fileNameWithoutExtension ;
 	}
-	
+
 	public String toString( final String[] inputArray )
 	{
 		String retMe = "{" ;
