@@ -116,6 +116,10 @@ public class FFmpegProbeResult
 	 */
 	public List< FFmpegStream > getStreamsByCodecType( final String searchType )
 	{
+		assert( searchType != null ) ;
+		assert( !searchType.isEmpty() ) ;
+		assert( getStreams() != null ) ;
+		
 		List< FFmpegStream > returnMe = new ArrayList< FFmpegStream >() ;
 		for( FFmpegStream theInputStream : getStreams() )
 		{
@@ -126,43 +130,85 @@ public class FFmpegProbeResult
 		}		  
 		return returnMe ;
 	}
+	
+	public String getVideoCodec()
+	{
+		if( (null == streams) || streams.isEmpty() )
+		{
+			return "" ;
+		}
+		final FFmpegStream videoStream = streams.get( 0 ) ;
+		if( null == videoStream )
+		{
+			return "" ;
+		}
+		return videoStream.codec_name ;
+	}
 
 	public boolean hasError()
 	{
 		return error != null;
 	}
 
+	public boolean isMP2()
+	{
+		return getVideoCodec().equalsIgnoreCase( "mpeg2video" ) ;
+	}
+	
+	public boolean isH264()
+	{
+		return getVideoCodec().equalsIgnoreCase( "h264" ) ;
+	}
+	
+	public boolean isH265()
+	{
+		return getVideoCodec().equalsIgnoreCase( "h265" ) || getVideoCodec().equalsIgnoreCase( "hevc" ) ;
+	}
+	
+	public boolean isVC1()
+	{
+		return getVideoCodec().equalsIgnoreCase( "vc1" ) ;
+	}
+	
+	public boolean hasSubtitles()
+	{
+		assert( getStreams() != null ) ;
+		
+		final List< FFmpegStream > subtitleStreams = getStreamsByCodecType( "subtitle" ) ;
+		return !subtitleStreams.isEmpty() ;
+	}
+	
 	public void set_id( ObjectId _id )
 	{
 		this._id = _id;
 	}
 
-	public void setFileNameShort(String fileNameShort)
+	public void setFileNameShort( String fileNameShort )
 	{
 		this.fileNameShort = fileNameShort;
 	}
 
-	public void setFileNameWithoutPath(String fileNameWithoutPath)
+	public void setFileNameWithoutPath( String fileNameWithoutPath )
 	{
 		this.fileNameWithoutPath = fileNameWithoutPath;
 	}
 
-	public void setFileNameWithPath(String fileNameWithPath)
+	public void setFileNameWithPath( String fileNameWithPath )
 	{
 		this.fileNameWithPath = fileNameWithPath;
 	}
 
-	public void setLastModified(long lastModified)
+	public void setLastModified( long lastModified )
 	{
 		this.lastModified = lastModified;
 	}
 
-	public void setProbeTime(long probeTime)
+	public void setProbeTime( long probeTime )
 	{
 		this.probeTime = probeTime;
 	}
 
-	public void setSize(long size)
+	public void setSize( long size )
 	{
 		this.size = size;
 	}

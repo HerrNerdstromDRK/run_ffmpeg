@@ -45,7 +45,7 @@ public class FixCapitalization
 
 		final List< String > allDrives = new ArrayList< String >() ;
 //		allDrives.add( "\\\\yoda\\MKV_Archive1\\Movies" ) ;
-		allDrives.addAll( common.getAllDrives() ) ;
+		allDrives.addAll( Common.getAllMediaFolders() ) ;
 
 		// Look through each drive for all files ending in .mkv, .mp4, or .srt
 

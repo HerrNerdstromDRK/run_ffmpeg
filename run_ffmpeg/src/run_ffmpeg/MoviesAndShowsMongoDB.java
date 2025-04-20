@@ -39,8 +39,7 @@ public class MoviesAndShowsMongoDB
 
 	private com.mongodb.client.MongoClient persistentMongoClient = null ;
 	private MongoDatabase persistentDatabaseHandle = null ;
-	private final String mongoDBHostName = "localhost" ;
-//	private final String mongoDBHostName = "192.168.1.111" ;
+	private final String mongoDBHostName = "192.168.1.132" ;
 	private final int mongoDBPortNumber = 27017 ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
@@ -112,14 +111,14 @@ public class MoviesAndShowsMongoDB
 		//	      MongoClient mongo = new MongoClient( "inventory.t43ck.mongodb.net" , 8888 );
 		ServerAddress serverAddress = new ServerAddress( mongoDBHostName, mongoDBPortNumber ) ;
 		MongoClientSettings settings = MongoClientSettings.builder()
-				.applyToClusterSettings(builder ->
+				.applyToClusterSettings( builder ->
 				builder.hosts( Arrays.asList( serverAddress ) ) )
 				.build() ;
 		persistentMongoClient = MongoClients.create( settings ) ;
 
 		// Setup the providers for passing Plain Old Java Objects (POJOs) to and from the database
-		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build();
-		CodecRegistry pojoCodecRegistry = fromRegistries(getDefaultCodecRegistry(), fromProviders(pojoCodecProvider));
+		CodecProvider pojoCodecProvider = PojoCodecProvider.builder().automatic( true ).build() ;
+		CodecRegistry pojoCodecRegistry = fromRegistries( getDefaultCodecRegistry(), fromProviders(pojoCodecProvider) ) ;
 
 		// Login to the database
 		//		MongoCredential credential = 

@@ -44,10 +44,10 @@ public class PruneSmallSUPFiles
 		common.setTestMode( true ) ;
 
 		int numDeleted = 0 ;
-		List< String > drivesAndFoldersToPrune = common.getAllMKVDrives() ;
-		log.info( "Pruning: " + drivesAndFoldersToPrune.toString() ) ;
+		List< String > foldersToPrune = Common.getAllMediaFolders() ;
+		log.info( "Pruning: " + foldersToPrune.toString() ) ;
 
-		for( String folderToPrune : drivesAndFoldersToPrune )
+		for( String folderToPrune : foldersToPrune )
 		{
 			if( !shouldKeepRunning() )
 			{
@@ -104,19 +104,23 @@ public class PruneSmallSUPFiles
 		return !common.shouldStopExecution( stopFileName ) ;
 	}
 
-	public String[] getExtensionsToPrune() {
-		return extensionsToPrune;
+	public String[] getExtensionsToPrune()
+	{
+		return extensionsToPrune ;
 	}
 
-	public String getLogFileName() {
-		return logFileName;
+	public String getLogFileName()
+	{
+		return logFileName ;
 	}
 
-	public long getMinimalValidFileSize() {
-		return minimalValidFileSize;
+	public long getMinimalValidFileSize()
+	{
+		return minimalValidFileSize ;
 	}
 
-	public String getStopFileName() {
-		return stopFileName;
+	public String getStopFileName()
+	{
+		return stopFileName ;
 	}
 }

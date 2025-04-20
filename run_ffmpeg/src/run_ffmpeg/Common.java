@@ -56,9 +56,6 @@ public class Common
 	// TODO: Make this use the System.property
 	private static String pathSeparator = "\\" ;
 
-	/// The name of the primary file server
-	private static final String primaryFileServerName = "\\\\skywalker" ;
-
 	private static final String[] pathsToFFMPEG =
 		{
 				"c:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
@@ -77,20 +74,10 @@ public class Common
 				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
 
-	private static final String[] pathsToDefaultMP4OutputDirectory =
-		{
-				"d:\\temp",
-				"d:\\tmp",
-				"c:\\temp",
-				"c:\\tmp"
-		} ;
-
 	/// Paths to external applications
 	private String pathToFFMPEG = null ;
 	private String pathToFFPROBE = null ;
 	private String pathToSubtitleEdit = null ;
-	private String pathToDefaultMP4OutputDirectory = null ;
-	private String pathToTmpDir = null ;
 
 	/// The replacement file name for correlated files that are missing. This is for
 	/// user interface reporting via the web interface.
@@ -102,37 +89,22 @@ public class Common
 	private static final String analyzeDurationString = "5G" ;
 	private static final String probeSizeString = "5G" ;
 
+	/// The name of the primary file server
+	private static final String primaryFileServerName = "\\\\skywalker" ;
+	private static final String pathToMediaFolderBase = primaryFileServerName + pathSeparator + "Media" ;
 	private static final String moviesFolderName = "Movies" ;
-	private static final String tvShowsFolderName = "TV_Shows" ;
-	private static final String pathToMovies = primaryFileServerName + "\\Media\\" + moviesFolderName ;
-	private static final String pathToTVShows = primaryFileServerName + "\\Media\\" + tvShowsFolderName ;
 	private static final String otherVideosFolderName = "Other_Videos" ;
-	private static final String pathToMP4s = primaryFileServerName + "\\Media" ;
-	private static final String pathToMKVs = primaryFileServerName + "\\Media" ;
-	private static final String pathToMP4TVShows = pathToMP4s + "\\" + tvShowsFolderName ;
-	private static final String pathToMP4Movies = pathToMP4s + "\\" + moviesFolderName ;
-	private static final String pathToMKVTVShows = pathToMKVs + "\\" + tvShowsFolderName ;
-	private static final String pathToMKVMovies = pathToMKVs + "\\" + moviesFolderName ;
-	private static final String pathToOCRInputDirectory = pathToMKVs + "\\To OCR" ;
+	private static final String toOCRFolderName = "To_OCR" ;
+	private static final String tvShowsFolderName = "TV_Shows" ;
+	private static final String pathToMovies = pathToMediaFolderBase + pathSeparator + moviesFolderName ;
+	private static final String pathToOtherVideos = pathToMediaFolderBase + pathSeparator + otherVideosFolderName ;
+	private static final String pathToToOCR = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
+	private static final String pathToTVShows = pathToMediaFolderBase + pathSeparator + tvShowsFolderName ;
+	private static final String pathToOCRInputDirectory = pathToMediaFolderBase + pathSeparator + "To OCR" ;
+	private static final String pathToTmpDir = pathToMediaFolderBase + pathSeparator + "Test" ;
 
 	/// The string to search for in file paths to determine if this is a tv show
 	private static final String tvPathCheckString = "TV_Shows" ;
-
-	/// The directories to probe
-	/// Broken down into the two USB chains so that applications can
-	/// multithread access to the MP4/MKV drives
-	private final String[] allChainAMP4Drives =
-		{
-				"\\\\skywalker\\Media"
-		} ;
-	private final String[] allChainBMP4Drives =
-		{} ;
-	private final String[] allChainAMKVDrives =
-		{
-				"\\\\\\skywalker\\Media"
-		} ;
-	private final String[] allChainBMKVDrives =
-		{} ;
 
 	/// Class-wide NumberFormat for ease of use in reporting data statistics
 	private NumberFormat numFormat = null ;
@@ -193,61 +165,12 @@ public class Common
 		{
 			log.warning( "Unable to find SubtitleEdit" ) ;
 		}
-
-		for( String testLocation : pathsToDefaultMP4OutputDirectory )
+		
+		if( !getIsWindows() )
 		{
-			if( (new File( testLocation )).isDirectory() )
-			{
-				// Found the file
-				setPathToDefaultMP4OutputDirectory( testLocation ) ;
-				break ;
-			}
+			// Linux naming
+			pathSeparator = "\\\\" ;
 		}
-		if( null == getPathToDefaultMP4OutputDirectory() )
-		{
-			log.warning( "Unable to find defaultMP4OutputDirectory" ) ;
-		}
-
-		if( (new File( "d:\\temp" )).isDirectory() )
-		{
-			pathToTmpDir = "d:\\temp" ;
-		}
-		else if( (new File( "c:\\temp" )).isDirectory() )
-		{
-			pathToTmpDir = "c:\\temp" ;
-		}
-		else
-		{
-			log.warning( "Unable to find tmp dir" ) ;
-		}
-	}
-
-	/**
-	 * Add the Movies and TV Shows subfolder names to each directory path given.
-	 * @param theDrives
-	 * @return
-	 */
-	public List< String > addMoviesAndTVShowFoldersToEachDrive( final List< String > theDrives )
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		for( String theDrive : theDrives )
-		{
-			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + "Movies" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + "TV_Shows" ;
-			//			final String otherVideosFolder = addPathSeparatorIfNecessary( theDrive ) + "Other Videos" ;
-
-			retMe.add( tvShowsFolder ) ;
-			retMe.add( moviesFolder ) ;
-			//			retMe.add( otherVideosFolder ) ;
-		}
-		return retMe ;
-	}
-
-	public List< String > addMoviesAndTVShowFoldersToDrive( final String theDrive )
-	{
-		List< String > tempList = new ArrayList< String >() ;
-		tempList.add( theDrive ) ;
-		return addMoviesAndTVShowFoldersToEachDrive( tempList ) ;
 	}
 
 	/**
@@ -261,20 +184,6 @@ public class Common
 		if( !inputPath.endsWith( getPathSeparator() ) )
 		{
 			retMe = inputPath + getPathSeparator() ;
-		}
-		return retMe ;
-	}
-
-	public List< String > addToConvertToEachDrive( final List< String > theDrives )
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		for( String theDrive : theDrives )
-		{
-			final String moviesFolder = addPathSeparatorIfNecessary( theDrive ) + getPathSeparator() + "To Convert" ;
-			final String tvShowsFolder = addPathSeparatorIfNecessary( theDrive ) + getPathSeparator() + "To Convert - TV Shows" ;
-
-			retMe.add( moviesFolder ) ;
-			retMe.add( tvShowsFolder ) ;
 		}
 		return retMe ;
 	}
@@ -446,7 +355,7 @@ public class Common
 				log.warning( "Failed to access file: " + file + ". Reason: " + exc.getMessage() ) ;
 				return FileVisitResult.CONTINUE ;
 			}
-		};
+		} ;
 
 		try
 		{
@@ -572,7 +481,7 @@ public class Common
 	 */
 	public FFmpegProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
 	{
-		return ffprobeFile( new File( theFile.getMKVInputFileNameWithPath() ), log ) ;
+		return ffprobeFile( theFile.getInputFile(), log ) ;
 	}
 
 	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )
@@ -651,57 +560,26 @@ public class Common
 		}
 		return result.frames ;
 	}
-
-	/**
-	 * Given the list of folders, some of whom may be overlapping on the same drive, separate the folders
-	 *  into one list per drive.
-	 * For example, if foldersToExtract looks like this:
-	 *  ["\\\\yoda\\MKV_Archive1\\To Convert", "\\\\yoda\\MKV_Archive1\\To Convert - TV Shows","E:\","C:\temp"]
-	 * then return this list:
-	 * 	[["\\\\yoda\\MKV_Archive1\\To Convert", "\\\\yoda\\MKV_Archive1\\To Convert - TV Shows"],["E:\"],["C:\temp"]]
-	 * @param foldersToExtract
-	 * @return
-	 */
-	public static Map< String, List< String > > getDrivesAndFolders( final List< String > foldersToExtract )
-	{
-		assert( foldersToExtract != null ) ;
-
-		// This Map is indexed by the drive, with trailing separators.
-		// The value for each index is the list of folders on that drive to extract.
-		Map< String, List< String > > mappedFolders = new HashMap< String, List< String > >() ;
-		for( String folderToExtract : foldersToExtract )
-		{
-			final String theDrive = getDriveWithPathSeparator( folderToExtract ) ;
-			List< String > foldersForThisDrive = mappedFolders.get( theDrive ) ;
-			if( null == foldersForThisDrive )
-			{
-				foldersForThisDrive = new ArrayList< String >() ;
-				mappedFolders.put( theDrive, foldersForThisDrive ) ;
-			}
-			foldersForThisDrive.add( folderToExtract ) ;
-		}
-		return mappedFolders ;
-	}
-
-	/**
-	 * Return the drive on which the given theFolder resides.
-	 * Examples:
-	 *   - "C:\temp\thefile.mkv" -> "C:\\"
-	 *   - "\\\\yoda\\MKV_Archive1\\To Convert\\Transformers (2006)" -> "\\\\yoda\\MKV_Archive1\\"
-	 * @param theFolder
-	 * @return
-	 */
-	public static String getDriveWithPathSeparator( final String theFolder )
-	{
-		assert( theFolder != null ) ;
-		assert( !theFolder.isEmpty() ) ;
-		assert( !theFolder.isBlank() ) ;
-
-		Path thePath = Paths.get( theFolder ) ;
-		final String fileRoot = thePath.getRoot().toString() ;
-
-		return fileRoot ;		
-	}
+//
+//	/**
+//	 * Return the drive on which the given theFolder resides.
+//	 * Examples:
+//	 *   - "C:\temp\thefile.mkv" -> "C:\\"
+//	 *   - "\\\\yoda\\MKV_Archive1\\To Convert\\Transformers (2006)" -> "\\\\yoda\\MKV_Archive1\\"
+//	 * @param theFolder
+//	 * @return
+//	 */
+//	public static String getDriveWithPathSeparator( final String theFolder )
+//	{
+//		assert( theFolder != null ) ;
+//		assert( !theFolder.isEmpty() ) ;
+//		assert( !theFolder.isBlank() ) ;
+//
+//		Path thePath = Paths.get( theFolder ) ;
+//		final String fileRoot = thePath.getRoot().toString() ;
+//
+//		return fileRoot ;		
+//	}
 
 	/**
 	 * Return the extension, without '.', of the given filename.
@@ -790,13 +668,7 @@ public class Common
 	 */
 	public String getPathSeparator()
 	{
-		String retMe = pathSeparator ;
-		if( !getIsWindows() )
-		{
-			// Linux naming
-			retMe = "\\\\" ;
-		}
-		return retMe ;
+		return pathSeparator ;
 	}
 
 	/**
@@ -1093,99 +965,6 @@ public class Common
 		}
 	}
 
-	public List< String > getAllChainAMKVDrives()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainAMKVDrives) ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllChainAMKVDrivesAndFolders()
-	{
-		return addMoviesAndTVShowFoldersToEachDrive( getAllChainAMKVDrives() ) ;
-	}
-
-	public List< String > getAllChainBMKVDrives()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainBMKVDrives ) ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllChainBMKVDrivesAndFolders()
-	{
-		return addMoviesAndTVShowFoldersToEachDrive( getAllChainBMKVDrives() ) ;
-	}
-
-	public List< String > getAllChainAMP4Drives()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainAMP4Drives ) ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllChainAMP4DrivesAndFolders()
-	{
-		return addMoviesAndTVShowFoldersToEachDrive( getAllChainAMP4Drives() ) ;
-	}
-
-	public List< String > getAllChainBMP4Drives()
-	{
-		List< String > retMe = new ArrayList< String >( Arrays.asList( allChainBMP4Drives) ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllChainBMP4DrivesAndFolders()
-	{
-		return addMoviesAndTVShowFoldersToEachDrive( getAllChainBMP4Drives() ) ;
-	}
-
-	public List< String > getAllDrivesAndFolders()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllMP4DrivesAndFolders() ) ;
-		retMe.addAll( getAllMKVDrivesAndFolders() ) ;
-
-		return retMe ;
-	}
-
-	public List< String > getAllDrives()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllMKVDrives() ) ;
-		retMe.addAll( getAllMP4Drives() ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllMKVDrives()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllChainAMKVDrives() )  ;
-		retMe.addAll( getAllChainBMKVDrives() )  ;
-		return retMe ;
-	}
-
-	public List< String > getAllMKVDrivesAndFolders()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllChainAMKVDrivesAndFolders() ) ;
-		retMe.addAll( getAllChainBMKVDrivesAndFolders() ) ;
-		return retMe ;
-	}
-
-	public List< String > getAllMP4Drives()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllChainAMP4Drives() )  ;
-		retMe.addAll( getAllChainBMP4Drives() )  ;
-		return retMe ;
-	}
-
-	public List< String > getAllMP4DrivesAndFolders()
-	{
-		List< String > retMe = new ArrayList< String >() ;
-		retMe.addAll( getAllChainAMP4DrivesAndFolders() ) ;
-		retMe.addAll( getAllChainBMP4DrivesAndFolders() ) ;
-		return retMe ;
-	}
-
 	public static String getAnalyzeDurationString()
 	{
 		return analyzeDurationString;
@@ -1200,59 +979,10 @@ public class Common
 	{
 		return missingFileSubstituteName;
 	}
-	//
-	//	public String getMKVDriveWithMostAvailableSpace()
-	//	{
-	//		String mkvDriveWithMostAvailableSpace = "" ;
-	//		double largestFreeSpaceSoFar = 0.0 ;
-	//
-	//		final List< String > allMKVDrives = getAllMKVDrives() ;
-	//		for( String mkvDrive : allMKVDrives )
-	//		{
-	//			final File mkvDriveFile = new File( mkvDrive ) ;
-	//			final double freeSpaceForThisDrive = mkvDriveFile.getFreeSpace() ;
-	//
-	//			if( (null == mkvDriveWithMostAvailableSpace)
-	//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
-	//			{
-	//				// Found a new largest drive.
-	//				mkvDriveWithMostAvailableSpace = mkvDrive ;
-	//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
-	//			}
-	//		}
-	//		return mkvDriveWithMostAvailableSpace ;
-	//	}
-	//
-	//	public String getMP4DriveWithMostAvailableSpace()
-	//	{
-	//		String mp4DriveWithMostAvailableSpace = "" ;
-	//		double largestFreeSpaceSoFar = 0.0 ;
-	//
-	//		final List< String > allMP4Drives = getAllMP4Drives() ;
-	//		for( String mp4Drive : allMP4Drives )
-	//		{
-	//			final File mp4DriveFile = new File( mp4Drive ) ;
-	//			final double freeSpaceForThisDrive = mp4DriveFile.getFreeSpace() ;
-	//
-	//			if( (null == mp4DriveWithMostAvailableSpace)
-	//					|| (freeSpaceForThisDrive > largestFreeSpaceSoFar) )
-	//			{
-	//				// Found a new largest drive.
-	//				mp4DriveWithMostAvailableSpace = mp4Drive ;
-	//				largestFreeSpaceSoFar = freeSpaceForThisDrive ;
-	//			}
-	//		}
-	//		return mp4DriveWithMostAvailableSpace ;
-	//	}
 
 	public NumberFormat getNumberFormat()
 	{
 		return numFormat ;
-	}
-
-	public String getPathToDefaultMP4OutputDirectory()
-	{
-		return pathToDefaultMP4OutputDirectory ;
 	}
 
 	public String getPathToFFmpeg()
@@ -1270,7 +1000,7 @@ public class Common
 		return pathToSubtitleEdit;
 	}
 
-	public String getPathToTmpDir()
+	public static String getPathToTmpDir()
 	{
 		return pathToTmpDir ;
 	}
@@ -1293,11 +1023,6 @@ public class Common
 	public boolean isDoMoveFiles()
 	{
 		return doMoveFiles;
-	}
-
-	public void setPathToDefaultMP4OutputDirectory( final String pathToDefaultMP4OutputDirectory )
-	{
-		this.pathToDefaultMP4OutputDirectory = pathToDefaultMP4OutputDirectory ;
 	}
 
 	public void setDoMoveFiles( boolean doMoveFiles )
@@ -1351,36 +1076,6 @@ public class Common
 		return retMe ;
 	}
 
-	public static String getPathToMP4s ()
-	{
-		return pathToMP4s ;
-	}
-
-	public static String getPathToMKVs()
-	{
-		return pathToMKVs ;
-	}
-
-	public static String getPathToMP4TVShows()
-	{
-		return pathToMP4TVShows ;
-	}
-
-	public static String getPathToMP4Movies()
-	{
-		return pathToMP4Movies ;
-	}
-
-	public static String getPathToMKVTVShows()
-	{
-		return pathToMKVTVShows ;
-	}
-
-	public static String getPathToMKVMovies()
-	{
-		return pathToMKVMovies ;
-	}
-
 	public static String getPathToOCRInputDirectory()
 	{
 		return pathToOCRInputDirectory ;
@@ -1391,6 +1086,15 @@ public class Common
 		return tvPathCheckString ;
 	}
 
+	public static List< String > getAllMediaFolders()
+	{
+		List< String > allMediaFolders = new ArrayList< String >() ;
+		allMediaFolders.add( getPathToMovies() ) ;
+		allMediaFolders.add( getPathToTVShows() ) ;
+//		allMediaFolders.add( getPathToOtherVideos() ) ;
+		return allMediaFolders ;
+	}
+	
 	public static String getMoviesFolderName()
 	{
 		return moviesFolderName;
@@ -1422,4 +1126,18 @@ public class Common
 		return ((inputPath.contains( "Season " ) && !inputPath.contains( "Season (" )) || inputPath.contains( getTVPathCheckString() ) ) ;
 	}
 
+	public static String getPathToMediaFolderBase()
+	{
+		return pathToMediaFolderBase ;
+	}
+
+	public static String getPathToOtherVideos()
+	{
+		return pathToOtherVideos ;
+	}
+	
+	public static String getPathToToOCR()
+	{
+		return pathToToOCR ;
+	}
 }

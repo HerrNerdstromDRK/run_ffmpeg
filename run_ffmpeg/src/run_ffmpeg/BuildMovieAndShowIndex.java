@@ -88,7 +88,7 @@ public class BuildMovieAndShowIndex
 			final FFmpegProbeResult probeResult,
 			final File theFile )
 	{
-		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
+//		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
 
 		MovieAndShowInfo mapEntry = storageMap.get( movieOrTVShowName ) ;
 		if( null == mapEntry )
@@ -98,15 +98,7 @@ public class BuildMovieAndShowIndex
 			storageMap.put( movieOrTVShowName, mapEntry ) ;
 		}
 		// Post condition: mapEntry is non-null and exists in the storageMap.
-		// Note that addMP4File/addMKVFile below will build correlations for each file.
-		if( isMP4 )
-		{
-			mapEntry.addMP4File( probeResult ) ;
-		}
-		else
-		{
-			mapEntry.addMKVFile( probeResult ) ;
-		}
+		// TODO: Add the file
 		return mapEntry ;
 	}
 
@@ -290,10 +282,6 @@ public class BuildMovieAndShowIndex
 		{
 			//			String movieOrShowName = set.getKey() ;
 			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
-			
-			// This will build the correlated files inside of the movieAndShowInfo
-			// Do this once for each file
-			movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 			moviesAndShowsInfo.add( movieAndShowInfo ) ;
 		}
 		Collections.sort( moviesAndShowsInfo ) ;

@@ -19,7 +19,7 @@ public class FilePathInfo
 	private transient Logger log = null ;
 
 	/// Hook in the Common methods and values
-	private transient Common common = null ;
+//	private transient Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_filepathinfo.txt" ;
@@ -27,7 +27,7 @@ public class FilePathInfo
 	public FilePathInfo()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		common = new Common( log ) ;
+//		common = new Common( log ) ;
 	}
 
 	public static void main( String[] args )
@@ -78,14 +78,6 @@ public class FilePathInfo
 				log.info( "getParentFile().getName(): " + theFile.getParentFile().getName() ) ;
 				log.info( "getParentFile().getParent(): " + theFile.getParentFile().getParent() ) ;
 				log.info( "getPath(): " + theFile.getPath() ) ;
-			}
-
-			final List< String > allMP4Drives = common.getAllMP4Drives() ;
-			for( String mp4Drive : allMP4Drives )
-			{
-				final File mp4DriveFile = new File( mp4Drive ) ;
-				final double freeSpace = mp4DriveFile.getFreeSpace() / (1024.0 * 1024 * 1024) ;
-				log.info( "Free space on " + mp4Drive + ": " + common.getNumberFormat().format( freeSpace ) + "GB" ) ;
 			}
 
 			for( String fileName : fileNames )

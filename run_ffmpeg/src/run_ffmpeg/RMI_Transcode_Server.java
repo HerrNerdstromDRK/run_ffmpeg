@@ -10,7 +10,7 @@ public class RMI_Transcode_Server
 	private Logger log = null ;
 
 	/// The set of methods and variables for common use.
-	private Common common = null ;
+//	private Common common = null ;
 
 	/// File name to which to log activities for this application.
 	private final String logFileName = "log_rmi_transcode_server.txt" ;
@@ -18,7 +18,7 @@ public class RMI_Transcode_Server
 	public RMI_Transcode_Server()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
-		common = new Common( log ) ;
+//		common = new Common( log ) ;
 	}
 
 	public static void main( String[] args )

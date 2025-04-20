@@ -104,7 +104,7 @@ public class CheckLogicalIntegrity
 	}
 
 	/**
-	 * Walk through the MKV and MP4 directory structures and report any empty folders. This is used to identify
+	 * Walk through the media directory structures and report any empty folders. This is used to identify
 	 * any shows/movies that may have been moved without updating the database.
 	 */
 	public void checkForEmptyFolders()
@@ -124,7 +124,7 @@ public class CheckLogicalIntegrity
 			}
 		};
 
-		List< String > allFolders = common.getAllDrivesAndFolders() ;
+		List< String > allFolders = Common.getAllMediaFolders() ;
 		for( String theFolder : allFolders )
 		{
 			log.info( "Checking for empty folders in: " + theFolder ) ;
@@ -136,59 +136,6 @@ public class CheckLogicalIntegrity
 				for( File theFile : filterDirectoryList )
 				{
 					log.info( "Found empty folder: " + theFile.getAbsolutePath() ) ;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Look for any MKV files that are missing the corresponding MP4 files.
-	 * @param probeInfoMap
-	 */
-	public void checkForMissingMKVFiles( final Map< String, MovieAndShowInfo > movieAndShowInfoMap )
-	{
-		for( Map.Entry< String, MovieAndShowInfo > entryMap : movieAndShowInfoMap.entrySet() )
-		{
-			final MovieAndShowInfo theMovieAndShowInfo = entryMap.getValue() ;
-			if( theMovieAndShowInfo.getMP4LongPath().contains( "Other Videos" ) )
-			{
-				// Ignore home videos
-				continue ;
-			}
-
-			final List< CorrelatedFile > theCorrelatedFiles = theMovieAndShowInfo.getCorrelatedFilesList() ;
-			for( CorrelatedFile theCorrelatedFile : theCorrelatedFiles )
-			{
-				final String mkvLongPath = theMovieAndShowInfo.getMKVLongPath() ;
-				final String mkvFileNameWithPath = mkvLongPath
-						+ "\\" + theMovieAndShowInfo.getMovieOrShowName()
-						+ "\\" + theCorrelatedFile.getFileName()
-						+ ".mkv" ;
-				if( mkvLongPath.isBlank()
-						|| mkvLongPath.isEmpty()
-						|| mkvLongPath.equals( Common.getMissingFileSubstituteName() ) )
-				{
-					log.info( "Missing mkv file: " + mkvFileNameWithPath ) ;
-				}
-			}
-		}
-	}
-
-	/**
-	 * Look for any MKV files that are missing the corresponding MP4 files.
-	 * @param probeInfoMap
-	 */
-	public void checkForMissingMP4Files( final Map< String, MovieAndShowInfo > movieAndShowInfoMap )
-	{
-		for( Map.Entry< String, MovieAndShowInfo > entryMap : movieAndShowInfoMap.entrySet() )
-		{
-			final MovieAndShowInfo theMovieAndShowInfo = entryMap.getValue() ;
-			final List< CorrelatedFile > theCorrelatedFiles = theMovieAndShowInfo.getCorrelatedFilesList() ;
-			for( CorrelatedFile theCorrelatedFile : theCorrelatedFiles )
-			{
-				if( theCorrelatedFile.isMissingMP4File() )
-				{
-					log.info( "Missing mp4 file for file: " + theMovieAndShowInfo.getMovieOrShowName() + "\\" + theCorrelatedFile.getFileName() ) ;
 				}
 			}
 		}
@@ -212,196 +159,130 @@ public class CheckLogicalIntegrity
 		}
 	}
 
-	/**
-	 * Print to console all movies with special editions (like extended, uncut, etc.) so that I can
-	 * check if they are shown on the Plex movie list.
-	 * Pre-condition: probeInfoMap is already populated.
-	 */
-	public void listSpecialEditionMovies()
-	{
-		// Will store the movies by file name without path.
-		List< String > specialEditionMovies = new ArrayList< String >() ;
-
-		// Walk through the probeInfoMap
-		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
-		{
-			// The key is the path to the file.
-			final String pathToFile = entry.getKey() ;
-
-			// Keep only mp4 files
-			if( !pathToFile.endsWith( ".mp4" ) )
-			{
-				continue ;
-			}
-
-			// Skip tv shows
-			if( pathToFile.contains( "Season " ) )
-			{
-				continue ;
-			}
-
-			// Skip Other Videos
-			if( pathToFile.contains( "Other Videos" ) )
-			{
-				continue ;
-			}
-			// Post-condition: This is a movie
-
-			if( !pathToFile.contains( "] (" ) )
-			{
-				// Not a special edition/release
-				continue ;
-			}
-			// Post-condition: This is a special edition movie.
-			//			log.info( "Found special edition movie: " + pathToFile ) ;
-
-			final File theFile = new File( pathToFile ) ;
-			String fileName = theFile.getName() ;
-
-			// Strip out any leading words that Plex ignores
-			if( fileName.startsWith( "The " ) )
-			{
-				fileName = fileName.substring( 4 ) ;
-			}
-			else if( fileName.startsWith( "A " ) )
-			{
-				fileName = fileName.substring( 2 ) ;
-			}
-
-			specialEditionMovies.add( fileName ) ;
-		}
-		Collections.sort( specialEditionMovies ) ;
-
-		for( String fileName : specialEditionMovies )
-		{
-			log.info( fileName ) ;
-		}
-	}
-
 	public void loadDatabaseInformation()
 	{
 		log.info( "Loading database information.") ;
 		probeInfoMap = masMDB.loadProbeInfoMap() ;
-		loadMovieAndTVMaps() ;
+//		loadMovieAndTVMaps() ;
 
 		movieAndShowInfoMap = masMDB.loadMovieAndShowInfoMap() ;
 	}
-
-	/**
-	 * Store the path to each mkv and mp4 tv show and movie into separate structures
-	 * TV Show paths are stored as the path to the tv show, not each season: \\\\yoda\\MP4\\TV Shows\\The Office)
-	 * versus ...\\The Office\\Season 01
-	 * Movies are stored similarly: \\\\yoda\\MP4_2\\Movies\Transformers (2009) versus ...\\Transformers (2009)\\Transformers (2009).mkv/mp4
-	 */
-	public void loadMovieAndTVMaps()
-	{
-		// Walk through each FFmpegProbeResult and extract the Movie/TV Show info for each.
-		// Place the entries into the corresponding tv or movie map
-		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
-		{
-			final FFmpegProbeResult probeResult = entry.getValue() ;
-			final String pathToFile = probeResult.getFileNameWithPath() ;
-
-			// Store the FFmpegProbeResult
-			probeInfoMap.put( pathToFile, probeResult ) ;
-
-			// Next, extract TV Show/Movie information
-			// Use a File object to help with parsing
-			File theFile = new File( probeResult.getFileNameWithPath() ) ;
-
-			if( theFile.getParent().contains( "Season " ) )
-			{
-				// TV show
-				// Need to find the name of the tv show, and its path
-				final String tvShowName = theFile.getParentFile().getParentFile().getName() ;
-				final String fullFilePath = theFile.getAbsolutePath() ;
-				final String pathToTVShow = theFile.getParentFile().getParentFile().getAbsolutePath() ;
-				log.fine( "Found TV show: " + tvShowName
-						+ ", fullFilePath: " + fullFilePath
-						+ ", pathToTVShow: " + pathToTVShow ) ;
-
-				if( fullFilePath.endsWith( ".mp4" ) )
-				{
-					// mp4 file
-					Set< String > mp4PathMap = tvShowMP4Map.get( tvShowName ) ;
-					if( null == mp4PathMap )
-					{
-						mp4PathMap = new HashSet< String >() ;
-						tvShowMP4Map.put( tvShowName, mp4PathMap ) ;
-					}
-					mp4PathMap.add( pathToTVShow ) ;
-				}
-				else if( fullFilePath.endsWith( ".mkv" ) )
-				{
-					// mkv file
-					Set< String > mkvPathMap = tvShowMKVMap.get( tvShowName ) ;
-					if( null == mkvPathMap )
-					{
-						mkvPathMap = new HashSet< String >() ;
-						tvShowMKVMap.put( tvShowName, mkvPathMap ) ;
-					}
-					mkvPathMap.add( pathToTVShow ) ;
-				}
-				else if( fullFilePath.endsWith( ".srt" ) )
-				{
-					// subtitle file
-					// Do nothing.
-				}
-				else
-				{
-					log.warning( "Found an unknown extension for file: " + theFile.toString() ) ;
-				}
-
-			}
-			else if( theFile.getParent().contains( "(" ) )
-			{
-				// Movie
-				// Need to find the name of the movie, and its path
-				final String movieName = theFile.getParentFile().getName() ;
-				final String fullFilePath = theFile.getAbsolutePath() ;
-				final String pathToMovie = theFile.getParentFile().getAbsolutePath() ;
-				log.fine( "Found movie: " + movieName
-						+ ", fullFilePath: " + fullFilePath
-						+ ", pathToMovie: " + pathToMovie ) ;
-
-				if( fullFilePath.endsWith( ".mp4" ) )
-				{
-					// mp4 file
-					Set< String > mp4PathMap = movieMP4Map.get( movieName ) ;
-					if( null == mp4PathMap )
-					{
-						mp4PathMap = new HashSet< String >() ;
-						movieMP4Map.put( movieName, mp4PathMap ) ;
-					}
-					mp4PathMap.add( pathToMovie ) ;
-				}
-				else if( fullFilePath.endsWith( ".mkv" ) )
-				{
-					// mkv file
-					Set< String > mkvPathMap = movieMKVMap.get( movieName ) ;
-					if( null == mkvPathMap )
-					{
-						mkvPathMap = new HashSet< String >() ;
-						movieMKVMap.put( movieName, mkvPathMap ) ;
-					}
-					mkvPathMap.add( pathToMovie ) ;
-				}
-				else if( fullFilePath.endsWith( ".srt" ) )
-				{
-					// subtitle file
-					// Do nothing.
-				}
-				else
-				{
-					log.warning( "Found an unknown extension for file: " + theFile.toString() ) ;
-				}
-			}
-		} // while( iterator )
-
-		log.info( "tvShowMP4Map.size(): " + tvShowMP4Map.size() ) ;
-		log.info( "tvShowMKVMap.size(): " + tvShowMKVMap.size() ) ;
-		log.info( "movieMP4Map.size(): " + movieMP4Map.size() ) ;
-		log.info( "movieMKVMap.size(): " + movieMKVMap.size() ) ;
-	}
+//
+//	/**
+//	 * Store the path to each mkv and mp4 tv show and movie into separate structures
+//	 * TV Show paths are stored as the path to the tv show, not each season: \\\\yoda\\MP4\\TV Shows\\The Office)
+//	 * versus ...\\The Office\\Season 01
+//	 * Movies are stored similarly: \\\\yoda\\MP4_2\\Movies\Transformers (2009) versus ...\\Transformers (2009)\\Transformers (2009).mkv/mp4
+//	 */
+//	public void loadMovieAndTVMaps()
+//	{
+//		// Walk through each FFmpegProbeResult and extract the Movie/TV Show info for each.
+//		// Place the entries into the corresponding tv or movie map
+//		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
+//		{
+//			final FFmpegProbeResult probeResult = entry.getValue() ;
+//			final String pathToFile = probeResult.getFileNameWithPath() ;
+//
+//			// Store the FFmpegProbeResult
+//			probeInfoMap.put( pathToFile, probeResult ) ;
+//
+//			// Next, extract TV Show/Movie information
+//			// Use a File object to help with parsing
+//			File theFile = new File( probeResult.getFileNameWithPath() ) ;
+//
+//			if( theFile.getParent().contains( "Season " ) )
+//			{
+//				// TV show
+//				// Need to find the name of the tv show, and its path
+//				final String tvShowName = theFile.getParentFile().getParentFile().getName() ;
+//				final String fullFilePath = theFile.getAbsolutePath() ;
+//				final String pathToTVShow = theFile.getParentFile().getParentFile().getAbsolutePath() ;
+//				log.fine( "Found TV show: " + tvShowName
+//						+ ", fullFilePath: " + fullFilePath
+//						+ ", pathToTVShow: " + pathToTVShow ) ;
+//
+//				if( fullFilePath.endsWith( ".mp4" ) )
+//				{
+//					// mp4 file
+//					Set< String > mp4PathMap = tvShowMP4Map.get( tvShowName ) ;
+//					if( null == mp4PathMap )
+//					{
+//						mp4PathMap = new HashSet< String >() ;
+//						tvShowMP4Map.put( tvShowName, mp4PathMap ) ;
+//					}
+//					mp4PathMap.add( pathToTVShow ) ;
+//				}
+//				else if( fullFilePath.endsWith( ".mkv" ) )
+//				{
+//					// mkv file
+//					Set< String > mkvPathMap = tvShowMKVMap.get( tvShowName ) ;
+//					if( null == mkvPathMap )
+//					{
+//						mkvPathMap = new HashSet< String >() ;
+//						tvShowMKVMap.put( tvShowName, mkvPathMap ) ;
+//					}
+//					mkvPathMap.add( pathToTVShow ) ;
+//				}
+//				else if( fullFilePath.endsWith( ".srt" ) )
+//				{
+//					// subtitle file
+//					// Do nothing.
+//				}
+//				else
+//				{
+//					log.warning( "Found an unknown extension for file: " + theFile.toString() ) ;
+//				}
+//
+//			}
+//			else if( theFile.getParent().contains( "(" ) )
+//			{
+//				// Movie
+//				// Need to find the name of the movie, and its path
+//				final String movieName = theFile.getParentFile().getName() ;
+//				final String fullFilePath = theFile.getAbsolutePath() ;
+//				final String pathToMovie = theFile.getParentFile().getAbsolutePath() ;
+//				log.fine( "Found movie: " + movieName
+//						+ ", fullFilePath: " + fullFilePath
+//						+ ", pathToMovie: " + pathToMovie ) ;
+//
+//				if( fullFilePath.endsWith( ".mp4" ) )
+//				{
+//					// mp4 file
+//					Set< String > mp4PathMap = movieMP4Map.get( movieName ) ;
+//					if( null == mp4PathMap )
+//					{
+//						mp4PathMap = new HashSet< String >() ;
+//						movieMP4Map.put( movieName, mp4PathMap ) ;
+//					}
+//					mp4PathMap.add( pathToMovie ) ;
+//				}
+//				else if( fullFilePath.endsWith( ".mkv" ) )
+//				{
+//					// mkv file
+//					Set< String > mkvPathMap = movieMKVMap.get( movieName ) ;
+//					if( null == mkvPathMap )
+//					{
+//						mkvPathMap = new HashSet< String >() ;
+//						movieMKVMap.put( movieName, mkvPathMap ) ;
+//					}
+//					mkvPathMap.add( pathToMovie ) ;
+//				}
+//				else if( fullFilePath.endsWith( ".srt" ) )
+//				{
+//					// subtitle file
+//					// Do nothing.
+//				}
+//				else
+//				{
+//					log.warning( "Found an unknown extension for file: " + theFile.toString() ) ;
+//				}
+//			}
+//		} // while( iterator )
+//
+//		log.info( "tvShowMP4Map.size(): " + tvShowMP4Map.size() ) ;
+//		log.info( "tvShowMKVMap.size(): " + tvShowMKVMap.size() ) ;
+//		log.info( "movieMP4Map.size(): " + movieMP4Map.size() ) ;
+//		log.info( "movieMKVMap.size(): " + movieMKVMap.size() ) ;
+//	}
 
 }

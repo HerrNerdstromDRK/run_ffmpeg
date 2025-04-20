@@ -42,7 +42,7 @@ public class DeleteDuplicativeSUPFiles
 
 	public void runAll()
 	{
-		List< String > allFolders = common.getAllMKVDrivesAndFolders() ;
+		List< String > allFolders = Common.getAllMediaFolders() ;
 		log.info( "Deleting .sup files from " + allFolders.size() + " folder(s)" ) ;
 		for( String folderName : allFolders )
 		{

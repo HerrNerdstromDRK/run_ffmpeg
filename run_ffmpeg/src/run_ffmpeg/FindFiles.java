@@ -60,7 +60,7 @@ public class FindFiles extends run_ffmpegControllerThreadTemplate< FindFilesWork
 		List< String > folderNames = new ArrayList< String >() ;
 		
 		FindFiles moveFiles = new FindFiles() ;
-		folderNames.addAll( moveFiles.common.addMoviesAndTVShowFoldersToEachDrive( moveFiles.common.getAllMKVDrives() ) ) ;
+		folderNames.addAll( Common.getAllMediaFolders() ) ;
 		moveFiles.addFoldersToSearch( folderNames ) ;
 		moveFiles.addExtensionsToFind( TranscodeCommon.getTranscodeExtensions() ) ;
 		

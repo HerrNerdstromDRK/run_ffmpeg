@@ -7,11 +7,11 @@ public class TranscodeFileSortLargeToSmall implements Comparator< TranscodeFile 
 	@Override
 	public int compare( TranscodeFile lhs, TranscodeFile rhs )
 	{
-		if ( lhs.getMKVInputFile().length() > rhs.getMKVInputFile().length() )
+		if ( lhs.getInputFileSize() > rhs.getInputFileSize() )
 		{
 			return -1;
 		}
-		else if (lhs.getMKVInputFile().length() < rhs.getMKVInputFile().length() )
+		else if (lhs.getInputFileSize() < rhs.getInputFileSize() )
 		{
 			return 1;
 		}

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
+import com.google.gson.Gson;
+
 /**
  * Represent a file to be transcoded, including all of its output paths.
  * Assumption: A TV Show always has "Season " somewhere in its path.
@@ -21,18 +23,13 @@ public class TranscodeFile
 	/// with a file to be transcoded.
 
 	/// File representing the input file
-	protected File mkvInputFile = null ;
+	protected File inputFile = null ;
 
-	/// File representing the final mkv final (in its final location)
-	/// May be the same as the mkvInputFile
-	protected File mkvFinalFile = null ;
-
-	/// File representing the mp4 output file that is built with the transcode.
-	/// May or may not be the same as the mp4FinalFile
-	protected File mp4OutputFile = null ;
+	/// File representing the output file that is built with the transcode.
+	protected File tmpOutputFile = null ;
 
 	/// File representing the mp4 file in its final location. May be the same as the mp4OutputFile
-	protected File mp4FinalFile = null ;
+	protected File finalOutputFile = null ;
 
 	/// Logging stream
 	private transient Logger log = null ;
@@ -83,39 +80,27 @@ public class TranscodeFile
 	/**
 	 * mkvInputFile is the file with full path to the .mkv file. The next three are directories.
 	 */
-	public TranscodeFile( final File mkvInputFile,
-			final String mkvFinalDirectory,
-			final String mp4OutputDirectory,
-			final String mp4FinalDirectory,
+	public TranscodeFile( final File inputFile,
+			final String tmpOutputDirectory,
+			final String finalOutputDirectory,
 			Logger log )
 	{
-		assert( mkvInputFile != null ) ;
-		assert( mkvInputFile.exists() ) ;
-		assert( !mkvInputFile.isDirectory() ) ;
-		assert( mkvFinalDirectory != null ) ;
-		assert( mp4OutputDirectory != null ) ;
-		assert( mp4FinalDirectory != null ) ;
+		assert( inputFile != null ) ;
+		assert( inputFile.exists() ) ;
+		assert( !inputFile.isDirectory() ) ;
+		assert( tmpOutputDirectory != null ) ;
+		assert( finalOutputDirectory != null ) ;
 
-		setMKVInputFile( mkvInputFile ) ;
+		setInputFile( inputFile ) ;
 		this.log = log ;
 		common = new Common( log ) ;
 
-		/// Build the mkvFinalFile
-		final String mkvFinalFileNameWithPath = common.addPathSeparatorIfNecessary( mkvFinalDirectory ) + mkvInputFile.getName() ;
-		setMKVFinalFile( new File( mkvFinalFileNameWithPath ) ) ;
+		final String tmpOutputFileName = inputFile.getName() ;
+		final String tmpOutputFileNameWithPath = common.addPathSeparatorIfNecessary( getTmpOutputDirectory() ) + tmpOutputFileName ;
+		setTmpOutputFile( new File( tmpOutputFileNameWithPath ) ) ;
 
-		final String mp4OutputFileName = mkvInputFile.getName().replace( ".mkv", ".mp4" ) ;
-		final String mp4OutputFileNameWithPath = common.addPathSeparatorIfNecessary( mp4OutputDirectory ) + mp4OutputFileName ;
-		setMP4OutputFile( new File( mp4OutputFileNameWithPath ) ) ;
-
-		final String mp4FinalFileNameWithPath = common.addPathSeparatorIfNecessary( mp4FinalDirectory ) + mp4OutputFileName ;
-		setMP4FinalFile( new File( mp4FinalFileNameWithPath ) ) ;
-
-		//		this.transcodeCommon = new TranscodeCommon( log, common,
-		//				getMKVInputDirectory(),
-		//				getMKVFinalDirectory(),
-		//				getMP4OutputDirectory(),
-		//				getMP4FinalDirectory() ) ;
+		final String finalOutputFileNameWithPath = common.addPathSeparatorIfNecessary( finalOutputDirectory ) + tmpOutputFileName ;
+		setFinalOutputFile( new File( finalOutputFileNameWithPath ) ) ;
 
 		buildPaths() ;
 		buildSubTitleFileLists() ;
@@ -145,23 +130,23 @@ public class TranscodeFile
 	private void buildPaths()
 	{
 		// First, extract the tv show or movie name and associated information
-		if( getMKVInputDirectory().contains( "Season " ) )
+		if( getInputDirectory().contains( "Season " ) )
 		{
 			// TV Show
 			//			log.fine( "Found tv show file: " + getMKVInputFileNameWithPath() ) ;
 			setTVShow() ;
 
-			setTVShowName( getMKVInputDirectoryFile().getParentFile().getName() ) ;
-			setTVShowSeasonName( getMKVInputFile().getParentFile().getName() ) ;
+			setTVShowName( getInputDirectoryFile().getParentFile().getName() ) ;
+			setTVShowSeasonName( getInputFile().getParentFile().getName() ) ;
 		}
-		else if( getMKVInputDirectory().contains( "(" ) )
+		else if( getInputDirectory().contains( "(" ) )
 		{
 			// Movie
 			//			log.fine( "Found movie file: " + getMKVInputFileNameWithPath() ) ;
 
 			// The formal should be like this:
 			// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
-			setMovieName( getMKVInputDirectoryFile().getName() ) ;
+			setMovieName( getInputDirectoryFile().getName() ) ;
 			// movieName should be of the form "Transformers (2007)"
 		}
 		else
@@ -171,7 +156,7 @@ public class TranscodeFile
 			setOtherVideo( true ) ;
 
 			// Treat this as a movie in most respects, except the path
-			setMovieName( getMKVInputDirectoryFile().getName() ) ;
+			setMovieName( getInputDirectoryFile().getName() ) ;
 		}
 	}
 
@@ -215,7 +200,7 @@ public class TranscodeFile
 			else
 			{
 				// Does not include movie directory in the path
-				setMovieName( getMKVInputDirectoryFile().getName() ) ;
+				setMovieName( getInputDirectoryFile().getName() ) ;
 				finalDirectoryPath += getMovieName() + common.getPathSeparator() ;
 			}
 		} // if( isTVShow() )
@@ -240,10 +225,10 @@ public class TranscodeFile
 		// fileNameSearchString is the wildcard/regex search string for the file name (no path)
 		// Retrieve the filename and remove the extension.
 		// --> Movie name [Unrated] (2001).
-		final String fileNameWithoutExtension = getMKVFileName().substring( 0, getMKVFileName().indexOf( "." ) + 1 ) ;
+		final String fileNameWithoutExtension = Common.stripExtensionFromFileName( getInputFile().getName() ) ;
 
 		// Now search for any file that starts with the fileNameWithPath and ends with .srt
-		final File[] filesInDirectory = getMKVInputDirectoryFile().listFiles() ;
+		final File[] filesInDirectory = getInputDirectoryFile().listFiles() ;
 		if( null == filesInDirectory )
 		{
 			log.warning( "Found empty directory for file: " + toString() ) ;
@@ -377,7 +362,7 @@ public class TranscodeFile
 
 	public long getInputFileSize()
 	{
-		return getMKVInputFile().length() ;
+		return getInputFile().length() ;
 	}
 
 	public String getMetaDataTitle()
@@ -385,8 +370,8 @@ public class TranscodeFile
 		String metaDataTitle = "" ;
 
 		// Remove the extension
-		String fileNameWithoutExtension = getMP4FileName().replace( ".mp4", "" ) ;
-
+		String fileNameWithoutExtension = Common.stripExtensionFromFileName( getInputFile().getName() ) ;
+				
 		StringTokenizer tokens = new StringTokenizer( fileNameWithoutExtension, "-" ) ;
 
 		// 0 tokens means it is a movie
@@ -421,107 +406,74 @@ public class TranscodeFile
 		return metaDataTitle ;
 	}
 
-	public String getMKVFileName()
+	public String getInputDirectory()
 	{
-		return getMKVInputFile().getName() ;
+		return getInputFile().getParent() ;
 	}
 
-	public boolean getMKVFileShouldMove()
+	public File getInputDirectoryFile()
 	{
-		return !getMKVInputDirectory().equals( getMKVFinalDirectory() ) ;
+		return getInputFile().getParentFile() ;
 	}
 
-	public String getMKVFinalDirectory()
+	protected File getInputFile()
 	{
-		return getMKVFinalFile().getParent() ;
+		return inputFile;
 	}
 
-	public String getMKVFinalDirectoryFile()
+	public String getInputFileNameWithPath()
 	{
-		return getMKVFinalFile().getParent() ;
+		return getInputFile().getAbsolutePath() ;
 	}
 
-	protected File getMKVFinalFile()
+	public String getMovieName()
 	{
-		return mkvFinalFile;
+		return movieName ;
 	}
 
-	public String getMKVFinalFileNameWithPath()
+	public String getTmpOutputFileName()
 	{
-		return getMKVFinalFile().getAbsolutePath() ;
+		return getFinalOutputFile().getName() ;
 	}
 
-	public String getMKVInputDirectory()
+	public String getFinalOutputDirectory()
 	{
-		return getMKVInputFile().getParent() ;
+		return getFinalOutputFile().getParent() ;
 	}
 
-	public File getMKVInputDirectoryFile()
+	public String getFinalOutputDirectoryFile()
 	{
-		return getMKVInputFile().getParentFile() ;
+		return getFinalOutputFile().getParent() ;
 	}
 
-	protected File getMKVInputFile()
+	protected File getFinalOutputFile()
 	{
-		return mkvInputFile;
+		return finalOutputFile ;
 	}
 
-	public String getMKVInputFileNameWithPath()
+	public String getFinalOutputFileNameWithPath()
 	{
-		return getMKVInputFile().getAbsolutePath() ;
+		return getFinalOutputFile().getAbsolutePath() ;
 	}
 
-	public String getMovieName() {
-		return movieName;
-	}
-
-	public String getMP4FileName()
+	public String getTmpOutputDirectory()
 	{
-		return getMP4FinalFile().getName() ;
+		return getTmpOutputFile().getParent() ;
 	}
 
-	public boolean getMP4FileShouldMove()
+	public File getTmpOutputDirectoryFile()
 	{
-		return !getMP4FinalDirectory().equals( getMP4OutputDirectory() ) ;
+		return getTmpOutputFile().getParentFile() ;
 	}
 
-	public String getMP4FinalDirectory()
+	protected File getTmpOutputFile()
 	{
-		return getMP4FinalFile().getParent() ;
+		return tmpOutputFile;
 	}
 
-	public String getMP4FinalDirectoryFile()
+	public String getTmpOutputFileNameWithPath()
 	{
-		return getMP4FinalFile().getParent() ;
-	}
-
-	protected File getMP4FinalFile() {
-		return mp4FinalFile;
-	}
-
-	public String getMP4FinalFileNameWithPath()
-	{
-		return getMP4FinalFile().getAbsolutePath() ;
-	}
-
-	public String getMP4OutputDirectory()
-	{
-		return getMP4OutputFile().getParent() ;
-	}
-
-	public File getMP4OutputDirectoryFile()
-	{
-		return new File( getMP4OutputFile().getParent() ) ;
-	}
-
-	protected File getMP4OutputFile()
-	{
-		return mp4OutputFile;
-	}
-
-	public String getMP4OutputFileNameWithPath()
-	{
-		return getMP4OutputFile().getAbsolutePath() ;
+		return getTmpOutputFile().getAbsolutePath() ;
 	}
 
 	public int getNumAudioStreams()
@@ -565,7 +517,7 @@ public class TranscodeFile
 
 	public boolean getTranscodeStatus( final String extensionToCheck )
 	{
-		final String transcodeExtensionFileName = Common.replaceExtension( getMKVInputFileNameWithPath(), extensionToCheck ) ;
+		final String transcodeExtensionFileName = Common.replaceExtension( getInputFileNameWithPath(), extensionToCheck ) ;
 		if( common.fileExists( transcodeExtensionFileName ))
 		{
 			log.fine( extensionToCheck + "> Found file " + transcodeExtensionFileName ) ;
@@ -642,14 +594,8 @@ public class TranscodeFile
 	 */
 	public void makeDirectories()
 	{
-		common.makeDirectory( getMKVFinalDirectory() ) ;
-		common.makeDirectory( getMP4OutputDirectory() ) ;
-		common.makeDirectory( getMP4FinalDirectory() ) ;
-	}
-
-	public int numRealSRTInputFiles()
-	{
-		return srtFileList.size() ;
+		common.makeDirectory( getTmpOutputDirectory() ) ;
+		common.makeDirectory( getFinalOutputDirectory() ) ;
 	}
 
 	protected void processAudioStreams( List< FFmpegStream > inputStreams )
@@ -700,7 +646,7 @@ public class TranscodeFile
 			}
 			else
 			{
-				log.warning( "Unknown channel_layout: " + theInputStream.channel_layout + " for file " + getMKVInputFile().getAbsolutePath() ) ;
+				log.warning( "Unknown channel_layout: " + theInputStream.channel_layout + " for file " + getInputFile().getAbsolutePath() ) ;
 			}
 		}
 	}
@@ -731,15 +677,18 @@ public class TranscodeFile
 		//		}
 	}
 
-	public void setAudioHasFivePointOne(boolean _audioHasFivePointOne) {
+	public void setAudioHasFivePointOne(boolean _audioHasFivePointOne)
+	{
 		this._audioHasFivePointOne = _audioHasFivePointOne;
 	}
 
-	public void setAudioHasSixPointOne(boolean _audioHasSixPointOne) {
+	public void setAudioHasSixPointOne(boolean _audioHasSixPointOne)
+	{
 		this._audioHasSixPointOne = _audioHasSixPointOne;
 	}
 
-	public void setAudioHasSevenPointOne(boolean _audioHasSevenPointOne) {
+	public void setAudioHasSevenPointOne(boolean _audioHasSevenPointOne)
+	{
 		this._audioHasSevenPointOne = _audioHasSevenPointOne;
 	}
 
@@ -747,32 +696,29 @@ public class TranscodeFile
 		this._audioHasStereo = _audioHasStereo;
 	}
 
-	protected void setMKVFinalFile( File _mkvFinalFile )
+	protected void setFinalOutputFile( File finalOutputFile )
 	{
-		this.mkvFinalFile = _mkvFinalFile ;
+		this.finalOutputFile = finalOutputFile ;
 	}
 
-	protected void setMKVInputFile( File _mkvInputFile )
+	protected void setInputFile( File inputFile )
 	{
-		this.mkvInputFile = _mkvInputFile ;
+		this.inputFile = inputFile ;
 	}
 
-	public void setMovieName(String movieName) {
-		this.movieName = movieName;
-	}
-
-	protected void setMP4FinalFile( File _mp4FinalFile )
+	public void setMovieName( final String movieName )
 	{
-		this.mp4FinalFile = _mp4FinalFile ;
+		this.movieName = movieName ;
 	}
 
-	protected void setMP4OutputFile( File _mp4OutputFile )
+	protected void setTmpOutputFile( File tmpOutputFile )
 	{
-		this.mp4OutputFile = _mp4OutputFile ;
+		this.tmpOutputFile = tmpOutputFile ;
 	}
 
-	public void setOtherVideo(boolean isOtherVideo) {
-		this.isOtherVideo = isOtherVideo;
+	public void setOtherVideo(boolean isOtherVideo)
+	{
+		this.isOtherVideo = isOtherVideo ;
 	}
 
 	public void setTranscodeComplete()
@@ -787,7 +733,7 @@ public class TranscodeFile
 
 	public void setTranscodeStatus( final String extensionToWrite )
 	{
-		final String mkvTouchFileName = Common.replaceExtension( getMKVInputFileNameWithPath(), extensionToWrite ) ;
+		final String mkvTouchFileName = Common.replaceExtension( getInputFileNameWithPath(), extensionToWrite ) ;
 		log.fine( extensionToWrite + "> Touching file: " + mkvTouchFileName ) ;
 		if( !common.getTestMode() )
 		{
@@ -800,28 +746,21 @@ public class TranscodeFile
 		isTVShow = true ;
 	}
 
-	public void setTVShowName(String tvShowName) {
-		this.tvShowName = tvShowName;
+	public void setTVShowName( String tvShowName )
+	{
+		this.tvShowName = tvShowName ;
 	}
 
-	public void setTVShowSeasonName(String tvShowSeasonName) {
-		this.tvShowSeasonName = tvShowSeasonName;
+	public void setTVShowSeasonName(String tvShowSeasonName)
+	{
+		this.tvShowSeasonName = tvShowSeasonName ;
 	}
 
-	@Override
 	public String toString()
 	{
-		String retMe = "mkvInputFile: "
-				+ getMKVInputFile().toString()
-				+ ", mkvFinalFile: "
-				+ getMKVFinalFile().toString()
-				+ ", mp4OutputFile: "
-				+ getMP4OutputFile().toString()
-				+ ", mp4FinalFile: "
-				+ getMP4FinalFile().toString()
-				+ ", length: "
-				+ getInputFileSize() ;
-		return retMe ;
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
 	}
 
 	public void unSetTranscodeComplete()
@@ -836,17 +775,27 @@ public class TranscodeFile
 
 	public void unSetTranscodeStatus( final String extensionToWrite )
 	{
-		final String mkvTouchFileName = Common.replaceExtension( getMKVInputFileNameWithPath(), extensionToWrite ) ;
-		log.info( extensionToWrite + "> Deleting file: " + mkvTouchFileName ) ;
+		final String touchFileName = Common.replaceExtension( getInputFileNameWithPath(), extensionToWrite ) ;
+		log.info( extensionToWrite + "> Deleting file: " + touchFileName ) ;
 		if( !common.getTestMode() )
 		{
-			File fileToDelete = new File( mkvTouchFileName ) ;
+			File fileToDelete = new File( touchFileName ) ;
 			fileToDelete.delete() ;
 		}
 	}
 
-	public FFmpegProbeResult getTheFFmpegProbeResult() {
-		return theFFmpegProbeResult;
+	public FFmpegProbeResult getTheFFmpegProbeResult()
+	{
+		return theFFmpegProbeResult ;
+	}
+	
+	public int numSRTFiles()
+	{
+		return srtFileList.size() ;
 	}
 
+	public String getInputFileName()
+	{
+		return getInputFile().getName() ;
+	}
 }

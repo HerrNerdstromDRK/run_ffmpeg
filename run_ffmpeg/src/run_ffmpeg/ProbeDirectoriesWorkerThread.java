@@ -28,10 +28,11 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	private List< String > foldersToProbe = null ;
 
 	/// The extensions of the files to probe herein.
-	private final String[] extensionsToProbe = {
-			".mkv",
-			".mp4"
-	} ;
+	private final String[] extensionsToProbe =
+		{
+				".mkv",
+				".mp4"
+		} ;
 
 	public ProbeDirectoriesWorkerThread( ProbeDirectories pdController,
 			Logger log,
@@ -59,22 +60,8 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	 * Check all existing probeInfo records against files in the file system. Remove
 	 * any database entries that do not correlate to files that exist.
 	 */
-	protected void checkForMissingFiles()
+	protected void checkForMissingFiles( final List< File > foundFiles )
 	{
-		List< File > foundFiles = new ArrayList< File >() ;
-
-		// Iterate through each of the folders to probe. For each, find all files in the directory tree.
-		for( String folderToProbe : foldersToProbe )
-		{
-			if( !shouldKeepRunning() )
-			{
-				return ;
-			}
-			List< File > filesInThisFolder = common.getFilesInDirectoryByExtension(
-					folderToProbe, extensionsToProbe ) ;
-			// getFilesInDirectoryByExtension() may return an empty List, but it is guaranteed to be non-null.
-			foundFiles.addAll( filesInThisFolder ) ;
-		}		
 		log.info( getName() + " Found " + foundFiles.size() + " file(s)" ) ;
 
 		// Need to walk through the probeInfoMap and check if each entry corresponds to an active file.
@@ -212,9 +199,33 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	/**
 	 * Walk through all files in the file system and probe any files that are not in the database.
 	 */
-	protected void probeNewFiles()
+	protected void probeNewFiles( final List< File > filesToProbe )
 	{
-		// Walk through each folder
+		log.info( "Probing " + filesToProbe.size() + " file(s)" ) ;
+
+		// Walk through each file in this folder
+		for( File fileToProbe : filesToProbe )
+		{
+			// Be sure to check if we should shut down on a regular basis.
+			if( !shouldKeepRunning() )
+			{
+				// Stop running
+				//					log.info( getName() + " Shutting down thread" ) ;
+				break ;
+			}
+
+			probeFileAndUpdateDB( fileToProbe ) ;
+		} // for( fileToProbe )
+	} // probeNewFiles()
+
+	@Override
+	public void run()
+	{
+		log.info( getName() + " Probing drives and folders: " + foldersToProbe.toString() ) ;
+
+		// Both getForMissingFiles() and probeNewFiles() query all files in foldersToProbe
+		// Query the filesystem once here
+		List< File > matchingFiles = new ArrayList< File >() ;
 		for( String folderToProbe : foldersToProbe )
 		{
 			if( !shouldKeepRunning() )
@@ -223,40 +234,15 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 				//				log.info( "Shutting down thread" ) ;
 				break ;
 			}
-
-			log.fine( getName() + " Probing folder: " + folderToProbe ) ;
-
 			// Find files in this folder to probe
-			List< File > filesToProbe = common.getFilesInDirectoryByExtension( folderToProbe, extensionsToProbe ) ;
-
-			// Walk through each file in this folder
-			for( File fileToProbe : filesToProbe )
-			{
-				// Be sure to check if we should shut down on a regular basis.
-				if( !shouldKeepRunning() )
-				{
-					// Stop running
-					//					log.info( getName() + " Shutting down thread" ) ;
-					break ;
-				}
-
-				probeFileAndUpdateDB( fileToProbe ) ;
-			} // for( fileToProbe )
-
-			log.info( getName() + " Completed probing folder: " + folderToProbe ) ;
-		} // for( folderToProbe )
-	}
-
-	@Override
-	public void run()
-	{
-		log.info( getName() + " Probing drives and folders: " + foldersToProbe.toString() ) ;
+			matchingFiles.addAll( common.getFilesInDirectoryByExtension( folderToProbe, extensionsToProbe ) ) ;
+		}
 
 		{
 			final long startTime = System.nanoTime() ;
 			log.info( getName() + " Checking for missing files" ) ;
 
-			checkForMissingFiles() ;
+			checkForMissingFiles( matchingFiles ) ;
 
 			final long endTime = System.nanoTime() ;
 			log.info( getName() + " Finished checking for missing files " + foldersToProbe.toString()
@@ -267,7 +253,7 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 			final long startTime = System.nanoTime() ;
 
 			log.info( getName() + " Probing new files" ) ;
-			probeNewFiles() ;
+			probeNewFiles( matchingFiles ) ;
 
 			final long endTime = System.nanoTime() ;
 			log.info( getName() + " Finished probing " + foldersToProbe.toString()

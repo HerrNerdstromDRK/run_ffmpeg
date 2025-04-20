@@ -30,34 +30,34 @@ public class WorkflowStageThread_UpdateCorrelatedFile extends WorkflowStageThrea
 		// Get the jobrecord from the database.
 		// No real way to do this without deleting jobs.
 		// If I don't delete the job, then this thread will infinitely spin on this one item.
-		JobRecord_UpdateCorrelatedFile theJob = jobRecord_UpdateCorrelatedFileInfoCollection.findOneAndDelete( null ) ;
-		if( null == theJob )
-		{
-			// Nothing to do.
-			return ;
-		}
-		log.info( "Got job: " + theJob ) ;
-		
-		Bson movieAndShowInfoIDdFilter = Filters.eq( "_id", theJob.getMovieAndShowInfo_id() ) ;
-		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDdFilter ).first() ;
-		if( null == movieAndShowInfo )
-		{
-			log.warning( "Unable to find movieAndShowInfo: " + theJob.getMovieAndShowInfo_id().toString() ) ;
-			return ;
-		}
-		log.fine( "Found movieAndShowInfo: " + theJob.toString() );
-		
-		Bson probeIDFilter = Filters.eq( "_id", theJob.getFfmpegProbeResult_id() ) ;
-		FFmpegProbeResult probeInfoFindResult = probeInfoCollection.find( probeIDFilter ).first() ;
-		if( null == probeInfoFindResult )
-		{
-			log.warning( "Unable to find FFmpegProbeResult: " + theJob.getFfmpegProbeResult_id() ) ;
-			return ;
-		}
-		// Post condition: movieAndShowInfo and probeInfoResult are both valid
-		
-		movieAndShowInfo.updateCorrelatedFile( probeInfoFindResult ) ;
-		movieAndShowInfo.makeReadyCorrelatedFilesList() ;
-		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDdFilter,  movieAndShowInfo ) ;
+//		JobRecord_UpdateCorrelatedFile theJob = jobRecord_UpdateCorrelatedFileInfoCollection.findOneAndDelete( null ) ;
+//		if( null == theJob )
+//		{
+//			// Nothing to do.
+//			return ;
+//		}
+//		log.info( "Got job: " + theJob ) ;
+//		
+//		Bson movieAndShowInfoIDdFilter = Filters.eq( "_id", theJob.getMovieAndShowInfo_id() ) ;
+//		MovieAndShowInfo movieAndShowInfo = movieAndShowInfoCollection.find( movieAndShowInfoIDdFilter ).first() ;
+//		if( null == movieAndShowInfo )
+//		{
+//			log.warning( "Unable to find movieAndShowInfo: " + theJob.getMovieAndShowInfo_id().toString() ) ;
+//			return ;
+//		}
+//		log.fine( "Found movieAndShowInfo: " + theJob.toString() );
+//		
+//		Bson probeIDFilter = Filters.eq( "_id", theJob.getFfmpegProbeResult_id() ) ;
+//		FFmpegProbeResult probeInfoFindResult = probeInfoCollection.find( probeIDFilter ).first() ;
+//		if( null == probeInfoFindResult )
+//		{
+//			log.warning( "Unable to find FFmpegProbeResult: " + theJob.getFfmpegProbeResult_id() ) ;
+//			return ;
+//		}
+//		// Post condition: movieAndShowInfo and probeInfoResult are both valid
+//		
+//		movieAndShowInfo.updateCorrelatedFile( probeInfoFindResult ) ;
+//		movieAndShowInfo.makeReadyCorrelatedFilesList() ;
+//		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDdFilter,  movieAndShowInfo ) ;
 	}
 }

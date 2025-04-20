@@ -3,7 +3,6 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
 
@@ -57,7 +56,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 		super( logFileName, stopFileName ) ;
 		initObject() ;
 	}
-	
+
 	/**
 	 * Constructor used primarily by external classes.
 	 * @param log
@@ -83,7 +82,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		initObject() ;
 	}
-	
+
 	/**
 	 * Initialize this object.
 	 */
@@ -110,45 +109,18 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 	{
 		List< ExtractSubtitlesWorkerThread > threads = new ArrayList< ExtractSubtitlesWorkerThread >() ;
 
-		if( isUseThreads() )
-		{
-			// The internal foldersToExtract structure identifies individual folders to extract, some of which may 
-			// the same drive ("To Convert" and "To Convert - TV Shows" on the same drive), so assign
-			// one drive per folder.
-			// Breakdown each of the given folders by the drive to which they are assigned.
-			// This structure consists of one list of folders per each drive. 
-			Map< String, List< String > > foldersByDrive = Common.getDrivesAndFolders( foldersToExtract ) ;
+		// NOT using threads.
+		// Just create a single thread instance and pass it the entire list of folders to extract.
+		// Thread.start() will NOT be called -- just run() directly.
+		ExtractSubtitlesWorkerThread newWorkerThread = new ExtractSubtitlesWorkerThread(
+				this,
+				log,
+				common,
+				probeDirectories,
+				foldersToExtract ) ;
+		newWorkerThread.setName( getSingleThreadedName() ) ;
+		threads.add( newWorkerThread ) ;
 
-			// Create a new thread for each drive.
-			for( Map.Entry< String, List< String > > entrySet : foldersByDrive.entrySet() )
-			{
-				final String theDrive = entrySet.getKey() ;
-				final List< String > foldersOnThisDrive = entrySet.getValue() ;
-
-				ExtractSubtitlesWorkerThread newWorkerThread = new ExtractSubtitlesWorkerThread(
-						this,
-						log,
-						common,
-						probeDirectories,
-						foldersOnThisDrive ) ;
-				newWorkerThread.setName( theDrive ) ;
-				threads.add( newWorkerThread ) ;
-			}
-		}
-		else
-		{
-			// NOT using threads.
-			// Just create a single thread instance and pass it the entire list of folders to extract.
-			// Thread.start() will NOT be called -- just run() directly.
-			ExtractSubtitlesWorkerThread newWorkerThread = new ExtractSubtitlesWorkerThread(
-					this,
-					log,
-					common,
-					probeDirectories,
-					foldersToExtract ) ;
-			newWorkerThread.setName( getSingleThreadedName() ) ;
-			threads.add( newWorkerThread ) ;
-		}
 		return threads ;
 	}
 
@@ -168,12 +140,12 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 			boolean extractAllFolders = false ;
 			if( extractAllFolders )
 			{
-				foldersToExtract = common.addToConvertToEachDrive( common.getAllMKVDrives() ) ;
+				foldersToExtract = Common.getAllMediaFolders() ;
 			}
 			else
 			{
 				foldersToExtract = new ArrayList< String >() ;
-				foldersToExtract.add( "\\\\skywalker\\Media\\Staging\\Archer (2009)" ) ;
+				foldersToExtract.add( Common.getPathToOCRInputDirectory() ) ;
 			}
 		}
 	}
@@ -185,7 +157,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 			// Pipeline disabled.
 			return ;
 		}
-	
+
 		synchronized( filePipeline )
 		{
 			filePipeline.add( theFile ) ;
@@ -199,7 +171,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 			// Pipeline disabled.
 			return ;
 		}
-	
+
 		synchronized( filePipeline )
 		{
 			filePipeline.addAll( theFiles ) ;

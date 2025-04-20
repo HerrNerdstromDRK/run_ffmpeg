@@ -4,10 +4,18 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
+import org.bson.conversions.Bson;
+
 import com.google.common.collect.ImmutableList;
+import com.mongodb.client.FindIterable;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 
 /**
  * This class upgrades MKVs to H.265/HEVC and replaces them in the original location.
@@ -36,73 +44,75 @@ public class UpgradeMKVToH265
 	
 	public void execute()
 	{
-		common.setTestMode( false ) ;
+		common.setTestMode( true ) ;
 		
-		List< String > directoriesToUpgrade = new ArrayList< String >() ;
+//		List< String > directoriesToUpgrade = new ArrayList< String >() ;
+		findFilesThatAreNotH265() ;
+		
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\TV_Shows\\Californication (2007)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\The Shining (1980)" ) ;
 //		directoriesToUpgrade.add( Common.getPrimaryfileservername() + "\\Media\\Movies\\A Fistful Of Dollars (1964)" ) ;
 //		directoriesToUpgrade.add( pathToMKVs ) ;
 //		directoriesToUpgrade.add( "d:\\temp\\Test (2025)" ) ;
-		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 00" ) ;
-		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
-		
-		List< File > filesEndingWithMKV = new ArrayList< File >() ;
-		for( String directory : directoriesToUpgrade )
-		{
-			filesEndingWithMKV.addAll( common.getFilesInDirectoryByExtension( directory, "mkv" ) ) ;
-		}
-		log.info( "Found " + filesEndingWithMKV.size() + " mkv file(s): " + filesEndingWithMKV.toString() ) ;
-		
-		for( File mkvFile : filesEndingWithMKV )
-		{
-			log.info( "Checking file: " + mkvFile.getAbsolutePath() ) ;
-			if( mkvFile.getAbsolutePath().contains( "OLD - " ) )
-			{
-				// Old file -- ignore it.
-				log.fine( "Ignoring old file: " + mkvFile.getAbsolutePath() ) ;
-				continue ;
-			}
-			
-			FFmpegProbeResult probeResult = common.ffprobeFile( mkvFile, log ) ;
-			log.fine( "ffprobe result for file " + mkvFile.getAbsolutePath() + ": " + probeResult.toString() ) ;
-			
-			// Verify that stream 0 is video
-			List< FFmpegStream > videoStreams = probeResult.getStreamsByCodecType( "video" ) ;
-			if( videoStreams.isEmpty() )
-			{
-				log.warning( "No video streams for file " + mkvFile.getAbsolutePath() ) ;
-				continue ;
-			}
-			// Found at least one video stream
-			
-			if( videoStreams.size() > 1 )
-			{
-				log.warning( "Found " + videoStreams.size() + " video streams in file " + mkvFile.getAbsolutePath() + "; skipping" ) ;
-				continue ;
-			}
-			// Exactly 1 video stream exists in this file
-			
-			// A video with H.265/HEVC will have its codec_name be "hevc"
-			FFmpegStream videoStream = videoStreams.get( 0 ) ;
-			assert( videoStream != null ) ;
-			
-			if( videoStream.codec_name.equals( "hevc" ) )
-			{
-				// Already H265
-				log.info( "Skipping " + mkvFile.getAbsolutePath() + " because it's already H.265" ) ;
-				continue ;
-			}
-			// Found an mkvFile to upgrade
-			upgradeFile( mkvFile ) ;			
-		}		
+//		directoriesToUpgrade.add( "\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 00" ) ;
+//		log.info( "directoriesToUpgrade: " + directoriesToUpgrade.toString() ) ;
+//		
+//		List< File > filesEndingWithMKV = new ArrayList< File >() ;
+//		for( String directory : directoriesToUpgrade )
+//		{
+//			filesEndingWithMKV.addAll( common.getFilesInDirectoryByExtension( directory, "mkv" ) ) ;
+//		}
+//		log.info( "Found " + filesEndingWithMKV.size() + " mkv file(s): " + filesEndingWithMKV.toString() ) ;
+//		
+//		for( File mkvFile : filesEndingWithMKV )
+//		{
+//			log.info( "Checking file: " + mkvFile.getAbsolutePath() ) ;
+//			if( mkvFile.getAbsolutePath().contains( "OLD - " ) )
+//			{
+//				// Old file -- ignore it.
+//				log.fine( "Ignoring old file: " + mkvFile.getAbsolutePath() ) ;
+//				continue ;
+//			}
+//			
+//			FFmpegProbeResult probeResult = common.ffprobeFile( mkvFile, log ) ;
+//			log.fine( "ffprobe result for file " + mkvFile.getAbsolutePath() + ": " + probeResult.toString() ) ;
+//			
+//			// Verify that stream 0 is video
+//			List< FFmpegStream > videoStreams = probeResult.getStreamsByCodecType( "video" ) ;
+//			if( videoStreams.isEmpty() )
+//			{
+//				log.warning( "No video streams for file " + mkvFile.getAbsolutePath() ) ;
+//				continue ;
+//			}
+//			// Found at least one video stream
+//			
+//			if( videoStreams.size() > 1 )
+//			{
+//				log.warning( "Found " + videoStreams.size() + " video streams in file " + mkvFile.getAbsolutePath() + "; skipping" ) ;
+//				continue ;
+//			}
+//			// Exactly 1 video stream exists in this file
+//			
+//			// A video with H.265/HEVC will have its codec_name be "hevc"
+//			FFmpegStream videoStream = videoStreams.get( 0 ) ;
+//			assert( videoStream != null ) ;
+//			
+//			if( videoStream.codec_name.equals( "hevc" ) )
+//			{
+//				// Already H265
+//				log.info( "Skipping " + mkvFile.getAbsolutePath() + " because it's already H.265" ) ;
+//				continue ;
+//			}
+//			// Found an mkvFile to upgrade
+//			upgradeFile( mkvFile ) ;			
+//		}		
 	}
 	
 	public void upgradeFile( final File inputFile )
 	{
 		log.info( "Upgrading file " + inputFile.getAbsolutePath() ) ;
-		
-		final String tmpDir = common.getPathToTmpDir() ;
+
+		final String tmpDir = Common.getPathToTmpDir() ;
 		
 		// Build the ffmpeg command
 		// ffmpegCommand will hold the command to execute ffmpeg
@@ -198,6 +208,70 @@ public class UpgradeMKVToH265
 		{
 			log.warning( "Error moving files: " + theException.toString() ) ;
 		}		
+	}
+	
+	/**
+	 * Return a MultiMap of all files that are not H265.
+	 * The key is codec_name ("h264, mpeg2video, etc.), and the FFmpegProbeResult corresponds to that file.
+	 * @return
+	 */
+	public Map< String, List< FFmpegProbeResult > > findFilesThatAreNotH265()
+	{
+		MoviesAndShowsMongoDB masMDB =  new MoviesAndShowsMongoDB( log ) ;
+		MongoCollection< FFmpegProbeResult > probeInfoCollection = masMDB.getProbeInfoCollection() ;
+		Map< String, List< FFmpegProbeResult > > filesNotH265 = new HashMap< String, List< FFmpegProbeResult > >() ;
+		
+		log.info( "Loading probe info collection" ) ;
+		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
+		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+
+		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+
+		// This loop stores all FFmpegProbeResults in a single structure
+		while( probeInfoFindResultIterator.hasNext() )
+		{
+			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			
+			if( probeResult.isH265() )
+			{
+			}
+			else if( probeResult.isH264() )
+			{
+				List< FFmpegProbeResult > h264Probes = filesNotH265.get( "H264" ) ;
+				if( null == h264Probes )
+				{
+					h264Probes = new ArrayList< FFmpegProbeResult >() ;
+					filesNotH265.put( "H264", h264Probes ) ;
+				}
+				h264Probes.add( probeResult ) ;
+			}
+			else if( probeResult.isMP2() )
+			{
+				List< FFmpegProbeResult > mp2Probes = filesNotH265.get( "MP2" ) ;
+				if( null == mp2Probes )
+				{
+					mp2Probes = new ArrayList< FFmpegProbeResult >() ;
+					filesNotH265.put( "MP2", mp2Probes ) ;
+				}
+				mp2Probes.add( probeResult ) ;
+//				log.info( "Found mp2: " + probeResult.fileNameWithPath ) ;
+			}
+			else if( probeResult.isVC1() )
+			{
+				List< FFmpegProbeResult > vc1Probes = filesNotH265.get( "vc1" ) ;
+				if( null == vc1Probes )
+				{
+					vc1Probes = new ArrayList< FFmpegProbeResult >() ;
+					filesNotH265.put( "vc1", vc1Probes ) ;
+				}
+				vc1Probes.add( probeResult ) ;				
+			}
+			else
+			{
+				log.warning( "Unknown video stream: " + probeResult.streams.get( 0 ).codec_name ) ;
+			}
+		} // while( probe....hasNext() )
+		return filesNotH265 ;
 	}
 	
 	public String getTitle( final File inputFile )

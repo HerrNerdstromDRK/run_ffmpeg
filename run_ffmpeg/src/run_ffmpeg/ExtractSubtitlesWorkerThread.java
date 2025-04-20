@@ -118,9 +118,9 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			// Create the .sup filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
-			String outputPath = theFile.getMKVInputDirectory() ;
+			String outputPath = theFile.getInputDirectory() ;
 			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputPath )
-					+ theFile.getMKVFileName().replace( ".mkv", "" ) ;
+					+ Common.stripExtensionFromFileName( theFile.getInputFile().getName() ) ;
 
 			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
 			outputFileNameWithPath += ".en" ;
@@ -184,7 +184,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
 		ffmpegSubTitleExtractCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
 		ffmpegSubTitleExtractCommand.add( "-probesize", Common.getProbeSizeString() ) ;
-		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
+		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getInputFileNameWithPath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
 		boolean executeSuccess = common.executeCommand( ffmpegSubTitleExtractCommand ) ;
@@ -197,7 +197,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			// Successful extract.
 			// Prune the current folder for small sup files.
 			PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
-			File regularFile = new File( fileToSubTitleExtract.getMKVInputFileNameWithPath() ) ;
+			File regularFile = new File( fileToSubTitleExtract.getInputFileNameWithPath() ) ;
 			pssf.pruneFolder( regularFile.getParent() ) ;
 
 			// Now pass any remaining sup files to the pipeline for OCR and beyond.
@@ -319,13 +319,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			}
 
 			// Create an instance of TranscodeCommon to access its internal file evaluation methods.
-			TranscodeCommon transcodeCommon = new TranscodeCommon(
-					log,
-					common,
-					folderName,
-					"", // mkvFinalDirectory
-					"", // mp4OutputDirectory
-					"" ) ; // mp4FinalDirectory 
+			TranscodeCommon transcodeCommon = new TranscodeCommon( log, common ) ;
 
 			// First, survey the input directory for files to process, and build
 			// a TranscodeFile object for each.
@@ -378,18 +372,18 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		// Skip this file if a .srt file exists in its directory (extract already done).
 		if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
 		{
-			log.fine( getName() + " Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getMKVInputFileNameWithPath() ) ;
+			log.fine( getName() + " Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getInputFileNameWithPath() ) ;
 			return ;
 		}
 
 		// Look for usable subtitle streams in the file and retrieve a list of options
 		// for an ffmpeg extract command.
 		// Do NOT update the database here.
-		FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess.getMKVInputFile(), log ) ;
+		FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess.getInputFile(), log ) ;
 		if( null == probeResult )
 		{
 			// Unable to ffprobe the file
-			log.warning( "Error probing file: \"" + theFileToProcess.getMKVInputFileNameWithPath() + "\"" ) ;
+			log.warning( "Error probing file: \"" + theFileToProcess.getInputFileNameWithPath() + "\"" ) ;
 			return ;
 		}
 

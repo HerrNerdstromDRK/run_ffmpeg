@@ -12,13 +12,6 @@ public class TranscodeCommon
 {
 	private transient Logger log = null ;
 	private transient Common common = null ;
-	private String mkvInputDirectory = null ;
-	private String mkvFinalDirectory = null ;
-	private String mp4OutputDirectory = null ;
-	private String mp4FinalDirectory = null ;
-
-	/// Default location for MP4 working directory.
-//	private final static String defaultMP4OutputDirectory = "c:\\Temp" ;
 	
 	/// Set whether or not to transcode video
 	/// This is usually true, however the option here to disable video transcode is intended to be used
@@ -61,27 +54,16 @@ public class TranscodeCommon
 		// Transcode by including all languages listed in an array of language names
 		audioStreamsByName
 	} ;
+	
 	private final audioStreamTranscodeOptionsType audioStreamTranscodeOptions = audioStreamTranscodeOptionsType.audioStreamsByName ;
 	
-	public TranscodeCommon( Logger log, Common common, final String mkvInputDirectory,
-			final String mkvFinalDirectory,
-			final String Directory,
-			final String mp4FinalDirectory  )
+	public TranscodeCommon( Logger log, Common common )
 	{
 		assert( log != null ) ;
 		assert( common != null ) ;
-		assert( mkvInputDirectory != null ) ;
-		assert( !mkvInputDirectory.isBlank() ) ;
 		
 		this.log = log ;
 		this.common = common ;
-		
-		// Some uses of the TranscodeFile do not use the last three directories.
-		// However, they should still be valid.
-		this.mkvInputDirectory = mkvInputDirectory ;
-		this.mkvFinalDirectory = mkvFinalDirectory.isBlank() ? mkvInputDirectory : mkvFinalDirectory ;
-		this.mp4OutputDirectory = ((null == mp4OutputDirectory) || mp4OutputDirectory.isBlank()) ? mkvInputDirectory : mp4OutputDirectory ;
-		this.mp4FinalDirectory = mp4FinalDirectory.isBlank() ? mkvInputDirectory : mp4FinalDirectory ;
 	}
 	
 	/**
@@ -92,11 +74,7 @@ public class TranscodeCommon
 	 */
 	public TranscodeCommon( Logger log, Common common, TranscodeFile theFile )
 	{
-		this( log, common,
-				theFile.getMKVInputDirectory(),
-				theFile.getMKVFinalDirectory(),
-				theFile.getMP4OutputDirectory(),
-				theFile.getMP4FinalDirectory() ) ;
+		this( log, common ) ;
 	}
 	
 	/**
@@ -235,7 +213,7 @@ public class TranscodeCommon
 		// Afterward, handle the forced subtitles.
 		boolean foundNonForcedSubtTileStream = false ;
 		int inputFileMappingIndex = 1 ;
-		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numRealSRTInputFiles() ; ++srtFileIndex )
+		for( int srtFileIndex = 0 ; srtFileIndex < theTranscodeFile.numSRTFiles() ; ++srtFileIndex )
 		{
 			final File theSRTFile = theTranscodeFile.getRealSRTFile( srtFileIndex ) ;
 			if( !theSRTFile.getName().contains( forcedSubTitleFileNameContains ) )
@@ -349,26 +327,6 @@ public class TranscodeCommon
 		return forcedSubTitleFileNameContains;
 	}
 
-	public String getMkvFinalDirectory()
-	{
-		return mkvFinalDirectory;
-	}
-
-	public String getMkvInputDirectory()
-	{
-		return mkvInputDirectory;
-	}
-
-	public String getMp4FinalDirectory()
-	{
-		return mp4FinalDirectory;
-	}
-
-	public String getMp4OutputDirectory()
-	{
-		return mp4OutputDirectory;
-	}
-
 	public static String[] getTranscodeExtensions()
 	{
 		return transcodeExtensions;
@@ -382,22 +340,21 @@ public class TranscodeCommon
     public List< TranscodeFile > getTranscodeFilesInDirectory( final File inputDirectory, final String[] transcodeExtensions )
     {
     	List< TranscodeFile > transcodeFilesInDirectory = new ArrayList< >() ;
-    	for( String extension : transcodeExtensions )
-    	{
-    		List< File > filesByExtension = common.getFilesInDirectoryByExtension( inputDirectory.getAbsolutePath(), extension ) ;
-    		for( File theFile : filesByExtension )
-    		{
-    			TranscodeFile newTranscodeFile = new TranscodeFile( theFile,
-    					mkvFinalDirectory,
-    					mp4OutputDirectory,
-    					mp4FinalDirectory,
-    					log ) ;
-    			transcodeFilesInDirectory.add( newTranscodeFile ) ;
-    		}
-    	}
-    	return transcodeFilesInDirectory ;
+//    	for( String extension : transcodeExtensions )
+//    	{
+//    		List< File > filesByExtension = common.getFilesInDirectoryByExtension( inputDirectory.getAbsolutePath(), extension ) ;
+//    		for( File theFile : filesByExtension )
+//    		{
+//    			TranscodeFile newTranscodeFile = new TranscodeFile( theFile,
+//    					mkvFinalDirectory,
+//    					mp4OutputDirectory,
+//    					mp4FinalDirectory,
+//    					log ) ;
+//    			transcodeFilesInDirectory.add( newTranscodeFile ) ;
+//    		}
+//    	}
+   	return transcodeFilesInDirectory ;
     }
-    
 
 	public boolean isAddAudioStereoStream()
 	{
@@ -460,7 +417,7 @@ public class TranscodeCommon
 			
 			// 2) Include source file
 			// Note that the input here is the mp4 file, not the mkv file, since this is a remux of the mp4.
-			ffmpegCommand.add( "-i", inputFile.getMP4FinalFileNameWithPath() ) ;
+			ffmpegCommand.add( "-i", inputFile.getFinalOutputFileNameWithPath() ) ;
 		
 			// 3) Include all other input files (such as .srt, except forced subtitles)
 			for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
@@ -488,7 +445,7 @@ public class TranscodeCommon
 //			ffmpegCommand.add( "-c:s", "mov_text" ) ;
 		
 			//  8) Add output filename (.mp4)
-			ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
+			ffmpegCommand.add( inputFile.getTmpOutputFileNameWithPath() ) ;
 		
 			long startTime = System.nanoTime() ;
 			log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
@@ -506,7 +463,7 @@ public class TranscodeCommon
 		
 			double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
 			log.info( "Elapsed time to remux "
-					+ inputFile.getMKVFileName()
+					+ inputFile.getInputFile().getName()
 					+ ": "
 					+ common.getNumberFormat().format( timeElapsedInSeconds )
 					+ " seconds, "
@@ -526,26 +483,6 @@ public class TranscodeCommon
 	public void setDoTranscodeVideo( boolean doTranscodeVideo )
 	{
 		this.doTranscodeVideo = doTranscodeVideo;
-	}
-
-	public void setMkvInputDirectory( String mkvInputDirectory )
-	{
-		this.mkvInputDirectory = mkvInputDirectory;
-	}
-
-	public void setMkvFinalDirectory( String mkvFinalDirectory )
-	{
-		this.mkvFinalDirectory = mkvFinalDirectory;
-	}
-
-	public void setMp4FinalDirectory( String mp4FinalDirectory )
-	{
-		this.mp4FinalDirectory = mp4FinalDirectory;
-	}
-
-	public void setMp4OutputDirectory( String mp4OutputDirectory )
-	{
-		this.mp4OutputDirectory = mp4OutputDirectory;
 	}
 
 	public List< TranscodeFile > surveyInputDirectoryAndBuildTranscodeFiles(
@@ -604,7 +541,7 @@ public class TranscodeCommon
 		ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
 		
 		// 2) Include source file
-		ffmpegCommand.add( "-i", inputFile.getMKVInputFileNameWithPath() ) ;
+		ffmpegCommand.add( "-i", inputFile.getInputFileNameWithPath() ) ;
 	
 		// 3) Include all other input files (such as .srt, except forced subtitles)
 		for( Iterator< File > fileIterator = inputFile.getSRTFileListIterator() ; fileIterator.hasNext() ; )
@@ -628,7 +565,7 @@ public class TranscodeCommon
 		//  7) Add metadata info
 		
 		//  8) Add output filename (.mp4)
-		ffmpegCommand.add( inputFile.getMP4OutputFileNameWithPath() ) ;
+		ffmpegCommand.add( inputFile.getTmpOutputFileNameWithPath() ) ;
 	
 		long startTime = System.nanoTime() ;
 		log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
@@ -646,7 +583,7 @@ public class TranscodeCommon
 	
 		double timePerGigaByte = timeElapsedInSeconds / (inputFile.getInputFileSize() / 1000000000.0) ;
 		log.info( "Elapsed time to transcode "
-				+ inputFile.getMKVFileName()
+				+ inputFile.getInputFileName()
 				+ ": "
 				+ common.getNumberFormat().format( timeElapsedInSeconds )
 				+ " seconds, "
