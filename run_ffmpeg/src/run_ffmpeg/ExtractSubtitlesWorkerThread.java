@@ -303,48 +303,35 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	public void run()
 	{
 		log.info( getName() + " Extracting folders: " + foldersToExtract.toString() ) ;
+		final String[] extensionsToExtract = { ".mkv", ".MKV", ".mp4" } ;
 
 		final long startTime = System.nanoTime() ;
 		setWorkInProgress( true ) ;
 
-		List< TranscodeFile > filesToProcess = new ArrayList< TranscodeFile >() ;
-
-		// Build all of the TranscodeFiles for all folders.
+		List< File > filesToExtract = new ArrayList< File >() ;
 		for( String folderName : foldersToExtract )
 		{
-			if( !shouldKeepRunning() )
-			{
-				log.info( getName() + " Stopping execution shouldKeepRunning() returning false" ) ;
-				return ;
-			}
-
-			// Create an instance of TranscodeCommon to access its internal file evaluation methods.
-			TranscodeCommon transcodeCommon = new TranscodeCommon( log, common ) ;
-
-			// First, survey the input directory for files to process, and build
-			// a TranscodeFile object for each.
-			filesToProcess.addAll( transcodeCommon.surveyInputDirectoryAndBuildTranscodeFiles( folderName,
-					TranscodeCommon.getTranscodeExtensions() ) ) ;
-		} // for( folderName )
+			filesToExtract.addAll( common.getFilesInDirectoryByExtension( folderName, extensionsToExtract ) ) ;
+		}
 
 		// Extract the largest files first to coincide with the OCR order
-		Collections.sort( filesToProcess, new TranscodeFileSortLargeToSmall() ) ;
+		Collections.sort( filesToExtract, new FileSortLargeToSmall() ) ;
 
-		log.info( "Extracting " + filesToProcess.size() + " file(s)" ) ;
+		log.info( "Extracting " + filesToExtract.size() + " file(s)" ) ;
 		//		for( TranscodeFile theFile : filesToProcess )
 		//		{
 		//			log.info( theFile.toString() ) ;
 		//		}
 
 		// Perform the core work of this application of extracting the files.
-		for( TranscodeFile theFileToProcess : filesToProcess )
+		for( File theFile : filesToExtract )
 		{
 			if( !shouldKeepRunning() )
 			{
 				log.info( getName() + " Stopping execution shouldKeepRunning returning false" ) ;
 				return ;
 			}
-			runOneFile( theFileToProcess ) ;
+			runOneFile( theFile ) ;
 		}
 
 		log.info( getName() + " Completed extracting subtitle files from folder " + foldersToExtract ) ;
@@ -361,7 +348,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	 * Extract from this one file.
 	 * @param theFileToProcess
 	 */
-	public void runOneFile( TranscodeFile theFileToProcess )
+	public void runOneFile( File inputFile )
 	{
 		if( !shouldKeepRunning() )
 		{
@@ -369,25 +356,27 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			return ;
 		}
 
+		TranscodeFile theTranscodeFile = new TranscodeFile( inputFile, log ) ;
 		// Skip this file if a .srt file exists in its directory (extract already done).
-		if( theFileToProcess.hasSRTInputFiles() || theFileToProcess.hasSUPInputFiles() )
+		if( theTranscodeFile.hasSRTInputFiles() || theTranscodeFile.hasSUPInputFiles() )
 		{
-			log.fine( getName() + " Skipping file due to presence of SRT or SUP file: " + theFileToProcess.getInputFileNameWithPath() ) ;
+			log.fine( getName() + " Skipping file due to presence of SRT or SUP file: " + inputFile.getAbsolutePath() ) ;
 			return ;
 		}
 
 		// Look for usable subtitle streams in the file and retrieve a list of options
 		// for an ffmpeg extract command.
 		// Do NOT update the database here.
-		FFmpegProbeResult probeResult = common.ffprobeFile( theFileToProcess.getInputFile(), log ) ;
+		FFmpegProbeResult probeResult = common.ffprobeFile( inputFile, log ) ;
 		if( null == probeResult )
 		{
 			// Unable to ffprobe the file
-			log.warning( "Error probing file: \"" + theFileToProcess.getInputFileNameWithPath() + "\"" ) ;
+			log.warning( "Error probing file: " + inputFile.getAbsolutePath() ) ;
 			return ;
 		}
+		theTranscodeFile.processFFmpegProbeResult( probeResult ) ;
 
-		extractSubtitles( theFileToProcess, probeResult ) ;
+		extractSubtitles( theTranscodeFile, probeResult ) ;
 	}
 
 	public boolean shouldKeepRunning()

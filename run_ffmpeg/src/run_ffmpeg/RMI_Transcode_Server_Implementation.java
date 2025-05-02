@@ -42,8 +42,6 @@ public class RMI_Transcode_Server_Implementation extends UnicastRemoteObject imp
 		log.info( "Upgrading file " + inputFile.getAbsolutePath() + " starting at " + inputFileStartTimeSeconds + " second(s) and continuing for "
 				+ durationSeconds + " second(s)" ) ;
 
-		final String tmpDir = common.getPathToTmpDir() ;
-
 		// Build the ffmpeg command
 		// ffmpegCommand will hold the command to execute ffmpeg
 		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
@@ -79,7 +77,7 @@ public class RMI_Transcode_Server_Implementation extends UnicastRemoteObject imp
 		ffmpegCommand.add( "-c:s", "copy" ) ;
 
 		// Add output filename
-		final String outputFileNameWithPath = tmpDir
+		final String outputFileNameWithPath = Common.getPathToTmpDir()
 				+ common.getPathSeparator()
 				+ Common.stripExtensionFromFileName( inputFile.getName() )
 				+ "_" + inputFileStartTimeSeconds

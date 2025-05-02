@@ -49,9 +49,9 @@ public class CompareTranscodeOptions
 
 	protected static String[] inputFilesPaths =
 		{
-				"\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 03\\Rick And Morty - S03E01 - The Rickshank Redemption.mkv", // h264 HD
-				"\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006)\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv", // vc1 HD
-				"\\\\\\skywalker\\Media\\TV_Shows\\The Simpsons (1989)\\Season 01\\The Simpsons - S01E01 - Simpsons Roasting On The Open Fire.mkv" // mp2 SD
+//				"\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013) {tvdb-275274}\\Season 03\\Rick And Morty - S03E01 - The Rickshank Redemption.mkv", // h264 HD
+				"\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006) {tvdb-79257}\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv", // vc1 HD
+//				"\\\\\\skywalker\\Media\\TV_Shows\\The Simpsons (1989) {tvdb-71663}\\Season 01\\The Simpsons - S01E01 - Simpsons Roasting On The Open Fire.mkv" // mp2 SD
 		} ;
 
 	public CompareTranscodeOptions()
@@ -67,171 +67,178 @@ public class CompareTranscodeOptions
 
 	public void execute()
 	{
-		common.setTestMode( true ) ;
-
-		for( String inputFilePath : inputFilesPaths )
-		{
-			final File inputFile = new File( inputFilePath ) ;
-			assert( inputFile.exists() ) ;
-
-			FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
-
-			runTestsOnInputFile( inputFile, inputFileProbeResult ) ;
-		}
-	}
-
-	public void runTestsOnInputFile( final File inputFile, FFmpegProbeResult inputFileProbeResult )
-	{
-		assert( inputFile != null ) ;
-		assert( inputFile.exists() ) ;
-
-		if( inputFileProbeResult.isH265() )
-		{
-			// Nothing to do
-		}
-		else if( inputFileProbeResult.isH264() )
-		{
-			testTranscodeToH265( inputFile, inputFileProbeResult ) ;
-		}
-		else if( inputFileProbeResult.isMP2() )
-		{
-			testTranscodeToH264( inputFile, inputFileProbeResult ) ;
-			testTranscodeToH265( inputFile, inputFileProbeResult ) ;
-		}
-		else
-		{
-			log.info( "Unknown video codec for file: " + inputFile.getAbsolutePath() ) ;
-		}
-	}
-
-	public void testTranscodeToH264( final File inputFile, FFmpegProbeResult inputFileProbeResult )
-	{
-		testTranscode( inputFile, inputFileProbeResult, false ) ;
-	}
-
-	public void testTranscodeToH265( final File inputFile, FFmpegProbeResult inputFileProbeResult )
-	{
-		testTranscode( inputFile, inputFileProbeResult, true ) ;	
-	}
-
-	public void testTranscode( final File inputFile, FFmpegProbeResult inputFileProbeResult, boolean toH265 )
-	{
+		common.setTestMode( false ) ;
+		
 		try
 		{
 			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
 			BufferedWriter dataFileWriter = new BufferedWriter( new FileWriter( dataFileName ) ) ;
+			testAll( dataFileWriter ) ;
 
-			for( String preset : variable_presets )
-			{
-				for( String crf : variable_crf )
-				{
-					// Build the ffmpeg command
-					// ffmpegCommand will hold the command to execute ffmpeg
-					ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
-
-					// Setup ffmpeg basic options
-					ffmpegCommand.add( common.getPathToFFmpeg() ) ;
-
-					// Overwrite existing files
-					ffmpegCommand.add( "-y" ) ;
-
-					// Not exactly sure what these do but it seems to help reduce errors on some files.
-					ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
-					ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
-
-					// Include source file
-					ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
-
-					// Transcode to H265
-					if( toH265 )
-					{
-						ffmpegCommand.add( "-c:v", "libx265" ) ;
-					}
-					else
-					{
-						ffmpegCommand.add( "-c:v", "libx264" ) ;						
-					}
-					ffmpegCommand.add( "-preset", preset ) ;
-					ffmpegCommand.add( "-crf", crf) ;
-					//					ffmpegCommand.add( "-tag:v", "hvc1" ) ;
-					ffmpegCommand.add( "-movflags", "+faststart" ) ;
-					ffmpegCommand.add( "-metadata", "title=" + getTitle( inputFile ) ) ;
-
-					// Copy audio and subtitles
-					//					ffmpegCommand.add( "-map", "0:a" ) ;
-					ffmpegCommand.add( "-c:a", "copy" ) ;
-					//					ffmpegCommand.add( "-map", "0:s" ) ;
-					ffmpegCommand.add( "-c:s", "copy" ) ;
-
-					// Add output filename
-					String outputFileNameWithPath = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
-							+ Common.stripExtensionFromFileName( inputFile.getName() )
-							+ "_" + inputFileProbeResult.getVideoCodec()
-							+ "_to" ;
-					if( toH265 )
-					{
-						outputFileNameWithPath += "_h265" ;
-
-					}
-					else
-					{
-						outputFileNameWithPath += "_h264" ;
-					}
-					outputFileNameWithPath += "_preset_" + preset
-							+ "_crf_" + crf
-							+ "." + Common.getExtension( inputFile.getName() ) ;							
-					//					log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
-					ffmpegCommand.add( outputFileNameWithPath ) ;
-
-					long startTime = System.nanoTime() ;
-					log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-
-					// Only execute the transcode if testMode is false
-					boolean executeSuccess = common.executeCommand( ffmpegCommand ) ;
-					if( !executeSuccess )
-					{
-						log.warning( "Error in execute command" ) ;
-						// Do not move any files since the transcode failed
-						return ;
-					}
-
-					long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-
-					double timePerGigaByte = timeElapsedInSeconds / (inputFile.length() / 1000000000.0) ;
-					log.info( "Elapsed time to transcode "
-							+ inputFile.getAbsolutePath()
-							+ ": "
-							+ common.getNumberFormat().format( timeElapsedInSeconds )
-							+ " seconds, "
-							+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
-							+ " minutes, or "
-							+ common.getNumberFormat().format( timePerGigaByte )
-							+ " seconds per GB" ) ;
-
-					// Write data to file
-					// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
-					String transcodeDataLine = 	inputFileProbeResult.getVideoCodec() + "," ;
-					if( toH265 ) 	transcodeDataLine += "h265" + "," ;
-					else			transcodeDataLine += "h264" + "," ;
-					transcodeDataLine += preset + "," ;
-					transcodeDataLine += crf + "," ;
-					transcodeDataLine += outputFileNameWithPath + "," ;
-					transcodeDataLine += inputFile.length() + "," ;
-					final File outputFile = new File( outputFileNameWithPath ) ;
-					transcodeDataLine += outputFile.length() + "," ;
-					transcodeDataLine += timeElapsedInSeconds + "," ;
-					transcodeDataLine += timePerGigaByte ;
-					dataFileWriter.write( transcodeDataLine + System.lineSeparator() ) ;					
-				} // for( crf )
-			} // for( preset )
-			dataFileWriter.close() ;
+//			final File rickshankFile = new File( inputFilesPaths[ 0 ] ) ;
+//			FFmpegProbeResult fickshankProbeResult = common.ffprobeFile( rickshankFile, log ) ;
+//			
+//			testTranscode( rickshankFile,
+//					dataFileWriter,
+//					fickshankProbeResult,
+//					"libx264",
+//					"ultrafast",
+//					"25" ) ;	
 		}
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
+		}
+	}
+	
+	public void testAll( BufferedWriter dataFileWriter )
+	{
+		try
+		{
+			for( String inputFilePath : inputFilesPaths )
+			{
+				final File inputFile = new File( inputFilePath ) ;
+				assert( inputFile.exists() ) ;
+
+				FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
+				
+				if( inputFileProbeResult.isH265() )
+				{
+					// Already H265 -- nothing to transcode
+					continue ;
+				}
+
+				for( String preset : variable_presets )
+				{
+					for( String crf : variable_crf )
+					{
+						if( !inputFileProbeResult.isH264() )
+						{
+							// Upgrade to H264
+							testTranscode( inputFile,
+									dataFileWriter,
+									inputFileProbeResult,
+									"libx264",
+									preset,
+									crf ) ;							
+						}
+						// Always upgrade to H265
+						testTranscode( inputFile,
+								dataFileWriter,
+								inputFileProbeResult,
+								"libx265",
+								preset,
+								crf ) ;
+					}
+				}
+			}
+			dataFileWriter.close() ;
+		} // try
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
+		}
+	}
+
+	public boolean testTranscode( final File inputFile,
+			BufferedWriter dataFileWriter,
+			final FFmpegProbeResult inputFileProbeResult,
+			final String videoCodec,
+			final String preset,
+			final String crf )
+	{
+		try
+		{
+			// Build the ffmpeg command
+			// ffmpegCommand will hold the command to execute ffmpeg
+			ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
+
+			// Setup ffmpeg basic options
+			ffmpegCommand.add( common.getPathToFFmpeg() ) ;
+
+			// Overwrite existing files
+			ffmpegCommand.add( "-y" ) ;
+
+			// Not exactly sure what these do but it seems to help reduce errors on some files.
+			ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
+			ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
+
+			// Include source file
+			ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
+
+			ffmpegCommand.add( "-c:v", videoCodec ) ;
+			ffmpegCommand.add( "-preset", preset ) ;
+			ffmpegCommand.add( "-crf", crf) ;
+			//					ffmpegCommand.add( "-tag:v", "hvc1" ) ;
+			ffmpegCommand.add( "-movflags", "+faststart" ) ;
+			ffmpegCommand.add( "-metadata", "title=" + getTitle( inputFile ) ) ;
+
+			// Copy audio and subtitles
+			//					ffmpegCommand.add( "-map", "0:a" ) ;
+			ffmpegCommand.add( "-c:a", "copy" ) ;
+			//					ffmpegCommand.add( "-map", "0:s" ) ;
+			ffmpegCommand.add( "-c:s", "copy" ) ;
+
+			// Add output filename
+			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
+					+ Common.stripExtensionFromFileName( inputFile.getName() )
+					+ "_" + inputFileProbeResult.getVideoCodec()
+					+ "_to_" + videoCodec
+					+ "_preset_" + preset
+					+ "_crf_" + crf
+					+ "_starttime_" + System.currentTimeMillis()
+					+ "." + Common.getExtension( inputFile.getName() ) ;							
+			//					log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
+			ffmpegCommand.add( outputFileNameWithPath ) ;
+
+			long startTime = System.nanoTime() ;
+			log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
+
+			// Only execute the transcode if testMode is false
+			boolean executeSuccess = common.executeCommand( ffmpegCommand ) ;
+			if( !executeSuccess )
+			{
+				log.warning( "Error in execute command" ) ;
+				// Do not move any files since the transcode failed
+				return false ;
+			}
+
+			long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
+
+			double timePerGigaByte = timeElapsedInSeconds / (inputFile.length() / 1000000000.0) ;
+			log.info( "Elapsed time to transcode "
+					+ inputFile.getAbsolutePath()
+					+ ": "
+					+ common.getNumberFormat().format( timeElapsedInSeconds )
+					+ " seconds, "
+					+ common.getNumberFormat().format( timeElapsedInSeconds / 60.0 )
+					+ " minutes, or "
+					+ common.getNumberFormat().format( timePerGigaByte )
+					+ " seconds per GB" ) ;
+
+			// Write data to file
+			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
+			String transcodeDataLine = inputFileProbeResult.getVideoCodec() + "," ;
+			transcodeDataLine += videoCodec + "," ;
+			transcodeDataLine += preset + "," ;
+			transcodeDataLine += crf + "," ;
+			transcodeDataLine += outputFileNameWithPath + "," ;
+			transcodeDataLine += inputFile.length() + "," ;
+			final File outputFile = new File( outputFileNameWithPath ) ;
+			transcodeDataLine += outputFile.length() + "," ;
+			transcodeDataLine += timeElapsedInSeconds + "," ;
+			transcodeDataLine += timePerGigaByte ;
+			
+			dataFileWriter.write( transcodeDataLine + System.lineSeparator() ) ;
+			dataFileWriter.flush() ;
+		} // try
 		catch( Exception theException )
 		{
 			log.warning( "Error with file " + dataFileName + ": " + theException.toString() ) ;
 		}
-
-	} // testTranscodeToH265
+		
+		return true ;
+	} // testTranscode
 
 	public String getTitle( final File inputFile )
 	{

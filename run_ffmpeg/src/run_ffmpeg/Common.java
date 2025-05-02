@@ -479,7 +479,12 @@ public class Common
 	 */
 	public FFmpegProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
 	{
-		return ffprobeFile( theFile.getInputFile(), log ) ;
+		FFmpegProbeResult probeResult = ffprobeFile( theFile.getInputFile(), log ) ;
+		if( probeResult != null )
+		{
+			theFile.processFFmpegProbeResult( probeResult ) ;
+		}
+		return probeResult ;
 	}
 
 	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )

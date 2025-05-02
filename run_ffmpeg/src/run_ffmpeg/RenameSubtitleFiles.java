@@ -42,7 +42,7 @@ public class RenameSubtitleFiles
 
 		execute( Common.getPathToMovies() ) ;
 		execute( Common.getPathToTVShows() ) ;
-//		execute( "\\\\skywalker\\Media\\TV_Shows\\The Tudors (2007)\\Season 01" ) ;
+//		execute( "\\\\skywalker\\Media\\TV_Shows\\The Expanse (2015)" ) ;
 //		execute( "\\\\skywalker\\Media\\Movies\\Zoolander (2001)" ) ;
 //		execute( "\\\\skywalker\\Media\\Movies\\2 Fast 2 Furious (2003) {edition-4K}" ) ;
 	}
@@ -50,7 +50,7 @@ public class RenameSubtitleFiles
 	public void execute( final String directory )
 	{
 		// NOTE: Depends on probeInfoCollection being up to date
-		common.setTestMode( true ) ;
+		common.setTestMode( false ) ;
 
 		// First get all srt files
 		List< File > srtFiles = common.getFilesInDirectoryByExtension( directory, "srt" ) ;

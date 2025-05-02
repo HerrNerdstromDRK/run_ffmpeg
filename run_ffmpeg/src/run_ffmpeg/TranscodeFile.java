@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 
 /**
- * Represent a file to be transcoded, including all of its output paths.
+ * Represent a file to be transcoded.
  * Assumption: A TV Show always has "Season " somewhere in its path.
  * Any directory variable will always have a path separator at the end.
  * @author Dan
@@ -18,18 +18,8 @@ import com.google.gson.Gson;
  */
 public class TranscodeFile
 {
-	/// The following four Files represent the necessary information from which to
-	/// make all decisions necessary, and provide all required information, for use
-	/// with a file to be transcoded.
-
 	/// File representing the input file
 	protected File inputFile = null ;
-
-	/// File representing the output file that is built with the transcode.
-	protected File tmpOutputFile = null ;
-
-	/// File representing the mp4 file in its final location. May be the same as the mp4OutputFile
-	protected File finalOutputFile = null ;
 
 	/// Logging stream
 	private transient Logger log = null ;
@@ -46,11 +36,10 @@ public class TranscodeFile
 	private List< File > dvdSubTitleFileList = null ;
 
 	/// Track the ffprobe result for this file
-	/// This could technically be either an mkv or mp4 file.
 	protected FFmpegProbeResult theFFmpegProbeResult = null ;
 
 	/// The extension of a file, corresponding to this one, that indicates the file
-	/// is currently being transcode
+	/// is currently being transcoded
 	public static final String transcodeInProgressFileExtension = ".in_work" ;
 
 	/// The extension of a file, corresponding to this one, that indicates the file
@@ -74,33 +63,21 @@ public class TranscodeFile
 	protected boolean _audioHasFivePointOne = false ;
 	protected boolean _audioHasSixPointOne = false ;
 	protected boolean _audioHasSevenPointOne = false ;
-	protected int numAudioStreams = 0 ;
 	private ArrayList< FFmpegStream > audioStreams = new ArrayList< FFmpegStream >() ;
 
 	/**
-	 * mkvInputFile is the file with full path to the .mkv file. The next three are directories.
+	 * inputFile is the file with full path to the input file.
 	 */
 	public TranscodeFile( final File inputFile,
-			final String tmpOutputDirectory,
-			final String finalOutputDirectory,
 			Logger log )
 	{
 		assert( inputFile != null ) ;
 		assert( inputFile.exists() ) ;
 		assert( !inputFile.isDirectory() ) ;
-		assert( tmpOutputDirectory != null ) ;
-		assert( finalOutputDirectory != null ) ;
 
 		setInputFile( inputFile ) ;
 		this.log = log ;
 		common = new Common( log ) ;
-
-		final String tmpOutputFileName = inputFile.getName() ;
-		final String tmpOutputFileNameWithPath = common.addPathSeparatorIfNecessary( getTmpOutputDirectory() ) + tmpOutputFileName ;
-		setTmpOutputFile( new File( tmpOutputFileNameWithPath ) ) ;
-
-		final String finalOutputFileNameWithPath = common.addPathSeparatorIfNecessary( finalOutputDirectory ) + tmpOutputFileName ;
-		setFinalOutputFile( new File( finalOutputFileNameWithPath ) ) ;
 
 		buildPaths() ;
 		buildSubTitleFileLists() ;
@@ -130,7 +107,7 @@ public class TranscodeFile
 	private void buildPaths()
 	{
 		// First, extract the tv show or movie name and associated information
-		if( getInputDirectory().contains( "Season " ) )
+		if( getInputDirectory().contains( Common.getTVPathCheckString() ) )
 		{
 			// TV Show
 			//			log.fine( "Found tv show file: " + getMKVInputFileNameWithPath() ) ;
@@ -139,12 +116,12 @@ public class TranscodeFile
 			setTVShowName( getInputDirectoryFile().getParentFile().getName() ) ;
 			setTVShowSeasonName( getInputFile().getParentFile().getName() ) ;
 		}
-		else if( getInputDirectory().contains( "(" ) )
+		else if( getInputDirectory().contains( "(" ) ) // check for release year
 		{
 			// Movie
 			//			log.fine( "Found movie file: " + getMKVInputFileNameWithPath() ) ;
 
-			// The formal should be like this:
+			// The file path should be like this:
 			// \\yoda\Backup\Movies\Transformers (2007)\Making Of-behindthescenes.mkv
 			setMovieName( getInputDirectoryFile().getName() ) ;
 			// movieName should be of the form "Transformers (2007)"
@@ -160,69 +137,21 @@ public class TranscodeFile
 		}
 	}
 
-	// TODO: Review this code for a better way.
-	protected String buildFinalDirectoryPath( final File inputFile, String inputDirectory )
-	{
-		String finalDirectoryPath = inputDirectory ;
-
-		// The transcoding could be just for a single directory or show, potentially even
-		// a single season
-		// Be sure to address here.
-		if( isTVShow() )
-		{
-			// Does the original mkvFinalDirectory include the season name? ("Season 04")
-			if( inputDirectory.contains( getTVShowSeasonName() ) )
-			{
-				// No action to update the mkvFinalDirectory
-			}
-			else if( inputDirectory.contains( getTVShowName() ) )
-			{
-				// TV show name is included, but not the season
-				finalDirectoryPath += getTVShowSeasonName() + common.getPathSeparator() ;
-			}
-			else
-			{
-				// Neither tv show nor season name is included
-				finalDirectoryPath += getTVShowName() + common.getPathSeparator()
-				+ getTVShowSeasonName() + common.getPathSeparator() ;
-			}
-		}
-		else
-		{
-			// Similar to above, this file could be part of transcoding many movies or a single movie.
-			// If it's a single movie, then the target directory will have the name of the movie in the path.
-			if( inputDirectory.contains( "(" ) && inputDirectory.contains( ")" ) )
-			{
-				// Contains both open and closing paranthesis, indicating a year, which indicates a movie
-				//				out( "TranscodeFile.buildFinalDirectoryPath> Found movie in the inputDirectory" ) ;
-				// Nothing to do
-			}
-			else
-			{
-				// Does not include movie directory in the path
-				setMovieName( getInputDirectoryFile().getName() ) ;
-				finalDirectoryPath += getMovieName() + common.getPathSeparator() ;
-			}
-		} // if( isTVShow() )
-		return finalDirectoryPath ;
-	}
-
 	/**
-	 * Build the list of SRT or SUP files associated with the stored MKV file.
+	 * Build the list of SRT or SUP files associated with the input file.
 	 * @param extension
 	 * @return
 	 */
 	protected List< File > buildSubTitleFileList( final String extension )
 	{
 		List< File > theFileList = new ArrayList< File >() ;
-		// Find files that match the mkv file name with srt or sup files
-		// The mkv file name should be like: "Movie name [Unrated] (2001).mkv" where "[Unrated]" may or may
+		// Find files that match the input file name with srt or sup files
+		// The input file name should be like: "Movie name [Unrated] (2001).mkv" where "[Unrated]" may or may
 		//  not exist.
-		// srt files for that file will look like: "Movie name [Unrated] (2001).#.srt" where # is
-		//  a number written as digits (3 not three).
+		// srt files for that file will look like: "Movie name [Unrated] (2001).(.*).srt" 
 		// Also look for "Movie name [Unrated] (2001).sup" as match
 
-		// fileNameSearchString is the wildcard/regex search string for the file name (no path)
+		// fileNameSearchString is the wildcard search string for the file name (no path)
 		// Retrieve the filename and remove the extension.
 		// --> Movie name [Unrated] (2001).
 		final String fileNameWithoutExtension = Common.stripExtensionFromFileName( getInputFile().getName() ) ;
@@ -231,7 +160,7 @@ public class TranscodeFile
 		final File[] filesInDirectory = getInputDirectoryFile().listFiles() ;
 		if( null == filesInDirectory )
 		{
-			log.warning( "Found empty directory for file: " + toString() ) ;
+			log.warning( "Found empty directory for file: " + inputFile.getAbsolutePath() ) ;
 			return theFileList ;
 		}
 
@@ -367,6 +296,7 @@ public class TranscodeFile
 
 	public String getMetaDataTitle()
 	{
+		// TODO: Make this regex
 		String metaDataTitle = "" ;
 
 		// Remove the extension
@@ -431,51 +361,6 @@ public class TranscodeFile
 		return movieName ;
 	}
 
-	public String getTmpOutputFileName()
-	{
-		return getFinalOutputFile().getName() ;
-	}
-
-	public String getFinalOutputDirectory()
-	{
-		return getFinalOutputFile().getParent() ;
-	}
-
-	public String getFinalOutputDirectoryFile()
-	{
-		return getFinalOutputFile().getParent() ;
-	}
-
-	protected File getFinalOutputFile()
-	{
-		return finalOutputFile ;
-	}
-
-	public String getFinalOutputFileNameWithPath()
-	{
-		return getFinalOutputFile().getAbsolutePath() ;
-	}
-
-	public String getTmpOutputDirectory()
-	{
-		return getTmpOutputFile().getParent() ;
-	}
-
-	public File getTmpOutputDirectoryFile()
-	{
-		return getTmpOutputFile().getParentFile() ;
-	}
-
-	protected File getTmpOutputFile()
-	{
-		return tmpOutputFile;
-	}
-
-	public String getTmpOutputFileNameWithPath()
-	{
-		return getTmpOutputFile().getAbsolutePath() ;
-	}
-
 	public int getNumAudioStreams()
 	{
 		return audioStreams.size() ;
@@ -491,17 +376,17 @@ public class TranscodeFile
 			log.warning( "Empty audio stream list" ) ;
 			return "EMPTY" ;
 		}
-		final String primaryAudioLanguage = audioStreams.get( 0 ).tags.get( "language" ) ;
+		String primaryAudioLanguage = audioStreams.get( 0 ).tags.get( "language" ) ;
 		if( null == primaryAudioLanguage )
 		{
 			// First audio stream has no language
 			log.info( "Empty language for first audio stream" ) ;
-			return "UNKNOWN" ;
+			primaryAudioLanguage = "UNKNOWN" ;
 		}
 		return primaryAudioLanguage ;
 	}
 
-	public File getRealSRTFile( int index )
+	public File getSRTFile( int index )
 	{
 		if( isSRTFileListEmpty() ) return null ;
 		if( index < 0 ) return null ;
@@ -588,16 +473,13 @@ public class TranscodeFile
 		return isTVShow ;
 	}
 
-	/**
-	 * Make the directories for the various output files.
-	 * This honors the common.testMode configuration variable.
-	 */
-	public void makeDirectories()
+	public String makeTmpOutputFileWithPath()
 	{
-		common.makeDirectory( getTmpOutputDirectory() ) ;
-		common.makeDirectory( getFinalOutputDirectory() ) ;
+		final String tmpOutputFileWithPath = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
+				+ getInputFile().getName() ;
+		return tmpOutputFileWithPath ;
 	}
-
+	
 	protected void processAudioStreams( List< FFmpegStream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type audio
@@ -679,26 +561,22 @@ public class TranscodeFile
 
 	public void setAudioHasFivePointOne(boolean _audioHasFivePointOne)
 	{
-		this._audioHasFivePointOne = _audioHasFivePointOne;
+		this._audioHasFivePointOne = _audioHasFivePointOne ;
 	}
 
 	public void setAudioHasSixPointOne(boolean _audioHasSixPointOne)
 	{
-		this._audioHasSixPointOne = _audioHasSixPointOne;
+		this._audioHasSixPointOne = _audioHasSixPointOne ;
 	}
 
-	public void setAudioHasSevenPointOne(boolean _audioHasSevenPointOne)
+	public void setAudioHasSevenPointOne( boolean _audioHasSevenPointOne )
 	{
-		this._audioHasSevenPointOne = _audioHasSevenPointOne;
+		this._audioHasSevenPointOne = _audioHasSevenPointOne ;
 	}
 
-	public void setAudioHasStereo(boolean _audioHasStereo) {
-		this._audioHasStereo = _audioHasStereo;
-	}
-
-	protected void setFinalOutputFile( File finalOutputFile )
+	public void setAudioHasStereo( boolean _audioHasStereo )
 	{
-		this.finalOutputFile = finalOutputFile ;
+		this._audioHasStereo = _audioHasStereo ;
 	}
 
 	protected void setInputFile( File inputFile )
@@ -709,11 +587,6 @@ public class TranscodeFile
 	public void setMovieName( final String movieName )
 	{
 		this.movieName = movieName ;
-	}
-
-	protected void setTmpOutputFile( File tmpOutputFile )
-	{
-		this.tmpOutputFile = tmpOutputFile ;
 	}
 
 	public void setOtherVideo(boolean isOtherVideo)
@@ -746,12 +619,12 @@ public class TranscodeFile
 		isTVShow = true ;
 	}
 
-	public void setTVShowName( String tvShowName )
+	public void setTVShowName( final String tvShowName )
 	{
 		this.tvShowName = tvShowName ;
 	}
 
-	public void setTVShowSeasonName(String tvShowSeasonName)
+	public void setTVShowSeasonName( final String tvShowSeasonName )
 	{
 		this.tvShowSeasonName = tvShowSeasonName ;
 	}

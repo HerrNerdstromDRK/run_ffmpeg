@@ -7,13 +7,11 @@ import com.google.gson.Gson;
 
 public class TheTVDB_ShowInfo
 {
-	protected String showName = "" ;
 	protected Integer showId = -1 ;
 	protected Map< Integer, TheTVDB_SeasonInfo > seasonInfos = new HashMap< Integer, TheTVDB_SeasonInfo >() ;
 	
-	public TheTVDB_ShowInfo( final String showName, final Integer showId )
+	public TheTVDB_ShowInfo( final Integer showId )
 	{
-		this.showName = showName ;
 		this.showId = showId ;
 	}
 	
@@ -35,6 +33,16 @@ public class TheTVDB_ShowInfo
 		assert( seasonNumber != null ) ;
 		final TheTVDB_SeasonInfo theInfo = seasonInfos.get( seasonNumber ) ;
 		return theInfo ;
+	}
+	
+	public String getEpisodeName( final int seasonNumber, final int episodeNumber )
+	{
+		final TheTVDB_SeasonInfo seasonInfo = seasonInfos.get( Integer.valueOf( seasonNumber ) ) ;
+		if( null == seasonInfo )
+		{
+			return "" ;
+		}
+		return seasonInfo.getEpisodeName( Integer.valueOf( episodeNumber ) ) ;
 	}
 	
 	public String toString()
