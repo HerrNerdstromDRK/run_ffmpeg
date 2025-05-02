@@ -83,7 +83,8 @@ public class CompareTranscodeOptions
 //					fickshankProbeResult,
 //					"libx264",
 //					"ultrafast",
-//					"25" ) ;	
+//					"25" ) ;
+			dataFileWriter.close() ;
 		}
 		catch( Exception theException )
 		{
@@ -132,7 +133,6 @@ public class CompareTranscodeOptions
 					}
 				}
 			}
-			dataFileWriter.close() ;
 		} // try
 		catch( Exception theException )
 		{
