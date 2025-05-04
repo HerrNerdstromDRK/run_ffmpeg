@@ -75,7 +75,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		// The ffmpegOptionsCommandString will contain only the options to extract subtitles
 		// from the given FFmpegProbeResult
 		// All of the actual ffmpeg command build ("ffmpeg -i ...") happens elsewhere
-		ImmutableList.Builder<String> ffmpegOptionsCommandString = new ImmutableList.Builder<String>();
+		ImmutableList.Builder< String > ffmpegOptionsCommandString = new ImmutableList.Builder< String >() ;
 
 		// includedSubTitleStreams will include only allowable subtitle streams to extract
 		List< FFmpegStream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
@@ -167,7 +167,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		// If no suitable subtitles are found, the options string will be empty
 		// supFileNames will hold the names of the sup files ffmpeg will generate
 		List< File > supFiles = new ArrayList< File >() ;
-		ImmutableList.Builder<String> subTitleExtractionOptionsString =
+		ImmutableList.Builder< String > subTitleExtractionOptionsString =
 				buildFFmpegSubTitleExtractionOptionsString( probeResult, fileToSubTitleExtract, supFiles ) ;
 
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
