@@ -47,11 +47,17 @@ public class CompareTranscodeOptions
 				"25"
 		} ;
 
+	protected static String[] variable_output_codecs =
+		{
+				"h264",
+				"h265"
+		} ;
+
 	protected static String[] inputFilesPaths =
 		{
-//				"\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013) {tvdb-275274}\\Season 03\\Rick And Morty - S03E01 - The Rickshank Redemption.mkv", // h264 HD
-				"\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006) {tvdb-79257}\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv", // vc1 HD
-//				"\\\\\\skywalker\\Media\\TV_Shows\\The Simpsons (1989) {tvdb-71663}\\Season 01\\The Simpsons - S01E01 - Simpsons Roasting On The Open Fire.mkv" // mp2 SD
+				"\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013) {tvdb-275274}\\Season 03\\Rick And Morty - S03E01 - The Rickshank Redemption.mkv", // h264 HD
+				//				"\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006) {tvdb-79257}\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv", // vc1 HD
+				"\\\\\\skywalker\\Media\\TV_Shows\\The Simpsons (1989) {tvdb-71663}\\Season 01\\The Simpsons - S01E01 - Simpsons Roasting On The Open Fire.mkv" // mp2 SD
 		} ;
 
 	public CompareTranscodeOptions()
@@ -68,22 +74,24 @@ public class CompareTranscodeOptions
 	public void execute()
 	{
 		common.setTestMode( false ) ;
-		
+
 		try
 		{
 			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
 			BufferedWriter dataFileWriter = new BufferedWriter( new FileWriter( dataFileName ) ) ;
-			testAll( dataFileWriter ) ;
+			//			testAll( dataFileWriter ) ;
+			determineTranscodeDurations( dataFileWriter ) ;
 
-//			final File rickshankFile = new File( inputFilesPaths[ 0 ] ) ;
-//			FFmpegProbeResult fickshankProbeResult = common.ffprobeFile( rickshankFile, log ) ;
-//			
-//			testTranscode( rickshankFile,
-//					dataFileWriter,
-//					fickshankProbeResult,
-//					"libx264",
-//					"ultrafast",
-//					"25" ) ;
+			//			final File rickshankFile = new File( inputFilesPaths[ 0 ] ) ;
+			//			FFmpegProbeResult fickshankProbeResult = common.ffprobeFile( rickshankFile, log ) ;
+			//			
+			//			testTranscode( rickshankFile,
+			//					dataFileWriter,
+			//					fickshankProbeResult,
+			//					"libx264",
+			//					"ultrafast",
+			//					"25" ) ;
+			dataFileWriter.flush() ;
 			dataFileWriter.close() ;
 		}
 		catch( Exception theException )
@@ -91,7 +99,7 @@ public class CompareTranscodeOptions
 			log.warning( "Exception: " + theException.toString() ) ;
 		}
 	}
-	
+
 	public void testAll( BufferedWriter dataFileWriter )
 	{
 		try
@@ -102,7 +110,7 @@ public class CompareTranscodeOptions
 				assert( inputFile.exists() ) ;
 
 				FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
-				
+
 				if( inputFileProbeResult.isH265() )
 				{
 					// Already H265 -- nothing to transcode
@@ -180,14 +188,12 @@ public class CompareTranscodeOptions
 			ffmpegCommand.add( "-c:s", "copy" ) ;
 
 			// Add output filename
-			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
-					+ Common.stripExtensionFromFileName( inputFile.getName() )
-					+ "_" + inputFileProbeResult.getVideoCodec()
-					+ "_to_" + videoCodec
-					+ "_preset_" + preset
-					+ "_crf_" + crf
-					+ "_starttime_" + System.currentTimeMillis()
-					+ "." + Common.getExtension( inputFile.getName() ) ;							
+			String outputFileNameWithPath = makeOutputFileName( inputFile,
+					inputFileProbeResult,
+					videoCodec,
+					preset,
+					crf ) ;
+
 			//					log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
 			ffmpegCommand.add( outputFileNameWithPath ) ;
 
@@ -217,18 +223,19 @@ public class CompareTranscodeOptions
 					+ " seconds per GB" ) ;
 
 			// Write data to file
-			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
+			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (s),time per GB
+			final File outputFile = new File( outputFileNameWithPath ) ;
+
 			String transcodeDataLine = inputFileProbeResult.getVideoCodec() + "," ;
 			transcodeDataLine += videoCodec + "," ;
 			transcodeDataLine += preset + "," ;
 			transcodeDataLine += crf + "," ;
 			transcodeDataLine += outputFileNameWithPath + "," ;
 			transcodeDataLine += inputFile.length() + "," ;
-			final File outputFile = new File( outputFileNameWithPath ) ;
 			transcodeDataLine += outputFile.length() + "," ;
 			transcodeDataLine += timeElapsedInSeconds + "," ;
 			transcodeDataLine += timePerGigaByte ;
-			
+
 			dataFileWriter.write( transcodeDataLine + System.lineSeparator() ) ;
 			dataFileWriter.flush() ;
 		} // try
@@ -236,9 +243,96 @@ public class CompareTranscodeOptions
 		{
 			log.warning( "Error with file " + dataFileName + ": " + theException.toString() ) ;
 		}
-		
+
 		return true ;
 	} // testTranscode
+
+	public String makeOutputFileName( final File inputFile,
+			final FFmpegProbeResult inputFileProbeResult,
+			final String videoCodec,
+			final String preset,
+			final String crf )
+	{
+		final String fileName = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
+				+ Common.stripExtensionFromFileName( inputFile.getName() )
+				+ "_" + inputFileProbeResult.getVideoCodec()
+				+ "_to_" + videoCodec
+				+ "_preset_" + preset
+				+ "_crf_" + crf
+//				+ "_starttime_" + System.currentTimeMillis()
+				+ "." + Common.getExtension( inputFile.getName() ) ;
+		return fileName ;
+	}
+
+	public void determineTranscodeDurations( BufferedWriter dataFileWriter )
+	{
+		long previousStartTime = 0 ;
+
+		// Walk through each file.
+		// They should be in the same order as transcoded, mostly.
+		for( String inputFilePath : inputFilesPaths )
+		{
+			final File inputFile = new File( inputFilePath ) ;
+			final FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
+
+			if( inputFileProbeResult.isH265() )
+			{
+				// Skip this file.
+				continue ;
+			}
+
+			for( String preset : variable_presets )
+			{
+				for( String crf : variable_crf )
+				{
+					for( String outputCodec : variable_output_codecs )
+					{
+						final String inputVideoCodec = inputFileProbeResult.getVideoCodec() ;
+						if( outputCodec.equals( inputVideoCodec ) )
+						{
+							// Input file is already in the targeted ouput video protocol.
+							// Skip this codec output.
+							continue ;
+						}
+						// PC: Input codec is different from target codec.
+
+						try
+						{
+							// Should have been converted to H264
+							final String outputFileNameWithPath = makeOutputFileName( inputFile, inputFileProbeResult, outputCodec, preset, crf ) ;
+							final File outputFile = new File( outputFileNameWithPath ) ;
+
+							// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (s),time per GB
+							String transcodeDataLine = inputFileProbeResult.getVideoCodec() + "," ;
+							transcodeDataLine += outputCodec + "," ;
+							transcodeDataLine += preset + "," ;
+							transcodeDataLine += crf + "," ;
+							transcodeDataLine += outputFileNameWithPath + "," ;
+							transcodeDataLine += inputFile.length() + "," ;
+							transcodeDataLine += outputFile.length() + "," ;
+
+							long timeElapsedInSeconds = Math.abs( outputFile.lastModified() - previousStartTime ) / 1000 ;
+							if( 0 == timeElapsedInSeconds )
+							{
+								timeElapsedInSeconds = Long.MAX_VALUE ;
+							}
+							transcodeDataLine += timeElapsedInSeconds + "," ;
+							transcodeDataLine += inputFile.length() / timeElapsedInSeconds ;
+
+							dataFileWriter.write( transcodeDataLine + System.lineSeparator()) ;
+							dataFileWriter.flush() ;							
+
+							previousStartTime = outputFile.lastModified() ;
+						} // try
+						catch( Exception theException )
+						{
+							log.warning( "Exception: " + theException.toString() ) ;
+						}
+					} // for( outputCodec )
+				} // for( crf )
+			} // for( preset )
+		} // for( inputFilePath )
+	} // determineTranscodeDuration()
 
 	public String getTitle( final File inputFile )
 	{

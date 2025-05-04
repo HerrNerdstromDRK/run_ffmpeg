@@ -98,7 +98,7 @@ public class Common
 	private static final String pathToOtherVideos = pathToMediaFolderBase + pathSeparator + otherVideosFolderName ;
 	private static final String pathToToOCR = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
 	private static final String pathToTVShows = pathToMediaFolderBase + pathSeparator + tvShowsFolderName ;
-	private static final String pathToOCRInputDirectory = pathToMediaFolderBase + pathSeparator + "To OCR" ;
+	private static final String pathToOCRInputDirectory = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
 	private static final String pathToTmpDir = pathToMediaFolderBase + pathSeparator + "Test" ;
 
 	/// The string to search for in file paths to determine if this is a tv show

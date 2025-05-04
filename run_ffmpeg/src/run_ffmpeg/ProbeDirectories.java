@@ -23,6 +23,8 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 {
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
 	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
+	
+	private transient List< String > foldersToProbe = new ArrayList< String >() ;
 
 	/// Keep track if the database has been loaded.
 	private boolean databaseBeenLoaded = false ;
@@ -77,6 +79,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	{
 		setUseThreads( false ) ;
 		common.setTestMode( false ) ;
+		foldersToProbe.addAll( Common.getAllMediaFolders() ) ;
 		loadProbeInfoDatabase() ;
 	}
 
@@ -95,7 +98,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 				common,
 				probeInfoCollection,
 				probeInfoMap,
-				Common.getAllMediaFolders() ) ;
+				foldersToProbe ) ;
 		pdwt.setName( getSingleThreadedName() ) ;
 		threads.add( pdwt ) ;
 
@@ -105,7 +108,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	/**
 	 * Search through the object's probeInfoMap and include those items whose long path prefixes start
 	 *  with each of the entries in the driveAndFoldersToProbe.
-	 * @param driveAndFoldersToProbe
+	 * @param foldersToProbe
 	 * @return
 	 */
 	public Map< String, FFmpegProbeResult > getProbeInfoForFolders( final List< String > foldersToProbe )
