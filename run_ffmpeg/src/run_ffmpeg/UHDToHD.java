@@ -55,7 +55,7 @@ public class UHDToHD
 		final String outputFileNameWithPath = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
 				+ inputFile.getName() ;
 		
-		ImmutableList.Builder< String > ffmpegOptionsCommandString = new ImmutableList.Builder<String>() ;
+		ImmutableList.Builder< String > ffmpegOptionsCommandString = new ImmutableList.Builder< String >() ;
 		ffmpegOptionsCommandString.add( common.getPathToFFmpeg() ) ;
 		ffmpegOptionsCommandString.add( "-y" ) ;
 		ffmpegOptionsCommandString.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
