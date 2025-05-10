@@ -6,6 +6,8 @@ import java.io.FileWriter;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 
@@ -23,7 +25,7 @@ public class CompareTranscodeOptions
 	private static final String logFileName = "log_compare_transcode_options.txt" ;
 	private static final String dataFileName = "log_compare_transcode_options_data.txt" ;
 
-	protected static String[] variable_presets =
+	protected final static String[] variable_presets =
 		{
 				"ultrafast",
 				"superfast",
@@ -37,7 +39,7 @@ public class CompareTranscodeOptions
 				//		"placebo"
 		} ;
 
-	protected static String[] variable_crf =
+	protected final static String[] variable_crf =
 		{
 				"0",
 				"5",
@@ -47,16 +49,16 @@ public class CompareTranscodeOptions
 				"25"
 		} ;
 
-	protected static String[] variable_output_codecs =
+	protected final static String[] variable_output_codecs =
 		{
 				"h264",
 				"h265"
 		} ;
 
-	protected static String[] inputFilesPaths =
+	protected final static String[] inputFilesPaths =
 		{
 				"\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013) {tvdb-275274}\\Season 03\\Rick And Morty - S03E01 - The Rickshank Redemption.mkv", // h264 HD
-				//				"\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006) {tvdb-79257}\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv", // vc1 HD
+				"\\\\skywalker\\Media\\TV_Shows\\Planet Earth (2006) {tvdb-79257}\\Season 01\\Planet Earth - S01E01 - From Pole To Pole.mkv", // vc1 HD
 				"\\\\\\skywalker\\Media\\TV_Shows\\The Simpsons (1989) {tvdb-71663}\\Season 01\\The Simpsons - S01E01 - Simpsons Roasting On The Open Fire.mkv" // mp2 SD
 		} ;
 
@@ -73,14 +75,18 @@ public class CompareTranscodeOptions
 
 	public void execute()
 	{
-		common.setTestMode( false ) ;
+		common.setTestMode( true ) ;
 
+		final File outputDirectory = new File( Common.getPathToTmpDir() ) ;
+		final File[] filesInOutputDirectory = outputDirectory.listFiles() ;
+		assert( filesInOutputDirectory != null ) ;
+		
 		try
 		{
 			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
-			BufferedWriter dataFileWriter = new BufferedWriter( new FileWriter( dataFileName ) ) ;
-			//			testAll( dataFileWriter ) ;
-			determineTranscodeDurations( dataFileWriter ) ;
+			BufferedWriter dataFileWriter = new BufferedWriter( new FileWriter( dataFileName, true ) ) ;
+			testAll( dataFileWriter, filesInOutputDirectory ) ;
+			//determineTranscodeDurations( dataFileWriter ) ;
 
 			//			final File rickshankFile = new File( inputFilesPaths[ 0 ] ) ;
 			//			FFmpegProbeResult fickshankProbeResult = common.ffprobeFile( rickshankFile, log ) ;
@@ -100,7 +106,7 @@ public class CompareTranscodeOptions
 		}
 	}
 
-	public void testAll( BufferedWriter dataFileWriter )
+	public void testAll( BufferedWriter dataFileWriter, final File[] filesInOutputDirectory )
 	{
 		try
 		{
@@ -121,7 +127,7 @@ public class CompareTranscodeOptions
 				{
 					for( String crf : variable_crf )
 					{
-						if( !inputFileProbeResult.isH264() )
+						if( !inputFileProbeResult.isH264() && !testComplete( filesInOutputDirectory, inputFile, inputFileProbeResult, "libx264", preset, crf ) )
 						{
 							// Upgrade to H264
 							testTranscode( inputFile,
@@ -132,20 +138,66 @@ public class CompareTranscodeOptions
 									crf ) ;							
 						}
 						// Always upgrade to H265
-						testTranscode( inputFile,
+						if( !testComplete( filesInOutputDirectory, inputFile, inputFileProbeResult, "libx265", preset, crf ) )
+							{
+							testTranscode( inputFile,
 								dataFileWriter,
 								inputFileProbeResult,
 								"libx265",
 								preset,
 								crf ) ;
-					}
-				}
-			}
+							}
+					} // for( crf )
+				} // for( preset )
+			} // for( inputFilePath )
 		} // try
 		catch( Exception theException )
 		{
 			log.warning( "Exception: " + theException.toString() ) ;
 		}
+	}
+
+	/**
+	 * Return true if an output file (new or old name format) exists for the given set of parameters, false otherwise.
+	 * @return
+	 */
+	public boolean testComplete( final File[] filesInOutputDirectory,
+			final File inputFile,
+			final FFmpegProbeResult inputFileProbeResult,
+			final String videoCodec,
+			final String preset,
+			final String crf )
+	{
+		final File outputFileWithOldName = new File( makeOldOutputFileName( inputFile, inputFileProbeResult, videoCodec, preset, crf) ) ;
+		if( outputFileWithOldName.exists() )
+		{
+//			log.info( "Found file with old name: " + outputFileWithOldName.getAbsolutePath() ) ;
+			return true ;
+		}
+		// PC: File not built with old file name
+
+		final String outputFileNameWithNewName = makeOutputFileName( inputFile, inputFileProbeResult, videoCodec, preset, crf ) ;
+		final File outputFileWithNewName = new File( outputFileNameWithNewName ) ;
+
+		// The challenge with the new format is that the file name includes the start time in milliseconds since the epoch.
+		// Need to scan all files in the current folder matching against the file pattern.
+		// Be sure to avoid the path as all of the \'s confuse things and the Pattern.quote() method is buggy.
+		final String outputFileNameWithNewNamePatternString = outputFileWithNewName.getName().replaceAll( "_[\\d]+\\.", "_[\\\\d]+\\\\." ) ;
+//		log.info( "outputFileNameWithNewNamePatternString: " + outputFileNameWithNewNamePatternString ) ;
+
+		// Search the list of files in the output directory for a match.
+		Pattern outputFileNameWithNewNamePattern = Pattern.compile( outputFileNameWithNewNamePatternString ) ;
+		for( File testFile : filesInOutputDirectory )
+		{
+			final Matcher outputFileNameWithNewNameMatcher = outputFileNameWithNewNamePattern.matcher( testFile.getName() ) ;
+			if( outputFileNameWithNewNameMatcher.find() )
+			{
+//				log.info( "Found match for " + outputFileNameWithNewName + " with " + testFile.getAbsolutePath() ) ;
+				return true ;
+			}
+		}
+		log.info( "No match for " + outputFileNameWithNewName ) ;
+		return false ;
 	}
 
 	public boolean testTranscode( final File inputFile,
@@ -236,8 +288,15 @@ public class CompareTranscodeOptions
 			transcodeDataLine += timeElapsedInSeconds + "," ;
 			transcodeDataLine += timePerGigaByte ;
 
-			dataFileWriter.write( transcodeDataLine + System.lineSeparator() ) ;
-			dataFileWriter.flush() ;
+			if( common.getTestMode() )
+			{
+				log.info( "dataFileWriter.write: " + transcodeDataLine ) ;
+			}
+			else
+			{
+				dataFileWriter.write( transcodeDataLine + System.lineSeparator() ) ;
+				dataFileWriter.flush() ;
+			}
 		} // try
 		catch( Exception theException )
 		{
@@ -247,6 +306,15 @@ public class CompareTranscodeOptions
 		return true ;
 	} // testTranscode
 
+	/**
+	 * Return the output filename given the input file name and transcode parameters.
+	 * @param inputFile
+	 * @param inputFileProbeResult
+	 * @param videoCodec
+	 * @param preset
+	 * @param crf
+	 * @return
+	 */
 	public String makeOutputFileName( final File inputFile,
 			final FFmpegProbeResult inputFileProbeResult,
 			final String videoCodec,
@@ -259,7 +327,32 @@ public class CompareTranscodeOptions
 				+ "_to_" + videoCodec
 				+ "_preset_" + preset
 				+ "_crf_" + crf
-//				+ "_starttime_" + System.currentTimeMillis()
+				+ "_starttime_" + System.currentTimeMillis()
+				+ "." + Common.getExtension( inputFile.getName() ) ;
+		return fileName ;
+	}
+
+	/**
+	 * Return the output filename, in the old format, for the given input file and transcode parameters. 
+	 * @param inputFile
+	 * @param inputFileProbeResult
+	 * @param videoCodec
+	 * @param preset
+	 * @param crf
+	 * @return
+	 */
+	public String makeOldOutputFileName( final File inputFile,
+			final FFmpegProbeResult inputFileProbeResult,
+			final String videoCodec,
+			final String preset,
+			final String crf )
+	{
+		final String fileName = common.addPathSeparatorIfNecessary( Common.getPathToTmpDir() )
+				+ Common.stripExtensionFromFileName( inputFile.getName() )
+				+ "_" + inputFileProbeResult.getVideoCodec()
+				+ "_to_" + videoCodec.replace( "libx", "h" )
+				+ "_preset_" + preset
+				+ "_crf_" + crf
 				+ "." + Common.getExtension( inputFile.getName() ) ;
 		return fileName ;
 	}
