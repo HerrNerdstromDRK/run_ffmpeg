@@ -79,6 +79,11 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 
 		// includedSubTitleStreams will include only allowable subtitle streams to extract
 		List< FFmpegStream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
+
+		// If the file has multiple subtitle streams that can be extracted, then ensure we name the
+		// first such stream without a stream index #
+		boolean processedFirstStream = false ;
+
 		for( FFmpegStream stStream : extractableSubTitleStreams )
 		{
 			// TEST: Looking for a way to determine if the file has a valid subtitle stream
@@ -126,8 +131,18 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			outputFileNameWithPath += ".en" ;
 			if( extractableSubTitleStreams.size() > 1 )
 			{
-				// More than one stream -- include a stream id.
-				outputFileNameWithPath += "." + streamIndex ;
+				// More than one stream -- include a stream id to the second and beyond streams
+				if( !processedFirstStream )
+				{
+					// This is the first stream -- do NOT add a stream #
+					processedFirstStream = true ;
+				}
+				else
+				{
+					// This is not the first subtitle stream in a file with multiple subtitle streams.
+					// Add a stream index # to the filename
+					outputFileNameWithPath += "." + streamIndex ;
+				}
 			}
 
 			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )

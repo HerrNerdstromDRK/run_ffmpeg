@@ -61,9 +61,12 @@ public class UHDToHD
 		ffmpegOptionsCommandString.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
 		ffmpegOptionsCommandString.add( "-probesize", Common.getProbeSizeString() ) ;
 		ffmpegOptionsCommandString.add( "-i", inputFilePath ) ;
+		ffmpegOptionsCommandString.add( "-map", "0:v" ) ;
 		ffmpegOptionsCommandString.add( "-filter:v", "scale=width=1920:height=-2" ) ;
-		ffmpegOptionsCommandString.add( "-c:a", "copy" ) ;
-		ffmpegOptionsCommandString.add( "-c:s", "copy" ) ;
+		ffmpegOptionsCommandString.add( "-map", "0:a" ) ;
+		ffmpegOptionsCommandString.add( "-acodec", "copy" ) ;
+		ffmpegOptionsCommandString.add( "-map", "0:s" ) ;
+		ffmpegOptionsCommandString.add( "-scodec", "copy" ) ;
 //		ffmpegOptionsCommandString.add( "-ss", "00:05:00.0" ) ;
 //		ffmpegOptionsCommandString.add( "-t", "30" ) ;
 		ffmpegOptionsCommandString.add( outputFileNameWithPath ) ;
