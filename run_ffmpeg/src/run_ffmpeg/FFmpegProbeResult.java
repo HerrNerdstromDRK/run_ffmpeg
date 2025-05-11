@@ -43,6 +43,9 @@ public class FFmpegProbeResult
 
 	/// The chapters
 	public List< FFmpegChapter > chapters = null ;
+	
+	/// Record if the file has subtitle streams that are too small to extract
+	public Boolean smallSubtitleStreams = Boolean.FALSE ;
 
 	/**
 	 * Return a copy of the chapters.
@@ -211,6 +214,16 @@ public class FFmpegProbeResult
 	public void setSize( long size )
 	{
 		this.size = size;
+	}
+	
+	public void setSmallSubtitleStreams( final boolean newValue )
+	{
+		this.smallSubtitleStreams = Boolean.valueOf( newValue ) ;
+	}
+	
+	public boolean getSmallSubtitleStreams()
+	{
+		return smallSubtitleStreams.booleanValue() ;
 	}
 
 	public String toString()

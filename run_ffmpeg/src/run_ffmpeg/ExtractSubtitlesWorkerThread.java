@@ -3,11 +3,15 @@ package run_ffmpeg;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.result.DeleteResult;
 
 /**
  * Thread class that extracts subtitles from files in a given list of folders.
@@ -20,10 +24,13 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	/// Reference to a PD object to access its probeFileAndUpdateDB() method.
 	/// Will be passed to the worker threads.
 	/// Included here so only one instance of PD is created.
-	//	private transient ProbeDirectories probeDirectories = null ;
+	private transient ProbeDirectories probeDirectories = null ;
 
 	/// The list of folders from which to extract subtitles.
 	private List< String > foldersToExtract = null ;
+
+	/// Store the probe results by full path name for each file already probed.
+	protected Map< String, FFmpegProbeResult > probedFiles = new HashMap< String, FFmpegProbeResult >() ;
 
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
@@ -31,18 +38,20 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	static final String codecNameSubTitleDVDSubString = "dvd_subtitle" ;
 
 	/// Identify the allowable languages for subtitles.
-	static final String[] allowableSubTitleLanguages = {
-			"eng",
-			"en"
-	} ;
+	static final String[] allowableSubTitleLanguages =
+		{
+				"eng",
+				"en"
+		} ;
 
 	/// These subtitle codec names to be extracted.
 	/// This will mostly be used when selecting which streams to extract as separate files.
-	static final String[] extractableSubTitleCodecNames = {
-			codecNameSubTitlePGSString,
-			codecNameSubTitleSRTString
-			//			codecNameSubTitleDVDSubString
-	} ;
+	static final String[] extractableSubTitleCodecNames =
+		{
+				codecNameSubTitlePGSString,
+				codecNameSubTitleSRTString
+				//			codecNameSubTitleDVDSubString
+		} ;
 
 	/**
 	 * Initiate a worker thread to extract subtitles from all the files in the given list of folders.
@@ -64,7 +73,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		assert( foldersToExtract != null ) ;
 
 		this.theController = theController ;
-		//		this.probeDirectories = probeDirectories ;
+		this.probeDirectories = probeDirectories ;
 		this.foldersToExtract = foldersToExtract ;
 	}
 
@@ -223,6 +232,28 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 				{
 					remainingSupFiles.add( checkFile ) ;
 				}
+				else
+				{
+					// .sup file was purged indicating it was too small
+					probeResult.setSmallSubtitleStreams( true ) ;
+				}
+			}
+
+			// If a subtitle stream was found that is too small to keep then record it in the database.
+			if( probeResult.getSmallSubtitleStreams() )
+			{
+				// Found one more small subtitle files
+				log.fine( "Found small subtitle stream for file " + fileToSubTitleExtract.getInputFileNameWithPath() ) ;
+
+				MongoCollection< FFmpegProbeResult > probeInfoCollection = theController.getProbeInfoCollection() ;
+				DeleteResult deleteResult = probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
+				if( deleteResult.getDeletedCount() > 0 )
+				{
+					// FFmpegProbeResult was in the database; ok to insert the replacement
+					// Note that the probe result could be absent from the database if we are extracting subtitles
+					//  from a folder that is not kept in the database.
+					probeInfoCollection.insertOne( probeResult ) ;
+				}
 			}
 
 			// The addFilesToPipeline() method will handle a null pipeline.
@@ -323,6 +354,9 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		final long startTime = System.nanoTime() ;
 		setWorkInProgress( true ) ;
 
+		// Load probe info from the database for the files in the given folders.
+		probedFiles.putAll( probeDirectories.getProbeInfoForFolders( foldersToExtract ) ) ;
+
 		List< File > filesToExtract = new ArrayList< File >() ;
 		for( String folderName : foldersToExtract )
 		{
@@ -379,10 +413,24 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			return ;
 		}
 
-		// Look for usable subtitle streams in the file and retrieve a list of options
-		// for an ffmpeg extract command.
-		// Do NOT update the database here.
-		FFmpegProbeResult probeResult = common.ffprobeFile( inputFile, log ) ;
+		// Look for usable subtitle streams in the file and retrieve a list of options for an ffmpeg extract command.
+		FFmpegProbeResult probeResult = probedFiles.get( inputFile.getAbsolutePath() ) ;
+		if( null == probeResult )
+		{
+			// No probe info found for the given file.
+			// Probe the file
+			if( inputFile.getParent().startsWith( Common.getPathToMovies() )
+					|| inputFile.getParent().startsWith( Common.getPathToTVShows() ) )
+			{
+				// The file is in a core folder that should be recorded into the database.
+				probeResult = probeDirectories.probeFileAndUpdateDB( inputFile ) ;
+			}
+			else
+			{
+				// File is not in a core folder, just probe it here and do not record into the database.
+				probeResult = common.ffprobeFile( inputFile, log ) ;
+			}
+		}
 		if( null == probeResult )
 		{
 			// Unable to ffprobe the file

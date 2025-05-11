@@ -23,7 +23,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 {
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
 	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
-	
+
 	private transient List< String > foldersToProbe = new ArrayList< String >() ;
 
 	/// Keep track if the database has been loaded.
@@ -180,9 +180,6 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 
 	/**
 	 * Convenience method for external users of objects of this class.
-	 * Note that the fully featured instance of this class will read the entire probe info collection into memory,
-	 *  and then walk through the collection for a full-database comparison. However, what we need here is an efficient
-	 *  method to probe a single file. To that end, use a database call.
 	 * @param fileToProbe
 	 * @param forceRefresh Set to true to force the file to be re-probed and update the database.
 	 * @return
@@ -194,26 +191,30 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		// Make sure the database has been loaded.
 		if( !hasDatabaseBeenLoaded() )
 		{
+			// Load the entire probeInfo database into the probeInfoMap
 			loadProbeInfoDatabase() ;
 		}
 
-		// Lookup the file in the probeInfoCollection
-		FFmpegProbeResult theProbeResult = probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsolutePath() ) ).first() ;
+		// Lookup the file in the probeInfoMap
+		FFmpegProbeResult theProbeResult = probeInfoMap.get( fileToProbe.getAbsolutePath() ) ;
+		//probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsolutePath() ) ).first() ;
 		// theProbeResult may be null if the file has not yet been probed.
-		if( theProbeResult != null )
+		if( null == theProbeResult )
 		{
-			// Found an entry. Add it to the probeInfoMap and pass to the worker thread method.
-			probeInfoMap.put( theProbeResult.getFileNameWithPath(), theProbeResult ) ;
-		}
+			// No entry found for this file.
+			// Probe it and add to the database
+			theProbeResult = common.ffprobeFile( fileToProbe, log ) ;
 
-		// Create an instance of a PDWT to call its probeFileAndUpdateDB() method.
-		ProbeDirectoriesWorkerThread pdwt = new ProbeDirectoriesWorkerThread( this,
-				log,
-				common,
-				probeInfoCollection,
-				probeInfoMap,
-				Common.getAllMediaFolders() ) ;
-		theProbeResult = pdwt.probeFileAndUpdateDB( fileToProbe, forceRefresh ) ;
+			probeInfoMap.put( fileToProbe.getAbsolutePath(), theProbeResult ) ;
+			try
+			{
+				probeInfoCollection.insertOne( theProbeResult ) ;
+			}
+			catch( Exception theException )
+			{
+				log.warning( "Exception during insertOne: " + theException.toString() ) ;
+			}
+		}
 		return theProbeResult ;
 	}
 

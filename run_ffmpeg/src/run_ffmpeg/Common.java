@@ -1143,4 +1143,11 @@ public class Common
 	{
 		return pathToToOCR ;
 	}
+	
+	public String toString()
+	{
+		Gson loginRequestGson = new Gson() ;
+		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+		return loginRequestJson.toString() ;
+	}
 }

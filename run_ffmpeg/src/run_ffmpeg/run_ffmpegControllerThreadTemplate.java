@@ -286,6 +286,11 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		return threadMap.values().toArray( array ) ;
 	}
 
+	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
+	{
+		return probeInfoCollection ;
+	}
+	
 	public boolean isUseThreads()
 	{
 		return useThreads ;

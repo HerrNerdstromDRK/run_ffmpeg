@@ -87,11 +87,11 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 //		foldersToExtractAndOCR.addAll( Common.getAllMediaFolders() ) ;
 //		foldersToExtractAndOCR.add( Common.getPathToTVShows()) ;
 //		foldersToExtractAndOCR.add( Common.getPathToMovies() ) ;
-		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
+//		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
 //		foldersToExtractAndOCR.add( "D:\\temp\\To OCR") ;
 //		foldersToExtractAndOCR.add( "E:\\To OCR") ;
 //		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\Movies" ) ;
-//		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\Staging\\Archer (2009)" ) ;
+		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\TV_Shows\\Archer 2 (2003)" ) ;
 
 		// Pass the list of folders to the extract object
 		extractSubtitles.addFoldersToExtract( foldersToExtractAndOCR ) ;
