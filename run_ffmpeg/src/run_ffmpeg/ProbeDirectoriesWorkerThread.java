@@ -18,86 +18,30 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	/// Reference back to the controller thread.
 	private transient ProbeDirectories theController = null ;
 
+	/// Handle to the database. This instance is NOT thread safe.
 	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
+	/// This instance is thread safe.
 	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
-
-	/// Store the drives and folders to probe.
-	/// By default this will be all mp4 and mkv drives and folders, but can be changed below for multi-threaded use.
-	private List< String > foldersToProbe = null ;
-
-	/// The extensions of the files to probe herein.
-	private final String[] extensionsToProbe =
-		{
-				".mkv",
-				".mp4"
-		} ;
 
 	public ProbeDirectoriesWorkerThread( ProbeDirectories pdController,
 			Logger log,
 			Common common,
 			MongoCollection< FFmpegProbeResult > probeInfoCollection,
-			Map< String, FFmpegProbeResult > probeInfoMap,
-			List< String > foldersToProbe )
+			Map< String, FFmpegProbeResult > probeInfoMap )
 	{
 		super( log, common ) ;
 
 		assert( theController != null ) ;
 		assert( probeInfoCollection != null ) ;
 		assert( probeInfoMap != null ) ;
-		assert( foldersToProbe != null ) ;
 
 		this.theController = pdController ;
 		this.log = log ;
 		this.common = common ;
 		this.probeInfoCollection = probeInfoCollection ;
 		this.probeInfoMap = probeInfoMap ;
-		this.foldersToProbe = foldersToProbe ;
-	}
-
-	/**
-	 * Check all existing probeInfo records against files in the file system. Remove
-	 * any database entries that do not correlate to files that exist.
-	 */
-	protected void checkForMissingFiles( final List< File > foundFiles )
-	{
-		log.info( getName() + " Found " + foundFiles.size() + " file(s)" ) ;
-
-		// Need to walk through the probeInfoMap and check if each entry corresponds to an active file.
-		// Will need to be able to search the files by path -- put the foundFiles into a map.
-		Map< String, File > fileSystemMap = new HashMap< String, File >() ;
-		for( File theFile : foundFiles )
-		{
-			if( !shouldKeepRunning() )
-			{
-				return ;
-			}
-			fileSystemMap.put( theFile.getAbsolutePath(), theFile ) ;
-		}
-
-		// Now walk through the probeInfoMap to search for missing files.
-		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
-		{
-			if( !shouldKeepRunning() )
-			{
-				return ;
-			}
-
-			final String absolutePath = entry.getKey() ;
-			final FFmpegProbeResult theProbeResult = entry.getValue() ;
-
-			// Find the file in the fileSystemMap
-			final File theFile = fileSystemMap.get( absolutePath ) ;
-			if( null == theFile )
-			{
-				log.info( getName() + " Deleting missing file from database: " + absolutePath ) ;
-				if( !common.getTestMode() )
-				{
-					probeInfoCollection.deleteOne( Filters.eq( "_id", theProbeResult._id ) ) ;
-				}
-			}
-		}
 	}
 
 	/**
@@ -170,7 +114,10 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 			log.fine( getName() + " Deleting probeResult: " + probeResult ) ;
 			if( !common.getTestMode() )
 			{
-				probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
+				synchronized( probeInfoCollection )
+				{
+					probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
+				}
 			}
 		}
 
@@ -185,8 +132,19 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 		{
 			if( !common.getTestMode() )
 			{
-				probeInfoCollection.insertOne( probeResult ) ;
+				synchronized( probeInfoCollection )
+				{
+					try
+					{
+						probeInfoCollection.insertOne( probeResult ) ;
+					}
+					catch( Exception theException )
+					{
+						log.warning( "Exception: " + theException.toString() + " for probeResult: " + probeResult.toString() ) ;
+					}
+				}
 			}
+			// probeInfoMap is thread safe.
 			probeInfoMap.put( probeResult.getFileNameWithPath(), probeResult ) ;
 		}
 		else
@@ -196,68 +154,15 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 		return probeResult ;
 	}
 
-	/**
-	 * Walk through all files in the file system and probe any files that are not in the database.
-	 */
-	protected void probeNewFiles( final List< File > filesToProbe )
-	{
-		log.info( "Probing " + filesToProbe.size() + " file(s)" ) ;
-
-		// Walk through each file in this folder
-		for( File fileToProbe : filesToProbe )
-		{
-			// Be sure to check if we should shut down on a regular basis.
-			if( !shouldKeepRunning() )
-			{
-				// Stop running
-				//					log.info( getName() + " Shutting down thread" ) ;
-				break ;
-			}
-
-			probeFileAndUpdateDB( fileToProbe ) ;
-		} // for( fileToProbe )
-	} // probeNewFiles()
-
 	@Override
 	public void run()
 	{
-		log.info( getName() + " Probing drives and folders: " + foldersToProbe.toString() ) ;
+		log.info( "Running thread: " + getName() ) ;
 
-		// Both getForMissingFiles() and probeNewFiles() query all files in foldersToProbe
-		// Query the filesystem once here
-		List< File > matchingFiles = new ArrayList< File >() ;
-		for( String folderToProbe : foldersToProbe )
+		File fileToProbe = null ;
+		while( shouldKeepRunning() && ((fileToProbe = theController.getNextFileToProbe()) != null) )
 		{
-			if( !shouldKeepRunning() )
-			{
-				// Stop running
-				//				log.info( "Shutting down thread" ) ;
-				break ;
-			}
-			// Find files in this folder to probe
-			matchingFiles.addAll( common.getFilesInDirectoryByExtension( folderToProbe, extensionsToProbe ) ) ;
-		}
-
-		{
-			final long startTime = System.nanoTime() ;
-			log.info( getName() + " Checking for missing files" ) ;
-
-			checkForMissingFiles( matchingFiles ) ;
-
-			final long endTime = System.nanoTime() ;
-			log.info( getName() + " Finished checking for missing files " + foldersToProbe.toString()
-			+ ", " + common.makeElapsedTimeString( startTime, endTime ) ) ;
-		}
-
-		{
-			final long startTime = System.nanoTime() ;
-
-			log.info( getName() + " Probing new files" ) ;
-			probeNewFiles( matchingFiles ) ;
-
-			final long endTime = System.nanoTime() ;
-			log.info( getName() + " Finished probing " + foldersToProbe.toString()
-			+ ", " + common.makeElapsedTimeString( startTime, endTime ) ) ;
+			probeFileAndUpdateDB( fileToProbe ) ;
 		}
 	} // run()
 

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import org.bson.conversions.Bson;
@@ -22,12 +23,24 @@ import com.mongodb.client.model.Filters;
 public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeDirectoriesWorkerThread >
 {
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
-	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
+	/// The probeInfoMap is thread safe.
+	private transient Map< String, FFmpegProbeResult > probeInfoMap = new ConcurrentHashMap< String, FFmpegProbeResult >() ;
 
 	private transient List< String > foldersToProbe = new ArrayList< String >() ;
+	private transient List< File > filesToProbe = new ArrayList< File >() ;
+
+	/// The number of threads to use
+	protected int numThreads = 3 ;
 
 	/// Keep track if the database has been loaded.
 	private boolean databaseBeenLoaded = false ;
+
+	/// The extensions of the files to probe herein.
+	private final String[] extensionsToProbe =
+		{
+				".mkv",
+				".mp4"
+		} ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_probe_directories.txt" ;
@@ -77,32 +90,101 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	@Override
 	public void Init()
 	{
-		setUseThreads( false ) ;
+		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
 		foldersToProbe.addAll( Common.getAllMediaFolders() ) ;
+		//foldersToProbe.add( "\\\\skywalker\\Media\\Staging\\Movies" ) ;
 		loadProbeInfoDatabase() ;
+
+		// Retrieve all of the files to probe.
+		for( String folderToProbe : foldersToProbe )
+		{
+			if( !shouldKeepRunning() )
+			{
+				// Stop running
+				log.info( "Shutting down thread" ) ;
+				break ;
+			}
+			log.info( "Loading files from " + folderToProbe + "..." ) ;
+
+			final List< File > filesToProbeInThisFolder = common.getFilesInDirectoryByExtension( folderToProbe, extensionsToProbe ) ;
+			filesToProbe.addAll( filesToProbeInThisFolder ) ;
+
+			log.info( "Probing " + filesToProbeInThisFolder.size() + " file(s) in folder " + folderToProbe ) ;
+
+		} // for( folderToProbe )
+		log.info( "Will probe " + filesToProbe.size() + " file(s)" ) ;
+
+		// Check for missing files, but only if we're looking at the core media files
+		boolean doCheckForMissingFiles = true ;
+		for( String folderToProbe : foldersToProbe )
+		{
+			if( !findMatch( folderToProbe, Common.getAllMediaFolders() ) )
+			{
+				// Not found, skip the check for missing files.
+				doCheckForMissingFiles = false ;
+				break ;
+			}
+		}
+
+		if( doCheckForMissingFiles )
+		{
+			final long startTime = System.nanoTime() ;
+			log.info( getName() + " Checking for missing files" ) ;
+
+			checkForMissingFiles( filesToProbe ) ;
+
+			final long endTime = System.nanoTime() ;
+			log.info( getName() + " Finished checking for missing files " + foldersToProbe.toString()
+			+ ", " + common.makeElapsedTimeString( startTime, endTime ) ) ;
+		}
+	}
+
+	public boolean findMatch( final String findMe, final List< String > searchList )
+	{
+		for( String searchListItem : searchList )
+		{
+			if( searchListItem.equals( findMe ) )
+			{
+				return true ;
+			}
+		}
+		return false ;
 	}
 
 	/**
 	 * Build the worker threads for this instance.
-	 * Each thread will only receive the portion of the probeInfoMap related to its drive.
-	 * Note that this means the drive prefixes must be mutually exclusive.
 	 */
 	@Override
 	protected List< ProbeDirectoriesWorkerThread > buildWorkerThreads()
 	{
 		List< ProbeDirectoriesWorkerThread > threads = new ArrayList< ProbeDirectoriesWorkerThread >() ;
 
-		ProbeDirectoriesWorkerThread pdwt = new ProbeDirectoriesWorkerThread( this,
-				log,
-				common,
-				probeInfoCollection,
-				probeInfoMap,
-				foldersToProbe ) ;
-		pdwt.setName( getSingleThreadedName() ) ;
-		threads.add( pdwt ) ;
+		for( int i = 0 ; i < getNumThreads() ; ++i )
+		{
+			ProbeDirectoriesWorkerThread pdwt = new ProbeDirectoriesWorkerThread( this,
+					log,
+					common,
+					probeInfoCollection,
+					probeInfoMap ) ;
+			pdwt.setName( "PDWT #" + i ) ;
+			threads.add( pdwt ) ;
+		}
 
 		return threads ;
+	}
+
+	public synchronized File getNextFileToProbe()
+	{
+		File probeMe = null ;
+		synchronized( filesToProbe )
+		{
+			if( !filesToProbe.isEmpty() )
+			{
+				probeMe = filesToProbe.removeFirst() ;
+			}
+		}
+		return probeMe ;
 	}
 
 	/**
@@ -206,13 +288,16 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 			theProbeResult = common.ffprobeFile( fileToProbe, log ) ;
 
 			probeInfoMap.put( fileToProbe.getAbsolutePath(), theProbeResult ) ;
-			try
+			synchronized( probeInfoCollection )
 			{
-				probeInfoCollection.insertOne( theProbeResult ) ;
-			}
-			catch( Exception theException )
-			{
-				log.warning( "Exception during insertOne: " + theException.toString() ) ;
+				try
+				{
+					probeInfoCollection.insertOne( theProbeResult ) ;
+				}
+				catch( Exception theException )
+				{
+					log.warning( "Exception during insertOne: " + theException.toString() ) ;
+				}
 			}
 		}
 		return theProbeResult ;
@@ -226,5 +311,69 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	public void setDatabaseBeenLoaded( boolean databaseBeenLoaded )
 	{
 		this.databaseBeenLoaded = databaseBeenLoaded ;
+	}
+
+	public void setNumThreads( final int numThreads )
+	{
+		this.numThreads = numThreads ;
+	}
+
+	public int getNumThreads()
+	{
+		return numThreads ;
+	}
+
+	/**
+	 * Check all existing probeInfo records against files in the file system. Remove
+	 * any database entries that do not correlate to files that exist.
+	 */
+	protected void checkForMissingFiles( final List< File > foundFiles )
+	{
+		log.info( getName() + " Found " + foundFiles.size() + " file(s)" ) ;
+
+		// Need to walk through the probeInfoMap and check if each entry corresponds to an active file.
+		// Will need to be able to search the files by path -- put the foundFiles into a map.
+		Map< String, File > fileSystemMap = new HashMap< String, File >() ;
+		for( File theFile : foundFiles )
+		{
+			if( !shouldKeepRunning() )
+			{
+				return ;
+			}
+			fileSystemMap.put( theFile.getAbsolutePath(), theFile ) ;
+		}
+
+		// Now walk through the probeInfoMap to search for missing files.
+		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
+		{
+			if( !shouldKeepRunning() )
+			{
+				return ;
+			}
+
+			final String absolutePath = entry.getKey() ;
+			final FFmpegProbeResult theProbeResult = entry.getValue() ;
+
+			// Find the file in the fileSystemMap
+			final File theFile = fileSystemMap.get( absolutePath ) ;
+			if( null == theFile )
+			{
+				log.info( getName() + " Deleting missing file from database: " + absolutePath ) ;
+				if( !common.getTestMode() )
+				{
+					synchronized( probeInfoCollection )
+					{
+						try
+						{
+							probeInfoCollection.deleteOne( Filters.eq( "_id", theProbeResult._id ) ) ;
+						}
+						catch( Exception theException )
+						{
+							log.warning( "Exception: " + theException.toString() ) ;
+						}
+					}
+				}
+			}
+		}
 	}
 }
