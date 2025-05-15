@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,20 +33,29 @@ public class FixTVShowNaming
 	
 	/// Store all tv shows that are drawn from the TVDB to reduce the number of external calls made here.
 	protected Map< Integer, TheTVDB_ShowInfo > tvDBShows = new HashMap< Integer, TheTVDB_ShowInfo >() ;
+	
+	/// The pattern that matches a correctly formed TV show file name
+	protected static final String patternCorrectTVShowName = ".* - S[\\d]+E[\\d]+ - .*\\.(mkv|mp4)" ;
+	protected static final String patternCorrectTVSeasonDirectoryName = "Season [\\d]+" ;
 
-	protected final String[] allowableExtensions = {
+	protected final String[] allowableExtensions =
+	{
 			"mp4",
 			"mkv",
 			"srt"
 	} ;
 
-	protected final String[] tvDirectories = {
-			//			"\\\\skywalker\\usbshare1-2\\TV",
-			"\\\\skywalker\\Media\\Staging\\TV_Shows"
-			//			"\\\\skywalker\\Media\\Staging\\Archer (2009)"
-			//			"\\\\skywalker\\Media\\TV_Shows\\House Of The Dragon (2022)\\Season 01"
-	} ;
-	protected final String[] extensions = {
+	protected final List< String > tvDirectories = new ArrayList< String >() ;
+	
+//	{
+//			//			"\\\\skywalker\\usbshare1-2\\TV",
+//			"\\\\skywalker\\Media\\Staging\\TV_Shows"
+//			//			"\\\\skywalker\\Media\\Staging\\Archer (2009)"
+//			//			"\\\\skywalker\\Media\\TV_Shows\\House Of The Dragon (2022)\\Season 01"
+//	} ;
+	
+	protected final String[] extensions =
+	{
 			"mkv",
 			"mp4"
 	} ;
@@ -102,21 +112,82 @@ public class FixTVShowNaming
 
 	public void run()
 	{
-		common.setTestMode( false ) ;
+		common.setTestMode( true ) ;
+		
+		tvDirectories.add( Common.getPathToTVShows() ) ;
+//		tvDirectories.add( common.addPathSeparatorIfNecessary( Common.getPathToTVShows() ) + "Brooklyn Nine-Nine (2013) {tvdb-269586}" ) ; 
+		
+		reportMalformedTVShowNames() ;
+//		fixMalformedTVShowNames() ;
+	}
 
-		TV_Show_Pattern[] tvShowPatterns =
+	public void reportMalformedTVShowNames()
+	{
+		int numMalformedTVShowNames = 0 ;
+		int numMalformedTVSeasonNames = 0 ;
+		log.info( "Starting..." ) ;
+		
+		for( String tvDirectory : tvDirectories )
+		{
+			File tvDirectoryFile = new File( tvDirectory ) ;
+			if( !tvDirectoryFile.exists() )
+			{
+				log.warning( "Unable to build tvDirectoryFile for tvDirectory: " + tvDirectory ) ;
+				continue ;
+			}
+
+			if( !tvDirectoryFile.isDirectory() )
+			{
+				continue ;
+			}
+			// PC: tvDirectoryFile is a valid directory
+			
+			// List all matching files.
+			final List< Path > pathList = common.findFiles( tvDirectoryFile.getAbsolutePath(), "^.*\\.(mkv|mp4)$" ) ;
+			final Pattern correctTVShowNamePattern = Pattern.compile( patternCorrectTVShowName ) ;
+			final Pattern correctTVSeasonNamePattern = Pattern.compile( patternCorrectTVSeasonDirectoryName ) ;
+			
+			for( Path inputFilePath : pathList )
+			{
+				final File inputFile = inputFilePath.toFile() ;
+				final String inputFileName = inputFile.getName() ;
+				Matcher fileMatcher = correctTVShowNamePattern.matcher( inputFileName ) ;
+				
+				if( !fileMatcher.matches() )
+				{
+					++numMalformedTVShowNames ;
+					log.info( "Found improperly formed inputFileName: " + inputFileName ) ;
+				}
+				
+				// Check if the parent directory is anything but "Season XX"
+				final String parentDirectoryString = inputFile.getParentFile().getName() ;
+				Matcher tvSeasonNameMatcher = correctTVSeasonNamePattern.matcher( parentDirectoryString ) ;
+				
+				if( !tvSeasonNameMatcher.matches() )
+				{
+					++numMalformedTVSeasonNames ;
+					log.info( "Found malformed season directory for file " + inputFile.getAbsolutePath() ) ;
+				}				
+			} // for( inputFilePath )
+		} // for( tvDirectory )
+		log.info( "Done. Found " + numMalformedTVShowNames + " malformed tv show name(s) and " + numMalformedTVSeasonNames + " malformed season name(s)" ) ;
+	}
+	
+	public void fixMalformedTVShowNames()
+	{
+		final TV_Show_Pattern[] tvShowPatterns =
 			{
 					// Pattern: bad pattern, show name, season and episode number, episode name, extension
 					// House of the Dragon_S01E01_The Heirs of the Dragon.mp4
 					new TV_Show_Pattern( "House of the Dragon",
-							".*_S[0-9]+E[0-9]+_.*\\..*", // bad pattern
-							"(?<showName>.*)_(<?seasonAndEpisode>S[0-9]+E[0-9])+_(?<episodeName>.*)\\.(?<extension>.*)",
+							".*_S[\\d]+E[\\d]+_.*\\..*", // bad pattern
+							"(?<showName>.*)_(?<seasonAndEpisode>S[\\d]+E[\\d]+)_(?<episodeName>.*)\\.(?<extension>.*)",
 							false ),
 
 					// Archer.2009.S01E01.Mole.Hunt.mp4
 					new TV_Show_Pattern( "Archer",
-							".*\\.[0-9]{4}\\.S[0-9]+E[0-9]+\\..*", // bad pattern
-							"(?<showName>.*)\\.[0-9]{4}\\.(?<seasonAndEpisode>(S[0-9]+E[0-9]+)\\.(?<episodeName>).*)\\.(?<extension>.*)",
+							".*\\.[\\d]{4}\\.S[\\d]+E[\\d]+\\..*", // bad pattern
+							"(?<showName>.*)\\.[\\d]{4}\\.(?<seasonAndEpisode>(S[\\d]+E[\\d]+)\\.(?<episodeName>).*)\\.(?<extension>.*)",
 							false ),
 
 					// The Acolyte (2024) - S01E02 - Revenge Justice.mp4
@@ -136,7 +207,14 @@ public class FixTVShowNaming
 					new TV_Show_Pattern( "Modern Family",
 							".*\\.S[0-9]+E[0-9]+\\..*",
 							"(?<showName>.*)\\.(?<seasonAndEpisode>S[0-9]+E[0-9]+)\\.(?<extension>.*)",
+							true ),					
+
+					// Star Wars_ The Bad Batch_S02E08_Truth and Consequences.mp4
+					new TV_Show_Pattern( "The Bad Batch",
+							".*_ .*_S[0-9]+E[0-9]+_.*\\..*",
+							"(?<showName>.*)_(?<seasonAndEpisode>S[0-9]+E[0-9]+)_(?<episodeName>.*)\\.(?<extension>.*)",
 							true )					
+
 			} ;
 
 		for( String tvDirectory : tvDirectories )
@@ -157,15 +235,18 @@ public class FixTVShowNaming
 			// List all matching files.
 			List< Path > pathList = common.findFiles( tvDirectoryFile.getAbsolutePath(), "^.*\\.(mkv|mp4)$" ) ;
 			//			List< Path > pathList = common.findFiles( tvDirectoryFile.getAbsolutePath(), "^.*\\_.*(mkv|mp4|srt)$" ) ;
+			
+			// For each file (Path), look for matches against the known bad patterns.
 			for( Path inputFilePath : pathList )
 			{
-				log.fine( "inputFilePath: " + inputFilePath.toString() ) ;
+//				log.fine( "inputFilePath: " + inputFilePath.toString() ) ;
 				final String inputFileName = inputFilePath.getFileName().toString() ;
 				
 				// Record if we find a pattern match to ensure we only change the name of the file once.
 				// Note that this imposes a requirement that the more specific patterns be listed first.
 				boolean foundMatch = false ;
 
+				// Check this file against each bad pattern
 				for( TV_Show_Pattern tvShowPattern : tvShowPatterns )
 				{
 					if( foundMatch )
@@ -179,12 +260,12 @@ public class FixTVShowNaming
 					if( !inputFileNameMatcher.find() )
 					{
 						// No match
-						log.fine( "No Match between " + inputFileName + " and pattern: " + tvShowPattern.badPatternMatch ) ;
+//						log.fine( "No Match between " + inputFileName + " and pattern: " + tvShowPattern.badPatternMatch ) ;
 						continue ;
 					}
 					foundMatch = true ;
 
-					log.fine( "Found match between inputFileName " + inputFileName + " and pattern " + tvShowPattern.patternName
+					log.info( "Found match between inputFileName " + inputFileName + " and pattern " + tvShowPattern.patternName
 							+ " (" + tvShowPattern.badPatternMatch + ")" ) ;
 					
 					// Extract the elements of the file name
@@ -193,7 +274,11 @@ public class FixTVShowNaming
 
 					if( !namedCaptureGroupMatcher.matches() )
 					{
-						log.warning( "non-matching capture group for file: " + inputFileName ) ;
+						// Found a match to the pattern, but not the grouping.
+						// Log the issue but allow a match against the next bad pattern.
+						foundMatch = false ;
+						
+						log.fine( "Non-matching capture group for file: " + inputFileName + " (" + tvShowPattern.patternName + ")" ) ;
 						continue ;
 					}
 
@@ -344,7 +429,8 @@ public class FixTVShowNaming
 		retMe = retMe.replace( "?", "" ) ;
 		retMe = retMe.replace( "#", "" ) ;
 		retMe = retMe.replace( ":", "" ) ;
-		retMe = retMe.replace( "...", "" ) ;
+		retMe = retMe.replace( ":", "" ) ;
+		retMe = retMe.replace( "_", "" ) ;
 		retMe = retMe.replace( "*", "" ) ;
 
 		return retMe ;
