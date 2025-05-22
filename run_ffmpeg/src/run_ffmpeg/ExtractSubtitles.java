@@ -2,6 +2,7 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Logger;
@@ -10,12 +11,9 @@ import com.mongodb.client.MongoCollection;
 
 /**
  * Problems to solve:
- * - Identify which movies/tv shows are missing MKVs
- * -- Build an inventory algorith to list all movies/tv shows
  * - Identify which movies/tv shows are missing subtitles
  * -- Build ffprobe for both input and output
  * --- Need means to record them
- * - Identify which movies/tv shows need forced subtitles
  * - Fix subtitles, audio, metadata for all items, if required
  * -- Need to know which are broken
  * -- Need to correlate those back to the MKV files and cross-check
@@ -26,8 +24,10 @@ import com.mongodb.client.MongoCollection;
  */
 public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< ExtractSubtitlesWorkerThread >
 {
-	/// The list of drives and folders to extract.
-	private List< String > foldersToExtract = null ;
+	/// The list of folders to extract. Each entry into the top-level List is for a single thread.
+	/// This structure will be initialized during object initialization and be populated by
+	/// a single empty List< String >.
+	private List< List< String > > foldersToExtractByThread = null ;
 
 	/// Reference to a PD object to access its probeFileAndUpdateDB() method.
 	/// Will be passed to the worker threads.
@@ -46,7 +46,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 	/// If transcodePipeline is null, then the pipeline is not enabled and it is ignored.
 	/// Access to transcodePipeline will be guarded with a synchronized block since it will be
 	/// used in a threaded environment.
-	private PriorityBlockingQueue< File > filePipeline = null ;
+	private PriorityBlockingQueue< File > ocrFilePipeline = null ;
 
 	/**
 	 * Default constructor relies on the super class.
@@ -89,6 +89,8 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 	private void initObject()
 	{
 		probeDirectories = new ProbeDirectories( log, common, masMDB, probeInfoCollection ) ;
+		foldersToExtractByThread = new ArrayList< List< String > >() ;
+		foldersToExtractByThread.add( new ArrayList< String >() ) ;
 	}
 
 	public static void main(String[] args)
@@ -109,17 +111,23 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 	{
 		List< ExtractSubtitlesWorkerThread > threads = new ArrayList< ExtractSubtitlesWorkerThread >() ;
 
-		// NOT using threads.
-		// Just create a single thread instance and pass it the entire list of folders to extract.
-		// Thread.start() will NOT be called -- just run() directly.
-		ExtractSubtitlesWorkerThread newWorkerThread = new ExtractSubtitlesWorkerThread(
-				this,
-				log,
-				common,
-				probeDirectories,
-				foldersToExtract ) ;
-		newWorkerThread.setName( getSingleThreadedName() ) ;
-		threads.add( newWorkerThread ) ;
+		for( List< String > foldersToExtractForThisThread : foldersToExtractByThread )
+		{
+			if( foldersToExtractForThisThread.isEmpty() )
+			{
+				log.warning( "Empty foldersToExtractForThisThread" ) ;
+				continue ;
+			}
+			
+			ExtractSubtitlesWorkerThread newWorkerThread = new ExtractSubtitlesWorkerThread(
+					this,
+					log,
+					common,
+					probeDirectories,
+					foldersToExtractForThisThread ) ;
+			newWorkerThread.setName( foldersToExtractForThisThread.get( 0 ) ) ;
+			threads.add( newWorkerThread ) ;
+		}
 
 		return threads ;
 	}
@@ -133,74 +141,118 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
 
-		if( null == foldersToExtract )
+		if( foldersToExtractIsEmpty() )
 		{
 			// This object is not in use by another class because the foldersToExtract is null.
+			// Probably running via main() in this class.
 			// Populate the structure here.
 			boolean extractAllFolders = false ;
 			if( extractAllFolders )
 			{
-				foldersToExtract = Common.getAllMediaFolders() ;
+				addFoldersToExtract( Common.getAllMediaFolders() ) ;
 			}
 			else
 			{
-				foldersToExtract = new ArrayList< String >() ;
-				foldersToExtract.add( Common.getPathToOCRInputDirectory() ) ;
+				addFoldersToExtractWithNewThread( Arrays.asList( Common.getPathToOCRInputDirectory() ) ) ;
 			}
 		}
 	}
-
-	protected void addFileToPipeline( File theFile )
+	
+	protected void addFileToOCRPipeline( final File theFile )
 	{
-		if( null == filePipeline )
+		if( null == ocrFilePipeline )
 		{
 			// Pipeline disabled.
 			return ;
 		}
 
-		synchronized( filePipeline )
+		synchronized( ocrFilePipeline )
 		{
-			filePipeline.add( theFile ) ;
+			ocrFilePipeline.add( theFile ) ;
 		}
 	}
 
-	protected void addFilesToPipeline( List< File > theFiles )
+	protected void addFilesToOCRPipeline( final List< File > theFiles )
 	{
-		if( null == filePipeline )
+		if( null == ocrFilePipeline )
 		{
 			// Pipeline disabled.
 			return ;
 		}
 
-		synchronized( filePipeline )
+		synchronized( ocrFilePipeline )
 		{
-			filePipeline.addAll( theFiles ) ;
+			ocrFilePipeline.addAll( theFiles ) ;
 		}
 	}
 
+	/**
+	 * Add one or more folders to extract to the default thread.
+	 * @param foldersToAdd
+	 */
 	public void addFoldersToExtract( final List< String > foldersToAdd )
 	{
 		assert( foldersToAdd != null ) ;
 
-		if( null == foldersToExtract )
-		{
-			foldersToExtract = new ArrayList< String >() ;
-		}
+		foldersToExtractByThread.get( 0 ).addAll( foldersToAdd ) ;
+	}
+	
+	public void addFoldersToExtract( final String folderToAdd )
+	{
+		addFoldersToExtract( Arrays.asList( folderToAdd ) ) ;
+	}
+
+	/**
+	 * Add one or more folders to extract to a new thread. Note that this may be the default thread if
+	 *  no folders have already been assigned.
+	 * @param foldersToAdd
+	 */
+	public void addFoldersToExtractWithNewThread( final List< String > foldersToAdd )
+	{
+		assert( foldersToAdd != null ) ;
+
+		List< String > foldersToExtract = new ArrayList< String >() ;
+		foldersToExtractByThread.add( foldersToExtract ) ;
+
 		foldersToExtract.addAll( foldersToAdd ) ;
 	}
 
+	public void addFoldersToExtractWithNewThread( final String folderToAdd )
+	{
+		addFoldersToExtractWithNewThread( Arrays.asList( folderToAdd ) ) ;
+	}
+	
+	public boolean foldersToExtractIsEmpty()
+	{
+		return foldersToExtractByThread.get( 0 ).isEmpty() ;
+	}
+
+	/**
+	 * Return all folders that will be extracted. Includes folders from all threads.
+	 * @return
+	 */
+	public List< String > getAllFoldersToExtract()
+	{
+		List< String > allFoldersToExtract = new ArrayList< String >() ;
+		for( List< String > theFoldersToExtract : foldersToExtractByThread )
+		{
+			allFoldersToExtract.addAll( theFoldersToExtract ) ;
+		}
+		return allFoldersToExtract ;
+	}
+	
 	/**
 	 * Return the file at the front of the queue, or null if the queue is empty.
 	 * @return
 	 */
-	protected File getPipelineFile()
+	protected File getOCRPipelineFile()
 	{
 		File retMe = null ;
-		if( filePipeline != null )
+		if( ocrFilePipeline != null )
 		{
-			synchronized( filePipeline )
+			synchronized( ocrFilePipeline )
 			{
-				retMe = filePipeline.poll() ;
+				retMe = ocrFilePipeline.poll() ;
 			}
 		}
 		return retMe ;
@@ -209,11 +261,11 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 	protected boolean pipelineIsEmpty()
 	{
 		boolean isEmpty = true ;
-		if( filePipeline != null )
+		if( ocrFilePipeline != null )
 		{
-			synchronized( filePipeline )
+			synchronized( ocrFilePipeline )
 			{
-				isEmpty = filePipeline.isEmpty() ;
+				isEmpty = ocrFilePipeline.isEmpty() ;
 			}
 		}
 		return isEmpty ;
@@ -221,6 +273,6 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 
 	protected synchronized void setTranscodePipeline( PriorityBlockingQueue< File > transcodePipeline )
 	{
-		this.filePipeline = transcodePipeline;
+		this.ocrFilePipeline = transcodePipeline;
 	}
 }

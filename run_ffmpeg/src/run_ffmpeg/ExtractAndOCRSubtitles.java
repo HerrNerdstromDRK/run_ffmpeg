@@ -84,21 +84,15 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 
 		// Build the list of folders to extract and OCR
 		List< String > foldersToExtractAndOCR = new ArrayList< String >() ;
-//		foldersToExtractAndOCR.addAll( Common.getAllMediaFolders() ) ;
-//		foldersToExtractAndOCR.add( Common.getPathToTVShows()) ;
-//		foldersToExtractAndOCR.add( Common.getPathToMovies() ) ;
-		foldersToExtractAndOCR.add( Common.getPathToOCRInputDirectory() ) ;
-//		foldersToExtractAndOCR.add( "D:\\temp\\To OCR") ;
-//		foldersToExtractAndOCR.add( "E:\\To OCR") ;
-//		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\Movies" ) ;
-//		foldersToExtractAndOCR.add( "\\\\skywalker\\Media\\TV_Shows\\Archer 2 (2003)" ) ;
+//		extractSubtitles.addFoldersToExtractWithNewThread( Common.getAllMediaFolders() ) ;
+//		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToTVShows() ) ;
+//		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToMovies() ) ;
+		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToOCRInputDirectory() ) ;
+		extractSubtitles.addFoldersToExtractWithNewThread( "E:\\To OCR" ) ;
 
-		// Pass the list of folders to the extract object
-		extractSubtitles.addFoldersToExtract( foldersToExtractAndOCR ) ;
-		
 		// Also pass the list of folders to the ocr object since those folders may have existing .sup files to ocr
-		ocrSubtitles.addFoldersToOCR( foldersToExtractAndOCR ) ;
-		
+		ocrSubtitles.addFoldersToOCR( extractSubtitles.getAllFoldersToExtract() ) ;
+
 		log.info( "Running extract and OCR on " + foldersToExtractAndOCR.size() + " folder(s): " + foldersToExtractAndOCR.toString() ) ;
 	}
 	

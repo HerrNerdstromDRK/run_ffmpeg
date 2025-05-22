@@ -257,7 +257,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			}
 
 			// The addFilesToPipeline() method will handle a null pipeline.
-			theController.addFilesToPipeline( remainingSupFiles ) ;
+			theController.addFilesToOCRPipeline( remainingSupFiles ) ;
 		}
 	}
 
