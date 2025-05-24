@@ -100,6 +100,7 @@ public class Common
 	private static final String pathToTVShows = pathToMediaFolderBase + pathSeparator + tvShowsFolderName ;
 	private static final String pathToOCRInputDirectory = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
 	private static final String pathToTmpDir = pathToMediaFolderBase + pathSeparator + "Test" ;
+	private static final String pathToDeleteDir = pathToMediaFolderBase + pathSeparator + "To_Delete" ;
 
 	/// The string to search for in file paths to determine if this is a tv show
 	private static final String tvPathCheckString = "TV_Shows" ;
@@ -1142,6 +1143,11 @@ public class Common
 	public static String getPathToToOCR()
 	{
 		return pathToToOCR ;
+	}
+	
+	public static String getPathToDeleteDir()
+	{
+		return pathToDeleteDir ;
 	}
 	
 	public String toString()

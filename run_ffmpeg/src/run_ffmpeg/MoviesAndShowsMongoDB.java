@@ -14,9 +14,11 @@ import static com.mongodb.MongoClientSettings.getDefaultCodecRegistry;
 import static org.bson.codecs.configuration.CodecRegistries.fromProviders;
 import static org.bson.codecs.configuration.CodecRegistries.fromRegistries;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,17 +48,16 @@ public class MoviesAndShowsMongoDB
 	private final String movieAndShowInfoCollectionName = "movieandshowinfos" ;
 	private final String hDMoviesAndShowsCollectionName = "hdmoviesandshows" ;
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
-	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
-	private final String jobRecord_TranscodeMKVFilesInfoCollectionName = "jobrecord_transcodemkvfiles" ;
-	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
-	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
+//	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
+	private final String action_TranscodeMKVFilesInfoCollectionName = "action_transcodemkvfiles" ;
+//	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
+//	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
 	/// File name to which to log activities for this application.
 	static private final String logFileName = "log_movies_and_shows_mongodb.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	//	static private final String stopFileName = "C:\\Temp\\stop_database.txt" ;
 
 	/**
 	 * Create a new instance of this class.
@@ -170,6 +171,25 @@ public class MoviesAndShowsMongoDB
 		log.info( "Dropping probeInfoCollection" )  ;
 		getProbeInfoCollection().drop() ;
 	}
+	
+	public List< FFmpegProbeResult > getAllProbeInfoInstances()
+	{
+		List< FFmpegProbeResult > allProbeInfoInstances = new ArrayList< FFmpegProbeResult >() ;
+		
+		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
+		FindIterable< FFmpegProbeResult > probeInfoFindResult = getProbeInfoCollection().find( findFilesFilter ) ;
+
+		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+
+		// This loop stores all FFmpegProbeResults in a single structure
+		while( probeInfoFindResultIterator.hasNext() )
+		{
+			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			allProbeInfoInstances.add( probeResult ) ;
+		}
+		return allProbeInfoInstances ;
+	}
+		
 
 	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
 	{	
@@ -185,65 +205,65 @@ public class MoviesAndShowsMongoDB
 		getMovieAndShowInfoCollection().drop() ;
 	}
 
-	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_MakeFakeMKVFileInfoCollection()
+//	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_MakeFakeMKVFileInfoCollection()
+//	{	
+//		log.fine( "Getting jobRecord_MakeFakeMKVFilesCollection" )  ;
+//		MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > theCollection = persistentDatabaseHandle.getCollection(
+//				jobRecord_MakeFakeMKVFilesInfoCollectionName,
+//				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
+//		return theCollection ;
+//	}
+//
+//	public void dropJobRecord_MakeFakeMKVFileInfoCollection()
+//	{
+//		log.info( "Dropping jobRecord_MakeFakeMKVFilesCollection" )  ;
+//		getJobRecord_MakeFakeMKVFileInfoCollection().drop() ;
+//	}
+
+	public MongoCollection< FFmpegProbeResult > getAction_TranscodeMKVFileInfoCollection()
 	{	
-		log.fine( "Getting jobRecord_MakeFakeMKVFilesCollection" )  ;
-		MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > theCollection = persistentDatabaseHandle.getCollection(
-				jobRecord_MakeFakeMKVFilesInfoCollectionName,
-				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
+		log.fine( "Getting action_TranscodeMKVFilesInfoCollectionName" ) ;
+		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection(
+				action_TranscodeMKVFilesInfoCollectionName,
+				FFmpegProbeResult.class ) ;
 		return theCollection ;
 	}
 
-	public void dropJobRecord_MakeFakeMKVFileInfoCollection()
+	public void dropAction_TranscodeMKVFileInfoCollection()
 	{
-		log.info( "Dropping jobRecord_MakeFakeMKVFilesCollection" )  ;
-		getJobRecord_MakeFakeMKVFileInfoCollection().drop() ;
+		log.info( "Dropping action_TranscodeMKVFilesInfoCollectionName" )  ;
+		getAction_TranscodeMKVFileInfoCollection().drop() ;
 	}
 
-	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_TranscodeMKVFileInfoCollection()
-	{	
-		log.fine( "Getting jobRecord_TranscodeMKVFilesCollection" )  ;
-		MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > theCollection = persistentDatabaseHandle.getCollection(
-				jobRecord_TranscodeMKVFilesInfoCollectionName,
-				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
-		return theCollection ;
-	}
+//	public void dropJobRecord_ProbeFileInfoCollection()
+//	{
+//		log.info( "Dropping jobRecord_ProbeFileInfoCollection" )  ;
+//		getJobRecord_ProbeFileInfoCollection().drop() ;
+//	}
 
-	public void dropJobRecord_TranscodeMKVFileInfoCollection()
-	{
-		log.info( "Dropping jobRecord_TranscodeMKVFilesInfoCollection" )  ;
-		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
-	}
-
-	public void dropJobRecord_ProbeFileInfoCollection()
-	{
-		log.info( "Dropping jobRecord_ProbeFileInfoCollection" )  ;
-		getJobRecord_ProbeFileInfoCollection().drop() ;
-	}
-
-	public MongoCollection< JobRecord_ProbeFile > getJobRecord_ProbeFileInfoCollection()
-	{	
-		log.fine( "Getting jobRecord_ProbeFileInfoCollection" )  ;
-		MongoCollection< JobRecord_ProbeFile > theCollection = persistentDatabaseHandle.getCollection(
-				jobRecord_ProbeFileInfoCollectionName,
-				JobRecord_ProbeFile.class ) ;
-		return theCollection ;
-	}
-
-	public void dropJobRecord_UpdateCorrelatedFileInfoCollectionName()
-	{
-		log.info( "Dropping jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
-		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
-	}
-
-	public MongoCollection< JobRecord_UpdateCorrelatedFile > getJobRecord_UpdateCorrelatedFileInfoCollectionName()
-	{	
-		log.fine( "Getting jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
-		MongoCollection< JobRecord_UpdateCorrelatedFile > theCollection = persistentDatabaseHandle.getCollection(
-				jobRecord_UpdateCorrelatedFileInfoCollectionName,
-				JobRecord_UpdateCorrelatedFile.class ) ;
-		return theCollection ;
-	}
+//	public MongoCollection< JobRecord_ProbeFile > getJobRecord_ProbeFileInfoCollection()
+//	{	
+//		log.fine( "Getting jobRecord_ProbeFileInfoCollection" )  ;
+//		MongoCollection< JobRecord_ProbeFile > theCollection = persistentDatabaseHandle.getCollection(
+//				jobRecord_ProbeFileInfoCollectionName,
+//				JobRecord_ProbeFile.class ) ;
+//		return theCollection ;
+//	}
+//
+//	public void dropJobRecord_UpdateCorrelatedFileInfoCollectionName()
+//	{
+//		log.info( "Dropping jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
+//		getJobRecord_TranscodeMKVFileInfoCollection().drop() ;
+//	}
+//
+//	public MongoCollection< JobRecord_UpdateCorrelatedFile > getJobRecord_UpdateCorrelatedFileInfoCollectionName()
+//	{	
+//		log.fine( "Getting jobRecord_UpdateCorrelatedFileInfoCollection" )  ;
+//		MongoCollection< JobRecord_UpdateCorrelatedFile > theCollection = persistentDatabaseHandle.getCollection(
+//				jobRecord_UpdateCorrelatedFileInfoCollectionName,
+//				JobRecord_UpdateCorrelatedFile.class ) ;
+//		return theCollection ;
+//	}
 
 	/**
 	 * Read all FFmpegProbeResults from the database and return them in a map keyed by the long path to the document.

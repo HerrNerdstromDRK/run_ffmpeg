@@ -19,7 +19,7 @@ public class WorkflowStageThread_UpdateCorrelatedFile extends WorkflowStageThrea
 			MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
-		jobRecord_UpdateCorrelatedFileInfoCollection = masMDB.getJobRecord_UpdateCorrelatedFileInfoCollectionName() ;
+//		jobRecord_UpdateCorrelatedFileInfoCollection = masMDB.getJobRecord_UpdateCorrelatedFileInfoCollectionName() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}

@@ -134,18 +134,30 @@ public class FFmpegProbeResult
 		return returnMe ;
 	}
 	
+	/**
+	 * Return the video codec name. Known codecs are vc1, h264, hevc, mpeg2video. Note that the video stream is sometimes, although
+	 *  not frequently, something other than stream 0.
+	 * @return
+	 */
 	public String getVideoCodec()
 	{
 		if( (null == streams) || streams.isEmpty() )
 		{
 			return "" ;
 		}
-		final FFmpegStream videoStream = streams.get( 0 ) ;
-		if( null == videoStream )
+		
+		String codecName = "" ;
+		for( FFmpegStream theStream : getStreams() )
 		{
-			return "" ;
+			assert( theStream != null ) ;
+			if( theStream.codec_type.equals( "video" ) )
+			{
+				codecName = theStream.codec_name ;
+				break ;
+			}
 		}
-		return videoStream.codec_name ;
+
+		return codecName ;
 	}
 
 	public boolean hasError()

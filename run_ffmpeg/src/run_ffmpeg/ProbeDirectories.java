@@ -92,7 +92,9 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	{
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
-		foldersToProbe.addAll( Common.getAllMediaFolders() ) ;
+		foldersToProbe.add( Common.getPathToMovies() ) ;
+		foldersToProbe.add( Common.getPathToTVShows() ) ;
+		foldersToProbe.add( Common.getPathToOtherVideos() ) ;
 		//foldersToProbe.add( "\\\\skywalker\\Media\\Staging\\Movies" ) ;
 		loadProbeInfoDatabase() ;
 

@@ -83,7 +83,7 @@ public class CompareTranscodeOptions
 		
 		try
 		{
-			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (ms),time per GB
+			// File format: source codec,dest codec,preset,crf,output file name,input file size,output file size,transcode time (s),time per GB
 			BufferedWriter dataFileWriter = new BufferedWriter( new FileWriter( dataFileName, true ) ) ;
 			testAll( dataFileWriter, filesInOutputDirectory ) ;
 			//determineTranscodeDurations( dataFileWriter ) ;

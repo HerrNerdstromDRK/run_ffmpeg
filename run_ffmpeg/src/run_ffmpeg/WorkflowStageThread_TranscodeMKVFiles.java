@@ -24,7 +24,7 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 			MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
-		jobRecord_TranscodeMKVFilesInfoCollection = masMDB.getJobRecord_TranscodeMKVFileInfoCollection() ;
+//		jobRecord_TranscodeMKVFilesInfoCollection = masMDB.getJobRecord_TranscodeMKVFileInfoCollection() ;
 		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 	}
 
