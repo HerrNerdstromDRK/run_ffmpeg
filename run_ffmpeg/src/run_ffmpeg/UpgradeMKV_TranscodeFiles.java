@@ -111,8 +111,7 @@ public class UpgradeMKV_TranscodeFiles
 		{
 			log.warning( "Invalid codec " + probeResultToTranscode.getVideoCodec() + " for file " + probeResultToTranscode.getFileNameWithPath() ) ;
 		}
-//		return crf ;
-		return 35 ;
+		return crf ;
 	}
 	
 	public static String getStopFileName()
@@ -167,8 +166,7 @@ public class UpgradeMKV_TranscodeFiles
 		// Transcode to H265
 		ffmpegCommand.add( "-map", "0:v" ) ;
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
-//		ffmpegCommand.add( "-preset", "medium" ) ;
-		ffmpegCommand.add( "-preset", "ultrafast" ) ;
+		ffmpegCommand.add( "-preset", "medium" ) ;
 		
 		final int crfValue = getCRFToH265( probeResultToTranscode ) ;
 		ffmpegCommand.add( "-crf", Integer.toString( crfValue ) ) ;
