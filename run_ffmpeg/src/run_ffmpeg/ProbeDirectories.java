@@ -121,15 +121,15 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 
 		// Check for missing files, but only if we're looking at the core media files
 		boolean doCheckForMissingFiles = true ;
-		for( String folderToProbe : foldersToProbe )
-		{
-			if( !findMatch( folderToProbe, Common.getAllMediaFolders() ) )
-			{
-				// Not found, skip the check for missing files.
-				doCheckForMissingFiles = false ;
-				break ;
-			}
-		}
+//		for( String folderToProbe : foldersToProbe )
+//		{
+//			if( !findMatch( folderToProbe, Common.getAllMediaFolders() ) )
+//			{
+//				// Not found, skip the check for missing files.
+//				doCheckForMissingFiles = false ;
+//				break ;
+//			}
+//		}
 
 		if( doCheckForMissingFiles )
 		{
@@ -144,6 +144,14 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		}
 	}
 
+	/**
+	 * Check if the given folder (findMe) is part of the searchList. The intent is to identify overlapping
+	 *  paths to know if the process should consider it part of the standard media folders list and therefore
+	 *  conduct a missing files check.
+	 * @param findMe
+	 * @param searchList
+	 * @return
+	 */
 	public boolean findMatch( final String findMe, final List< String > searchList )
 	{
 		for( String searchListItem : searchList )
