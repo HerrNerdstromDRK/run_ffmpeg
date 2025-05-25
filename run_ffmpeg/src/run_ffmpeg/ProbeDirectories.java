@@ -30,7 +30,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	private transient List< File > filesToProbe = new ArrayList< File >() ;
 
 	/// The number of threads to use
-	protected int numThreads = 3 ;
+	protected int numThreads = 5 ;
 
 	/// Keep track if the database has been loaded.
 	private boolean databaseBeenLoaded = false ;
@@ -94,10 +94,10 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	{
 		setUseThreads( true ) ;
 		common.setTestMode( false ) ;
-//		foldersToProbe.add( Common.getPathToMovies() ) ;
-//		foldersToProbe.add( Common.getPathToTVShows() ) ;
-//		foldersToProbe.add( Common.getPathToOtherVideos() ) ;
-		foldersToProbe.add( Common.getPathToTmpDir() ) ;
+		foldersToProbe.add( Common.getPathToMovies() ) ;
+		foldersToProbe.add( Common.getPathToTVShows() ) ;
+		foldersToProbe.add( Common.getPathToOtherVideos() ) ;
+//		foldersToProbe.add( Common.getPathToTmpDir() ) ;
 		loadProbeInfoDatabase() ;
 
 		// Retrieve all of the files to probe.
