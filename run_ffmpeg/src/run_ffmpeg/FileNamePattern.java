@@ -196,7 +196,7 @@ public class FileNamePattern
 		// Check for movie extra is first since it sets the isMovie flag to true
 		if( isMovieExtra() )
 		{
-			name = getExtraName() ;
+			name = getMovieName() ;
 		}
 		else if( isMovie() )
 		{

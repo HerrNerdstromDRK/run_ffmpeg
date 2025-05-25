@@ -1,6 +1,7 @@
 package run_ffmpeg;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class UpgradeMKV_TranscodeFiles
 
 	public void execute()
 	{
-		common.setTestMode( true ) ;
+		common.setTestMode( false ) ;
 
 		MongoCollection< FFmpegProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		while( shouldKeepRunning() )
@@ -110,7 +111,8 @@ public class UpgradeMKV_TranscodeFiles
 		{
 			log.warning( "Invalid codec " + probeResultToTranscode.getVideoCodec() + " for file " + probeResultToTranscode.getFileNameWithPath() ) ;
 		}
-		return crf ;
+//		return crf ;
+		return 35 ;
 	}
 	
 	public static String getStopFileName()
@@ -147,7 +149,7 @@ public class UpgradeMKV_TranscodeFiles
 	
 		// Build the ffmpeg command
 		// ffmpegCommand will hold the command to execute ffmpeg
-		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder<String>() ;
+		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder< String >() ;
 	
 		// Setup ffmpeg basic options
 		ffmpegCommand.add( common.getPathToFFmpeg() ) ;
@@ -163,24 +165,26 @@ public class UpgradeMKV_TranscodeFiles
 		ffmpegCommand.add( "-i", fileToTranscode.getAbsolutePath() ) ;
 	
 		// Transcode to H265
+		ffmpegCommand.add( "-map", "0:v" ) ;
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
-		ffmpegCommand.add( "-preset", "medium" ) ;
+//		ffmpegCommand.add( "-preset", "medium" ) ;
+		ffmpegCommand.add( "-preset", "ultrafast" ) ;
 		
 		final int crfValue = getCRFToH265( probeResultToTranscode ) ;
 		ffmpegCommand.add( "-crf", Integer.toString( crfValue ) ) ;
 		//		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
 	
+		// Copy audio and subtitles
+		ffmpegCommand.add( "-map", "0:a" ) ;
+		ffmpegCommand.add( "-acodec", "copy") ;
+		ffmpegCommand.add( "-map", "0:s" ) ;
+		ffmpegCommand.add( "-scodec", "copy" ) ;
+		
 		// Set metadata
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
 		
 		final FileNamePattern fileNamePattern = new FileNamePattern( log, fileToTranscode ) ;
 		ffmpegCommand.add( "-metadata", "title=" + fileNamePattern.getTitle() ) ;
-	
-		// Copy audio and subtitles
-		//		ffmpegCommand.add( "-map", "0:a" ) ;
-		ffmpegCommand.add( "-c:a", "copy" ) ;
-		//		ffmpegCommand.add( "-map", "0:s" ) ;
-		ffmpegCommand.add( "-c:s", "copy" ) ;
 	
 		// Add output filename -- it will be in tmp directory.
 		final String outputFileNameWithPath = common.addPathSeparatorIfNecessary( tmpDir ) + fileToTranscode.getName() ;
@@ -228,7 +232,7 @@ public class UpgradeMKV_TranscodeFiles
 			log.info( "Moving " + origFilePath.toString() + " to " + pathInDeleteDirectory.toString() ) ;
 			if( !common.getTestMode() )
 			{
-				//				Files.move( origFilePath, pathInDeleteDirectory ) ;
+				Files.move( origFilePath, pathInDeleteDirectory ) ;
 			}
 	
 			// Finally, move the temp output file to the original file
@@ -238,7 +242,7 @@ public class UpgradeMKV_TranscodeFiles
 			log.info( "Moving " + newFileInTempLocationPath.toString() + " to " + origFilePath.toString() ) ;
 			if( !common.getTestMode() )
 			{
-				//				Files.move( newFileInTempLocationPath,  origFilePath ) ;
+				Files.move( newFileInTempLocationPath, origFilePath ) ;
 			}			
 		}
 		catch( Exception theException )

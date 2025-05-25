@@ -50,6 +50,10 @@ public class UpgradeMKV_LoadDatabase
 //		{
 //			log.fine( "Upgrade: " + theProbeResult.getFileNameWithPath() ) ;
 //		}
+
+		log.info( "Clearing old actions..."  ) ;
+		masMDB.dropAction_TranscodeMKVFileInfoCollection() ;
+		
 		log.info( "Adding files to database..." ) ;
 		MongoCollection< FFmpegProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		transcodeDatabaseJobHandle.insertMany( filesToUpgrade ) ;
