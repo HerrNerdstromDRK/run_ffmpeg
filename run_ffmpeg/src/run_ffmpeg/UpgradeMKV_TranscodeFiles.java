@@ -100,7 +100,7 @@ public class UpgradeMKV_TranscodeFiles
 		int crf = 0 ;
 		if( probeResultToTranscode.isMP2() )
 		{
-			crf = 7 ;
+			crf = 9 ;
 		}
 		else if( probeResultToTranscode.isVC1() )
 		{

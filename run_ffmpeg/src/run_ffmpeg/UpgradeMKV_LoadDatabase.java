@@ -8,6 +8,9 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+/**
+ * This class identifies codecs that will not play on the plex on Roku and adds them to the action_transcodemkvfiles collection in the mongodb.
+ */
 public class UpgradeMKV_LoadDatabase
 {
 	/// Setup the logging subsystem
@@ -87,7 +90,7 @@ public class UpgradeMKV_LoadDatabase
 		
 		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
 		{
-			if( !theProbeResult.isH264() && !theProbeResult.isH265() )
+			if( theProbeResult.isVC1() )
 			{
 				filesToUpgrade.add( theProbeResult ) ;
 			}
