@@ -860,7 +860,7 @@ public class Common
 			}
 			catch( Exception theException )
 			{
-				System.out.println( "BuildMovieAndShowIndex> Unable to create logger FileHandler as file "
+				System.out.println( "Common.setupLogger> Unable to create logger FileHandler as file "
 						+ logFileName
 						+ ": " + theException ) ;
 			}

@@ -11,6 +11,11 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import org.bson.types.ObjectId;
+import org.bson.conversions.Bson;
+
+import static com.mongodb.client.model.Sorts.ascending;
 
 public class UpgradeMKV_TranscodeFiles
 {
@@ -43,21 +48,53 @@ public class UpgradeMKV_TranscodeFiles
 	public void execute()
 	{
 		common.setTestMode( false ) ;
+		boolean doSmallestFirst = true ;
 
 		MongoCollection< FFmpegProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		while( shouldKeepRunning() )
 		{
-			FFmpegProbeResult probeResultToTranscode = transcodeDatabaseJobHandle.findOneAndDelete( null ) ;
+			FFmpegProbeResult probeResultToTranscode = getNextFileToTranscode( transcodeDatabaseJobHandle, doSmallestFirst ) ;
 			if( null == probeResultToTranscode )
 			{
 				// Collection is empty, no work to perform
 				log.info( "No more actions pending." ) ;
 				break ;
 			}
+			
 			// PC: probeResultToTranscode is non-null.
 			upgradeFile( probeResultToTranscode ) ;
 		}
 		log.info( "Shutdown." ) ;
+	}
+	
+	/**
+	 * Return a file to transcode. If doSmallestFirst is true then this returns the smallest file, otherwise the first file
+	 *  in the table.
+	 * @param dbHandle
+	 * @param doSmallestFirst
+	 * @return Can return null.
+	 */
+	protected FFmpegProbeResult getNextFileToTranscode( MongoCollection< FFmpegProbeResult > dbHandle, final boolean doSmallestFirst )
+	{
+		if( 0 == dbHandle.countDocuments() )
+		{
+			// Empty database.
+			return null ;
+		}
+		
+		FFmpegProbeResult fileToTranscode = null ;
+		if( doSmallestFirst )
+		{
+			fileToTranscode = dbHandle.find().sort( ascending( "size" ) ).limit( 1 ).first() ;
+			Bson fileToTranscodeFilter = Filters.eq( "_id", fileToTranscode._id ) ;
+			dbHandle.deleteOne( fileToTranscodeFilter ) ;
+			log.fine( "Found smallest: " + fileToTranscode ) ;
+		}
+		else
+		{		
+			fileToTranscode = dbHandle.findOneAndDelete( null ) ;
+		}
+		return fileToTranscode ;
 	}
 	
 	/**
