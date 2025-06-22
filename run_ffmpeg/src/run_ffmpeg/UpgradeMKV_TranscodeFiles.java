@@ -39,7 +39,7 @@ public class UpgradeMKV_TranscodeFiles
 		masMDB = new MoviesAndShowsMongoDB( log ) ;
 		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
-	
+
 	public static void main( String[] args )
 	{
 		(new UpgradeMKV_TranscodeFiles()).execute() ;
@@ -48,7 +48,7 @@ public class UpgradeMKV_TranscodeFiles
 	public void execute()
 	{
 		common.setTestMode( false ) ;
-		boolean doSmallestFirst = true ;
+		boolean doSmallestFirst = false ;
 
 		MongoCollection< FFmpegProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		while( shouldKeepRunning() )
@@ -60,13 +60,13 @@ public class UpgradeMKV_TranscodeFiles
 				log.info( "No more actions pending." ) ;
 				break ;
 			}
-			
+
 			// PC: probeResultToTranscode is non-null.
 			upgradeFile( probeResultToTranscode ) ;
 		}
 		log.info( "Shutdown." ) ;
 	}
-	
+
 	/**
 	 * Return a file to transcode. If doSmallestFirst is true then this returns the smallest file, otherwise the first file
 	 *  in the table.
@@ -81,7 +81,7 @@ public class UpgradeMKV_TranscodeFiles
 			// Empty database.
 			return null ;
 		}
-		
+
 		FFmpegProbeResult fileToTranscode = null ;
 		if( doSmallestFirst )
 		{
@@ -96,7 +96,7 @@ public class UpgradeMKV_TranscodeFiles
 		}
 		return fileToTranscode ;
 	}
-	
+
 	/**
 	 * Return a MultiMap of all files that are not H265.
 	 * The key is codec_name ("h264, mpeg2video, etc.), and the FFmpegProbeResult corresponds to that file.
@@ -105,7 +105,7 @@ public class UpgradeMKV_TranscodeFiles
 	public List< FFmpegProbeResult > findFilesThatNeedUpgrade( final List< FFmpegProbeResult > allProbeInfoInstances )
 	{		
 		List< FFmpegProbeResult > filesToUpgrade = new ArrayList< FFmpegProbeResult >() ;
-		
+
 		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
 		{
 			if( theProbeResult.isH265() || theProbeResult.isH264() )
@@ -113,7 +113,7 @@ public class UpgradeMKV_TranscodeFiles
 				// No upgrade necessary.
 				continue ;
 			}
-	
+
 			if( theProbeResult.isMP2() || theProbeResult.isVC1() )
 			{
 				filesToUpgrade.add( theProbeResult ) ;
@@ -149,7 +149,7 @@ public class UpgradeMKV_TranscodeFiles
 		}
 		return crf ;
 	}
-	
+
 	public static String getStopFileName()
 	{
 		return stopFileName ;
@@ -162,7 +162,7 @@ public class UpgradeMKV_TranscodeFiles
 	public Set< String > listAllVideoCodes( final List< FFmpegProbeResult > allProbeInfoInstances )
 	{
 		Set< String > videoCodecNames = new HashSet< String >() ;
-		
+
 		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
 		{
 			videoCodecNames.add( theProbeResult.getVideoCodec() ) ;
@@ -179,56 +179,63 @@ public class UpgradeMKV_TranscodeFiles
 	{
 		final File fileToTranscode = new File( probeResultToTranscode.getFileNameWithPath() ) ;
 		log.info( "Upgrading file " + fileToTranscode.getAbsolutePath() ) ;
-	
+
 		final String tmpDir = Common.getPathToTmpDir() ;
-	
+
 		// Build the ffmpeg command
 		// ffmpegCommand will hold the command to execute ffmpeg
 		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder< String >() ;
-	
+
 		// Setup ffmpeg basic options
 		ffmpegCommand.add( common.getPathToFFmpeg() ) ;
-	
+
 		// Overwrite existing files
 		ffmpegCommand.add( "-y" ) ;
-	
+
 		// Not exactly sure what these do but it seems to help reduce errors on some files.
 		ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
 		ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
-	
+
 		// Include source file
 		ffmpegCommand.add( "-i", fileToTranscode.getAbsolutePath() ) ;
-	
+
 		// Transcode to H265
 		ffmpegCommand.add( "-map", "0:v" ) ;
 		ffmpegCommand.add( "-c:v", "libx265" ) ;
 		ffmpegCommand.add( "-preset", "medium" ) ;
-		
+
 		final int crfValue = getCRFToH265( probeResultToTranscode ) ;
 		ffmpegCommand.add( "-crf", Integer.toString( crfValue ) ) ;
 		//		ffmpegCommand.add( "-tag:v", "hvc1" ) ;
-	
+
 		// Copy audio and subtitles
-		ffmpegCommand.add( "-map", "0:a" ) ;
-		ffmpegCommand.add( "-acodec", "copy") ;
-		ffmpegCommand.add( "-map", "0:s" ) ;
-		ffmpegCommand.add( "-scodec", "copy" ) ;
-		
+		if( probeResultToTranscode.hasAudio() )
+		{
+			ffmpegCommand.add( "-map", "0:a" ) ;
+			ffmpegCommand.add( "-acodec", "copy") ;
+		}
+
+		if( probeResultToTranscode.hasSubtitles() )
+		{
+			ffmpegCommand.add( "-map", "0:s" ) ;
+			ffmpegCommand.add( "-scodec", "copy" ) ;
+		}
+
 		// Set metadata
 		ffmpegCommand.add( "-movflags", "+faststart" ) ;
-		
+
 		final FileNamePattern fileNamePattern = new FileNamePattern( log, fileToTranscode ) ;
 		ffmpegCommand.add( "-metadata", "title=" + fileNamePattern.getTitle() ) ;
-	
+
 		// Add output filename -- it will be in tmp directory.
 		final String outputFileNameWithPath = common.addPathSeparatorIfNecessary( tmpDir ) + fileToTranscode.getName() ;
 		//		log.info( "outputFileNameWithPath: " + outputFileNameWithPath ) ;
 		ffmpegCommand.add( outputFileNameWithPath ) ;
-	
+
 		log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-	
+
 		long startTime = System.nanoTime() ;
-	
+
 		// Only execute the transcode if testMode is false
 		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
 		if( !executeSuccess )
@@ -237,9 +244,9 @@ public class UpgradeMKV_TranscodeFiles
 			// Do not move any files since the transcode failed
 			return ;
 		}
-	
+
 		long endTime = System.nanoTime() ; double timeElapsedInSeconds = (endTime - startTime) / 1000000000.0 ;
-	
+
 		double timePerGigaByte = timeElapsedInSeconds / (fileToTranscode.length() / 1000000000.0) ;
 		log.info( "Elapsed time to transcode "
 				+ fileToTranscode.getAbsolutePath()
@@ -250,29 +257,29 @@ public class UpgradeMKV_TranscodeFiles
 				+ " minutes, or "
 				+ common.getNumberFormat().format( timePerGigaByte )
 				+ " seconds per GB" ) ;
-	
+
 		// Replace the original file with the HEVC file.
 		try
 		{
 			final Path origFilePath = fileToTranscode.toPath() ;
-	
+
 			// First move the original file to one that is prepended with the show or movie name
 			final String fileNameInDeleteDirectory = common.addPathSeparatorIfNecessary( Common.getPathToDeleteDir() )
 					+ fileNamePattern.getShowOrMovieOrDirectoryName()
 					+ "_" + fileToTranscode.getName() ;
 			final File fileInDeleteDirectory = new File( fileNameInDeleteDirectory ) ;
 			final Path pathInDeleteDirectory = fileInDeleteDirectory.toPath() ;
-	
+
 			log.info( "Moving " + origFilePath.toString() + " to " + pathInDeleteDirectory.toString() ) ;
 			if( !common.getTestMode() )
 			{
 				Files.move( origFilePath, pathInDeleteDirectory ) ;
 			}
-	
+
 			// Finally, move the temp output file to the original file
 			final File newFileInTempLocationFile = new File( outputFileNameWithPath ) ;
 			final Path newFileInTempLocationPath = newFileInTempLocationFile.toPath() ;
-	
+
 			log.info( "Moving " + newFileInTempLocationPath.toString() + " to " + origFilePath.toString() ) ;
 			if( !common.getTestMode() )
 			{

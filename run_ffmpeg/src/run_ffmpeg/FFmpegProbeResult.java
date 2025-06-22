@@ -185,6 +185,13 @@ public class FFmpegProbeResult
 		return getVideoCodec().equalsIgnoreCase( "vc1" ) ;
 	}
 	
+	public boolean hasAudio()
+	{
+		assert( getStreams() != null ) ;
+		final List< FFmpegStream > audioStreams = getStreamsByCodecType( "audio" ) ;
+		return !audioStreams.isEmpty() ;
+	}
+	
 	public boolean hasSubtitles()
 	{
 		assert( getStreams() != null ) ;
