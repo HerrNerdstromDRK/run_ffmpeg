@@ -1,16 +1,23 @@
-package run_ffmpeg;
+package run_ffmpeg.TheTVDB;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
 
-public class TheTVDB_seriesClass
+public class TheTVDB_seriesEpisodesClass 
 {
 	public String status = "" ;
 	public dataClass data = new dataClass() ;
+	public TheTVDB_linksClass links = new TheTVDB_linksClass() ;
 
 	public class dataClass
+	{
+		public seriesClass series = new seriesClass() ;
+		public List< TheTVDB_episodeClass > episodes = new ArrayList< TheTVDB_episodeClass >() ;
+	}
+	
+	public class seriesClass
 	{
 		public List< TheTVDB_aliasClass > aliases = new ArrayList< TheTVDB_aliasClass >() ;
 		public Integer averageRuntime = null ;
@@ -37,8 +44,8 @@ public class TheTVDB_seriesClass
 	
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		Gson toStringGson = new Gson() ;
+		final String objectToString = toStringGson.toJson( this ) ;
+		return objectToString.toString() ;
 	}
 }

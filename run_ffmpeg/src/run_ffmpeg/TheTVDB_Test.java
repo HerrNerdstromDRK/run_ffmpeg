@@ -11,10 +11,12 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import run_ffmpeg.TheTVDB.* ;
+
 /**
  * This class encapsulates the interface to TheTVDB.
  */
-public class TheTVDB
+public class TheTVDB_Test
 {
 	//// THETVDB API key
 	protected final String apikey = "915b0698-6ce6-4a44-871e-0cb6f8dcb62c" ;
@@ -32,7 +34,7 @@ public class TheTVDB
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_thetvdb.txt" ;
 
-	public TheTVDB()
+	public TheTVDB_Test()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
@@ -40,7 +42,7 @@ public class TheTVDB
 		login() ;
 	}
 
-	public TheTVDB( Logger log, Common common )
+	public TheTVDB_Test( Logger log, Common common )
 	{
 		this.log = log ;
 		this.common = common ;
@@ -50,7 +52,7 @@ public class TheTVDB
 	
 	public static void main( String[] args )
 	{
-		(new TheTVDB()).runTests() ;
+		(new TheTVDB_Test()).runTests() ;
 	}
 
 	protected void runTests()
@@ -136,7 +138,7 @@ public class TheTVDB
 			final int numEpisodes = seriesEpisodesInfo.data.episodes.size() ;
 			log.fine( "Found " + numEpisodes + " episode(s) for " + showId.toString() + " season #" + seasonNumber ) ;
 
-			TheTVDB_SeasonInfo seasonInfo = new TheTVDB_SeasonInfo( seasonNumber, numEpisodes ) ;
+			TheTVDB_seasonInfo seasonInfo = new TheTVDB_seasonInfo( seasonNumber, numEpisodes ) ;
 
 			// Walk through the list of episodes and capture each
 			for( TheTVDB_episodeClass episode : seriesEpisodesInfo.data.episodes )
@@ -152,7 +154,7 @@ public class TheTVDB
 
 				seasonInfo.addEpisode( episodeNumber, episodeName ) ;
 			}
-			log.fine( "Added " + seasonInfo.numEpisodes + " episode(s) for show " + showId.toString() + " season " + seasonNumber ) ;
+			log.fine( "Added " + seasonInfo.getNumEpisodes() + " episode(s) for show " + showId.toString() + " season " + seasonNumber ) ;
 
 			showInfo.addSeason( seasonNumber, seasonInfo ) ;
 		}

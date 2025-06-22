@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class will check the database and file structures for duplication, integrity, missing files, etc.
@@ -97,7 +99,72 @@ public class CheckLogicalIntegrity
 //
 //		listSpecialEditionMovies() ;
 
-		checkForEmptyFolders() ;
+		Map< File, List< File > > movieFilesInFolders = getMovieVideoFiles() ;
+		checkForMissingMovieFiles( movieFilesInFolders ) ;
+		
+//		checkForEmptyFolders() ;
+		log.info( "Complete." ) ; 
+	}
+	
+	/**
+	 * Check the list of movie files for each folder and verify that each folder has a valid movie file.
+	 * This assumes the movieFilesInFolders contains only video files (mkv/mp4, no srt, etc.).
+	 * @param movieFilesInFolders
+	 */
+	public void checkForMissingMovieFiles( final Map< File, List< File > > movieFilesInFolders )
+	{
+		final Pattern movieFileNamePattern = Pattern.compile( "(?<movieName>.*)\\((?<year>[\\d]{4})\\).*\\.(?<extension>(mkv|mp4))" ) ;
+		
+		for( Map.Entry< File, List< File > > entry : movieFilesInFolders.entrySet() )
+		{
+			final File directory = entry.getKey() ;
+			final List< File > files = entry.getValue() ;
+			
+			// Look through each file in this folder for a movie file
+			int numMovieFilesFound = 0 ;
+			for( File theFile : files )
+			{
+				final Matcher fileNameMatcher = movieFileNamePattern.matcher( theFile.getName() ) ;
+				if( fileNameMatcher.find() )
+				{
+					// A movie file.
+					++numMovieFilesFound ;
+				}
+			}
+			
+			if( numMovieFilesFound != 1 )
+			{
+				log.info( "Found " + numMovieFilesFound + " movie file(s) in folder " + directory.getAbsolutePath() ) ;
+			}
+		}
+	}
+	
+	Map< File, List< File > > getMovieVideoFiles()
+	{
+		Map< File, List< File > > movieVideoFiles = new HashMap< File, List< File > >() ;
+		
+		final String movieFilesTopDirectoryString = Common.getPathToMovies() ;
+		final File movieFilesTopDirectoryFile = new File( movieFilesTopDirectoryString ) ;
+		if( !movieFilesTopDirectoryFile.exists() || !movieFilesTopDirectoryFile.isDirectory() )
+		{
+			log.warning( "Doesn't exist or isn't a file: " + movieFilesTopDirectoryString ) ;
+			return movieVideoFiles ;
+		}
+		
+		final File[] movieDirectories = movieFilesTopDirectoryFile.listFiles() ;
+		for( File movieDirectory : movieDirectories )
+		{
+			assert( movieDirectory != null ) ;
+			if( !movieDirectory.isDirectory() )
+			{
+				log.warning( "Not a directory: " + movieDirectory.getAbsolutePath() ) ;
+				continue ;
+			}
+			
+			final List< File > filesInMovieDirectory = common.getFilesInDirectoryByExtension( movieDirectory.getAbsolutePath(), Common.getVideoExtensions() ) ;
+			movieVideoFiles.put( movieDirectory, filesInMovieDirectory ) ;			
+		}
+		return movieVideoFiles ;
 	}
 
 	/**

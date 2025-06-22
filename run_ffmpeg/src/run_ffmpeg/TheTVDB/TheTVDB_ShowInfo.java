@@ -1,4 +1,4 @@
-package run_ffmpeg;
+package run_ffmpeg.TheTVDB;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,14 +8,14 @@ import com.google.gson.Gson;
 public class TheTVDB_ShowInfo
 {
 	protected Integer showId = -1 ;
-	protected Map< Integer, TheTVDB_SeasonInfo > seasonInfos = new HashMap< Integer, TheTVDB_SeasonInfo >() ;
+	protected Map< Integer, TheTVDB_seasonInfo > seasonInfos = new HashMap< Integer, TheTVDB_seasonInfo >() ;
 	
 	public TheTVDB_ShowInfo( final Integer showId )
 	{
 		this.showId = showId ;
 	}
 	
-	public void addSeason( final int seasonNumber, final TheTVDB_SeasonInfo seasonInfo )
+	public void addSeason( final int seasonNumber, final TheTVDB_seasonInfo seasonInfo )
 	{
 		assert( seasonNumber >= 0 ) ;
 		assert( seasonInfo != null ) ;
@@ -28,16 +28,16 @@ public class TheTVDB_ShowInfo
 		return seasonInfos.size() ;
 	}
 	
-	public TheTVDB_SeasonInfo getSeasonInfo( final Integer seasonNumber )
+	public TheTVDB_seasonInfo getSeasonInfo( final Integer seasonNumber )
 	{
 		assert( seasonNumber != null ) ;
-		final TheTVDB_SeasonInfo theInfo = seasonInfos.get( seasonNumber ) ;
+		final TheTVDB_seasonInfo theInfo = seasonInfos.get( seasonNumber ) ;
 		return theInfo ;
 	}
 	
 	public String getEpisodeName( final int seasonNumber, final int episodeNumber )
 	{
-		final TheTVDB_SeasonInfo seasonInfo = seasonInfos.get( Integer.valueOf( seasonNumber ) ) ;
+		final TheTVDB_seasonInfo seasonInfo = seasonInfos.get( Integer.valueOf( seasonNumber ) ) ;
 		if( null == seasonInfo )
 		{
 			return "" ;
@@ -47,8 +47,8 @@ public class TheTVDB_ShowInfo
 	
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		Gson toStringGson = new Gson() ;
+		final String objectToString = toStringGson.toJson( this ) ;
+		return objectToString.toString() ;
 	}
 }

@@ -71,6 +71,12 @@ public class Common
 				"c:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe",
 				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
+	
+	protected static final String[] videoExtensions =
+		{
+				"mkv",
+				"mp4"
+		} ;
 
 	/// Paths to external applications
 	private String pathToFFMPEG = null ;
@@ -717,6 +723,11 @@ public class Common
 	{
 		return getSubDirectories( new File( directoryPath ) ) ;
 	}
+	
+	public static String[] getVideoExtensions()
+	{
+		return videoExtensions ;
+	}
 
 	public boolean hasInputFileInDirectory( final File theDirectory, final String extension )
 	{
@@ -1156,4 +1167,14 @@ public class Common
 		final String loginRequestJson = loginRequestGson.toJson( this ) ;
 		return loginRequestJson.toString() ;
 	}
+	
+	public static void log_info( final String message, Logger log, final List<? extends Object > theList )
+	{
+		log.info( message ) ;
+		for( Object theObject : theList )
+		{
+			log.info( theObject.toString() ) ;
+		}
+	}
+	
 }

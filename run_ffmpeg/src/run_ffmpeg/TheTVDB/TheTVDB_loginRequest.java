@@ -1,4 +1,4 @@
-package run_ffmpeg;
+package run_ffmpeg.TheTVDB;
 
 import com.google.gson.Gson;
 
@@ -18,8 +18,8 @@ public class TheTVDB_loginRequest
 	
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		Gson toStringGson = new Gson() ;
+		final String objectToString = toStringGson.toJson( this ) ;
+		return objectToString.toString() ;
 	}
 }

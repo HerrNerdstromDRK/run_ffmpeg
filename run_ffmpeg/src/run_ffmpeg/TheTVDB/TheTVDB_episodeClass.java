@@ -1,4 +1,4 @@
-package run_ffmpeg;
+package run_ffmpeg.TheTVDB;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ public class TheTVDB_episodeClass
 	
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		Gson toStringGson = new Gson() ;
+		final String objectToString = toStringGson.toJson( this ) ;
+		return objectToString.toString() ;
 	}
 }

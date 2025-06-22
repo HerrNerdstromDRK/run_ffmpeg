@@ -1,11 +1,10 @@
-package run_ffmpeg;
+package run_ffmpeg.Plex;
 
 import com.google.gson.Gson;
 
-public class TheTVDB_aliasClass
+public class plexAPI_Collection
 {
-	public String language = "" ;
-	public String name = "" ;
+	public String tag = null ;
 	
 	public String toString()
 	{
