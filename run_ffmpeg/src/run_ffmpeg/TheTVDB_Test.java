@@ -11,7 +11,14 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import run_ffmpeg.TheTVDB.* ;
+import run_ffmpeg.TheTVDB.TheTVDB_ShowInfo;
+import run_ffmpeg.TheTVDB.TheTVDB_episodeClass;
+import run_ffmpeg.TheTVDB.TheTVDB_loginRequest;
+import run_ffmpeg.TheTVDB.TheTVDB_loginResponse;
+import run_ffmpeg.TheTVDB.TheTVDB_searchResponse;
+import run_ffmpeg.TheTVDB.TheTVDB_seasonInfo;
+import run_ffmpeg.TheTVDB.TheTVDB_seriesClass;
+import run_ffmpeg.TheTVDB.TheTVDB_seriesEpisodesClass;
 
 /**
  * This class encapsulates the interface to TheTVDB.
