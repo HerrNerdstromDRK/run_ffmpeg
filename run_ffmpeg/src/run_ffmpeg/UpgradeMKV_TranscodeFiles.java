@@ -25,7 +25,7 @@ public class UpgradeMKV_TranscodeFiles
 	private Common common = null ;
 
 	private MoviesAndShowsMongoDB masMDB = null ;
-	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+//	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_upgrade_mkv_transcode_files.txt" ;	
@@ -36,7 +36,7 @@ public class UpgradeMKV_TranscodeFiles
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 		masMDB = new MoviesAndShowsMongoDB( log ) ;
-		probeInfoCollection = masMDB.getProbeInfoCollection() ;
+//		probeInfoCollection = masMDB.getProbeInfoCollection() ;
 	}
 
 	public static void main( String[] args )
