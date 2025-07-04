@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import org.bson.types.ObjectId;
 import org.bson.conversions.Bson;
 
 import static com.mongodb.client.model.Sorts.ascending;
