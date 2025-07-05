@@ -7,6 +7,8 @@ import org.bson.types.ObjectId;
 
 import com.google.gson.Gson;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Encapsulates information about a movie or tv show. This includes all supporting files, such as extras.
  * @author Dan
@@ -67,7 +69,7 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 	 * @param theProbeResult
 	 * @param log
 	 */
-	public MovieAndShowInfo( FFmpegProbeResult theProbeResult, Logger log )
+	public MovieAndShowInfo( FFmpeg_ProbeResult theProbeResult, Logger log )
 	{
 		assert( log != null ) ;
 
@@ -222,9 +224,9 @@ public class MovieAndShowInfo implements Comparable< MovieAndShowInfo >
 //	 * Returns null if nothing found, although this shouldn't happen.
 //	 * @return
 //	 */
-	public FFmpegProbeResult findLargestFile()
+	public FFmpeg_ProbeResult findLargestFile()
 	{
-		FFmpegProbeResult largestFile = null ;
+		FFmpeg_ProbeResult largestFile = null ;
 // TODO
 		//		for( CorrelatedFile theCorrelatedFile : correlatedFilesList )
 //		{

@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Iterate through multiple sets of options for transcoding to compare
  *  speed, size, and quality of the transcode and resulting output.
@@ -115,7 +117,7 @@ public class CompareTranscodeOptions
 				final File inputFile = new File( inputFilePath ) ;
 				assert( inputFile.exists() ) ;
 
-				FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
+				FFmpeg_ProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
 
 				if( inputFileProbeResult.isH265() )
 				{
@@ -163,7 +165,7 @@ public class CompareTranscodeOptions
 	 */
 	public boolean testComplete( final File[] filesInOutputDirectory,
 			final File inputFile,
-			final FFmpegProbeResult inputFileProbeResult,
+			final FFmpeg_ProbeResult inputFileProbeResult,
 			final String videoCodec,
 			final String preset,
 			final String crf )
@@ -202,7 +204,7 @@ public class CompareTranscodeOptions
 
 	public boolean testTranscode( final File inputFile,
 			BufferedWriter dataFileWriter,
-			final FFmpegProbeResult inputFileProbeResult,
+			final FFmpeg_ProbeResult inputFileProbeResult,
 			final String videoCodec,
 			final String preset,
 			final String crf )
@@ -316,7 +318,7 @@ public class CompareTranscodeOptions
 	 * @return
 	 */
 	public String makeOutputFileName( final File inputFile,
-			final FFmpegProbeResult inputFileProbeResult,
+			final FFmpeg_ProbeResult inputFileProbeResult,
 			final String videoCodec,
 			final String preset,
 			final String crf )
@@ -342,7 +344,7 @@ public class CompareTranscodeOptions
 	 * @return
 	 */
 	public String makeOldOutputFileName( final File inputFile,
-			final FFmpegProbeResult inputFileProbeResult,
+			final FFmpeg_ProbeResult inputFileProbeResult,
 			final String videoCodec,
 			final String preset,
 			final String crf )
@@ -366,7 +368,7 @@ public class CompareTranscodeOptions
 		for( String inputFilePath : inputFilesPaths )
 		{
 			final File inputFile = new File( inputFilePath ) ;
-			final FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
+			final FFmpeg_ProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
 
 			if( inputFileProbeResult.isH265() )
 			{

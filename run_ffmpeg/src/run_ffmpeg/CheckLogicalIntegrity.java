@@ -10,6 +10,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * This class will check the database and file structures for duplication, integrity, missing files, etc.
  */
@@ -31,7 +33,7 @@ public class CheckLogicalIntegrity
 	//	private MongoCollection< HDorSDFile > sDMoviesAndShowsCollection = null ;
 
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
-	private Map< String, FFmpegProbeResult > probeInfoMap = null ;
+	private Map< String, FFmpeg_ProbeResult > probeInfoMap = null ;
 
 	/// Store all MovieAndShowInfos stored in the database.
 	private Map< String, MovieAndShowInfo > movieAndShowInfoMap = new HashMap< String, MovieAndShowInfo >() ;
@@ -102,7 +104,7 @@ public class CheckLogicalIntegrity
 		Map< File, List< File > > movieFilesInFolders = getMovieVideoFiles() ;
 		checkForMissingMovieFiles( movieFilesInFolders ) ;
 		
-//		checkForEmptyFolders() ;
+		checkForEmptyFolders() ;
 		log.info( "Complete." ) ; 
 	}
 	

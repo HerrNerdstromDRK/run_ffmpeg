@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 public class ConvertBetweenContainers
 {
 	/// Setup the logging subsystem
@@ -73,7 +75,7 @@ public class ConvertBetweenContainers
 	public void convertFile( final File inputFile )
 	{
 		log.info( "Converting file " + inputFile.getAbsolutePath() ) ;
-		final FFmpegProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
+		final FFmpeg_ProbeResult inputFileProbeResult = common.ffprobeFile( inputFile, log ) ;
 		if( null == inputFileProbeResult )
 		{
 			log.warning( "Error probing file: " + inputFile.getAbsolutePath() ) ;

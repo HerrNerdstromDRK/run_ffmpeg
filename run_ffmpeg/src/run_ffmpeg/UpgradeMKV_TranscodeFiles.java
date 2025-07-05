@@ -12,6 +12,9 @@ import java.util.logging.Logger;
 import com.google.common.collect.ImmutableList;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 import org.bson.conversions.Bson;
 
 import static com.mongodb.client.model.Sorts.ascending;
@@ -49,10 +52,10 @@ public class UpgradeMKV_TranscodeFiles
 		common.setTestMode( false ) ;
 		boolean doSmallestFirst = true ;
 
-		MongoCollection< FFmpegProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
+		MongoCollection< FFmpeg_ProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		while( shouldKeepRunning() )
 		{
-			FFmpegProbeResult probeResultToTranscode = getNextFileToTranscode( transcodeDatabaseJobHandle, doSmallestFirst ) ;
+			FFmpeg_ProbeResult probeResultToTranscode = getNextFileToTranscode( transcodeDatabaseJobHandle, doSmallestFirst ) ;
 			if( null == probeResultToTranscode )
 			{
 				// Collection is empty, no work to perform
@@ -73,7 +76,7 @@ public class UpgradeMKV_TranscodeFiles
 	 * @param doSmallestFirst
 	 * @return Can return null.
 	 */
-	protected FFmpegProbeResult getNextFileToTranscode( MongoCollection< FFmpegProbeResult > dbHandle, final boolean doSmallestFirst )
+	protected FFmpeg_ProbeResult getNextFileToTranscode( MongoCollection< FFmpeg_ProbeResult > dbHandle, final boolean doSmallestFirst )
 	{
 		if( 0 == dbHandle.countDocuments() )
 		{
@@ -81,7 +84,7 @@ public class UpgradeMKV_TranscodeFiles
 			return null ;
 		}
 
-		FFmpegProbeResult fileToTranscode = null ;
+		FFmpeg_ProbeResult fileToTranscode = null ;
 		if( doSmallestFirst )
 		{
 			fileToTranscode = dbHandle.find().sort( ascending( "size" ) ).limit( 1 ).first() ;
@@ -101,11 +104,11 @@ public class UpgradeMKV_TranscodeFiles
 	 * The key is codec_name ("h264, mpeg2video, etc.), and the FFmpegProbeResult corresponds to that file.
 	 * @return
 	 */
-	public List< FFmpegProbeResult > findFilesThatNeedUpgrade( final List< FFmpegProbeResult > allProbeInfoInstances )
+	public List< FFmpeg_ProbeResult > findFilesThatNeedUpgrade( final List< FFmpeg_ProbeResult > allProbeInfoInstances )
 	{		
-		List< FFmpegProbeResult > filesToUpgrade = new ArrayList< FFmpegProbeResult >() ;
+		List< FFmpeg_ProbeResult > filesToUpgrade = new ArrayList< FFmpeg_ProbeResult >() ;
 
-		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
+		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstances )
 		{
 			if( theProbeResult.isH265() || theProbeResult.isH264() )
 			{
@@ -131,7 +134,7 @@ public class UpgradeMKV_TranscodeFiles
 	 * @param inputFile
 	 * @return
 	 */
-	public int getCRFToH265( final FFmpegProbeResult probeResultToTranscode )
+	public int getCRFToH265( final FFmpeg_ProbeResult probeResultToTranscode )
 	{
 		int crf = 0 ;
 		if( probeResultToTranscode.isMP2() )
@@ -158,11 +161,11 @@ public class UpgradeMKV_TranscodeFiles
 	 * Return a Set of all video codec names. This is useful to identify which types are in the library so we can
 	 *  know which we need to evaluate as things continue to change.
 	 */
-	public Set< String > listAllVideoCodes( final List< FFmpegProbeResult > allProbeInfoInstances )
+	public Set< String > listAllVideoCodes( final List< FFmpeg_ProbeResult > allProbeInfoInstances )
 	{
 		Set< String > videoCodecNames = new HashSet< String >() ;
 
-		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
+		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstances )
 		{
 			videoCodecNames.add( theProbeResult.getVideoCodec() ) ;
 		}
@@ -174,7 +177,7 @@ public class UpgradeMKV_TranscodeFiles
 		return !common.shouldStopExecution( getStopFileName() ) ;
 	}
 
-	public void upgradeFile( final FFmpegProbeResult probeResultToTranscode )
+	public void upgradeFile( final FFmpeg_ProbeResult probeResultToTranscode )
 	{
 		final File fileToTranscode = new File( probeResultToTranscode.getFileNameWithPath() ) ;
 		log.info( "Upgrading file " + fileToTranscode.getAbsolutePath() ) ;

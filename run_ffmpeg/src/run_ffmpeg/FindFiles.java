@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Multi-threaded class to find files with given extensions in the given folders. Returns
  *  a List of Files with the resulting files found.
@@ -46,7 +48,7 @@ public class FindFiles extends run_ffmpegControllerThreadTemplate< FindFilesWork
 	public FindFiles( Logger log,
 			Common common,
 			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
 	{
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		initObject() ;

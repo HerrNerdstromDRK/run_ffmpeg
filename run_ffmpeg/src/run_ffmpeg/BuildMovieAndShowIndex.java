@@ -14,6 +14,9 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+import run_ffmpeg.ffmpeg.FFmpeg_Stream;
+
 /**
  * The purpose of this class is to query the database for individual files and
  *  correlate those to individual movies and tv shows. Each of those will be
@@ -42,7 +45,7 @@ public class BuildMovieAndShowIndex
 	//	private static final String stopFileName = "C:\\Temp\\stop_build_movie_and_show_index.txt" ;
 
 	private MoviesAndShowsMongoDB masMDB = null ;
-	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+	private MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = null ;
 	private MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
 	private MongoCollection< HDorSDFile > hDMoviesAndShowsCollection = null ;
 	private MongoCollection< HDorSDFile > sDMoviesAndShowsCollection = null ;
@@ -85,7 +88,7 @@ public class BuildMovieAndShowIndex
 	 */
 	private MovieAndShowInfo addEntryToMap( Map< String, MovieAndShowInfo > storageMap,
 			final String movieOrTVShowName,
-			final FFmpegProbeResult probeResult,
+			final FFmpeg_ProbeResult probeResult,
 			final File theFile )
 	{
 //		boolean isMP4 = theFile.getName().contains( ".mp4" ) ? true : false ;
@@ -116,7 +119,7 @@ public class BuildMovieAndShowIndex
 		// First, let's pull the info from the probeInfoCollection
 		log.info( "Running find..." ) ;
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+		FindIterable< FFmpeg_ProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
 
 		int numMovies = 0 ;
 		int numTVShows = 0 ;
@@ -124,10 +127,10 @@ public class BuildMovieAndShowIndex
 		int numParseErrors = 0 ;
 
 		// Walk through the list of probe records
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+		Iterator< FFmpeg_ProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 		while( probeInfoFindResultIterator.hasNext() )
 		{
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			FFmpeg_ProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			File theFile = new File( probeResult.getFileNameWithPath() ) ;
 			if( theFile.getParent().contains( Common.getTVShowsFolderName() ) )
 			{
@@ -199,14 +202,14 @@ public class BuildMovieAndShowIndex
 			String movieOrShowName = set.getKey() ;
 			MovieAndShowInfo movieAndShowInfo = set.getValue() ;
 
-			FFmpegProbeResult largestFile = movieAndShowInfo.findLargestFile() ;
+			FFmpeg_ProbeResult largestFile = movieAndShowInfo.findLargestFile() ;
 			if( null == largestFile )
 			{
 				log.warning( "Found null largestFile for MovieAndShowInfo: " + movieAndShowInfo.toString() ) ;
 				continue ;
 			}
 			// Post condition: largestFile is the largest file in this movie or show, and is non-null
-			List< FFmpegStream > streams = largestFile.getStreams() ;
+			List< FFmpeg_Stream > streams = largestFile.getStreams() ;
 			if( null == streams )
 			{
 				log.warning( "Found null streams for MovieAndShowInfo: " + movieAndShowInfo.toString() ) ;
@@ -220,7 +223,7 @@ public class BuildMovieAndShowIndex
 				continue ;
 			}
 
-			FFmpegStream videoStream = streams.get( 0 ) ;
+			FFmpeg_Stream videoStream = streams.get( 0 ) ;
 			if( videoStream.height >= 720 )
 			{
 				// HD

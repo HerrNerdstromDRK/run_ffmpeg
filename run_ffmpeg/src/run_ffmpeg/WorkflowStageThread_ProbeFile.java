@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 {
 	private transient MongoCollection< JobRecord_ProbeFile > jobRecord_ProbeFileInfoCollection = null ;
@@ -36,7 +38,7 @@ public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 		
 		File theFile = new File( theJob.fileNameWithPath ) ;
 		ProbeDirectories pd = new ProbeDirectories( log, common, masMDB, masMDB.getProbeInfoCollection() ) ;
-		FFmpegProbeResult theProbeResult = pd.probeFileAndUpdateDB( theFile ) ;
+		FFmpeg_ProbeResult theProbeResult = pd.probeFileAndUpdateDB( theFile ) ;
 		
 		// Build the job to build the movie and show index.
 		JobRecord_UpdateCorrelatedFile jobRecord_UpdateCorrelatedFile = new JobRecord_UpdateCorrelatedFile(

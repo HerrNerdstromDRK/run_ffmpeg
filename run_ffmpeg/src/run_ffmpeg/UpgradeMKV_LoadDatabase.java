@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * This class identifies codecs that will not play on the plex on Roku and adds them to the action_transcodemkvfiles collection in the mongodb.
  */
@@ -41,12 +43,12 @@ public class UpgradeMKV_LoadDatabase
 		common.setTestMode( true ) ;
 
 		log.info( "Loading probe info collection" ) ;
-		final List< FFmpegProbeResult > allProbeInfoInstances = masMDB.getAllProbeInfoInstances() ;
+		final List< FFmpeg_ProbeResult > allProbeInfoInstances = masMDB.getAllProbeInfoInstances() ;
 
 		Set< String > videoCodecTypes = listAllVideoCodes( allProbeInfoInstances ) ;
 		log.info( "Found video codecs: " + videoCodecTypes.toString() ) ;
 
-		final List< FFmpegProbeResult > filesToUpgrade = findFilesThatNeedUpgrade( allProbeInfoInstances ) ;
+		final List< FFmpeg_ProbeResult > filesToUpgrade = findFilesThatNeedUpgrade( allProbeInfoInstances ) ;
 		log.info( "Found " + filesToUpgrade.size() + " file(s) to upgrade" ) ;
 		
 //		for( FFmpegProbeResult theProbeResult : filesToUpgrade )
@@ -58,7 +60,7 @@ public class UpgradeMKV_LoadDatabase
 		masMDB.dropAction_TranscodeMKVFileInfoCollection() ;
 		
 		log.info( "Adding files to database..." ) ;
-		MongoCollection< FFmpegProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
+		MongoCollection< FFmpeg_ProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		transcodeDatabaseJobHandle.insertMany( filesToUpgrade ) ;
 
 		log.info( "Shutdown." ) ;
@@ -68,11 +70,11 @@ public class UpgradeMKV_LoadDatabase
 	 * Return a Set of all video codec names. This is useful to identify which types are in the library so we can
 	 *  know which we need to evaluate as things continue to change.
 	 */
-	public Set< String > listAllVideoCodes( final List< FFmpegProbeResult > allProbeInfoInstances )
+	public Set< String > listAllVideoCodes( final List< FFmpeg_ProbeResult > allProbeInfoInstances )
 	{
 		Set< String > videoCodecNames = new HashSet< String >() ;
 		
-		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
+		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstances )
 		{
 			videoCodecNames.add( theProbeResult.getVideoCodec() ) ;
 		}
@@ -84,11 +86,11 @@ public class UpgradeMKV_LoadDatabase
 	 * The key is codec_name ("h264, mpeg2video, etc.), and the FFmpegProbeResult corresponds to that file.
 	 * @return
 	 */
-	public List< FFmpegProbeResult > findFilesThatNeedUpgrade( final List< FFmpegProbeResult > allProbeInfoInstances )
+	public List< FFmpeg_ProbeResult > findFilesThatNeedUpgrade( final List< FFmpeg_ProbeResult > allProbeInfoInstances )
 	{		
-		List< FFmpegProbeResult > filesToUpgrade = new ArrayList< FFmpegProbeResult >() ;
+		List< FFmpeg_ProbeResult > filesToUpgrade = new ArrayList< FFmpeg_ProbeResult >() ;
 		
-		for( FFmpegProbeResult theProbeResult : allProbeInfoInstances )
+		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstances )
 		{
 			if( theProbeResult.isVC1() )
 			{

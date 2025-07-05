@@ -5,6 +5,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 import org.bson.codecs.configuration.CodecProvider;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.bson.codecs.pojo.PojoCodecProvider;
@@ -158,11 +160,11 @@ public class MoviesAndShowsMongoDB
 		getSDMoviesAndShowsCollection().drop() ;
 	}
 
-	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
+	public MongoCollection< FFmpeg_ProbeResult > getProbeInfoCollection()
 	{	
 		log.fine( "Getting probeInfoCollection" )  ;
-		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
-				FFmpegProbeResult.class ) ;
+		MongoCollection< FFmpeg_ProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
+				FFmpeg_ProbeResult.class ) ;
 		return theCollection ;
 	}
 
@@ -172,19 +174,19 @@ public class MoviesAndShowsMongoDB
 		getProbeInfoCollection().drop() ;
 	}
 	
-	public List< FFmpegProbeResult > getAllProbeInfoInstances()
+	public List< FFmpeg_ProbeResult > getAllProbeInfoInstances()
 	{
-		List< FFmpegProbeResult > allProbeInfoInstances = new ArrayList< FFmpegProbeResult >() ;
+		List< FFmpeg_ProbeResult > allProbeInfoInstances = new ArrayList< FFmpeg_ProbeResult >() ;
 		
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = getProbeInfoCollection().find( findFilesFilter ) ;
+		FindIterable< FFmpeg_ProbeResult > probeInfoFindResult = getProbeInfoCollection().find( findFilesFilter ) ;
 
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+		Iterator< FFmpeg_ProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 
 		// This loop stores all FFmpegProbeResults in a single structure
 		while( probeInfoFindResultIterator.hasNext() )
 		{
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			FFmpeg_ProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			allProbeInfoInstances.add( probeResult ) ;
 		}
 		return allProbeInfoInstances ;
@@ -220,12 +222,12 @@ public class MoviesAndShowsMongoDB
 //		getJobRecord_MakeFakeMKVFileInfoCollection().drop() ;
 //	}
 
-	public MongoCollection< FFmpegProbeResult > getAction_TranscodeMKVFileInfoCollection()
+	public MongoCollection< FFmpeg_ProbeResult > getAction_TranscodeMKVFileInfoCollection()
 	{	
 		log.fine( "Getting action_TranscodeMKVFilesInfoCollectionName" ) ;
-		MongoCollection< FFmpegProbeResult > theCollection = persistentDatabaseHandle.getCollection(
+		MongoCollection< FFmpeg_ProbeResult > theCollection = persistentDatabaseHandle.getCollection(
 				action_TranscodeMKVFilesInfoCollectionName,
-				FFmpegProbeResult.class ) ;
+				FFmpeg_ProbeResult.class ) ;
 		return theCollection ;
 	}
 
@@ -269,22 +271,22 @@ public class MoviesAndShowsMongoDB
 	 * Read all FFmpegProbeResults from the database and return them in a map keyed by the long path to the document.
 	 * @return
 	 */
-	public Map< String, FFmpegProbeResult > loadProbeInfoMap()
+	public Map< String, FFmpeg_ProbeResult > loadProbeInfoMap()
 	{
-		MongoCollection< FFmpegProbeResult > probeInfoCollection = getProbeInfoCollection() ;
-		Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
+		MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = getProbeInfoCollection() ;
+		Map< String, FFmpeg_ProbeResult > probeInfoMap = new HashMap< String, FFmpeg_ProbeResult >() ;
 
 		log.fine( "Running probeInfo find..." ) ;
 
 		// First, let's pull the info from the probeInfoCollection
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+		FindIterable< FFmpeg_ProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
 
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+		Iterator< FFmpeg_ProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 
 		while( probeInfoFindResultIterator.hasNext() )
 		{
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			FFmpeg_ProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			final String pathToFile = probeResult.getFileNameWithPath() ;
 
 			// Store the FFmpegProbeResult

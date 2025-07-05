@@ -12,6 +12,10 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeFrame;
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+import run_ffmpeg.ffmpeg.FFmpeg_Stream;
+
 public class RMI_Transcode_Client
 {
 	/// Setup the logging subsystem
@@ -45,7 +49,7 @@ public class RMI_Transcode_Client
 
 			final String fileNameWithPath = "\\\\skywalker\\Media\\TV_Shows\\Rick And Morty (2013)\\Season 03\\Rick And Morty - S03E106 - Inside Pickle Rick.mkv" ;
 			File inputFile = new File( fileNameWithPath ) ;
-			FFmpegProbeResult probeResult = common.ffprobeFile( inputFile, log ) ;
+			FFmpeg_ProbeResult probeResult = common.ffprobeFile( inputFile, log ) ;
 			if( null == probeResult )
 			{
 				log.warning( "Null probeResult for file " + fileNameWithPath ) ;
@@ -56,7 +60,7 @@ public class RMI_Transcode_Client
 				log.warning( "null or empty list of streams for: " + probeResult.toString() ) ;
 				return ;
 			}
-			FFmpegStream videoStream = probeResult.streams.get( 0 ) ;
+			FFmpeg_Stream videoStream = probeResult.streams.get( 0 ) ;
 			if( null == videoStream )
 			{
 				log.warning( "null videoStream for: " + probeResult.toString() ) ;
@@ -85,7 +89,7 @@ public class RMI_Transcode_Client
 		}
 	}
 
-	private void transcodeByFFmpegSegments( final File inputFile, FFmpegProbeResult probeResult )
+	private void transcodeByFFmpegSegments( final File inputFile, FFmpeg_ProbeResult probeResult )
 	{
 		final String inputFileNameWithoutExtension = Common.getFileNameWithoutExtension( inputFile ) ;
 		final String segmentWorkingDirectoryPathString = getTemporarySegmentFileStorageLocationWithSeparator()
@@ -152,7 +156,7 @@ public class RMI_Transcode_Client
 	private boolean combineFiles( final File inputFile,
 			final List< RMI_Transcode_Work_Item > workItems,
 			final File segmentWorkingDirectoryFile,
-			final FFmpegProbeResult probeResult )
+			final FFmpeg_ProbeResult probeResult )
 	{
 		// Reassemble the files into a single file
 		File concatFile = null ;
@@ -387,11 +391,11 @@ public class RMI_Transcode_Client
 
 		log.info( "Getting key frames for " + inputFile.getAbsolutePath() ) ;
 		Vector< Integer > keyFrames = new Vector< Integer >() ;
-		List< FFmpegProbeFrame > inputFrames = common.ffprobe_getVideoFrames( inputFile, log, true ) ;
+		List< FFmpeg_ProbeFrame > inputFrames = common.ffprobe_getVideoFrames( inputFile, log, true ) ;
 
 		// Walk through the list of frames and store the frame number of each key frame
 		int currentFrame = 0 ;
-		for( FFmpegProbeFrame theFrame : inputFrames )
+		for( FFmpeg_ProbeFrame theFrame : inputFrames )
 		{
 			log.fine( theFrame.toString() ) ;
 			if( null == theFrame.key_frame )

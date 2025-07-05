@@ -9,6 +9,9 @@ import java.util.logging.Logger;
 
 import com.google.gson.Gson;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+import run_ffmpeg.ffmpeg.FFmpeg_Stream;
+
 /**
  * Represent a file to be transcoded.
  * Assumption: A TV Show always has "Season " somewhere in its path.
@@ -36,7 +39,7 @@ public class TranscodeFile
 	private List< File > dvdSubTitleFileList = null ;
 
 	/// Track the ffprobe result for this file
-	protected FFmpegProbeResult theFFmpegProbeResult = null ;
+	protected FFmpeg_ProbeResult theFFmpegProbeResult = null ;
 
 	/// The extension of a file, corresponding to this one, that indicates the file
 	/// is currently being transcoded
@@ -63,7 +66,7 @@ public class TranscodeFile
 	protected boolean _audioHasFivePointOne = false ;
 	protected boolean _audioHasSixPointOne = false ;
 	protected boolean _audioHasSevenPointOne = false ;
-	private ArrayList< FFmpegStream > audioStreams = new ArrayList< FFmpegStream >() ;
+	private ArrayList< FFmpeg_Stream > audioStreams = new ArrayList< FFmpeg_Stream >() ;
 
 	/**
 	 * inputFile is the file with full path to the input file.
@@ -187,7 +190,7 @@ public class TranscodeFile
 		return srtFileList.iterator() ;
 	}
 
-	protected FFmpegStream getAudioStreamAt( int index )
+	protected FFmpeg_Stream getAudioStreamAt( int index )
 	{
 		if( (index < 0) || (index >= getNumAudioStreams()) )
 		{
@@ -203,10 +206,10 @@ public class TranscodeFile
 	 * @param languageSearch
 	 * @return
 	 */
-	public ArrayList< FFmpegStream > getAudioStreamsByLanguage( final String languageSearch )
+	public ArrayList< FFmpeg_Stream > getAudioStreamsByLanguage( final String languageSearch )
 	{
-		ArrayList< FFmpegStream > audioStreamsToReturn = new ArrayList< FFmpegStream >() ;
-		for( FFmpegStream audioStream : audioStreams )
+		ArrayList< FFmpeg_Stream > audioStreamsToReturn = new ArrayList< FFmpeg_Stream >() ;
+		for( FFmpeg_Stream audioStream : audioStreams )
 		{
 			if( languageSearch.equalsIgnoreCase( "*" ) )
 			{
@@ -480,12 +483,12 @@ public class TranscodeFile
 		return tmpOutputFileWithPath ;
 	}
 	
-	protected void processAudioStreams( List< FFmpegStream > inputStreams )
+	protected void processAudioStreams( List< FFmpeg_Stream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type audio
 		audioStreams.addAll( inputStreams ) ;
 
-		for( FFmpegStream theInputStream : inputStreams )
+		for( FFmpeg_Stream theInputStream : inputStreams )
 		{
 			if( null == theInputStream.channel_layout )
 			{
@@ -533,7 +536,7 @@ public class TranscodeFile
 		}
 	}
 
-	public void processFFmpegProbeResult( FFmpegProbeResult _theFFmpegProbeResult )
+	public void processFFmpegProbeResult( FFmpeg_ProbeResult _theFFmpegProbeResult )
 	{
 		theFFmpegProbeResult = _theFFmpegProbeResult ;
 		processVideoStreams( theFFmpegProbeResult.getStreamsByCodecType( "video" ) ) ;
@@ -541,7 +544,7 @@ public class TranscodeFile
 		processSubTitleStreams( theFFmpegProbeResult.getStreamsByCodecType( "subtitle" ) ) ;
 	}
 
-	protected void processVideoStreams( List< FFmpegStream > inputStreams )
+	protected void processVideoStreams( List< FFmpeg_Stream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type video
 		//		for( FFmpegStream theInputStream : inputStreams )
@@ -550,7 +553,7 @@ public class TranscodeFile
 		//		}
 	}
 
-	protected void processSubTitleStreams( List< FFmpegStream > inputStreams )
+	protected void processSubTitleStreams( List< FFmpeg_Stream > inputStreams )
 	{
 		// Pre-condition: inputStreams contains streams only of type subtitle
 		//		for( FFmpegStream theInputStream : inputStreams )
@@ -657,7 +660,7 @@ public class TranscodeFile
 		}
 	}
 
-	public FFmpegProbeResult getTheFFmpegProbeResult()
+	public FFmpeg_ProbeResult getTheFFmpegProbeResult()
 	{
 		return theFFmpegProbeResult ;
 	}

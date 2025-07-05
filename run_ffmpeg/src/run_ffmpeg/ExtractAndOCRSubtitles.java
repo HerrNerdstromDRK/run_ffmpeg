@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * The purpose of this class is to run both the extract subtitles and OCR workflows
  *  simultaneously. The thinking is that the first uses primarily network and HDD,
@@ -44,7 +46,7 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 	public ExtractAndOCRSubtitles( Logger log,
 			Common common,
 			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
 	{
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		initObject() ;

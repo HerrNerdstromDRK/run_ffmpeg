@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Problems to solve:
  * - Identify which movies/tv shows are missing subtitles
@@ -67,7 +69,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 	public ExtractSubtitles( Logger log,
 			Common common,
 			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
 	{
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		initObject() ;
@@ -77,7 +79,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 			Common common,
 			final String stopFileName,
 			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
 	{
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 		initObject() ;

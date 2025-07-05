@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Generic base class for controller threads to inherit basic methods.
  * ControllerThreadType is the controller thread specialization (like ProbeDirectories), and
@@ -21,7 +23,7 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 	protected transient Common common = null ;
 
 	protected transient MoviesAndShowsMongoDB masMDB = null ;
-	protected transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+	protected transient MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = null ;
 
 	/// The structure that contains all worker threads, indexed by the drive being scanned.
 	private transient Map< String, WorkerThreadType > threadMap =
@@ -51,7 +53,7 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 			Common common,
 			String stopFileName,
 			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
 	{
 		assert( log != null ) ;
 		assert( common != null ) ;
@@ -286,7 +288,7 @@ public abstract class run_ffmpegControllerThreadTemplate< WorkerThreadType exten
 		return threadMap.values().toArray( array ) ;
 	}
 
-	public MongoCollection< FFmpegProbeResult > getProbeInfoCollection()
+	public MongoCollection< FFmpeg_ProbeResult > getProbeInfoCollection()
 	{
 		return probeInfoCollection ;
 	}

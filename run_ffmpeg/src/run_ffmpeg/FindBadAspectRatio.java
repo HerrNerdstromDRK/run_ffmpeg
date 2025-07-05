@@ -2,6 +2,9 @@ package run_ffmpeg;
 import java.util.List;
 import java.util.logging.Logger;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+import run_ffmpeg.ffmpeg.FFmpeg_Stream;
+
 /**
  * I discovered some home videos that were in aspect ratios that broken Plex on multiple platforms (Roku and Android).
  * For whatever reason, Plex rejects some oddball aspect ratios but accepts many others. This class attempts to find
@@ -69,11 +72,11 @@ public class FindBadAspectRatio
 		int numBadAspectRatio = 0 ;
 		
 		log.info( "Getting probe info..." ) ;
-		List< FFmpegProbeResult > allProbeResults = masMDB.getAllProbeInfoInstances() ;
+		List< FFmpeg_ProbeResult > allProbeResults = masMDB.getAllProbeInfoInstances() ;
 		
-		for( FFmpegProbeResult theResult : allProbeResults )
+		for( FFmpeg_ProbeResult theResult : allProbeResults )
 		{
-			final FFmpegStream videoStream = theResult.getVideoStream() ;
+			final FFmpeg_Stream videoStream = theResult.getVideoStream() ;
 			assert( videoStream != null ) ;
 			
 			// Check for a bad aspect ratio
@@ -87,7 +90,7 @@ public class FindBadAspectRatio
 		log.info( "Found " + numBadAspectRatio + " instance(s) of bad aspect ratio" ) ;
 	}
 	
-	public boolean goodAspectRatio( final FFmpegProbeResult theResult, final int width, final int height )
+	public boolean goodAspectRatio( final FFmpeg_ProbeResult theResult, final int width, final int height )
 	{
 		final double inputAspectRatio = (double) width / (double) height ;
 		

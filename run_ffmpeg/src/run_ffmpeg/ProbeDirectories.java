@@ -15,6 +15,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Run ffprobe on each file in the probe directories array and record that information
  *  into the probe database.
@@ -24,7 +26,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 {
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
 	/// The probeInfoMap is thread safe.
-	private transient Map< String, FFmpegProbeResult > probeInfoMap = new ConcurrentHashMap< String, FFmpegProbeResult >() ;
+	private transient Map< String, FFmpeg_ProbeResult > probeInfoMap = new ConcurrentHashMap< String, FFmpeg_ProbeResult >() ;
 
 	private transient List< String > foldersToProbe = new ArrayList< String >() ;
 	private transient List< File > filesToProbe = new ArrayList< File >() ;
@@ -73,7 +75,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	public ProbeDirectories( Logger log,
 			Common common,
 			MoviesAndShowsMongoDB masMDB,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
 	{
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 	}
@@ -205,9 +207,9 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	 * @param foldersToProbe
 	 * @return
 	 */
-	public Map< String, FFmpegProbeResult > getProbeInfoForFolders( final List< String > foldersToProbe )
+	public Map< String, FFmpeg_ProbeResult > getProbeInfoForFolders( final List< String > foldersToProbe )
 	{
-		Map< String, FFmpegProbeResult > returnMeMap = new HashMap< String, FFmpegProbeResult >() ;
+		Map< String, FFmpeg_ProbeResult > returnMeMap = new HashMap< String, FFmpeg_ProbeResult >() ;
 		for( String folderToProbe : foldersToProbe )
 		{
 			// Ensure the trailing \\ is included so \\\\skywalker\\Media doesn't also pick up all entries for \\\\yoda\\MP4_2
@@ -216,10 +218,10 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 			// Walk through the probeInfoMap to search for long path prefixes.
 			// Can't call get() here because it doesn't have a way to search for startsWith()
 			// (Yes I could add a comparator but I prefer to keep the code clean and easier to debug.)
-			for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
+			for( Map.Entry< String, FFmpeg_ProbeResult > entry : probeInfoMap.entrySet() )
 			{
 				final String longPath = entry.getKey() ;
-				final FFmpegProbeResult theProbeResult = entry.getValue() ;
+				final FFmpeg_ProbeResult theProbeResult = entry.getValue() ;
 				if( longPath.startsWith( folderToProbeSearch ) )
 				{
 					returnMeMap.put( theProbeResult.getFileNameWithPath(), theProbeResult ) ;
@@ -242,14 +244,14 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 
 		log.info( "Loading probe info collection" ) ;
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+		FindIterable< FFmpeg_ProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
 
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+		Iterator< FFmpeg_ProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 
 		// This loop stores all FFmpegProbeResults in a single structure
 		while( probeInfoFindResultIterator.hasNext() )
 		{
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			FFmpeg_ProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			final String pathToFile = probeResult.getFileNameWithPath() ;
 
 			// Store the FFmpegProbeResult
@@ -267,7 +269,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	 * @param fileToProbe
 	 * @return
 	 */
-	public FFmpegProbeResult probeFileAndUpdateDB( final File fileToProbe )
+	public FFmpeg_ProbeResult probeFileAndUpdateDB( final File fileToProbe )
 	{
 		return probeFileAndUpdateDB( fileToProbe, false ) ;
 	}
@@ -278,7 +280,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 	 * @param forceRefresh Set to true to force the file to be re-probed and update the database.
 	 * @return
 	 */
-	public FFmpegProbeResult probeFileAndUpdateDB( final File fileToProbe, boolean forceRefresh )
+	public FFmpeg_ProbeResult probeFileAndUpdateDB( final File fileToProbe, boolean forceRefresh )
 	{
 		assert( fileToProbe != null ) ;
 
@@ -290,7 +292,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		}
 
 		// Lookup the file in the probeInfoMap
-		FFmpegProbeResult theProbeResult = probeInfoMap.get( fileToProbe.getAbsolutePath() ) ;
+		FFmpeg_ProbeResult theProbeResult = probeInfoMap.get( fileToProbe.getAbsolutePath() ) ;
 		//probeInfoCollection.find( Filters.eq( "fileNameWithPath", fileToProbe.getAbsolutePath() ) ).first() ;
 		// theProbeResult may be null if the file has not yet been probed.
 		if( null == theProbeResult )
@@ -356,7 +358,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		}
 
 		// Now walk through the probeInfoMap to search for missing files.
-		for( Map.Entry< String, FFmpegProbeResult > entry : probeInfoMap.entrySet() )
+		for( Map.Entry< String, FFmpeg_ProbeResult > entry : probeInfoMap.entrySet() )
 		{
 			if( !shouldKeepRunning() )
 			{
@@ -364,7 +366,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 			}
 
 			final String absolutePath = entry.getKey() ;
-			final FFmpegProbeResult theProbeResult = entry.getValue() ;
+			final FFmpeg_ProbeResult theProbeResult = entry.getValue() ;
 
 			// Find the file in the fileSystemMap
 			final File theFile = fileSystemMap.get( absolutePath ) ;

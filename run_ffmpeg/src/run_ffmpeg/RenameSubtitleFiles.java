@@ -14,6 +14,8 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 public class RenameSubtitleFiles
 {
 	/// Setup the logging subsystem
@@ -57,22 +59,22 @@ public class RenameSubtitleFiles
 
 		// Next, walk through all video files and check for matching srt files
 		MoviesAndShowsMongoDB masMDB =  new MoviesAndShowsMongoDB( log ) ;
-		MongoCollection< FFmpegProbeResult > probeInfoCollection = masMDB.getProbeInfoCollection() ;
+		MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = masMDB.getProbeInfoCollection() ;
 
 		log.info( "Loading probe info collection" ) ;
 		//Bson findFilesFilter = Filters.regex( "fileNameWithPath", "Zoolander.*2001.*" ) ;
 		Bson findFilesFilter = Filters.regex( "fileNameWithPath", ".*" ) ;
-		FindIterable< FFmpegProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
+		FindIterable< FFmpeg_ProbeResult > probeInfoFindResult = probeInfoCollection.find( findFilesFilter ) ;
 
 		final Pattern properlyFormedSrtFilePattern = Pattern.compile( ".*\\.en\\.srt" ) ;
 		final Pattern properlyFormedForcedSubtitleSrtFilePattern = Pattern.compile( ".*\\.en\\.forced\\.srt" ) ;
 
 		// Iterate over each of the video files
-		Iterator< FFmpegProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
+		Iterator< FFmpeg_ProbeResult > probeInfoFindResultIterator = probeInfoFindResult.iterator() ;
 		while( probeInfoFindResultIterator.hasNext() )
 		{
 			// Get the next video file
-			FFmpegProbeResult probeResult = probeInfoFindResultIterator.next() ;
+			FFmpeg_ProbeResult probeResult = probeInfoFindResultIterator.next() ;
 			// The quote method, or some part of the matching system, messes up with the \E string, such as Movie Name (2000)\Extended Scenes.{en.5.srt,.mkv}
 			// Replace the \E with nothing here and hope nothing bad happens
 			final String videoPathWithoutExtension = Common.stripExtensionFromFileName( probeResult.getFileNameWithPath() ).replace( "\\E", "" ) ;

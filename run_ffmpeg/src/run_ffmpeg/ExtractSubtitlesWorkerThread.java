@@ -13,6 +13,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.result.DeleteResult;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+import run_ffmpeg.ffmpeg.FFmpeg_Stream;
+
 /**
  * Thread class that extracts subtitles from files in a given list of folders.
  */
@@ -30,7 +33,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	private List< String > foldersToExtract = null ;
 
 	/// Store the probe results by full path name for each file already probed.
-	protected Map< String, FFmpegProbeResult > probedFiles = new HashMap< String, FFmpegProbeResult >() ;
+	protected Map< String, FFmpeg_ProbeResult > probedFiles = new HashMap< String, FFmpeg_ProbeResult >() ;
 
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
@@ -77,7 +80,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		this.foldersToExtract = foldersToExtract ;
 	}
 
-	public ImmutableList.Builder< String > buildFFmpegSubTitleExtractionOptionsString( FFmpegProbeResult probeResult,
+	public ImmutableList.Builder< String > buildFFmpegSubTitleExtractionOptionsString( FFmpeg_ProbeResult probeResult,
 			TranscodeFile theFile,
 			List< File > supFiles )
 	{
@@ -87,13 +90,13 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		ImmutableList.Builder< String > ffmpegOptionsCommandString = new ImmutableList.Builder< String >() ;
 
 		// includedSubTitleStreams will include only allowable subtitle streams to extract
-		List< FFmpegStream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
+		List< FFmpeg_Stream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
 
 		// If the file has multiple subtitle streams that can be extracted, then ensure we name the
 		// first such stream without a stream index #
 		boolean processedFirstStream = false ;
 
-		for( FFmpegStream stStream : extractableSubTitleStreams )
+		for( FFmpeg_Stream stStream : extractableSubTitleStreams )
 		{
 			// TEST: Looking for a way to determine if the file has a valid subtitle stream
 			// Trying by checking if this subtitle stream has a tag named "NUMBER_OF_BYTES-eng" and its value is at least 250
@@ -185,7 +188,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	 * @param fileToSubTitleExtract
 	 * @param probeResult
 	 */
-	public void extractSubtitles( TranscodeFile fileToSubTitleExtract, FFmpegProbeResult probeResult )
+	public void extractSubtitles( TranscodeFile fileToSubTitleExtract, FFmpeg_ProbeResult probeResult )
 	{
 		// Build a set of options for an ffmpeg command based on the JSON input
 		// If no suitable subtitles are found, the options string will be empty
@@ -245,7 +248,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 				// Found one more small subtitle files
 				log.fine( "Found small subtitle stream for file " + fileToSubTitleExtract.getInputFileNameWithPath() ) ;
 
-				MongoCollection< FFmpegProbeResult > probeInfoCollection = theController.getProbeInfoCollection() ;
+				MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = theController.getProbeInfoCollection() ;
 				DeleteResult deleteResult = probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
 				if( deleteResult.getDeletedCount() > 0 )
 				{
@@ -268,11 +271,11 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	 * @param probeResult
 	 * @return
 	 */
-	public List< FFmpegStream > findExtractableSubTitleStreams( FFmpegProbeResult probeResult )
+	public List< FFmpeg_Stream > findExtractableSubTitleStreams( FFmpeg_ProbeResult probeResult )
 	{
-		List< FFmpegStream > extractableSubTitleStreams = new ArrayList< FFmpegStream >() ;
+		List< FFmpeg_Stream > extractableSubTitleStreams = new ArrayList< FFmpeg_Stream >() ;
 
-		for( FFmpegStream theStream : probeResult.streams )
+		for( FFmpeg_Stream theStream : probeResult.streams )
 		{
 			log.fine( "Checking stream: " + theStream ) ;
 			if( !theStream.codec_type.equals( codecTypeSubTitleNameString ) )
@@ -414,7 +417,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		}
 
 		// Look for usable subtitle streams in the file and retrieve a list of options for an ffmpeg extract command.
-		FFmpegProbeResult probeResult = probedFiles.get( inputFile.getAbsolutePath() ) ;
+		FFmpeg_ProbeResult probeResult = probedFiles.get( inputFile.getAbsolutePath() ) ;
 		if( null == probeResult )
 		{
 			// No probe info found for the given file.

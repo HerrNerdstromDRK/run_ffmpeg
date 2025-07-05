@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * A worker thread for ProbeDirectories.
  */
@@ -17,17 +19,17 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	private transient ProbeDirectories theController = null ;
 
 	/// Handle to the database. This instance is NOT thread safe.
-	private transient MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+	private transient MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = null ;
 
 	/// This map will store all of the FFmpegProbeResults in the probeInfoCollection, keyed by the long path to the document.
 	/// This instance is thread safe.
-	private transient Map< String, FFmpegProbeResult > probeInfoMap = new HashMap< String, FFmpegProbeResult >() ;
+	private transient Map< String, FFmpeg_ProbeResult > probeInfoMap = new HashMap< String, FFmpeg_ProbeResult >() ;
 
 	public ProbeDirectoriesWorkerThread( ProbeDirectories pdController,
 			Logger log,
 			Common common,
-			MongoCollection< FFmpegProbeResult > probeInfoCollection,
-			Map< String, FFmpegProbeResult > probeInfoMap )
+			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection,
+			Map< String, FFmpeg_ProbeResult > probeInfoMap )
 	{
 		super( log, common ) ;
 
@@ -49,9 +51,9 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	 * @param fileToProbe
 	 * @return
 	 */
-	public FFmpegProbeResult fileAlreadyProbed( final File fileToProbe )
+	public FFmpeg_ProbeResult fileAlreadyProbed( final File fileToProbe )
 	{
-		FFmpegProbeResult theProbeResult = probeInfoMap.get( fileToProbe.getAbsolutePath() ) ;
+		FFmpeg_ProbeResult theProbeResult = probeInfoMap.get( fileToProbe.getAbsolutePath() ) ;
 		return theProbeResult ;
 	}
 
@@ -67,7 +69,7 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 	 * @param probeResult
 	 * @return
 	 */
-	public boolean needsRefresh( File fileToProbe, FFmpegProbeResult probeResult )
+	public boolean needsRefresh( File fileToProbe, FFmpeg_ProbeResult probeResult )
 	{
 		assert( fileToProbe != null ) ;
 		assert( probeResult != null ) ;
@@ -87,17 +89,17 @@ public class ProbeDirectoriesWorkerThread extends run_ffmpegWorkerThread
 		return false ;
 	}
 
-	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe )
+	public FFmpeg_ProbeResult probeFileAndUpdateDB( File fileToProbe )
 	{
 		return probeFileAndUpdateDB( fileToProbe, false ) ;
 	}
 
-	public FFmpegProbeResult probeFileAndUpdateDB( File fileToProbe, boolean forceRefresh )
+	public FFmpeg_ProbeResult probeFileAndUpdateDB( File fileToProbe, boolean forceRefresh )
 	{
 		assert( fileToProbe != null ) ;
 
 		// Has the file already been probed?
-		FFmpegProbeResult probeResult = fileAlreadyProbed( fileToProbe ) ;
+		FFmpeg_ProbeResult probeResult = fileAlreadyProbed( fileToProbe ) ;
 		if( !forceRefresh && ((probeResult != null) && !needsRefresh( fileToProbe, probeResult )) )
 		{
 			// No need to probe again.

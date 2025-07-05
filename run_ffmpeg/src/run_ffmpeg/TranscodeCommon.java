@@ -8,6 +8,8 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
 
+import run_ffmpeg.ffmpeg.FFmpeg_Stream;
+
 public class TranscodeCommon
 {
 	private transient Logger log = null ;
@@ -94,7 +96,7 @@ public class TranscodeCommon
 		//  have the director commentary in stereo, but not necessarily the primary sound.
 		//  As such, I will generally ignore any existing stereo audio streams when deciding whether to add
 		//  a stereo audio stream.
-		ArrayList< FFmpegStream > audioStreamsToTranscode = new ArrayList< FFmpegStream >() ;
+		ArrayList< FFmpeg_Stream > audioStreamsToTranscode = new ArrayList< FFmpeg_Stream >() ;
 		
 		if( audioStreamTranscodeOptionsType.audioStreamAll == audioStreamTranscodeOptions )
 		{
@@ -156,7 +158,7 @@ public class TranscodeCommon
 //				++inputStreamNumber, ++outputStreamNumber )
 		int audioInputStreamNumber = 0 ;
 		int outputStreamNumber = 0 ;
-		for( FFmpegStream theAudioStream : audioStreamsToTranscode )
+		for( FFmpeg_Stream theAudioStream : audioStreamsToTranscode )
 		{
 			audioTranscodeOptions.add( "-map", "0:a:" + audioInputStreamNumber ) ;
 			audioTranscodeOptions.add( "-c:a:" + outputStreamNumber, audioTranscodeLibrary ) ;

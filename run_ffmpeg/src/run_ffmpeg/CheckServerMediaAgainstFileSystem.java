@@ -14,13 +14,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
-import run_ffmpeg.Plex.plexAPI_Media;
-import run_ffmpeg.Plex.plexAPI_MediaContainer;
-import run_ffmpeg.Plex.plexAPI_MediaContainerWrapper;
-import run_ffmpeg.Plex.plexAPI_Metadata;
-import run_ffmpeg.Plex.plexAPI_Part;
+import run_ffmpeg.Plex.Plex_Media;
+import run_ffmpeg.Plex.Plex_MediaContainer;
+import run_ffmpeg.Plex.Plex_MediaContainerWrapper;
+import run_ffmpeg.Plex.Plex_Metadata;
+import run_ffmpeg.Plex.Plex_Part;
 
 public class CheckServerMediaAgainstFileSystem
 {
@@ -51,7 +50,7 @@ public class CheckServerMediaAgainstFileSystem
 
 	public void execute()
 	{
-		final List< plexAPI_Metadata > movieMediaContainers = getAllMovies() ;
+		final List< Plex_Metadata > movieMediaContainers = getAllMovies() ;
 		log.info( "Found " + movieMediaContainers.size() + " movies in Plex top level metadata" ) ;
 
 		Set< String > movieNameSet = getMovieFileNames( movieMediaContainers ) ;
@@ -98,20 +97,20 @@ public class CheckServerMediaAgainstFileSystem
 		return movieFileNames ;
 	}
 
-	public Set< String > getMovieFileNames( final List< plexAPI_Metadata > movieMediaContainers )
+	public Set< String > getMovieFileNames( final List< Plex_Metadata > movieMediaContainers )
 	{
 		Set< String > movieNameSet = new HashSet< String >() ;
 
 		// Build a list of the movie file names
 		final Pattern movieFileNamePattern = Pattern.compile( "(?<movieName>.*)\\((?<year>[\\d]{4})\\).*\\.(?<extension>(mkv|mp4))" ) ;
 		
-		for( plexAPI_Metadata metadata : movieMediaContainers )
+		for( Plex_Metadata metadata : movieMediaContainers )
 		{
 			int numMoviesInThisMetadata = 0 ;
-			for( plexAPI_Media media : metadata.Media )
+			for( Plex_Media media : metadata.Media )
 			{
 				boolean foundOnePartAlready = false ;
-				for( plexAPI_Part part : media.Part )
+				for( Plex_Part part : media.Part )
 				{
 					// Check if this filename is a match.
 					final String fileName = part.file ;
@@ -147,9 +146,9 @@ public class CheckServerMediaAgainstFileSystem
 		return movieNameSet ;
 	}
 
-	public List< plexAPI_Metadata > getAllMovies()
+	public List< Plex_Metadata > getAllMovies()
 	{
-		List< plexAPI_Metadata > allMovieMetaDatas = new ArrayList< plexAPI_Metadata >() ;
+		List< Plex_Metadata > allMovieMetaDatas = new ArrayList< Plex_Metadata >() ;
 
 		final String uri = "http://"
 				+ getPlexIPString()
@@ -168,8 +167,8 @@ public class CheckServerMediaAgainstFileSystem
 		// Successful response
 
 		Gson queryResponseGson = new Gson() ;
-		final plexAPI_MediaContainerWrapper mediaContainerWrapper = queryResponseGson.fromJson( responseBody, plexAPI_MediaContainerWrapper.class ) ;
-		final plexAPI_MediaContainer mediaContainer = mediaContainerWrapper.MediaContainer ;
+		final Plex_MediaContainerWrapper mediaContainerWrapper = queryResponseGson.fromJson( responseBody, Plex_MediaContainerWrapper.class ) ;
+		final Plex_MediaContainer mediaContainer = mediaContainerWrapper.MediaContainer ;
 
 		allMovieMetaDatas.addAll( mediaContainer.Metadata ) ;
 

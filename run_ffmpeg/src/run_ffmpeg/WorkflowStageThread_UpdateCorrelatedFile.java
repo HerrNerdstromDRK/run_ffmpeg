@@ -7,11 +7,13 @@ import org.bson.conversions.Bson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 public class WorkflowStageThread_UpdateCorrelatedFile extends WorkflowStageThread
 {
 	private transient MongoCollection< JobRecord_UpdateCorrelatedFile > jobRecord_UpdateCorrelatedFileInfoCollection = null ;
 	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
-	private MongoCollection< FFmpegProbeResult > probeInfoCollection = null ;
+	private MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = null ;
 	
 	public WorkflowStageThread_UpdateCorrelatedFile( final String threadName,
 			Logger log,

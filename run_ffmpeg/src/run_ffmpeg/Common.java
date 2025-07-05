@@ -31,6 +31,10 @@ import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeFrame;
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeFrames;
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
+
 /**
  * Provide common methods/services for this application.
  * @author Dan
@@ -409,10 +413,10 @@ public class Common
 	 * @param log
 	 * @return
 	 */
-	public FFmpegProbeResult ffprobeFile( File theFile, Logger log )
+	public FFmpeg_ProbeResult ffprobeFile( File theFile, Logger log )
 	{	
 		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
-		FFmpegProbeResult result = null ;
+		FFmpeg_ProbeResult result = null ;
 
 		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
 		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
@@ -461,7 +465,7 @@ public class Common
 			else
 			{
 				// Deserialize the JSON streams info from this file
-				result = gson.fromJson( inputBuffer, FFmpegProbeResult.class ) ;
+				result = gson.fromJson( inputBuffer, FFmpeg_ProbeResult.class ) ;
 
 				result.setFileNameWithPath( theFile.getAbsolutePath() ) ;
 				result.setFileNameWithoutPath( theFile.getName() ) ;
@@ -484,9 +488,9 @@ public class Common
 	 * If an error occurs, return null. 
 	 * Otherwise, return the FFmpegProbeResult from the ffprobe.
 	 */
-	public FFmpegProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
+	public FFmpeg_ProbeResult ffprobeFile( TranscodeFile theFile, Logger log )
 	{
-		FFmpegProbeResult probeResult = ffprobeFile( theFile.getInputFile(), log ) ;
+		FFmpeg_ProbeResult probeResult = ffprobeFile( theFile.getInputFile(), log ) ;
 		if( probeResult != null )
 		{
 			theFile.processFFmpegProbeResult( probeResult ) ;
@@ -494,7 +498,7 @@ public class Common
 		return probeResult ;
 	}
 
-	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )
+	public List< FFmpeg_ProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log )
 	{
 		return ffprobe_getVideoFrames( theFile, log, false ) ;
 	}
@@ -506,10 +510,10 @@ public class Common
 	 * @param minimalOnly: If true, then only return the frame and 'key_frame' flag.
 	 * @return
 	 */
-	public List< FFmpegProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log, boolean minimalOnly )
+	public List< FFmpeg_ProbeFrame > ffprobe_getVideoFrames( File theFile, Logger log, boolean minimalOnly )
 	{	
 		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
-		FFmpegProbeFrames result = null ;
+		FFmpeg_ProbeFrames result = null ;
 
 		ImmutableList.Builder< String > ffprobeExecuteCommand = new ImmutableList.Builder< String >() ;
 		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
@@ -561,7 +565,7 @@ public class Common
 			else
 			{
 				// Deserialize the JSON frames info from this file
-				result = gson.fromJson( inputBuffer, FFmpegProbeFrames.class ) ;
+				result = gson.fromJson( inputBuffer, FFmpeg_ProbeFrames.class ) ;
 			}
 		}
 		catch( Exception theException )
@@ -570,26 +574,6 @@ public class Common
 		}
 		return result.frames ;
 	}
-//
-//	/**
-//	 * Return the drive on which the given theFolder resides.
-//	 * Examples:
-//	 *   - "C:\temp\thefile.mkv" -> "C:\\"
-//	 *   - "\\\\yoda\\MKV_Archive1\\To Convert\\Transformers (2006)" -> "\\\\yoda\\MKV_Archive1\\"
-//	 * @param theFolder
-//	 * @return
-//	 */
-//	public static String getDriveWithPathSeparator( final String theFolder )
-//	{
-//		assert( theFolder != null ) ;
-//		assert( !theFolder.isEmpty() ) ;
-//		assert( !theFolder.isBlank() ) ;
-//
-//		Path thePath = Paths.get( theFolder ) ;
-//		final String fileRoot = thePath.getRoot().toString() ;
-//
-//		return fileRoot ;		
-//	}
 
 	/**
 	 * Return the extension, without '.', of the given filename.
