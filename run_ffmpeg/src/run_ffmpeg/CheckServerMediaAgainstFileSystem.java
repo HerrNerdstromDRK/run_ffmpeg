@@ -50,11 +50,11 @@ public class CheckServerMediaAgainstFileSystem
 
 	public void execute()
 	{
-		final List< Plex_Metadata > movieMediaContainers = getAllMovies() ;
-		log.info( "Found " + movieMediaContainers.size() + " movies in Plex top level metadata" ) ;
+		final List< Plex_Metadata > plexMovieMediaContainers = getAllMovies() ;
+		log.info( "Found " + plexMovieMediaContainers.size() + " movies in Plex top level metadata" ) ;
 
-		Set< String > movieNameSet = getMovieFileNames( movieMediaContainers ) ;
-		log.info( "Found " + movieNameSet.size() + " movies in Plex drilldown data" ) ;
+		Set< String > plexMovieNameSet = getMovieFileNames( plexMovieMediaContainers ) ;
+		log.info( "Found " + plexMovieNameSet.size() + " movies in plexMovieMediaContainers drilldown data" ) ;
 		
 		// Get all movie files
 		final String[] extensions = { "mkv", "mp4" } ;
@@ -69,14 +69,14 @@ public class CheckServerMediaAgainstFileSystem
 		// Remove each filename found on the drive from the database Set and see what is left over.
 		for( String driveMovieName : allMovieFileNames )
 		{
-			if( !movieNameSet.remove( driveMovieName ) )
+//			log.fine( "driveMovieName: " + driveMovieName ) ;
+			if( !plexMovieNameSet.remove( driveMovieName ) )
 			{
 				log.info( "Failed to remove driveMovieName from set: " + driveMovieName ) ;
 			}
 		}
-		log.info( "Remaining movie names in Set: " + movieNameSet.size() ) ;
-		log.info( movieNameSet.toString() ) ;
-		
+		log.info( "Remaining movie names in Set: " + plexMovieNameSet.size() ) ;
+		log.info( plexMovieNameSet.toString() ) ;
 	}
 	
 	public List< String > getMovieFileNamesFromFiles( final List< File > allVideoFilesInMoviesDirectory )
@@ -113,7 +113,12 @@ public class CheckServerMediaAgainstFileSystem
 				for( Plex_Part part : media.Part )
 				{
 					// Check if this filename is a match.
-					final String fileName = part.file ;
+					// The part.file filename stored in the Plex database includes the full path.
+					// Use the File constructor to strip out the path.
+					final String fileNameWithPath = part.file ;
+					final File theFile = new File( fileNameWithPath ) ;
+					final String fileName = theFile.getName() ;
+
 					final Matcher fileNameMatcher = movieFileNamePattern.matcher( fileName ) ;
 					if( !fileNameMatcher.find() )
 					{
@@ -125,12 +130,12 @@ public class CheckServerMediaAgainstFileSystem
 					
 					if( numMoviesInThisMetadata > 1 )
 					{
-						log.fine( "Part filename: " + fileName ) ;
+						log.info( "Part filename: " + fileName ) ;
 					}
 					
 					if( foundOnePartAlready )
 					{
-						log.fine( "Found another Part for media: " + media.toString() ) ;
+						log.info( "Found another Part for media: " + media.toString() ) ;
 					}
 					foundOnePartAlready = true ;
 					
