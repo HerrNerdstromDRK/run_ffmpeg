@@ -135,6 +135,17 @@ public class FFmpegProbeResult
 	}
 	
 	/**
+	 * This should work so long as exactly one video stream exists. I have, so far, not found a counterexample.
+	 * @return
+	 */
+	public FFmpegStream getVideoStream()
+	{
+		final List< FFmpegStream > videoStreams = getStreamsByCodecType( "video" ) ;
+		final FFmpegStream videoStream = videoStreams.getFirst() ;
+		return videoStream ;
+	}
+	
+	/**
 	 * Return the video codec name. Known codecs are vc1, h264, hevc, mpeg2video. Note that the video stream is sometimes, although
 	 *  not frequently, something other than stream 0.
 	 * @return
