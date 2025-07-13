@@ -604,6 +604,30 @@ public class Common
 	 * @param inputExtensions
 	 * @return non-null, but perhaps empty
 	 */
+	public List< File > getFilesInDirectoryByExtension( final File inputDirectoryFile, final String inputExtensions )
+	{
+		assert( inputDirectoryFile != null ) ;
+		return getFilesInDirectoryByExtension( inputDirectoryFile.getAbsolutePath(), inputExtensions ) ;
+	}
+	
+	/**
+	 * Return a list of Files in the given directory with any of the given extensions.
+	 * @param inputDirectory
+	 * @param inputExtensions
+	 * @return non-null, but perhaps empty
+	 */
+	public List< File > getFilesInDirectoryByExtension( final File inputDirectoryFile, final String[] inputExtensions )
+	{
+		assert( inputDirectoryFile != null ) ;
+		return getFilesInDirectoryByExtension( inputDirectoryFile.getAbsolutePath(), inputExtensions ) ;
+	}
+	
+	/**
+	 * Return a list of Files in the given directory with any of the given extensions.
+	 * @param inputDirectory
+	 * @param inputExtensions
+	 * @return non-null, but perhaps empty
+	 */
 	public List< File > getFilesInDirectoryByExtension( final String inputDirectory, final String[] inputExtensions )
 	{
 		List< File > filesInDirectory = new ArrayList< >() ;
