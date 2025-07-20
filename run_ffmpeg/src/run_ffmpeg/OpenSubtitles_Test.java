@@ -1,10 +1,15 @@
 package run_ffmpeg;
 
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -58,19 +63,111 @@ public class OpenSubtitles_Test
 
 	protected void runTests()
 	{
-		final String imdbID = "1276201" ;
-		final OpenSubtitles_SubtitlesResponse subtitlesResponse = searchForSubtitlesByIMDBID( imdbID ) ;
+		final String showDirectoryPath = "\\\\skywalker\\Media\\To_OCR\\Boardwalk Empire (2010) {imdb-0979432}" ;
+		
+		// Note that the imdb ID must remain a string since the preceding 0 is important.
+		final String imdbShowIDString = getIMDBShowIDFromPath( showDirectoryPath ) ;
+		if( null == imdbShowIDString )
+		{
+			return ;
+		}
+		
+		try
+		{
+			// Iterate on each season
+			final File showDirectoryFile = new File( showDirectoryPath ) ;
+			final File[] fileList = showDirectoryFile.listFiles() ;
+			for( File theFile : fileList )
+			{
+				if( !theFile.isDirectory() )
+				{
+					continue ;
+				}
+				final Pattern seasonPattern = Pattern.compile( ".*\\Season (?<seasonNumber>[\\d]+)" ) ;
+				final Matcher seasonMatcher = seasonPattern.matcher( theFile.getAbsolutePath() ) ;
+				if( !seasonMatcher.find() )
+				{
+					log.warning( "Unable to find season in file path: " + theFile.getAbsolutePath() ) ;
+					continue ;
+				}
+				final String seasonNumberString = seasonMatcher.group( "seasonNumber" ) ;
+				final Integer seasonNumberInteger = Integer.valueOf( seasonNumberString ) ;
+				log.info( "Found season number " + seasonNumberInteger.intValue() + " for directory " + theFile.getAbsolutePath() ) ;
+				
+				// Read all information I can about this season
+				// totalNumPages will be adjusted after reading the first page
+				int totalNumPages = 2 ;
+				List< OpenSubtitles_Data > seasonData = new ArrayList< OpenSubtitles_Data >() ;
+				for( int pageNumber = 1 ; pageNumber <= totalNumPages ; ++pageNumber )
+				{
+					log.info( "Getting page " + pageNumber ) ;
+					final OpenSubtitles_SubtitlesResponse stResponse = searchForSubtitlesByIMDBID( imdbShowIDString,
+							seasonNumberString,
+							"", // episode number
+							pageNumber ) ;
+					if( null == stResponse )
+					{
+						log.warning( "null stResponse for " + showDirectoryPath + " page " + pageNumber ) ;
+						totalNumPages = -1 ; // Let the code outside of the loop know the algorithm failed.
+						break ;
+					}
+					seasonData.addAll( stResponse.getData() ) ;
+					
+					// Update total number of pages
+					totalNumPages = stResponse.getTotalPages().intValue() ;
+				}
+				log.info( "Got " + totalNumPages + " page(s) of data for " + showDirectoryPath ) ;
+				
+			}
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
+		}
+
+		//		getShowSubtitles( )
+
+		//		final String imdbEpisodeID = "1276201" ;
+		//		findEpisodeSubtitles( imdbEpisodeID ) ;
+
+	}
+
+	public String getIMDBShowIDFromPath( final String showDirectoryPath )
+	{
+		assert( showDirectoryPath != null ) ;
+
+		final Pattern pathPattern = Pattern.compile( ".*\\{imdb-(?<imdbShowID>[\\d]+)\\}.*" ) ;
+		final Matcher pathMatcher = pathPattern.matcher( showDirectoryPath ) ;
+		if( !pathMatcher.find() )
+		{
+			log.warning( "Unable to find IMDB id in path: " + showDirectoryPath ) ;
+			return null ;
+		}
+		// PC: Got a valid string for IMDB id
+		final String imdbShowID = pathMatcher.group( "imdbShowID" ) ;
+		log.info( "imdbShowID: " + imdbShowID ) ;
+
+		return imdbShowID ;
+	}
+
+	public void findEpisodeSubtitles( final String imdbEpisodeIDString )
+	{
+		final OpenSubtitles_SubtitlesResponse subtitlesResponse = searchForSubtitlesByIMDBID( "", // show ID
+				"", // season number
+				imdbEpisodeIDString,
+				1 // page number
+				) ;
 		if( null == subtitlesResponse )
 		{
-			log.warning( "null subtitlesResponse searching for imdb id " + imdbID ) ;
+			log.warning( "null subtitlesResponse searching for imdb id " + imdbEpisodeIDString ) ;
 		}
 		if( subtitlesResponse.getData().isEmpty() )
 		{
-			log.warning( "Found empty data for imdb id " + imdbID ) ;
+			log.warning( "Found empty data for imdb id " + imdbEpisodeIDString ) ;
 			return ;
 		}
 		// PC: subtitlesResponse is non-null and non-empty
-		
+
 		// Find the subtitles with the highest download count
 		// Note that OpenSubtitles_Attributes.downloadCount can be null
 		int highestDLCount = -1 ;
@@ -91,15 +188,41 @@ public class OpenSubtitles_Test
 		log.info( "Found highest dl count data: " + highestDLCountData.toString() ) ;
 	}
 
-	public OpenSubtitles_SubtitlesResponse searchForSubtitlesByIMDBID( final String idString )
+	/**
+	 * Return data for an imdb show or an episode. If the episode id string is empty then the show information will be returned. The show id string can
+	 *  be empty or filled and it should work appropriately.
+	 * @param imdbShowIDString The imdb id of the show; can be empty but not null
+	 * @param seasonNumber The number of the season; can be empty but not null
+	 * @param imdbEpisodeIDString The imdb episode id; can be empty but not null.
+	 * @param pageNumber Minimum value of 1
+	 * @return
+	 */
+	public OpenSubtitles_SubtitlesResponse searchForSubtitlesByIMDBID( final String imdbShowIDString,
+			final String seasonNumber,
+			final String imdbEpisodeIDString,
+			final int pageNumber )
 	{
-		assert( idString != null ) ;
-		assert( !idString.isBlank() ) ;
+		assert( imdbShowIDString != null ) ;
+		assert( seasonNumber != null ) ;
+		assert( imdbEpisodeIDString != null ) ;
+		
+		String uri = getBaseURI() + "/subtitles?languages=en" ;
+		if( !imdbShowIDString.isBlank() )
+		{
+			uri += "&parent_imdb_id=" + imdbShowIDString ;
+		}
+		if( !seasonNumber.isBlank() )
+		{
+			// Strip off the leading 0 for seasons less than 10
+			final Integer seasonNumberInteger = Integer.valueOf( seasonNumber ) ;
+			uri += "&season_number=" + seasonNumberInteger.intValue() ;
+		}
+		if( !imdbEpisodeIDString.isBlank() )
+		{
+			uri += "&imdb_id=" + imdbEpisodeIDString ;
+		}
+		uri += "&page=" + pageNumber ;
 
-		final String uri = getBaseURI()
-				+ "/subtitles?imdb_id="
-				+ idString
-				+ "&languages=en" ;
 		final String responseBody = httpGet( uri ) ;
 		if( responseBody.isEmpty() )
 		{
