@@ -51,8 +51,8 @@ public class UpgradeMKV_TranscodeFiles
 	public void execute()
 	{
 		common.setTestMode( false ) ;
-		boolean doSmallestFirst = false ;
-		boolean doLargestFirst = true ;
+		boolean doSmallestFirst = true ;
+		boolean doLargestFirst = false ;
 
 		MongoCollection< FFmpeg_ProbeResult > transcodeDatabaseJobHandle = masMDB.getAction_TranscodeMKVFileInfoCollection() ;
 		while( shouldKeepRunning() )

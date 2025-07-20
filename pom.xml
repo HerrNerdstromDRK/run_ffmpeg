@@ -18,6 +18,18 @@
 			<artifactId>guava</artifactId>
 			<version>33.4.8-jre</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/jakarta.json.bind/jakarta.json.bind-api -->
+		<dependency>
+		    <groupId>jakarta.json.bind</groupId>
+		    <artifactId>jakarta.json.bind-api</artifactId>
+		    <version>3.0.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/javax.annotation/javax.annotation-api -->
+		<dependency>
+		    <groupId>javax.annotation</groupId>
+		    <artifactId>javax.annotation-api</artifactId>
+		    <version>1.3.2</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-lang3 -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
