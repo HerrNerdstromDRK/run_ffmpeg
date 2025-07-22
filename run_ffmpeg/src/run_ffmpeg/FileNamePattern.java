@@ -46,6 +46,7 @@ public class FileNamePattern
 		final String[] inputFileNamesWithPaths = {
 				"\\\\skywalker\\Media\\Movies\\Zero Dark Thirty (2012)\\Targeting Jessica Chastain-behindthescenes.mkv",
 				"\\\\skywalker\\Media\\Movies\\Zero Dark Thirty (2012)\\Zero Dark Thirty (2012).mkv",
+				"\\\\skywalker\\Media\\To_OCR\\Boardwalk Empire (2010) {imdb-0979432}\\Season 02\\BOARDWALK_EMPIRE_S2_DISC1-D3_t04.mkv",
 				"\\\\skywalker\\Media\\TV_Shows\\24 (2001) {tvdb-76290}\\Season 03\\24 - S03E03 - Day 3 3PM 4PM.mkv",
 				"\\\\skywalker\\Media\\TV_Shows\\The Expanse (2015) {tvdb-280619}\\Season 04\\The Expanse - S04E112 - A New World On Mars.mkv",
 				"\\\\skywalker\\Media\\Other_Videos\\Dexter Videos - Baby\\Dexter - Fathers Day 2009.mp4"
@@ -159,6 +160,58 @@ public class FileNamePattern
 		return extraType ;
 	}
 
+	public static String getIMDBShowID( final String fileNameWithPath )
+	{
+		assert( fileNameWithPath != null ) ;
+		return getIMDBShowID( new File( fileNameWithPath ) ) ;
+	}
+	
+	public static String getIMDBShowID( final File theFile )
+	{
+		assert( theFile != null ) ;
+
+		final Pattern pathPattern = Pattern.compile( ".*\\{imdb-(?<imdbShowID>[\\d]+)\\}.*" ) ;
+		final Matcher pathMatcher = pathPattern.matcher( theFile.getAbsolutePath() ) ;
+		if( !pathMatcher.find() )
+		{
+			return null ;
+		}
+		// PC: Got a valid string for IMDB id
+		final String imdbShowID = pathMatcher.group( "imdbShowID" ) ;
+		return imdbShowID ;
+	}
+	
+	public static String getTVDBShowID( final File theFile )
+	{
+		assert( theFile != null ) ;
+
+		final Pattern pathPattern = Pattern.compile( ".*\\{tvdb-(?<tvdbShowID>[\\d]+)\\}.*" ) ;
+		final Matcher pathMatcher = pathPattern.matcher( theFile.getAbsolutePath() ) ;
+		if( !pathMatcher.find() )
+		{
+			return null ;
+		}
+		// PC: Got a valid string for TVDB id
+		final String imdbShowID = pathMatcher.group( "tvdbShowID" ) ;
+		return imdbShowID ;
+	}
+	
+	public static int getShowSeasonNumber( final File theFile )
+	{
+		assert( theFile != null ) ;
+		
+		int seasonNumber = -1 ;
+		final Pattern seasonNumberPattern = Pattern.compile( ".*Season (?<seasonNumber>[\\d]+).*" ) ;
+		final Matcher seasonNumberMatcher = seasonNumberPattern.matcher( theFile.getAbsolutePath() ) ;
+		if( seasonNumberMatcher.find() )
+		{
+			final String seasonNumberString = seasonNumberMatcher.group( "seasonNumber" ) ;
+			final Integer seasonNumberInteger = Integer.valueOf( seasonNumberString ) ;
+			seasonNumber = seasonNumberInteger.intValue() ;
+		}
+		return seasonNumber ;
+	}
+	
 	public String getMovieName()
 	{
 		return movieName ;

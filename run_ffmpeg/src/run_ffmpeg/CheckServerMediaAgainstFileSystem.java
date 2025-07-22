@@ -31,7 +31,7 @@ public class CheckServerMediaAgainstFileSystem
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_check_server_media_against_file_system.txt" ;	
-	private static final String stopFileName = "C:\\Temp\\check_server_media_against_file_system.txt" ;
+	private static final String stopFileName = "C:\\Temp\\stop_check_server_media_against_file_system.txt" ;
 
 	private static final String plexIPString = "192.168.1.132" ;
 	private static final String plexPortString = "32400" ;

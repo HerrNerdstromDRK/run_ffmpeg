@@ -89,7 +89,7 @@ public class ExtractAndOCRSubtitles extends run_ffmpegControllerThreadTemplate< 
 //		extractSubtitles.addFoldersToExtractWithNewThread( Common.getAllMediaFolders() ) ;
 //		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToTVShows() ) ;
 //		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToMovies() ) ;
-		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToOCRInputDirectory() ) ;
+		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToToOCR() ) ;
 		extractSubtitles.addFoldersToExtractWithNewThread( "E:\\To OCR" ) ;
 
 		// Also pass the list of folders to the ocr object since those folders may have existing .sup files to ocr

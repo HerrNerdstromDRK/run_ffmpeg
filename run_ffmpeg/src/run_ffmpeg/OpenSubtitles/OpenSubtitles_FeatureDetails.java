@@ -1,40 +1,23 @@
 package run_ffmpeg.OpenSubtitles;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class OpenSubtitles_FeatureDetails {
 
-	private Integer featureId;
-	private String featureType;
+	private Integer feature_id;
+	private String feature_type;
 	private Integer year;
 	private String title;
-	private String movieName;
-	private Integer imdbId;
-	private Integer tmdbId;
-	private Integer seasonNumber;
-	private Integer episodeNumber;
-	private Integer parentImdbId;
-	private String parentTitle;
-	private Integer parentTmdbId;
-	private Integer parentFeatureId;
-	private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
-
-	public Integer getFeatureId() {
-		return featureId;
-	}
-
-	public void setFeatureId(Integer featureId) {
-		this.featureId = featureId;
-	}
-
-	public String getFeatureType() {
-		return featureType;
-	}
-
-	public void setFeatureType(String featureType) {
-		this.featureType = featureType;
-	}
+	private String movie_name;
+	private Integer imdb_id;
+	private Integer tmdb_id;
+	private Integer season_number;
+	private Integer episode_number;
+	private Integer parent_imdb_id;
+	private String parent_title;
+	private Integer parent_tmdb_id;
+	private Integer parent_feature_id;
 
 	public Integer getYear() {
 		return year;
@@ -52,152 +35,101 @@ public class OpenSubtitles_FeatureDetails {
 		this.title = title;
 	}
 
-	public String getMovieName() {
-		return movieName;
+	public Integer getFeature_id() {
+		return feature_id;
 	}
 
-	public void setMovieName(String movieName) {
-		this.movieName = movieName;
+	public void setFeature_id(Integer feature_id) {
+		this.feature_id = feature_id;
 	}
 
-	public Integer getImdbId() {
-		return imdbId;
+	public String getFeature_type() {
+		return feature_type;
 	}
 
-	public void setImdbId(Integer imdbId) {
-		this.imdbId = imdbId;
+	public void setFeature_type(String feature_type) {
+		this.feature_type = feature_type;
 	}
 
-	public Integer getTmdbId() {
-		return tmdbId;
+	public String getMovie_name() {
+		return movie_name;
 	}
 
-	public void setTmdbId(Integer tmdbId) {
-		this.tmdbId = tmdbId;
+	public void setMovie_name(String movie_name) {
+		this.movie_name = movie_name;
 	}
 
-	public Integer getSeasonNumber() {
-		return seasonNumber;
+	public Integer getImdb_id() {
+		return imdb_id;
 	}
 
-	public void setSeasonNumber(Integer seasonNumber) {
-		this.seasonNumber = seasonNumber;
+	public void setImdb_id(Integer imdb_id) {
+		this.imdb_id = imdb_id;
 	}
 
-	public Integer getEpisodeNumber() {
-		return episodeNumber;
+	public Integer getTmdb_id() {
+		return tmdb_id;
 	}
 
-	public void setEpisodeNumber(Integer episodeNumber) {
-		this.episodeNumber = episodeNumber;
+	public void setTmdb_id(Integer tmdb_id) {
+		this.tmdb_id = tmdb_id;
 	}
 
-	public Integer getParentImdbId() {
-		return parentImdbId;
+	public Integer getSeason_number() {
+		return season_number;
 	}
 
-	public void setParentImdbId(Integer parentImdbId) {
-		this.parentImdbId = parentImdbId;
+	public void setSeason_number(Integer season_number) {
+		this.season_number = season_number;
 	}
 
-	public String getParentTitle() {
-		return parentTitle;
+	public Integer getEpisode_number() {
+		return episode_number;
 	}
 
-	public void setParentTitle(String parentTitle) {
-		this.parentTitle = parentTitle;
+	public void setEpisode_number(Integer episode_number) {
+		this.episode_number = episode_number;
 	}
 
-	public Integer getParentTmdbId() {
-		return parentTmdbId;
+	public Integer getParent_imdb_id() {
+		return parent_imdb_id;
 	}
 
-	public void setParentTmdbId(Integer parentTmdbId) {
-		this.parentTmdbId = parentTmdbId;
+	public void setParent_imdb_id(Integer parent_imdb_id) {
+		this.parent_imdb_id = parent_imdb_id;
 	}
 
-	public Integer getParentFeatureId() {
-		return parentFeatureId;
+	public String getParent_title() {
+		return parent_title;
 	}
 
-	public void setParentFeatureId(Integer parentFeatureId) {
-		this.parentFeatureId = parentFeatureId;
+	public void setParent_title(String parent_title) {
+		this.parent_title = parent_title;
 	}
 
-	public Map<String, Object> getAdditionalProperties() {
-		return this.additionalProperties;
+	public Integer getParent_tmdb_id() {
+		return parent_tmdb_id;
 	}
 
-	public void setAdditionalProperty(String name, Object value) {
-		this.additionalProperties.put(name, value);
+	public void setParent_tmdb_id(Integer parent_tmdb_id) {
+		this.parent_tmdb_id = parent_tmdb_id;
+	}
+
+	public Integer getParent_feature_id() {
+		return parent_feature_id;
+	}
+
+	public void setParent_feature_id(Integer parent_feature_id) {
+		this.parent_feature_id = parent_feature_id;
 	}
 
 	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(OpenSubtitles_FeatureDetails.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
-		sb.append("featureId");
-		sb.append('=');
-		sb.append(((this.featureId == null)?"<null>":this.featureId));
-		sb.append(',');
-		sb.append("featureType");
-		sb.append('=');
-		sb.append(((this.featureType == null)?"<null>":this.featureType));
-		sb.append(',');
-		sb.append("year");
-		sb.append('=');
-		sb.append(((this.year == null)?"<null>":this.year));
-		sb.append(',');
-		sb.append("title");
-		sb.append('=');
-		sb.append(((this.title == null)?"<null>":this.title));
-		sb.append(',');
-		sb.append("movieName");
-		sb.append('=');
-		sb.append(((this.movieName == null)?"<null>":this.movieName));
-		sb.append(',');
-		sb.append("imdbId");
-		sb.append('=');
-		sb.append(((this.imdbId == null)?"<null>":this.imdbId));
-		sb.append(',');
-		sb.append("tmdbId");
-		sb.append('=');
-		sb.append(((this.tmdbId == null)?"<null>":this.tmdbId));
-		sb.append(',');
-		sb.append("seasonNumber");
-		sb.append('=');
-		sb.append(((this.seasonNumber == null)?"<null>":this.seasonNumber));
-		sb.append(',');
-		sb.append("episodeNumber");
-		sb.append('=');
-		sb.append(((this.episodeNumber == null)?"<null>":this.episodeNumber));
-		sb.append(',');
-		sb.append("parentImdbId");
-		sb.append('=');
-		sb.append(((this.parentImdbId == null)?"<null>":this.parentImdbId));
-		sb.append(',');
-		sb.append("parentTitle");
-		sb.append('=');
-		sb.append(((this.parentTitle == null)?"<null>":this.parentTitle));
-		sb.append(',');
-		sb.append("parentTmdbId");
-		sb.append('=');
-		sb.append(((this.parentTmdbId == null)?"<null>":this.parentTmdbId));
-		sb.append(',');
-		sb.append("parentFeatureId");
-		sb.append('=');
-		sb.append(((this.parentFeatureId == null)?"<null>":this.parentFeatureId));
-		sb.append(',');
-		sb.append("additionalProperties");
-		sb.append('=');
-		sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
-		sb.append(',');
-		if (sb.charAt((sb.length()- 1)) == ',') {
-			sb.setCharAt((sb.length()- 1), ']');
-		} else {
-			sb.append(']');
-		}
-		return sb.toString();
+	public String toString()
+	{
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+		final String json = gson.toJson( this ) ;
+		return json ;
 	}
-
 }

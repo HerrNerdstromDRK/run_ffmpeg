@@ -79,7 +79,10 @@ public class Common
 	protected static final String[] videoExtensions =
 		{
 				"mkv",
-				"mp4"
+				"mp4",
+				"MKV",
+				"MP4",
+				"MOV"
 		} ;
 
 	/// Paths to external applications
@@ -108,7 +111,6 @@ public class Common
 	private static final String pathToOtherVideos = pathToMediaFolderBase + pathSeparator + otherVideosFolderName ;
 	private static final String pathToToOCR = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
 	private static final String pathToTVShows = pathToMediaFolderBase + pathSeparator + tvShowsFolderName ;
-	private static final String pathToOCRInputDirectory = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
 	private static final String pathToTmpDir = pathToMediaFolderBase + pathSeparator + "Test" ;
 	private static final String pathToDeleteDir = pathToMediaFolderBase + pathSeparator + "To_Delete" ;
 
@@ -689,30 +691,6 @@ public class Common
 		return pathSeparator ;
 	}
 
-	/**
-	 * Return the season string for a given file.
-	 * For example, for the inputFile of "\\\\yoda\\MP4\\TV Shows\\Scrubs\\Season 06\\Scrubs - S06E01 - episode name.mkv"
-	 *  return "Season 06"
-	 * If this is a movie file, and has no season, just return the empty String.
-	 * @param inputFile Is a file, not a path.
-	 * @return
-	 */
-	public static String getSeasonString( final File inputFile )
-	{
-		assert( inputFile != null ) ;
-		assert( inputFile.getAbsolutePath().contains( "." ) ) ;
-
-		if( !inputFile.getAbsolutePath().contains( "Season " ) )
-		{
-			return "" ;
-		}
-		// Post condition: TV Show with "Season XX" name
-
-		// Get to the segment with the season string
-		String seasonString = inputFile.getParentFile().getName() ;
-		return seasonString ;
-	}
-
 	public List< File > getSubDirectories( final File directoryPathFile )
 	{
 		File[] directories = directoryPathFile.listFiles( File::isDirectory ) ;
@@ -1097,11 +1075,6 @@ public class Common
 		}
 		retMe += "}" ;
 		return retMe ;
-	}
-
-	public static String getPathToOCRInputDirectory()
-	{
-		return pathToOCRInputDirectory ;
 	}
 
 	public static String getTVPathCheckString()

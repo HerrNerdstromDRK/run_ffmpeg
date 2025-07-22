@@ -1,14 +1,13 @@
 package run_ffmpeg.OpenSubtitles;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class OpenSubtitles_RelatedLink
 {
 	private String label;
 	private String url;
-	private String imgUrl;
-	private Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
+	private String img_url;
 
 	public String getLabel() {
 		return label;
@@ -26,48 +25,22 @@ public class OpenSubtitles_RelatedLink
 		this.url = url;
 	}
 
-	public String getImgUrl() {
-		return imgUrl;
-	}
-
-	public void setImgUrl(String imgUrl) {
-		this.imgUrl = imgUrl;
-	}
-
-	public Map<String, Object> getAdditionalProperties() {
-		return this.additionalProperties;
-	}
-
-	public void setAdditionalProperty(String name, Object value) {
-		this.additionalProperties.put(name, value);
-	}
-
 	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		sb.append(OpenSubtitles_RelatedLink.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
-		sb.append("label");
-		sb.append('=');
-		sb.append(((this.label == null)?"<null>":this.label));
-		sb.append(',');
-		sb.append("url");
-		sb.append('=');
-		sb.append(((this.url == null)?"<null>":this.url));
-		sb.append(',');
-		sb.append("imgUrl");
-		sb.append('=');
-		sb.append(((this.imgUrl == null)?"<null>":this.imgUrl));
-		sb.append(',');
-		sb.append("additionalProperties");
-		sb.append('=');
-		sb.append(((this.additionalProperties == null)?"<null>":this.additionalProperties));
-		sb.append(',');
-		if (sb.charAt((sb.length()- 1)) == ',') {
-			sb.setCharAt((sb.length()- 1), ']');
-		} else {
-			sb.append(']');
-		}
-		return sb.toString();
+	public String toString()
+	{
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+		final String json = gson.toJson( this ) ;
+		return json ;
+	}
+
+	public String getImg_url() {
+		return img_url;
+	}
+
+	public void setImg_url(String img_url) {
+		this.img_url = img_url;
 	}
 
 }

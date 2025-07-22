@@ -155,7 +155,7 @@ public class ExtractSubtitles extends run_ffmpegControllerThreadTemplate< Extrac
 			}
 			else
 			{
-				addFoldersToExtractWithNewThread( Arrays.asList( Common.getPathToOCRInputDirectory() ) ) ;
+				addFoldersToExtractWithNewThread( Arrays.asList( Common.getPathToToOCR() ) ) ;
 			}
 		}
 	}

@@ -1,8 +1,6 @@
 package run_ffmpeg.OpenSubtitles;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -36,8 +34,6 @@ public class OpenSubtitles_Attributes
 	private String url;
 	private List<OpenSubtitles_RelatedLink> related_links;
 	private List<OpenSubtitles_File> files;
-
-	private transient Map<String, Object> additionalProperties = new LinkedHashMap<String, Object>();
 
 	@JsonbProperty("language")
 	public String getLanguage() {
@@ -147,14 +143,6 @@ public class OpenSubtitles_Attributes
 	@JsonbProperty("files")
 	public void setFiles(List<OpenSubtitles_File> files) {
 		this.files = files;
-	}
-
-	public Map<String, Object> getAdditionalProperties() {
-		return this.additionalProperties;
-	}
-
-	public void setAdditionalProperty(String name, Object value) {
-		this.additionalProperties.put(name, value);
 	}
 
 	@Override
@@ -277,9 +265,5 @@ public class OpenSubtitles_Attributes
 
 	public void setRelated_links(List<OpenSubtitles_RelatedLink> related_links) {
 		this.related_links = related_links;
-	}
-
-	public void setAdditionalProperties(Map<String, Object> additionalProperties) {
-		this.additionalProperties = additionalProperties;
 	}
 }
