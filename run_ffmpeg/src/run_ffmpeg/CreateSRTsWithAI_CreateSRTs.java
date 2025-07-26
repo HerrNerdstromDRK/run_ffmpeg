@@ -48,9 +48,6 @@ public class CreateSRTsWithAI_CreateSRTs
 			}
 			
 			processWorkObject( theProbeResult ) ;
-			
-			// For testing -- just do one
-			break ;
 		}
 	}
 	
