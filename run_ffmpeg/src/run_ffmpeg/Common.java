@@ -75,7 +75,7 @@ public class Common
 				"c:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe",
 				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
-	
+
 	protected static final String[] videoExtensions =
 		{
 				"mkv",
@@ -176,7 +176,7 @@ public class Common
 		{
 			log.warning( "Unable to find SubtitleEdit" ) ;
 		}
-		
+
 		if( !getIsWindows() )
 		{
 			// Linux naming
@@ -299,6 +299,82 @@ public class Common
 			}
 		}
 		return retMe ;
+	}
+
+	/**
+	 * Extract all audio from the inputFile and place it, as a file, at outputFile.
+	 * @param inputFile
+	 * @param outputFile
+	 * @return
+	 */
+	public boolean extractAudioFromAVFile( final File inputFile, final File outputFile )
+	{
+		return extractAudioFromAVFile( inputFile, outputFile, 0, 0, 0, -1, -1, -1 ) ;
+	}
+	
+	/**
+	 * Extract the audio from a given media inputFile and place it at the outputFile with given start and duration.
+	 * Passing negative values for the durations will result in the entire audio stream being extracted.
+	 * @param inputFile
+	 * @param outputFile
+	 * @param startHours
+	 * @param startMinutes
+	 * @param startSeconds
+	 * @param endHours
+	 * @param endMinutes
+	 * @param endSeconds
+	 * @return
+	 */
+	public boolean extractAudioFromAVFile( final File inputFile, final File outputFile,
+			final int startHours, final int startMinutes, final int startSeconds,
+			final int durationHours, final int durationMinutes, final int durationSeconds )
+	{
+		assert( inputFile != null ) ;
+		assert( outputFile != null ) ;
+
+		// Extract just the audio
+		// The new versions of OpenAI transcription only support mp3, mp4, mpeg, mpga, m4a, wav, and webm
+		// For now, let's use .wav
+		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder< String >() ;
+
+		// Setup ffmpeg basic options
+		ffmpegCommand.add( getPathToFFmpeg() ) ;
+
+		// Overwrite existing files
+		ffmpegCommand.add( "-y" ) ;
+
+		// Not exactly sure what these do but it seems to help reduce errors on some files.
+		//			ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
+		//			ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
+
+		// Include source file
+		ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
+
+		if( (durationHours != -1) && (durationMinutes != -1) && (durationSeconds != -1) )
+		{
+			final String startTime = String.format( "%02d:%02d:%02d", startHours, startMinutes, startSeconds ) ;
+			final String duration = String.format( "%02d:%02d:%02d", durationHours, durationMinutes, durationSeconds ) ;
+
+			ffmpegCommand.add( "-ss", startTime ) ; // start time
+			ffmpegCommand.add( "-t", duration ) ; // duration
+		}
+		ffmpegCommand.add( "-vn" ) ; // disable video
+		ffmpegCommand.add( "-sn" ) ; // disable subtitles
+		ffmpegCommand.add( "-dn" ) ; // disable data
+		ffmpegCommand.add( "-acodec", "pcm_s16le" ) ;
+		ffmpegCommand.add( "-ar", "16000" ) ;
+		ffmpegCommand.add( "-ac", "1" ) ;
+		ffmpegCommand.add( "-y" ) ; // overwrite
+		ffmpegCommand.add( outputFile.getAbsolutePath() ) ;
+
+		log.info( toStringForCommandExecution( ffmpegCommand.build() ) ) ;
+		// Only execute the conversion if testMode is false
+		boolean executeSuccess = getTestMode() ? true : executeCommand( ffmpegCommand ) ;
+		if( !executeSuccess )
+		{
+			log.warning( "Error in execute command" ) ;
+		}
+		return executeSuccess ;
 	}
 
 	/**
@@ -591,7 +667,7 @@ public class Common
 		final String extension = fileNameWithExtension.substring( fileNameWithExtension.length() - 3 ) ;
 		return extension ;
 	}
-	
+
 	public static String getFileNameWithoutExtension( final File inputFile )
 	{
 		final String fileName = inputFile.getName() ;
@@ -599,7 +675,7 @@ public class Common
 		final String fileNameWithoutExtension = fileName.replace( "." + extension, "" ) ;
 		return fileNameWithoutExtension ;
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -611,7 +687,7 @@ public class Common
 		assert( inputDirectoryFile != null ) ;
 		return getFilesInDirectoryByExtension( inputDirectoryFile.getAbsolutePath(), inputExtensions ) ;
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -623,7 +699,7 @@ public class Common
 		assert( inputDirectoryFile != null ) ;
 		return getFilesInDirectoryByExtension( inputDirectoryFile.getAbsolutePath(), inputExtensions ) ;
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -709,7 +785,7 @@ public class Common
 	{
 		return getSubDirectories( new File( directoryPath ) ) ;
 	}
-	
+
 	public static String[] getVideoExtensions()
 	{
 		return videoExtensions ;
@@ -1087,10 +1163,10 @@ public class Common
 		List< String > allMediaFolders = new ArrayList< String >() ;
 		allMediaFolders.add( getPathToMovies() ) ;
 		allMediaFolders.add( getPathToTVShows() ) ;
-//		allMediaFolders.add( getPathToOtherVideos() ) ;
+		//		allMediaFolders.add( getPathToOtherVideos() ) ;
 		return allMediaFolders ;
 	}
-	
+
 	public static String getMoviesFolderName()
 	{
 		return moviesFolderName;
@@ -1131,24 +1207,24 @@ public class Common
 	{
 		return pathToOtherVideos ;
 	}
-	
+
 	public static String getPathToToOCR()
 	{
 		return pathToToOCR ;
 	}
-	
+
 	public static String getPathToDeleteDir()
 	{
 		return pathToDeleteDir ;
 	}
-	
+
 	public String toString()
 	{
 		Gson loginRequestGson = new Gson() ;
 		final String loginRequestJson = loginRequestGson.toJson( this ) ;
 		return loginRequestJson.toString() ;
 	}
-	
+
 	public static void log_info( final String message, Logger log, final List<? extends Object > theList )
 	{
 		log.info( message ) ;
@@ -1157,5 +1233,5 @@ public class Common
 			log.info( theObject.toString() ) ;
 		}
 	}
-	
+
 }

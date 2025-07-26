@@ -97,11 +97,11 @@ public class OpenSubtitles
 			//			{
 			//				log.info( theData.toString() ) ;
 			//			}
-			List< String > subtitleIDsToDownload = findBestSubtitleFileIDsToDownloadForSeason( seasonSubtitleData ) ;
+			List< OpenSubtitles_Data > subtitleIDsToDownload = findBestSubtitleFileIDsToDownloadForSeason( seasonSubtitleData ) ;
 			if( !subtitleIDsToDownload.isEmpty() )
 			{
 				//final File subtitleFile = 
-						downloadSubtitleFileByID( subtitleIDsToDownload.getFirst(), theFile ) ;
+						downloadSubtitleFileByID( subtitleIDsToDownload.getFirst().getAttributes().getFiles().getFirst().getFile_id().toString(), theFile ) ;
 			}
 		}
 	}
@@ -178,12 +178,37 @@ public class OpenSubtitles
 		return outputFile ;
 	}
 
+	public List< File > downloadSubtitlesForShow( final String imdbShowIDString, final int seasonNumber, final File outputDir )
+	{
+		assert( imdbShowIDString != null ) ;
+		assert( outputDir != null ) ;
+		
+		// First, get all subtitle information for this show and season
+		final List< OpenSubtitles_Data > allSubtitlesForSeason = getSubtitlesForShowSeason( imdbShowIDString, seasonNumber ) ;
+		assert( allSubtitlesForSeason != null ) ;
+		
+		// Next, find the best subtitles for each episode
+		final List< OpenSubtitles_Data > subtitleDataToDownload = findBestSubtitleFileIDsToDownloadForSeason( allSubtitlesForSeason ) ;
+		assert( subtitleDataToDownload != null ) ;
+		
+		List< File > downloadedSubtitleFiles = new ArrayList< File >() ;
+		for( OpenSubtitles_Data subtitleData : subtitleDataToDownload )
+		{
+			File subtitleFile = downloadSubtitleFileByID( subtitleData.getAttributes().getFiles().getFirst().getFile_id().toString(), outputDir ) ;
+			if( subtitleFile != null )
+			{
+				downloadedSubtitleFiles.add( subtitleFile ) ;
+			}
+		}
+		return downloadedSubtitleFiles ;
+	}
+
 	/**
 	 * Return the file IDs of the subtitle files to download.
 	 * @param seasonSubtitleData
 	 * @return
 	 */
-	public List< String > findBestSubtitleFileIDsToDownloadForSeason( final List< OpenSubtitles_Data > seasonSubtitleData )
+	public List< OpenSubtitles_Data > findBestSubtitleFileIDsToDownloadForSeason( final List< OpenSubtitles_Data > seasonSubtitleData )
 	{
 		assert( seasonSubtitleData != null ) ;
 
@@ -201,7 +226,7 @@ public class OpenSubtitles
 		log.info( "Got episode numbers: " + episodeNumbers.toString() ) ;
 
 		// Find the subtitle with highest download count for each episode
-		List< String > subtitleIDsToDownload = new ArrayList< String >() ;
+		List< OpenSubtitles_Data > subtitleIDsToDownload = new ArrayList< OpenSubtitles_Data >() ;
 		for( Integer episodeNumberInteger : episodeNumbers )
 		{
 			subtitleIDsToDownload.add( getSubtitleIDWithHighestDownloadCountForEpisode( seasonSubtitleData, episodeNumberInteger.intValue() ) ) ;
@@ -209,10 +234,10 @@ public class OpenSubtitles
 		return subtitleIDsToDownload ;
 	}
 
-	public String getSubtitleIDWithHighestDownloadCountForEpisode( final List< OpenSubtitles_Data > seasonSubtitleData, final int episodeNumber )
+	public OpenSubtitles_Data getSubtitleIDWithHighestDownloadCountForEpisode( final List< OpenSubtitles_Data > seasonSubtitleData, final int episodeNumber )
 	{
 		assert( seasonSubtitleData != null ) ;
-		String subtitleID = "" ;
+		OpenSubtitles_Data subtitleDataWithHighestDownloadCount = null ;
 
 		int highestDownloadCount = -1 ;
 		for( OpenSubtitles_Data theData : seasonSubtitleData )
@@ -261,14 +286,14 @@ public class OpenSubtitles
 			if( theData.getAttributes().getDownload_count().intValue() > highestDownloadCount )
 			{
 				// New highest download count for this episode.
-				subtitleID = theData.getAttributes().getFiles().getFirst().getFile_id().toString() ;
+				subtitleDataWithHighestDownloadCount = theData ;
 				highestDownloadCount = theData.getAttributes().getDownload_count() ;
 
-				log.fine( "Found new highest download count for episode " + episodeNumber + ": " + highestDownloadCount + "; subtitleID: " + subtitleID ) ;
+				log.fine( "Found new highest download count for episode " + episodeNumber + ": " + highestDownloadCount ) ;
 			}
 		}
 
-		return subtitleID ;
+		return subtitleDataWithHighestDownloadCount ;
 	}
 
 	public void getSubtitlesForShow( final String imdbShowIDString )

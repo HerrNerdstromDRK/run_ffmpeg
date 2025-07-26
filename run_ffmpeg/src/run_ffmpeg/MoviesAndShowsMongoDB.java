@@ -52,6 +52,7 @@ public class MoviesAndShowsMongoDB
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
 //	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
 	private final String action_TranscodeMKVFilesInfoCollectionName = "action_transcodemkvfiles" ;
+	private final String action_CreateSRTsWithAI = "action_createsrtswithai" ;
 //	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
 //	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
@@ -192,7 +193,6 @@ public class MoviesAndShowsMongoDB
 		return allProbeInfoInstances ;
 	}
 		
-
 	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
 	{	
 		log.fine( "Getting movieAndShowInfoCollectionName" )  ;
@@ -235,6 +235,21 @@ public class MoviesAndShowsMongoDB
 	{
 		log.info( "Dropping action_TranscodeMKVFilesInfoCollectionName" )  ;
 		getAction_TranscodeMKVFileInfoCollection().drop() ;
+	}
+	
+	public MongoCollection< FFmpeg_ProbeResult > getAction_CreateSRTsWithAICollection()
+	{	
+		log.fine( "Getting action_CreateSRTsWithAI" ) ;
+		MongoCollection< FFmpeg_ProbeResult > theCollection = persistentDatabaseHandle.getCollection(
+				action_CreateSRTsWithAI,
+				FFmpeg_ProbeResult.class ) ;
+		return theCollection ;
+	}
+
+	public void dropAction_CreateSRTsWithAICollection()
+	{
+		log.info( "Dropping action_CreateSRTsWithAI" )  ;
+		getAction_CreateSRTsWithAICollection().drop() ;
 	}
 
 //	public void dropJobRecord_ProbeFileInfoCollection()

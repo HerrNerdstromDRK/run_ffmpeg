@@ -100,6 +100,7 @@ public class ProbeDirectories extends run_ffmpegControllerThreadTemplate< ProbeD
 		foldersToProbe.add( Common.getPathToTVShows() ) ;
 		foldersToProbe.add( Common.getPathToOtherVideos() ) ;
 //		foldersToProbe.add( Common.getPathToTmpDir() ) ;
+//		foldersToProbe.add( "\\\\skywalker\\Media\\Movies\\American Gangster (2007)" ) ;
 		loadProbeInfoDatabase() ;
 
 		// Retrieve all of the files to probe.

@@ -51,7 +51,7 @@ public class OpenAIWhisper
 	}
 	
 	/**
-	 * Transcribe a .wav file to .srt.
+	 * Transcribe a .wav file to .srt. Places the srt in the source directory.
 	 * @param inputFile
 	 * @return
 	 */

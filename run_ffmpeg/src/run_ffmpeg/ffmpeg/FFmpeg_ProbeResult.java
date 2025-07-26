@@ -8,6 +8,7 @@ import org.bson.types.ObjectId;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Store the data returned from an ffprobe invocation.
@@ -115,7 +116,7 @@ public class FFmpeg_ProbeResult
 	/**
 	 * Return a copy of each stream matching the given codec_type.
 	 * @param searchType
-	 * @return
+	 * @return List of streams of the given type. Guaranteed to be non-null, but may be empty.
 	 */
 	public List< FFmpeg_Stream > getStreamsByCodecType( final String searchType )
 	{
@@ -256,10 +257,20 @@ public class FFmpeg_ProbeResult
 		return smallSubtitleStreams.booleanValue() ;
 	}
 
+	@Override
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+		final String json = gson.toJson( this ) ;
+		return json ;
 	}
+	
+//	public String toString()
+//	{
+//		Gson loginRequestGson = new Gson() ;
+//		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+//		return loginRequestJson.toString() ;
+//	}
 }

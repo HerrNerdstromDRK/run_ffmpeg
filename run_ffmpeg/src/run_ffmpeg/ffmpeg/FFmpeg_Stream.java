@@ -3,6 +3,7 @@ package run_ffmpeg.ffmpeg;
 import java.util.Map;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Data representing an ffmpeg/ffprobe stream.
@@ -78,10 +79,20 @@ public class FFmpeg_Stream
 		return tagValue ;
 	}
 
+	@Override
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+		final String json = gson.toJson( this ) ;
+		return json ;
 	}
+	
+//	public String toString()
+//	{
+//		Gson loginRequestGson = new Gson() ;
+//		final String loginRequestJson = loginRequestGson.toJson( this ) ;
+//		return loginRequestJson.toString() ;
+//	}
 }

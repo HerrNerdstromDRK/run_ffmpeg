@@ -8,6 +8,9 @@ import java.util.regex.Pattern;
 
 import com.google.common.collect.ImmutableList;
 
+import run_ffmpeg.OpenSubtitles.OpenSubtitles;
+import run_ffmpeg.OpenSubtitles.OpenSubtitles_Data;
+
 import java.io.File;
 
 public class RenameEpisodesBySRT
@@ -43,14 +46,15 @@ public class RenameEpisodesBySRT
 		final List< File > showDirectories = getShowDirectories( Common.getPathToToOCR() ) ;
 		for( File showDirectory : showDirectories )
 		{
+			final String showIMDBID = FileNamePattern.getIMDBShowID( showDirectory ) ;
 			final File[] seasonDirectories = showDirectory.listFiles() ;
 			for( File seasonDirectory : seasonDirectories )
 			{
-				final String showIMDBID = FileNamePattern.getIMDBShowID( seasonDirectory ) ;
+				final int seasonNumber = FileNamePattern.getShowSeasonNumber( seasonDirectory ) ;
 
 				final List< File > wavFiles = makeWavFilesForSeason( seasonDirectory ) ;
 				final List< File > generatedSRTFiles = makeSRTFilesForSeason( seasonDirectory, wavFiles ) ;
-				downloadSRTFilesForSeason( seasonDirectory ) ;
+				downloadSRTFilesForSeason( showIMDBID, seasonNumber, seasonDirectory ) ;
 				matchAndRenameShowFilesForSeason( seasonDirectory ) ;
 			}
 		}
@@ -67,10 +71,16 @@ public class RenameEpisodesBySRT
 			final String wavFileNameWithPath = Common.replaceExtension( avFile.getAbsolutePath(), "wav" ) ;
 			final File wavFile = new File( wavFileNameWithPath ) ;
 
-			if( extractAudioFromAVFile( avFile, wavFile ) )
+			// Only make the wav file if it is absent.
+			if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile ) )
 			{
-				wavFiles.add( wavFile ) ;
+				log.warning( "Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
+				continue ;
 			}
+
+			// wav file exists, either through extracting here or finding in the directory
+			// Either way, add it to the return list.
+			wavFiles.add( wavFile ) ;
 		}
 		return wavFiles ;
 	}
@@ -86,7 +96,14 @@ public class RenameEpisodesBySRT
 		// Generate an srt file for each file in wavFiles
 		for( File wavFile : wavFiles )
 		{
-			final File srtFile = whisper.transcribeToSRT( wavFile ) ;
+			final String srtFileNameWithPath = wavFile.getAbsolutePath().replace( ".wav", ".srt" ) ;
+			File srtFile = new File( srtFileNameWithPath ) ;
+			if( !srtFile.exists() )
+			{
+				// File does not already exist -- create it.
+				srtFile = whisper.transcribeToSRT( wavFile ) ;
+			}
+
 			if( srtFile != null )
 			{
 				generatedSRTFiles.add( srtFile ) ;
@@ -95,9 +112,42 @@ public class RenameEpisodesBySRT
 		return generatedSRTFiles ;
 	}
 
-	public void downloadSRTFilesForSeason( final File seasonDirectory )
+	public void downloadSRTFilesForSeason( final String imdbShowIDString, final int seasonNumber, final File outputDirectory )
 	{
+		OpenSubtitles openSubtitles = new OpenSubtitles( log, common ) ;
 
+		// First, get all subtitle information for this show and season
+		List< OpenSubtitles_Data > allSubtitlesForSeason = openSubtitles.getSubtitlesForShowSeason( imdbShowIDString, seasonNumber ) ;
+		assert( allSubtitlesForSeason != null ) ;
+
+		// Next, find the best subtitles for each episode
+		final List< OpenSubtitles_Data > subtitleDataToDownload = openSubtitles.findBestSubtitleFileIDsToDownloadForSeason( allSubtitlesForSeason ) ;
+		assert( subtitleDataToDownload != null ) ;
+
+		// Download each subtitle file and rename to match this convention:
+		// imdbShowID - SXXEYY - downloaded.srt
+		List< File > downloadedSubtitleFiles = new ArrayList< File >() ;
+		for( OpenSubtitles_Data subtitleFileData : subtitleDataToDownload )
+		{
+			final String subtitleFileID = subtitleFileData.getAttributes().getFiles().getFirst().getFile_id().toString() ;
+			File subtitleFile = openSubtitles.downloadSubtitleFileByID( subtitleFileID, outputDirectory ) ;
+			if( null == subtitleFile )
+			{
+				log.warning( "Failed to download file " + subtitleFileData.getAttributes().getFiles().getFirst().getFile_name() ) ;
+				continue ;
+			}
+			// Rename
+			final int episodeNumber = subtitleFileData.getAttributes().getFeature_details().getEpisode_number().intValue() ;
+			final String newFileName = imdbShowIDString
+					+ " - "
+					+ "S" + (seasonNumber < 10 ? "0" : "") + seasonNumber
+					+ "E" + (episodeNumber < 10 ? "0" : "" ) + episodeNumber
+					+ " - downloaded.srt" ;
+			final File newOutputFile = new File( outputDirectory, newFileName ) ;
+			subtitleFile.renameTo( newOutputFile ) ;
+
+			downloadedSubtitleFiles.add( subtitleFile ) ;
+		}
 	}
 
 	public void matchAndRenameShowFilesForSeason( final File seasonDirectory )
@@ -139,45 +189,5 @@ public class RenameEpisodesBySRT
 			}
 		}
 		return showDirectories ;
-	}
-
-	public boolean extractAudioFromAVFile( final File inputFile, final File outputFile )
-	{
-		// Extract just the audio
-		// The new versions of OpenAI transcription only support mp3, mp4, mpeg, mpga, m4a, wav, and webm
-		// For now, let's use .wav
-		ImmutableList.Builder< String > ffmpegCommand = new ImmutableList.Builder< String >() ;
-
-		// Setup ffmpeg basic options
-		ffmpegCommand.add( common.getPathToFFmpeg() ) ;
-
-		// Overwrite existing files
-		ffmpegCommand.add( "-y" ) ;
-
-		// Not exactly sure what these do but it seems to help reduce errors on some files.
-		//			ffmpegCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
-		//			ffmpegCommand.add( "-probesize", Common.getProbeSizeString() ) ;
-
-		// Include source file
-		ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
-		ffmpegCommand.add( "-ss", "00:00:00" ) ; // start time
-		ffmpegCommand.add( "-t", "00:02:00" ) ; // duration
-		ffmpegCommand.add( "-vn" ) ; // disable video
-		ffmpegCommand.add( "-sn" ) ; // disable subtitles
-		ffmpegCommand.add( "-dn" ) ; // disable data
-		ffmpegCommand.add( "-acodec", "pcm_s16le" ) ;
-		ffmpegCommand.add( "-ar", "16000" ) ;
-		ffmpegCommand.add( "-ac", "1" ) ;
-		ffmpegCommand.add( "-y" ) ; // overwrite
-		ffmpegCommand.add( outputFile.getAbsolutePath() ) ;
-
-		log.info( common.toStringForCommandExecution( ffmpegCommand.build() ) ) ;
-		// Only execute the conversion if testMode is false
-		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( ffmpegCommand ) ;
-		if( !executeSuccess )
-		{
-			log.warning( "Error in execute command" ) ;
-		}
-		return executeSuccess ;
 	}
 }
