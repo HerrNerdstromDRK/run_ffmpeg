@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class TheTVDB_episodeClass
 {
@@ -28,10 +29,13 @@ public class TheTVDB_episodeClass
 	public String finalType = "" ;
 	public String year = "" ;
 	
+	@Override
 	public String toString()
 	{
-		Gson toStringGson = new Gson() ;
-		final String objectToString = toStringGson.toJson( this ) ;
-		return objectToString.toString() ;
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+		final String json = gson.toJson( this ) ;
+		return json ;
 	}
 }

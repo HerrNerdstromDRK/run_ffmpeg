@@ -17,6 +17,7 @@ import org.apache.commons.text.WordUtils;
 import com.google.gson.Gson;
 
 import run_ffmpeg.TheTVDB.TheTVDB_ShowInfo;
+import run_ffmpeg.TheTVDB.TheTVDB;
 
 /**
  * Renames TV shows to look like: "Show Name - SXXEYY - Episode Title.ext"
@@ -24,7 +25,7 @@ import run_ffmpeg.TheTVDB.TheTVDB_ShowInfo;
  */
 public class FixTVShowNaming
 {
-	public TheTVDB_Test tvDB = null ;
+	public TheTVDB tvDB = null ;
 
 	/// Setup the logging subsystem
 	protected transient Logger log = null ;
@@ -109,7 +110,7 @@ public class FixTVShowNaming
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
-		tvDB = new TheTVDB_Test() ;
+		tvDB = new TheTVDB() ;
 	}
 
 	public void run()
@@ -374,7 +375,7 @@ public class FixTVShowNaming
 		TheTVDB_ShowInfo theShowInfo = tvDBShows.get( showIdInteger ) ;
 		if( null == theShowInfo )
 		{
-			TheTVDB_Test tvdb = new TheTVDB_Test( log, common ) ;
+			TheTVDB tvdb = new TheTVDB( log, common ) ;
 			theShowInfo = tvdb.getFullShowInfo( showIdInteger ) ;
 			if( null == theShowInfo )
 			{

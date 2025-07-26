@@ -19,7 +19,7 @@ public class CreateSRTsWithAI_CreateSRTs
 	
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_create_srts_with_ai_create_srts.txt" ;
-	private static final String stopFileName = "C:\\Temp\\stop_crate_srts_with_ai.txt" ;
+	private static final String stopFileName = "C:\\Temp\\stop_create_srts_with_ai.txt" ;
 	
 	public CreateSRTsWithAI_CreateSRTs()
 	{

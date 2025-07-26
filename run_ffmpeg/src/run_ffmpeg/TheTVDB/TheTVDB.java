@@ -1,4 +1,4 @@
-package run_ffmpeg;
+package run_ffmpeg.TheTVDB;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -11,19 +11,12 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import run_ffmpeg.TheTVDB.TheTVDB_ShowInfo;
-import run_ffmpeg.TheTVDB.TheTVDB_episodeClass;
-import run_ffmpeg.TheTVDB.TheTVDB_loginRequest;
-import run_ffmpeg.TheTVDB.TheTVDB_loginResponse;
-import run_ffmpeg.TheTVDB.TheTVDB_searchResponse;
-import run_ffmpeg.TheTVDB.TheTVDB_seasonInfo;
-import run_ffmpeg.TheTVDB.TheTVDB_seriesClass;
-import run_ffmpeg.TheTVDB.TheTVDB_seriesEpisodesClass;
+import run_ffmpeg.Common;
 
 /**
  * This class encapsulates the interface to TheTVDB.
  */
-public class TheTVDB_Test
+public class TheTVDB
 {
 	//// THETVDB API key
 	protected final String apikey = "915b0698-6ce6-4a44-871e-0cb6f8dcb62c" ;
@@ -41,7 +34,7 @@ public class TheTVDB_Test
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_thetvdb.txt" ;
 
-	public TheTVDB_Test()
+	public TheTVDB()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
@@ -49,7 +42,7 @@ public class TheTVDB_Test
 		login() ;
 	}
 
-	public TheTVDB_Test( Logger log, Common common )
+	public TheTVDB( Logger log, Common common )
 	{
 		this.log = log ;
 		this.common = common ;
@@ -59,7 +52,7 @@ public class TheTVDB_Test
 	
 	public static void main( String[] args )
 	{
-		(new TheTVDB_Test()).runTests() ;
+		(new TheTVDB()).runTests() ;
 	}
 
 	protected void runTests()
@@ -95,23 +88,6 @@ public class TheTVDB_Test
 	{
 		return pin ;
 	}
-
-//	public TheTVDB_ShowInfo getFullShowInfo( final Integer showId )
-//	{
-//		assert( showId != null ) ;
-//		assert( showId.intValue() > 0 ) ;
-//
-//		// First, lookup the show name
-//		// For now, only shows listed in the tvShowIDs map are permitted.
-//		final String showName = getShowNameById( showId ) ;
-//		if( null == showName )
-//		{
-//			log.warning( "Unable to find showName: " + showName ) ;
-//			return null ;
-//		}
-//		// Post-condition: Found showName
-//		return getFullShowInfo( showName, showId ) ;
-//	}
 
 	public TheTVDB_ShowInfo getFullShowInfo( final Integer showId )
 	{

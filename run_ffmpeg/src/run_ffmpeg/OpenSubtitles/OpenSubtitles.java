@@ -6,6 +6,8 @@ import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.ArrayList;
@@ -13,7 +15,19 @@ import java.util.HashSet;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPost;
+import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClientBuilder;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.core5.http.ClassicHttpRequest;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.io.entity.EntityUtils;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
 
+import com.google.common.net.HttpHeaders;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -33,6 +47,8 @@ public class OpenSubtitles
 
 	// baseURI is not final since it could be reassigned by the server
 	protected String baseURI = "https://api.opensubtitles.com/api/v1" ;
+
+	protected long timeOfNextDownloadAllowed = 0 ;
 
 	/// Setup the logging subsystem
 	protected transient Logger log = null ;
@@ -69,6 +85,12 @@ public class OpenSubtitles
 		//final String imdbEpisodeID = "1276201" ;
 		//findEpisodeSubtitles( imdbEpisodeID ) ;
 
+		//		testDownloadShowSubtitleInformation() ;
+		testSearchRequest() ;
+	}
+
+	protected void testDownloadShowSubtitleInformation()
+	{
 		final String showDirectoryPath = "\\\\skywalker\\Media\\To_OCR\\Boardwalk Empire (2010) {imdb-0979432}" ;
 
 		// Note that the imdb ID must remain a string since the preceding 0 is important.
@@ -91,7 +113,7 @@ public class OpenSubtitles
 
 			final int seasonNumber = FileNamePattern.getShowSeasonNumber( theFile ) ;
 
-			List< OpenSubtitles_Data > seasonSubtitleData = getSubtitlesForShowSeason( imdbShowIDString, seasonNumber ) ;
+			List< OpenSubtitles_Data > seasonSubtitleData = getSubtitleInfoForShowSeason( imdbShowIDString, seasonNumber ) ;
 			//			log.info( "Get info for season " + seasonNumberInteger + ":" ) ;
 			//			for( OpenSubtitles_Data theData : seasonSubtitleData )
 			//			{
@@ -101,8 +123,74 @@ public class OpenSubtitles
 			if( !subtitleIDsToDownload.isEmpty() )
 			{
 				//final File subtitleFile = 
-						downloadSubtitleFileByID( subtitleIDsToDownload.getFirst().getAttributes().getFiles().getFirst().getFile_id().toString(), theFile ) ;
+				downloadSubtitleFileByID( subtitleIDsToDownload.getFirst().getAttributes().getFiles().getFirst().getFile_id().toString(), theFile ) ;
 			}
+		}
+	}
+
+	protected void testSearchRequest()
+	{
+		// Test search for subtitle information using json objects.
+		OpenSubtitles_SearchRequest searchRequest = new OpenSubtitles_SearchRequest() ;
+		searchRequest.parent_imdb_id = Integer.valueOf( "0979432" ) ;
+		searchRequest.season_number = Integer.valueOf( 2 ) ;
+		searchRequest.episode_number = Integer.valueOf( 12 ) ;
+
+		Gson searchRequestGson = new Gson() ;
+		final String searchRequestJson = searchRequestGson.toJson( searchRequest ) ;
+		log.info( "searchRequestJson: " + searchRequestJson ) ;
+
+		CloseableHttpClient httpClient = HttpClients.createDefault() ;
+		HttpGet httpGet = new HttpGet( getBaseURI() + "/subtitles" ) ;
+
+		httpGet.setHeader( HttpHeaders.CONTENT_TYPE, "application/json" ) ;
+		httpGet.setHeader( HttpHeaders.ACCEPT, "*/*" ) ;
+		httpGet.setHeader( HttpHeaders.AUTHORIZATION, "Bearer " + getAPIToken() ) ;
+		httpGet.setHeader( "Api-Key", getApiKey() ) ;
+		httpGet.setHeader( HttpHeaders.USER_AGENT, getUserAgent() ) ;
+		
+		List< NameValuePair > params = new ArrayList< NameValuePair >() ;
+		params.add( new BasicNameValuePair( "parent_imdb_id", "979432" ) ) ;
+		params.add( new BasicNameValuePair( "season_number", "2" ) ) ;
+		params.add( new BasicNameValuePair( "episode_number", "12" ) ) ;
+		httpGet.setEntity( new UrlEncodedFormEntity( params ) ) ;
+
+		try
+		{
+//			CloseableHttpResponse response = httpClient.execute( httpPost ) ;
+			final String responseBody = httpClient.execute( httpGet, response -> {
+				return EntityUtils.toString( response.getEntity() ) ;
+			}) ;
+			log.info( "responseBody: " + responseBody ) ;
+			
+//			final int statusCode = response.getCode() ;
+//			final String responseBody = EntityUtils.toString( response.getEntity() ) ;
+
+			//			HttpClient client = HttpClient.newHttpClient() ;
+			//			HttpRequest request = HttpRequest.newBuilder()
+			//					.header( "Accept", "application/json" )
+			//					.header( "Content-Type", "application/json" )
+			//					.header( "Api-Key",  getApiKey() )
+			//					.header( "Authorization", "Bearer " + getAPIToken() )
+			//					.header( "User-Agent",  getUserAgent() )
+			//					.uri( URI.create( getBaseURI() + "/subtitles" ) )
+			//					.POST( HttpRequest.BodyPublishers.ofString( searchRequestJson ) )
+			//					.build() ;
+			//			log.info( "Sending HttpRequest: " + request.toString() ) ;
+			//			HttpResponse< String > response = client.send( request, HttpResponse.BodyHandlers.ofString() ) ;
+			//
+			//			final int responseCode = response.statusCode() ;
+			//			final String responseBody = response.body() ;
+			//
+			//			log.info( "responseCode: " + responseCode + ", responseBody: " + responseBody ) ;
+
+			//			Gson downloadResponseGson = new GsonBuilder().setPrettyPrinting().create() ;
+			//			final OpenSubtitles_DownloadResponse downloadResponse = downloadResponseGson.fromJson( response.body(), OpenSubtitles_DownloadResponse.class ) ;
+			//			log.info( "downloadResponse: " + downloadResponseGson.toJson( downloadResponse ).toString() ) ;
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
 		}
 	}
 
@@ -111,12 +199,10 @@ public class OpenSubtitles
 	 * @param subtitleFileID
 	 * @return null if unsuccessful, or the File, already written to disk, if successful.
 	 */
-	public File downloadSubtitleFileByID( final String subtitleFileID, final File outputDir )
+	public File downloadSubtitleFileByID( final String subtitleFileID, final File outputFile )
 	{
 		assert( subtitleFileID != null ) ;
 		assert( !subtitleFileID.isBlank() ) ;
-
-		File outputFile = null ;
 
 		// Downloading the file is a two step process:
 		// 1) Request download link
@@ -146,6 +232,26 @@ public class OpenSubtitles
 			final String responseBody = response.body() ;
 
 			log.info( "responseCode: " + responseCode + ", responseBody: " + responseBody ) ;
+
+			Gson downloadResponseGson = new GsonBuilder().setPrettyPrinting().create() ;
+			final OpenSubtitles_DownloadResponse downloadResponse = downloadResponseGson.fromJson( response.body(), OpenSubtitles_DownloadResponse.class ) ;
+			log.info( "downloadResponse: " + downloadResponseGson.toJson( downloadResponse ).toString() ) ;
+
+			if( 406 == responseCode )
+			{
+				// No more downloads available.
+				// Record the time of next available download.
+				// Expected response UTC is of the form: 2025-07-26T23:59:59.000Z
+				log.info( "Exceeded max download quota" ) ;
+
+				final Instant now = Instant.now() ;
+				final String resetTimeUTCString = downloadResponse.getReset_time_utc() ;
+				final Instant resetTimeUTCInstant = Instant.parse( resetTimeUTCString ) ;
+				final Duration durationToResetTimeUTC = Duration.between( now,  resetTimeUTCInstant ) ;
+
+				setTimeOfNextDownloadAllowed( System.currentTimeMillis() + durationToResetTimeUTC.toMillis() ) ;	
+			}
+
 			if( responseCode != 200 )
 			{
 				// Login unsuccessful
@@ -154,16 +260,7 @@ public class OpenSubtitles
 			}
 			// Request for download successful
 
-			Gson downloadResponseGson = new GsonBuilder().setPrettyPrinting().create() ;
-			final OpenSubtitles_DownloadResponse downloadResponse = downloadResponseGson.fromJson( response.body(), OpenSubtitles_DownloadResponse.class ) ;
-			log.info( "downloadResponse: " + downloadResponseGson.toJson( downloadResponse ).toString() ) ;
-
 			final String downloadLink = downloadResponse.getLink() ;
-			final String fileName = downloadResponse.getFile_name() ;
-			final String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputDir.getAbsolutePath() )
-					+ fileName ;
-			outputFile = new File( outputFileNameWithPath ) ;
-
 			final URI theURI = new URI( downloadLink ) ;
 			final URL theURL = theURI.toURL() ;
 
@@ -182,15 +279,15 @@ public class OpenSubtitles
 	{
 		assert( imdbShowIDString != null ) ;
 		assert( outputDir != null ) ;
-		
+
 		// First, get all subtitle information for this show and season
-		final List< OpenSubtitles_Data > allSubtitlesForSeason = getSubtitlesForShowSeason( imdbShowIDString, seasonNumber ) ;
+		final List< OpenSubtitles_Data > allSubtitlesForSeason = getSubtitleInfoForShowSeason( imdbShowIDString, seasonNumber ) ;
 		assert( allSubtitlesForSeason != null ) ;
-		
+
 		// Next, find the best subtitles for each episode
 		final List< OpenSubtitles_Data > subtitleDataToDownload = findBestSubtitleFileIDsToDownloadForSeason( allSubtitlesForSeason ) ;
 		assert( subtitleDataToDownload != null ) ;
-		
+
 		List< File > downloadedSubtitleFiles = new ArrayList< File >() ;
 		for( OpenSubtitles_Data subtitleData : subtitleDataToDownload )
 		{
@@ -296,14 +393,14 @@ public class OpenSubtitles
 		return subtitleDataWithHighestDownloadCount ;
 	}
 
-	public void getSubtitlesForShow( final String imdbShowIDString )
+	public void getSubtitleInfoForShow( final String imdbShowIDString )
 	{
 		assert( imdbShowIDString != null ) ;
 		assert( !imdbShowIDString.isBlank() ) ;
 
 	}
 
-	public List< OpenSubtitles_Data > getSubtitlesForShowSeason( final String imdbShowIDString, final int seasonNumber )
+	public List< OpenSubtitles_Data > getSubtitleInfoForShowSeason( final String imdbShowIDString, final int seasonNumber )
 	{
 		assert( imdbShowIDString != null ) ;
 		assert( !imdbShowIDString.isBlank() ) ;
@@ -312,8 +409,6 @@ public class OpenSubtitles
 		List< OpenSubtitles_Data > seasonData = new ArrayList< OpenSubtitles_Data >() ;
 		try
 		{
-			//				extractAudioFromMKVFile( theFile ) ;
-
 			// Read all information I can about this season
 			// totalNumPages will be adjusted after reading the first page
 			int totalNumPages = 1 ;
@@ -386,42 +481,36 @@ public class OpenSubtitles
 	}
 
 	/**
-	 * Return data for an imdb show or an episode. If the episode id string is empty then the show information will be returned. The show id string can
-	 *  be empty or filled and it should work appropriately.
-	 * @param imdbShowIDString The imdb id of the show; can be empty but not null
-	 * @param seasonNumber The number of the season; can be empty but not null
-	 * @param imdbEpisodeIDString The imdb episode id; can be empty but not null.
+	 * Return data for an imdb show or an episode. If the episode number string is empty then the season information will be returned.
+	 * @param imdbShowIDString The imdb id of the show (parent to any episode) or movie.
+	 * @param seasonNumber The number of the season.
+	 * @param episodeNumber The season episode number; can be empty but not null.
 	 * @param pageNumber Minimum value of 1
 	 * @return
 	 */
 	public OpenSubtitles_SubtitlesResponse searchForSubtitlesByIMDBID( final String imdbShowIDString,
 			final String seasonNumber,
-			final String imdbEpisodeIDString,
+			final String episodeNumber,
 			final int pageNumber )
 	{
 		assert( imdbShowIDString != null ) ;
 		assert( seasonNumber != null ) ;
-		assert( imdbEpisodeIDString != null ) ;
+		assert( episodeNumber != null ) ;
 
-		String uri = getBaseURI() + "/subtitles?languages=en" ;
+		String uri = getBaseURI() + "/subtitles?" ;
+		uri += "&episode_number=" + episodeNumber ;
+		uri += "&languages=en" ;
+
+		final Integer imdbShowIDInteger = Integer.valueOf( imdbShowIDString ) ;
+		uri += "&parent_imdb_id=" + imdbShowIDInteger.intValue() ;
+
+		// Strip off the leading 0 for seasons less than 10
+		final Integer seasonNumberInteger = Integer.valueOf( seasonNumber ) ;
+		uri += "&season_number=" + seasonNumberInteger.intValue() ;
+
 		if( pageNumber > 1 )
 		{
 			uri += "&page=" + pageNumber ;
-		}
-		if( !imdbShowIDString.isBlank() )
-		{
-			final Integer imdbShowIDInteger = Integer.valueOf( imdbShowIDString ) ;
-			uri += "&parent_imdb_id=" + imdbShowIDInteger.intValue() ;
-		}
-		if( !seasonNumber.isBlank() )
-		{
-			// Strip off the leading 0 for seasons less than 10
-			final Integer seasonNumberInteger = Integer.valueOf( seasonNumber ) ;
-			uri += "&season_number=" + seasonNumberInteger.intValue() ;
-		}
-		if( !imdbEpisodeIDString.isBlank() )
-		{
-			uri += "&imdb_id=" + imdbEpisodeIDString ;
 		}
 
 		final String responseBody = httpGet( uri ) ;
@@ -430,6 +519,34 @@ public class OpenSubtitles
 			log.warning( "Failed to get response for query: " + uri ) ;
 			return null ;
 		}
+		
+//		String uri = getBaseURI() + "/subtitles?languages=en" ;
+//		if( pageNumber > 1 )
+//		{
+//			uri += "&page=" + pageNumber ;
+//		}
+//		if( !imdbShowIDString.isBlank() )
+//		{
+//			final Integer imdbShowIDInteger = Integer.valueOf( imdbShowIDString ) ;
+//			uri += "&parent_imdb_id=" + imdbShowIDInteger.intValue() ;
+//		}
+//		if( !seasonNumber.isBlank() )
+//		{
+//			// Strip off the leading 0 for seasons less than 10
+//			final Integer seasonNumberInteger = Integer.valueOf( seasonNumber ) ;
+//			uri += "&season_number=" + seasonNumberInteger.intValue() ;
+//		}
+//		if( !episodeNumber.isBlank() )
+//		{
+//			uri += "&episode_number=" + episodeNumber ;
+//		}
+//
+//		final String responseBody = httpGet( uri ) ;
+//		if( responseBody.isEmpty() )
+//		{
+//			log.warning( "Failed to get response for query: " + uri ) ;
+//			return null ;
+//		}
 		// Successful response
 
 		Gson queryResponseGson = new Gson() ;
@@ -586,5 +703,18 @@ public class OpenSubtitles
 	public String getUserAgent()
 	{
 		return userAgent ;
+	}
+
+	public long getTimeOfNextDownloadAllowed() {
+		return timeOfNextDownloadAllowed;
+	}
+
+	public void setTimeOfNextDownloadAllowed(long timeOfNextDownloadAllowed) {
+		this.timeOfNextDownloadAllowed = timeOfNextDownloadAllowed;
+	}
+
+	public boolean isDownloadAllowed()
+	{
+		return (System.currentTimeMillis() > getTimeOfNextDownloadAllowed()) ;
 	}
 }
