@@ -71,7 +71,7 @@ public class OpenAIWhisper
 		ImmutableList.Builder< String > whisperCommand = new ImmutableList.Builder< String >() ;
 
 		// Setup ffmpeg basic options
-		whisperCommand.add( "whisperX" ) ;
+		whisperCommand.add( "C:\\Program Files\\Python\\Python312\\Scripts\\whisperX" ) ;
 		whisperCommand.add( "--language", "English" ) ;
 		whisperCommand.add( "--output_format", "srt" ) ;
 		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;

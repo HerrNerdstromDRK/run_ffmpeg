@@ -76,6 +76,12 @@ public class Common
 				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
 
+	private static final String[] pathsToWhisperX =
+		{
+				"c:\\Program Files\\Python\\Python312\\Scripts\\whisperX",
+				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX"
+		} ;
+	
 	protected static final String[] videoExtensions =
 		{
 				"mkv",
@@ -89,6 +95,7 @@ public class Common
 	private String pathToFFMPEG = null ;
 	private String pathToFFPROBE = null ;
 	private String pathToSubtitleEdit = null ;
+	private String pathToWhisperX = null ;
 
 	/// The replacement file name for correlated files that are missing. This is for
 	/// user interface reporting via the web interface.
@@ -175,6 +182,20 @@ public class Common
 		if( null == getPathToSubtitleEdit() )
 		{
 			log.warning( "Unable to find SubtitleEdit" ) ;
+		}
+		
+		for( String testLocation : pathsToWhisperX )
+		{
+			if( (new File( testLocation )).isFile() )
+			{
+				// Found the file
+				setPathToWhisperX( testLocation ) ;
+				break ;
+			}
+		}
+		if( null == getPathToWhisperX() )
+		{
+			log.warning( "Unable to find whisperX" ) ;
 		}
 
 		if( !getIsWindows() )
@@ -1122,6 +1143,16 @@ public class Common
 		this.pathToSubtitleEdit = pathToSubtitleEdit ;
 	}
 
+	public String getPathToWhisperX()
+	{
+		return pathToWhisperX ;
+	}
+
+	public void setPathToWhisperX( final String pathToWhisperX )
+	{
+		this.pathToWhisperX = pathToWhisperX ;
+	}
+	
 	public void setTestMode( boolean newValue )
 	{
 		testMode = newValue ;
