@@ -320,7 +320,12 @@ public class OpenSubtitles
 				episodeNumbers.add( theData.getAttributes().getFeature_details().getEpisode_number() ) ;
 			}
 		}
-		log.info( "Got episode numbers: " + episodeNumbers.toString() ) ;
+		String slugInfo = "(Empty)" ;
+		if( !seasonSubtitleData.isEmpty() )
+		{
+			slugInfo = "(" + seasonSubtitleData.getFirst().getAttributes().getSlug() + ")" ;
+		}
+		log.info( slugInfo + " Episode numbers: " + episodeNumbers.toString() ) ;
 
 		// Find the subtitle with highest download count for each episode
 		List< OpenSubtitles_Data > subtitleIDsToDownload = new ArrayList< OpenSubtitles_Data >() ;

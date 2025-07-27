@@ -54,6 +54,7 @@ public class RenameEpisodesBySRT
 		// Generalize this to queue all work ahead of time and then do one unit of work each iteration while checking for
 		//  download time expiration.
 		
+		log.info( "Logging into opensubtitles" ) ;
 		OpenSubtitles openSubtitles = new OpenSubtitles( log, common ) ;
 		List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload = new ArrayList< RenameEpisodesBySRT_DownloadDataClass >() ;
 		
@@ -67,11 +68,14 @@ public class RenameEpisodesBySRT
 		OpenAIWhisper whisper = new OpenAIWhisper( log, common ) ;
 		List< File > generatedSRTFiles = new ArrayList< File >() ;
 		
+		log.info( "Logging into tvdb" ) ;
 		TheTVDB theTVDB = new TheTVDB( log, common ) ;
 		
 		final List< File > showDirectories = getShowDirectories( Common.getPathToToOCR() ) ;
 		for( File showDirectory : showDirectories )
 		{
+			log.info( "Processing show " + showDirectory.getAbsolutePath() + "..." ) ;
+			
 			final String imdbShowIDString = FileNamePattern.getIMDBShowID( showDirectory ) ;
 			assert( imdbShowIDString != null ) ;
 			
@@ -81,6 +85,8 @@ public class RenameEpisodesBySRT
 			final File[] seasonDirectories = showDirectory.listFiles() ;
 			for( File seasonDirectory : seasonDirectories )
 			{
+				log.info( "Processing show season " + seasonDirectory.getAbsolutePath() + "..." ) ;
+				
 				final int seasonNumber = FileNamePattern.getShowSeasonNumber( seasonDirectory ) ;
 				final TheTVDB_seriesEpisodesClass seasonEpisodes = theTVDB.getSeriesEpisodesInfo( tvdbShowIDString, Integer.toString( seasonNumber ) ) ;
 				
@@ -105,6 +111,8 @@ public class RenameEpisodesBySRT
 					allSubtitlesForSeason.addAll( response.getData() ) ;
 				}
 
+				log.info( "Finding best subtitles..." ) ;
+				
 //				final List< OpenSubtitles_Data > allSubtitlesForSeason = openSubtitles.getSubtitleInfoForShowSeason( imdbShowIDString, seasonNumber ) ;
 				final List< OpenSubtitles_Data > bestSubtitleForEachEpisode = openSubtitles.findBestSubtitleFileIDsToDownloadForSeason( allSubtitlesForSeason ) ;
 				for( OpenSubtitles_Data theData : bestSubtitleForEachEpisode )
@@ -115,15 +123,21 @@ public class RenameEpisodesBySRT
 					subtitleDataToDownload.add( downloadData ) ;
 				}
 				
+				log.info( "Searching for a/v media in " + seasonDirectory.getAbsolutePath() ) ;
+				final int numAVFilesBegin = avFiles.size() ;
+				
 				// Identify all media files from which to extract audio
 				avFiles.addAll( common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ) ;
+				
+				final int numAVFilesEnd = avFiles.size() ;
+				log.info( "Added " + (numAVFilesEnd - numAVFilesBegin) + " file(s) in " + seasonDirectory.getAbsolutePath() ) ;
 			}
 		}
 		
 		// Main loop for processing data items
 		// Will only conduct one unit of work per loop to minimize time between subtitle file downloads
 		boolean didWorkThisLoop = false ;
-		while( shouldKeepRunning() && !subtitleDataToDownload.isEmpty() )
+		while( shouldKeepRunning() && (!subtitleDataToDownload.isEmpty() || !avFiles.isEmpty() || !wavFiles.isEmpty()) )
 		{
 			// This loop is designed to do all srt downloads permitted, followed by one wav extraction,
 			//  followed by one ai srt generation. However, so long as any srt files remain to be downloaded,
@@ -134,7 +148,7 @@ public class RenameEpisodesBySRT
 			// If no work was accomplished, then we are waiting for the download time to expire.
 			didWorkThisLoop = false ;
 			
-			if( openSubtitles.isDownloadAllowed() )
+			if( openSubtitles.isDownloadAllowed() && !subtitleDataToDownload.isEmpty() )
 			{
 				// Download next SRT file
 				final RenameEpisodesBySRT_DownloadDataClass downloadData = subtitleDataToDownload.removeFirst() ;
@@ -146,11 +160,8 @@ public class RenameEpisodesBySRT
 					
 					didWorkThisLoop = true ;
 				}
-			}
-			
-			if( openSubtitles.isDownloadAllowed() && !subtitleDataToDownload.isEmpty() )
-			{
-				// Can download another srt file. Skip any other work in this loop.
+
+				// Skip the rest of the loop so the next loop can start on downloading subtitles.
 				continue ;
 			}
 			// PC: Downloads are throttled or no more srt files to download.
@@ -163,7 +174,7 @@ public class RenameEpisodesBySRT
 				final File wavFile = new File( wavFileNameWithPath ) ;
 
 				// Only make the wav file if it is absent.
-				if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile ) )
+				if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile, 0, 0, 0, 0, 2, 0 ) )
 				{
 					log.warning( "Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
 					continue ;
@@ -185,7 +196,7 @@ public class RenameEpisodesBySRT
 				File srtFile = new File( srtFileNameWithPath ) ;
 				if( !srtFile.exists() )
 				{
-					// File does not already exist -- create it.
+					// File does not already exist -- create it. Currently only transcribing the first two minutes.
 					srtFile = whisper.transcribeToSRT( wavFile ) ;
 					didWorkThisLoop = true ;
 				}

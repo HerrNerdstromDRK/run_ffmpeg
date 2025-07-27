@@ -14,6 +14,8 @@ public class OpenAIWhisper
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_openaiwhisper.txt" ;
 	
+	protected static final String huggingFaceToken = "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" ;
+	
 	public OpenAIWhisper()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
@@ -69,17 +71,32 @@ public class OpenAIWhisper
 		ImmutableList.Builder< String > whisperCommand = new ImmutableList.Builder< String >() ;
 
 		// Setup ffmpeg basic options
-		whisperCommand.add( "whisper" ) ;
+		whisperCommand.add( "whisperX" ) ;
 		whisperCommand.add( "--language", "English" ) ;
 		whisperCommand.add( "--output_format", "srt" ) ;
 		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;
-		whisperCommand.add( "--fp16", "False" ) ;
+//		whisperCommand.add( "--diarize" ) ;
+		whisperCommand.add( "--compute_type", "float32" ) ;
+		whisperCommand.add( "--hf_token", getHuggingFaceToken() ) ;
+//		whisperCommand.add( "--fp16", "False" ) ;
 		whisperCommand.add( inputFile.getAbsolutePath() ) ;
+		
+//		whisperCommand.add( "whisper" ) ;
+//		whisperCommand.add( "--language", "English" ) ;
+//		whisperCommand.add( "--output_format", "srt" ) ;
+//		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;
+//		whisperCommand.add( "--fp16", "False" ) ;
+//		whisperCommand.add( inputFile.getAbsolutePath() ) ;
 
 		log.info( common.toStringForCommandExecution( whisperCommand.build() ) ) ;
 
 		// Only execute the whisper if testMode is false
 		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( whisperCommand ) ;
 		return executeSuccess ? outputFile : null ;
+	}
+	
+	public static String getHuggingFaceToken()
+	{
+		return huggingFaceToken ;
 	}
 }
