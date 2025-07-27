@@ -221,6 +221,7 @@ public class RenameEpisodesBySRT
 			}
 			
 		} // while( shouldKeepRunning() )
+		log.info( "Done." ) ;
 	} // execute()
 
 	public Set< Integer > findMissingDownloadedSRTEpisodes( final String imdbShowIDString, final File seasonDirectory, final TheTVDB_seriesEpisodesClass seasonEpisodes )
