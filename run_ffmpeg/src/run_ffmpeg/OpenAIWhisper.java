@@ -76,6 +76,7 @@ public class OpenAIWhisper
 		whisperCommand.add( "--output_format", "srt" ) ;
 		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;
 //		whisperCommand.add( "--diarize" ) ;
+		// Comment to force git push.
 		whisperCommand.add( "--compute_type", "float32" ) ;
 		whisperCommand.add( "--hf_token", getHuggingFaceToken() ) ;
 //		whisperCommand.add( "--fp16", "False" ) ;
