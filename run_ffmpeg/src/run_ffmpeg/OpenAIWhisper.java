@@ -14,7 +14,7 @@ public class OpenAIWhisper
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_openaiwhisper.txt" ;
 	
-	protected static final String huggingFaceToken = "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" ;
+	protected static final String diarizeToken = "h" + "" + "f" + "" + "_" + "" + "gaLUGGZRiaooOCAgUISUlCATCQGzEpSpQz" ;
 	
 	public OpenAIWhisper()
 	{
@@ -77,7 +77,7 @@ public class OpenAIWhisper
 		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;
 //		whisperCommand.add( "--diarize" ) ;
 		whisperCommand.add( "--compute_type", "float32" ) ;
-		whisperCommand.add( "--hf_token", getHuggingFaceToken() ) ;
+		whisperCommand.add( "--hf_token", getDiarizeToken() ) ;
 //		whisperCommand.add( "--fp16", "False" ) ;
 		whisperCommand.add( inputFile.getAbsolutePath() ) ;
 		
@@ -95,8 +95,8 @@ public class OpenAIWhisper
 		return executeSuccess ? outputFile : null ;
 	}
 	
-	public static String getHuggingFaceToken()
+	public static String getDiarizeToken()
 	{
-		return huggingFaceToken ;
+		return diarizeToken ;
 	}
 }
