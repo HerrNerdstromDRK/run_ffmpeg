@@ -160,12 +160,22 @@ public class FileNamePattern
 		return extraType ;
 	}
 
+	/**
+	 * Return the imdb show identifier extracted from the file path, or null if not found (not a tv show).
+	 * @param theFile
+	 * @return
+	 */
 	public static String getIMDBShowID( final String fileNameWithPath )
 	{
 		assert( fileNameWithPath != null ) ;
 		return getIMDBShowID( new File( fileNameWithPath ) ) ;
 	}
 	
+	/**
+	 * Return the imdb show identifier extracted from the file path, or null if not found (not a tv show).
+	 * @param theFile
+	 * @return
+	 */
 	public static String getIMDBShowID( final File theFile )
 	{
 		assert( theFile != null ) ;
@@ -196,6 +206,11 @@ public class FileNamePattern
 		return imdbShowID ;
 	}
 	
+	/**
+	 * Returns the season number from the given file path, or -1 if no season number found.
+	 * @param theFile
+	 * @return
+	 */
 	public static int getShowSeasonNumber( final File theFile )
 	{
 		assert( theFile != null ) ;

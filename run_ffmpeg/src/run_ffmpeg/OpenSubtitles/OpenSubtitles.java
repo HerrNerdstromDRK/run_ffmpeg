@@ -232,7 +232,12 @@ public class OpenSubtitles
 			final String responseBody = response.body() ;
 
 			log.info( "responseCode: " + responseCode + ", responseBody: " + responseBody ) ;
-
+			if( 502 == responseCode )
+			{
+				log.warning( "Received http error 502 (bad gateway) when downloading file id " + subtitleFileID ) ;
+				return null ;
+			}
+			
 			Gson downloadResponseGson = new GsonBuilder().setPrettyPrinting().create() ;
 			final OpenSubtitles_DownloadResponse downloadResponse = downloadResponseGson.fromJson( response.body(), OpenSubtitles_DownloadResponse.class ) ;
 			log.info( "downloadResponse: " + downloadResponseGson.toJson( downloadResponse ).toString() ) ;
@@ -384,6 +389,15 @@ public class OpenSubtitles
 				log.warning( "null file_id for data: " + theData.toString() ) ;
 				continue ;
 			}
+			if( (theData.getAttributes().getUploader() != null)
+					&& (theData.getAttributes().getUploader().getUploader_id() != null)
+					&& (theData.getAttributes().getUploader().getUploader_id() != null)
+					&& (theData.getAttributes().getUploader().getUploader_id().intValue() == 43397) )
+			{
+				// This uploader's srt files are junk.
+				log.fine ( "Skipping file by uploader id 43397" ) ;
+				continue ;
+			}
 			// PC: All elements are non-null and this is the correct episode number 
 			if( theData.getAttributes().getDownload_count().intValue() > highestDownloadCount )
 			{
@@ -391,7 +405,8 @@ public class OpenSubtitles
 				subtitleDataWithHighestDownloadCount = theData ;
 				highestDownloadCount = theData.getAttributes().getDownload_count() ;
 
-				log.fine( "Found new highest download count for episode " + episodeNumber + ": " + highestDownloadCount ) ;
+				log.fine( "Found new highest download count for episode " + theData.getAttributes().getFeature_details().getMovie_name() + " (" + episodeNumber
+						+ "): " + highestDownloadCount ) ;
 			}
 		}
 

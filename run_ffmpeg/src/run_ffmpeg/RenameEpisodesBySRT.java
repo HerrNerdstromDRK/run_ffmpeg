@@ -1,12 +1,22 @@
 package run_ffmpeg;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map ;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.text.similarity.CosineDistance;
+import org.apache.commons.text.similarity.FuzzyScore;
+import org.apache.commons.text.similarity.JaroWinklerDistance;
+import org.apache.commons.text.similarity.LevenshteinDistance;
+import org.apache.commons.text.similarity.LongestCommonSubsequenceDistance;
 
 import run_ffmpeg.OpenSubtitles.OpenSubtitles;
 import run_ffmpeg.OpenSubtitles.OpenSubtitles_Data;
@@ -15,28 +25,90 @@ import run_ffmpeg.TheTVDB.TheTVDB;
 import run_ffmpeg.TheTVDB.TheTVDB_episodeClass;
 import run_ffmpeg.TheTVDB.TheTVDB_seriesEpisodesClass;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 public class RenameEpisodesBySRT
 {
 	/// Setup the logging subsystem
-	protected transient Logger log = null ;
-	protected transient Common common = null ;
+	protected Logger log = null ;
+	protected Common common = null ;
+	protected BufferedWriter dataFileWriter = null ;
 
 	/// File name to which to log activities for this application.
-	private static final String logFileName = "log_openaiwhisper.txt" ;
+	private static final String logFileName = "log_rename_episodes_by_srt.txt" ;
 	private static final String stopFileName = "C:\\Temp\\stop_rename_episodes_by_srt.txt" ;
+	private static final String matchingDataFileName = "data_ai_episode_matching.csv" ;
+
+	/// The number of minutes to match against in the srt files.
+	/// Based on testing, 4 minutes using Cosine Distance seems to be a good starting point for matching.
+	protected static final int numMinutesToMatch = 4 ;
+
+	protected OpenSubtitles openSubtitles = null ;
+	protected OpenAIWhisper whisper = null ;
+	protected TheTVDB theTVDB = null ;
 
 	public RenameEpisodesBySRT()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
+
+		initObject() ;
 	}
 
 	public RenameEpisodesBySRT( Logger log, Common common )
 	{
 		this.log = log ;
 		this.common = common ;
+
+		initObject() ;
+	}
+
+	private void initObject()
+	{
+		log.info( "Logging into opensubtitles" ) ;
+		openSubtitles = new OpenSubtitles( log, common ) ;
+
+		whisper = new OpenAIWhisper( log, common ) ;
+
+		log.info( "Logging into tvdb" ) ;
+		theTVDB = new TheTVDB( log, common ) ;
+
+		openDataFile() ;
+	}
+
+	protected void openDataFile()
+	{
+		try
+		{
+			dataFileWriter = new BufferedWriter( new FileWriter( getMatchingDataFilename() ) ) ;
+
+			// dataFileWriter format:
+			// downloadedsrtfilename,generatedsrtfilename,fuzzy score,levenshtein,longestcommonsubsequence,cosine distance,jarowinkler distance,levensthein+longestcommon
+			dataFileWriter.write( "Downloaded SRT File Name,Generated SRT File Name, Fuzzy Logic Score, Levensthein Distance,Longest Common Subsequence Distance"
+					+ ",Cosine Distance,Jaro Winkler Distance,Levenshtein + Longest Common Subsequence Distance" ) ;
+			dataFileWriter.write( System.lineSeparator() ) ;
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Unable to open data file " + getMatchingDataFilename() + ": " + theException.toString() ) ;
+			return ;
+		}
+	}
+
+	protected void closeDataFile()
+	{
+		try
+		{
+			dataFileWriter.close() ;
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Failed to close data file: " + theException.toString() ) ;
+		}
 	}
 
 	public static void main( String[] args )
@@ -53,87 +125,58 @@ public class RenameEpisodesBySRT
 		// -> Download SRT files whenever possible, and work the other actions otherwise.
 		// Generalize this to queue all work ahead of time and then do one unit of work each iteration while checking for
 		//  download time expiration.
-		
-		log.info( "Logging into opensubtitles" ) ;
-		OpenSubtitles openSubtitles = new OpenSubtitles( log, common ) ;
 		List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload = new ArrayList< RenameEpisodesBySRT_DownloadDataClass >() ;
-		
+		List< File > generatedSRTFiles = new ArrayList< File >() ;
+
+		// Can add shows or seasons individually
+		// showDirectories is the set of tv show directories, one directory for each show
+		List< File > showDirectories = new ArrayList< File >() ;
+		//		showDirectories.addAll( getShowDirectories( Common.getPathToToOCR() ) ) ;
+		showDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Greys Anatomy (2005) {imdb-0413573} {tvdb-73762}" ) ) ;
+
+		// seasonDirectories will be populated with each season of each show listed in the showDirectories structure.
+		// Can also add individual seasons directly into the list.
+		List< File > seasonDirectories = new ArrayList< File >() ;
+		seasonDirectories.addAll( getSeasonDirectoriesFromShowDirectories( showDirectories ) ) ;
+
 		// List of media files from which to extract audio.
 		List< File > avFiles = new ArrayList< File >() ;
-		
+
 		// The wav files from which to generate SRT files.
 		// This structure will be filled as audio is extracted from each av file.
 		List< File > wavFiles = new ArrayList< File >() ;
-		
-		OpenAIWhisper whisper = new OpenAIWhisper( log, common ) ;
-		List< File > generatedSRTFiles = new ArrayList< File >() ;
-		
-		log.info( "Logging into tvdb" ) ;
-		TheTVDB theTVDB = new TheTVDB( log, common ) ;
-		
-		final List< File > showDirectories = getShowDirectories( Common.getPathToToOCR() ) ;
-		for( File showDirectory : showDirectories )
+
+		Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes = new HashMap< File, TheTVDB_seriesEpisodesClass >() ;
+
+		// Walk through the seasonDirectories and identify which subtitles to download and which mkv files to export to wav
+		setupPreprocessingWork( seasonDirectories, subtitleDataToDownload, avFiles, seasonDirectoryEpisodes ) ;
+
+		// Download the subtitle files, extract audio from the mkv files, and generate the srt files from the wav files 
+		conductPreprocessingWork( subtitleDataToDownload, generatedSRTFiles, avFiles, wavFiles ) ;
+
+		// The previous method can complete either by completing the preprocessing work or because the stop file is now present
+		// indicating we should stop the application.
+		if( !shouldKeepRunning() )
 		{
-			log.info( "Processing show " + showDirectory.getAbsolutePath() + "..." ) ;
-			
-			final String imdbShowIDString = FileNamePattern.getIMDBShowID( showDirectory ) ;
-			assert( imdbShowIDString != null ) ;
-			
-			final String tvdbShowIDString = FileNamePattern.getTVDBShowID( showDirectory ) ;
-			assert( tvdbShowIDString != null ) ;
-			
-			final File[] seasonDirectories = showDirectory.listFiles() ;
-			for( File seasonDirectory : seasonDirectories )
-			{
-				log.info( "Processing show season " + seasonDirectory.getAbsolutePath() + "..." ) ;
-				
-				final int seasonNumber = FileNamePattern.getShowSeasonNumber( seasonDirectory ) ;
-				final TheTVDB_seriesEpisodesClass seasonEpisodes = theTVDB.getSeriesEpisodesInfo( tvdbShowIDString, Integer.toString( seasonNumber ) ) ;
-				
-				// Compare the total number of episodes for this season with the srt files already downloaded.
-				final Set< Integer > missingDownloadedSRTFiles = findMissingDownloadedSRTEpisodes( imdbShowIDString, seasonDirectory, seasonEpisodes ) ;
-
-				List< OpenSubtitles_Data > allSubtitlesForSeason = new ArrayList< OpenSubtitles_Data >() ;
-				
-				// Only get subtitle information for the episodes that are missing.
-				for( Integer episodeNumberInteger : missingDownloadedSRTFiles )
-				{
-					OpenSubtitles_SubtitlesResponse response = openSubtitles.searchForSubtitlesByIMDBID(
-							imdbShowIDString,
-							String.valueOf( seasonNumber ),
-							episodeNumberInteger.toString(),
-							1 ) ;
-					if( null == response )
-					{
-						log.warning( "null response when searching for subtitles by id " + imdbShowIDString + ", season " + seasonNumber + " episode " + episodeNumberInteger ) ;
-						continue ;
-					}
-					allSubtitlesForSeason.addAll( response.getData() ) ;
-				}
-
-				log.info( "Finding best subtitles..." ) ;
-				
-//				final List< OpenSubtitles_Data > allSubtitlesForSeason = openSubtitles.getSubtitleInfoForShowSeason( imdbShowIDString, seasonNumber ) ;
-				final List< OpenSubtitles_Data > bestSubtitleForEachEpisode = openSubtitles.findBestSubtitleFileIDsToDownloadForSeason( allSubtitlesForSeason ) ;
-				for( OpenSubtitles_Data theData : bestSubtitleForEachEpisode )
-				{
-					final int episodeNumber = theData.getAttributes().getFeature_details().getEpisode_number().intValue() ;
-					RenameEpisodesBySRT_DownloadDataClass downloadData = new RenameEpisodesBySRT_DownloadDataClass(
-							imdbShowIDString, seasonNumber, episodeNumber, theData, seasonDirectory ) ;
-					subtitleDataToDownload.add( downloadData ) ;
-				}
-				
-				log.info( "Searching for a/v media in " + seasonDirectory.getAbsolutePath() ) ;
-				final int numAVFilesBegin = avFiles.size() ;
-				
-				// Identify all media files from which to extract audio
-				avFiles.addAll( common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ) ;
-				
-				final int numAVFilesEnd = avFiles.size() ;
-				log.info( "Added " + (numAVFilesEnd - numAVFilesBegin) + " file(s) in " + seasonDirectory.getAbsolutePath() ) ;
-			}
+			log.info( "Halting due to presence of stop file." ) ;
+			return ;
 		}
+
+		// Done, hopefully, with all the data gathering.
+		// Perform the matching.
+		performMatching( seasonDirectories, seasonDirectoryEpisodes ) ;
 		
+		// doCleanUp() ;
+
+		closeDataFile() ;
+		log.info( "Done." ) ;
+	} // execute()
+
+	public void conductPreprocessingWork( final List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload,
+			List< File > generatedSRTFiles,
+			final List< File > avFiles,
+			List< File > wavFiles )
+	{
 		// Main loop for processing data items
 		// Will only conduct one unit of work per loop to minimize time between subtitle file downloads
 		boolean didWorkThisLoop = false ;
@@ -143,11 +186,11 @@ public class RenameEpisodesBySRT
 			//  followed by one ai srt generation. However, so long as any srt files remain to be downloaded,
 			//  at most one of wav extraction or ai srt generation will occur per loop. This permits time to
 			//  cycle back to the download algorithm to minimize time we miss while the reset time is expired.
-			
+
 			// Track if work was accomplished this loop.
 			// If no work was accomplished, then we are waiting for the download time to expire.
 			didWorkThisLoop = false ;
-			
+
 			if( openSubtitles.isDownloadAllowed() && !subtitleDataToDownload.isEmpty() )
 			{
 				// Download next SRT file
@@ -157,7 +200,7 @@ public class RenameEpisodesBySRT
 				{
 					// Since this download failed, place it back in the list for a future attempt.
 					subtitleDataToDownload.add( 0, downloadData ) ;
-					
+
 					didWorkThisLoop = true ;
 				}
 
@@ -165,7 +208,7 @@ public class RenameEpisodesBySRT
 				continue ;
 			}
 			// PC: Downloads are throttled or no more srt files to download.
-			
+
 			// Move on to extracting a .wav file.
 			if( !avFiles.isEmpty() )
 			{
@@ -174,7 +217,7 @@ public class RenameEpisodesBySRT
 				final File wavFile = new File( wavFileNameWithPath ) ;
 
 				// Only make the wav file if it is absent.
-				if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile, 0, 0, 0, 0, 2, 0 ) )
+				if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile, 0, 0, 0, 0, getNumMinutesToMatch(), 0 ) )
 				{
 					log.warning( "Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
 					continue ;
@@ -183,30 +226,30 @@ public class RenameEpisodesBySRT
 				// wav file exists, either through extracting here or finding in the directory
 				// Either way, add it to the return list.
 				wavFiles.add( wavFile ) ;
-				
+
 				didWorkThisLoop = true ;
 			}
-			
+
 			if( !didWorkThisLoop && !wavFiles.isEmpty() )
 			{
 				// Generate an SRT via whisper ai.
 				final File wavFile = wavFiles.removeFirst() ;
 				final String srtFileNameWithPath = wavFile.getAbsolutePath().replace( ".wav", ".srt" ) ;
-				
+
 				File srtFile = new File( srtFileNameWithPath ) ;
 				if( !srtFile.exists() )
 				{
 					// File does not already exist -- create it. Currently only transcribing the first two minutes.
 					srtFile = whisper.transcribeToSRT( wavFile ) ;
-					didWorkThisLoop = true ;
 				}
 
 				if( (srtFile != null) && srtFile.exists() )
 				{
 					generatedSRTFiles.add( srtFile ) ;
 				}
+				didWorkThisLoop = true ;
 			}
-			
+
 			if( !didWorkThisLoop )
 			{
 				// Nothing done this loop...must be waiting for timer to expire.
@@ -219,15 +262,456 @@ public class RenameEpisodesBySRT
 					log.warning( "Exception during sleep(): " + theException.toString() ) ;
 				}
 			}
-			
 		} // while( shouldKeepRunning() )
-		log.info( "Done." ) ;
-	} // execute()
+	}
+
+	/**
+	 * Walk through each season and:
+	 *  1) Look for missing downloaded subtitle files and queue any missing for later download and add to subtitleDataToDownload structure
+	 *  2) Find mkv files without corresponding wav files and add those to the avFiles structure
+	 * @param seasonDirectories
+	 * @param subtitleDataToDownload
+	 * @param avFiles
+	 */
+	public void setupPreprocessingWork( final List< File > seasonDirectories,
+			final List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload,
+			final List< File > avFiles,
+			Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes )
+	{
+		for( File seasonDirectory : seasonDirectories )
+		{
+			log.info( "Processing show season " + seasonDirectory.getAbsolutePath() + "..." ) ;
+
+			final String tvdbShowIDString = FileNamePattern.getTVDBShowID( seasonDirectory ) ;
+			final String imdbShowIDString = FileNamePattern.getIMDBShowID( seasonDirectory ) ;
+
+			final int seasonNumber = FileNamePattern.getShowSeasonNumber( seasonDirectory ) ;
+			final TheTVDB_seriesEpisodesClass seasonEpisodes = theTVDB.getSeriesEpisodesInfo( tvdbShowIDString, Integer.toString( seasonNumber ) ) ;
+			seasonDirectoryEpisodes.put( seasonDirectory, seasonEpisodes ) ;
+
+			// Compare the total number of episodes for this season with the srt files already downloaded.
+			final Set< Integer > missingDownloadedSRTFiles = findMissingDownloadedSRTEpisodes( imdbShowIDString, seasonDirectory, seasonEpisodes ) ;
+
+			List< OpenSubtitles_Data > allSubtitlesForSeason = new ArrayList< OpenSubtitles_Data >() ;
+
+			// Only get subtitle information for the episodes that are missing.
+			for( Integer episodeNumberInteger : missingDownloadedSRTFiles )
+			{
+				OpenSubtitles_SubtitlesResponse response = openSubtitles.searchForSubtitlesByIMDBID(
+						imdbShowIDString,
+						String.valueOf( seasonNumber ),
+						episodeNumberInteger.toString(),
+						1 ) ;
+				if( null == response )
+				{
+					log.warning( "null response when searching for subtitles by id " + imdbShowIDString + ", season " + seasonNumber + " episode " + episodeNumberInteger ) ;
+					continue ;
+				}
+				allSubtitlesForSeason.addAll( response.getData() ) ;
+			}
+
+			log.info( "Finding best subtitles..." ) ;
+
+			// Find the best subtitle file for each episode missing a downloaded subtitle file.
+			final List< OpenSubtitles_Data > bestSubtitleForEachEpisode = openSubtitles.findBestSubtitleFileIDsToDownloadForSeason( allSubtitlesForSeason ) ;
+			for( OpenSubtitles_Data theData : bestSubtitleForEachEpisode )
+			{
+				final int episodeNumber = theData.getAttributes().getFeature_details().getEpisode_number().intValue() ;
+				RenameEpisodesBySRT_DownloadDataClass downloadData = new RenameEpisodesBySRT_DownloadDataClass(
+						imdbShowIDString, seasonNumber, episodeNumber, theData, seasonDirectory ) ;
+				subtitleDataToDownload.add( downloadData ) ;
+			}
+
+			log.info( "Searching for a/v media in " + seasonDirectory.getAbsolutePath() ) ;
+			final int numAVFilesBegin = avFiles.size() ;
+
+			// Identify all media files from which to extract audio
+			avFiles.addAll( common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ) ;
+
+			final int numAVFilesEnd = avFiles.size() ;
+			log.info( "Added " + (numAVFilesEnd - numAVFilesBegin) + " file(s) in " + seasonDirectory.getAbsolutePath() ) ;
+		} // for( seasonDirectory )
+	}
+
+	public List< File > getSeasonDirectoriesFromShowDirectories( final List< File > showDirectories )
+	{
+		List< File > seasonDirectories = new ArrayList< File >() ;
+
+		// Sort through the showDirectories and find seasonDirectories
+		for( File showDirectory : showDirectories )
+		{
+			log.info( "Processing show " + showDirectory.getAbsolutePath() + "..." ) ;
+
+			final String imdbShowIDString = FileNamePattern.getIMDBShowID( showDirectory ) ;
+			if( null == imdbShowIDString )
+			{
+				log.info( "The path " + showDirectory.getAbsolutePath() + " is not a tv show" ) ;
+				// This is a non-fatal error as the To_OCR directory may have movies also.
+				continue ;
+			}
+
+			final File[] showDirectoryFiles = showDirectory.listFiles() ;
+			assert( showDirectoryFiles != null ) ;
+
+			for( File showDirectoryFile : showDirectoryFiles )
+			{
+				if( !showDirectoryFile.isDirectory() )
+				{
+					// Not a directory.
+					continue ;
+				}
+				// PC: It's a directory
+				final int seasonNumber = FileNamePattern.getShowSeasonNumber( showDirectoryFile ) ;
+				if( seasonNumber != -1 )
+				{
+					// It's a valid season number.
+					seasonDirectories.add( showDirectoryFile ) ;
+				}
+			}
+		} // for( showDirectory )
+		// PC: seasonDirectories has all valid show season files
+
+		return seasonDirectories ;
+	}
+
+	public void performMatching( final List< File > seasonDirectories, final Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes )
+	{
+		for( File seasonDirectory : seasonDirectories )
+		{
+			log.info( "Processing show season " + seasonDirectory.getAbsolutePath() + "..." ) ;
+
+			final String imdbShowIDString = FileNamePattern.getIMDBShowID( seasonDirectory ) ;
+			assert( imdbShowIDString != null ) ;
+
+			final String tvdbShowIDString = FileNamePattern.getTVDBShowID( seasonDirectory ) ;
+			assert( tvdbShowIDString != null ) ;
+
+			//				final int seasonNumber = FileNamePattern.getShowSeasonNumber( seasonDirectory ) ;
+
+			final List< File > downloadedSRTFiles = common.getFilesInDirectoryByRegex( seasonDirectory, "[\\d]+ - S[\\d]+E[\\d]+ - downloaded.srt" ) ;
+			final List< File > generatedSRTFiles = common.getFilesInDirectoryByRegex( seasonDirectory, "^(?!.*downloaded).*\\.srt$" ) ;
+
+			// Extract the first several minutes of subtitle text from each file to avoid reading each generated srt file multiple times.
+			List< RenameEpisdodesBySRT_SRTData > downloadedSRTFilesData = new ArrayList< RenameEpisdodesBySRT_SRTData >() ;
+			for( File downloadedSRTFile : downloadedSRTFiles )
+			{
+				final String firstMinutesOfSubtitleText = getFirstMinutesOfSRTFile( downloadedSRTFile, getNumMinutesToMatch() ) ;
+				RenameEpisdodesBySRT_SRTData srtFileData = new RenameEpisdodesBySRT_SRTData( downloadedSRTFile, firstMinutesOfSubtitleText ) ;
+				downloadedSRTFilesData.add( srtFileData ) ;
+			}
+
+			List< RenameEpisdodesBySRT_SRTData > generatedSRTFilesData = new ArrayList< RenameEpisdodesBySRT_SRTData >() ;
+			for( File generatedSRTFile : generatedSRTFiles )
+			{
+				final String firstMinutesOfSubtitleText = getFirstMinutesOfSRTFile( generatedSRTFile, getNumMinutesToMatch() ) ;
+				RenameEpisdodesBySRT_SRTData srtFileData = new RenameEpisdodesBySRT_SRTData( generatedSRTFile, firstMinutesOfSubtitleText ) ;
+				generatedSRTFilesData.add( srtFileData ) ;
+			}
+
+			// Find the best match between the downloaded srt file and the generated srt file. The generated srt file
+			// is built from a similarly named mkv file.
+			// Once identified, rename the mkv file to the show episode following the pattern of the downloaded srt file
+			// and rename the downloaded srt file with the correct show name and episode name.
+			for( RenameEpisdodesBySRT_SRTData downloadedSRTFileData : downloadedSRTFilesData )
+			{
+				final File downloadedSRTFile = downloadedSRTFileData.getSrtFile() ;
+				final File bestGeneratedSRTMatchFile = getBestSRTMatch( downloadedSRTFileData, generatedSRTFilesData ) ;
+
+				// Get the proper show name.
+				final Pattern showNamePattern = Pattern.compile( "(?<showName>.*) \\([\\d]+\\) \\{(imdb|tvdb)-[\\d]+\\}" ) ;
+				final String matcherShowNameString = bestGeneratedSRTMatchFile.getParentFile().getParentFile().getName() ;
+				final Matcher showNameMatcher = showNamePattern.matcher( matcherShowNameString ) ;
+				if( !showNameMatcher.find() )
+				{
+					log.warning( "Unable to locate show name from path: " + bestGeneratedSRTMatchFile.getAbsolutePath() ) ;
+					continue ;
+				}
+				
+				// Now have the best match for the downloadedSRTFile
+				// Get the season and episode number.
+				final File mkvFromDownloadedSRTFile = new File( downloadedSRTFile.getAbsolutePath().replace( ".srt", ".mkv" ) ) ;
+				FileNamePattern fnp = new FileNamePattern( log, mkvFromDownloadedSRTFile ) ;
+				
+				final String showName = showNameMatcher.group( "showName" ) ;
+				final int seasonNumber = fnp.getSeasonNumber() ;
+				final int episodeNumber = fnp.getEpisodeNumber() ;
+				final String episodeName = getEpisodeName( seasonDirectoryEpisodes.get( downloadedSRTFile.getParentFile() ), seasonNumber, episodeNumber ) ;
+				String baseFileName = showName + " - S" ;
+				if( seasonNumber < 10 ) baseFileName += "0" ;
+				baseFileName += Integer.toString( seasonNumber ) ;
+				baseFileName += "E" ; // Episode
+				if( episodeNumber < 10 ) baseFileName += "0" ;
+				baseFileName += Integer.toString( episodeNumber ) ;
+				baseFileName += " - "
+						+ episodeName ;
+
+				final String outputMKVFileName = baseFileName + ".mkv" ;
+				final String outputSRTFileName = baseFileName + ".en.srt" ;
+				final File outputMKVFile = new File( downloadedSRTFile.getParentFile(), outputMKVFileName ) ;
+				final File outputSRTFile = new File( downloadedSRTFile.getParentFile(), outputSRTFileName ) ;
+				
+				final String inputMKVFileName = bestGeneratedSRTMatchFile.getAbsolutePath().replace( ".srt", ".mkv" ) ;
+				final File inputMKVFile = new File( downloadedSRTFile.getParentFile(), inputMKVFileName ) ;
+				
+				// Replace the original .mkv file with the new name, and the same for the downloaded srt file
+				try
+				{
+					log.info( "Renaming " + bestGeneratedSRTMatchFile.getAbsolutePath() + " -> " + outputSRTFile.getAbsolutePath() ) ;
+					log.info( "Renaming " + inputMKVFile.getAbsolutePath() + " -> " + outputMKVFile.getAbsolutePath() ) ;
+				}
+				catch( Exception theException )
+				{
+					log.warning( "Error renaming a file: " + theException.toString() ) ;
+				}
+			}
+		} // for( seasonDirectory )
+	} // performMatching()
+
+	public String getEpisodeName( final TheTVDB_seriesEpisodesClass seasonDirectoryEpisodes, final int seasonNumber, final int episodeNumber )
+	{
+		assert( seasonDirectoryEpisodes != null ) ;
+		
+		String episodeName = "NOT FOUND" ;
+		for( TheTVDB_episodeClass theEpisode : seasonDirectoryEpisodes.data.episodes )
+		{
+			if( (seasonNumber == theEpisode.seasonNumber.intValue()) && (episodeNumber == theEpisode.number) )
+			{
+				episodeName = theEpisode.name ;
+				break ;
+			}
+		}
+		
+		return episodeName ;
+	}
+	
+	/**
+	 * Find the best matching SRT file from the list of generatedSRTFilesData against downloadedSRTFileData.
+	 * @param downloadedSRTFileData
+	 * @param generatedSRTFilesData
+	 */
+	public File getBestSRTMatch( final RenameEpisdodesBySRT_SRTData downloadedSRTFileData,
+			final List< RenameEpisdodesBySRT_SRTData > generatedSRTFilesData )
+	{
+		assert( downloadedSRTFileData != null ) ;
+		assert( generatedSRTFilesData != null ) ;
+		assert( !generatedSRTFilesData.isEmpty() ) ;
+
+		File bestMatchFile = null ;
+		Double bestMatchDouble = null ;
+
+		final String firstMinutesOfDownloadedSRTFile = downloadedSRTFileData.getFirstMinutesOfSubtitleText() ;
+		CosineDistance cosineDistance = new CosineDistance() ; // Lower is better
+
+		for( RenameEpisdodesBySRT_SRTData generatedSRTFileData : generatedSRTFilesData )
+		{
+			final String firstMinutesOfGeneratedSRTFile = generatedSRTFileData.getFirstMinutesOfSubtitleText() ;
+			final Double cosineDistanceDouble = cosineDistance.apply( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+
+			if( (null == bestMatchFile) || (cosineDistanceDouble.doubleValue() < bestMatchDouble.doubleValue()) )
+			{
+				// No matches yet or this is a better match.
+				bestMatchFile = generatedSRTFileData.getSrtFile() ;
+				bestMatchDouble = cosineDistanceDouble ;
+			}
+		}
+		return bestMatchFile ;
+	}
+
+	/**
+	 * For each generatdSRTFile, match against the downloadedSRTFile and add the generatedSRTFile and its match score to a Map and return it.
+	 * Based on some testing, use Cosine Distance with 4 minute wav/srt.
+	 * @param downloadedSRTFile
+	 * @param generatedSRTFiles
+	 * @return
+	 */
+	public TreeMap< Double, File > test_matchDownloadedSRTFilesWithGeneratedSRTFiles( final RenameEpisdodesBySRT_SRTData downloadedSRTFileData,
+			final List< RenameEpisdodesBySRT_SRTData > generatedSRTFilesData,
+			BufferedWriter dataFileWriter )
+	{
+		assert( downloadedSRTFileData != null ) ;
+		assert( generatedSRTFilesData != null ) ;
+
+		TreeMap< Double, File > matchingScores = new TreeMap< Double, File >() ;
+		FuzzyScore fuzzyScore = new FuzzyScore( Locale.ENGLISH ) ; // Higher is better
+		LevenshteinDistance levenshsteinDistance = LevenshteinDistance.getDefaultInstance() ; // Lower is better
+		LongestCommonSubsequenceDistance longestCommonSubsequenceDistance = new LongestCommonSubsequenceDistance() ; // Lower is better
+		CosineDistance cosineDistance = new CosineDistance() ; // Lower is better
+		//		CosineSimilarity cosineSimilarity = new CosineSimilarity() ;
+		JaroWinklerDistance jaroWinklerDistance = new JaroWinklerDistance() ; // Lower is better
+
+		final String firstMinutesOfDownloadedSRTFile = downloadedSRTFileData.getFirstMinutesOfSubtitleText() ;
+
+		for( RenameEpisdodesBySRT_SRTData generatedSRTFileData : generatedSRTFilesData )
+		{
+			final String firstMinutesOfGeneratedSRTFile = generatedSRTFileData.getFirstMinutesOfSubtitleText() ;
+			final Integer fuzzyScoreInteger = fuzzyScore.fuzzyScore( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+			final Integer levenshsteinDistanceInteger = levenshsteinDistance.apply( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+			final Integer longestCommonSubsequenceDistanceInstance = longestCommonSubsequenceDistance.apply( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+			final Double cosineDistanceDouble = cosineDistance.apply( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+			//			final Double cosineSimilarityDouble = cosineSimilarity.cosineSimilarity( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+			final Double jaroWinklerDistanceDouble = jaroWinklerDistance.apply( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
+
+			final int score = levenshsteinDistanceInteger.intValue() + longestCommonSubsequenceDistanceInstance.intValue() ;
+			// Based on some initial testing, the cosine distance performs the best for this data set (tv show "24")
+			matchingScores.put( cosineDistanceDouble,  generatedSRTFileData.getSrtFile() ) ;
+
+			// dataFileWriter format:
+			// downloadedsrtfilename,generatedsrtfilename,fuzzy score,levenshtein,longestcommonsubsequence,cosine distance,jarowinkler distance,levensthein+longestcommon
+			try
+			{
+				dataFileWriter.write( downloadedSRTFileData.getSrtFile().getName()
+						+ "," + generatedSRTFileData.getSrtFile().getName()
+						+ "," + fuzzyScoreInteger
+						+ "," + levenshsteinDistanceInteger
+						+ "," + longestCommonSubsequenceDistanceInstance
+						+ "," + cosineDistanceDouble
+						+ "," + jaroWinklerDistanceDouble
+						+ "," + score
+						+ System.lineSeparator() ) ;
+			}
+			catch( Exception theException )
+			{
+				log.warning( "Write error to data file " + getMatchingDataFilename() + ": " + theException.toString() ) ;
+			}
+		}
+
+		// Code used to test the matching algorithms from execute()
+		//				for( RenameEpisdodesBySRT_SRTData downloadedSRTFileData : downloadedSRTFilesData )
+		//				{
+		//					TreeMap< Double, File > downloadedSRTFileScores = test_matchDownloadedSRTFilesWithGeneratedSRTFiles( downloadedSRTFileData, generatedSRTFilesData, dataFileWriter ) ;
+		//					downloadedSRTScoringMap.put( downloadedSRTFileData.getSrtFile(), downloadedSRTFileScores ) ;
+		//				}
+		//				
+		//				for( Map.Entry< File, TreeMap< Double, File > > entry : downloadedSRTScoringMap.entrySet() )
+		//				{
+		//					final File downloadedSRTFile = entry.getKey() ;
+		//					
+		//					// scoringMap is a TreeMap so guaranteed to be ordered.
+		//					final TreeMap< Double, File > scoringMap = entry.getValue() ;
+		//					
+		//					final Double lowestScoreDouble = scoringMap.firstEntry().getKey() ;
+		//					final File lowestScoreFile = scoringMap.firstEntry().getValue() ;
+		//					
+		//					log.info( "Best match for " + downloadedSRTFile.getAbsolutePath() + " is [" + lowestScoreDouble + "," + lowestScoreFile.getAbsolutePath() + "]" ) ;					
+		//				}
+		
+		return matchingScores ;
+	}
+
+	public String getFirstMinutesOfSRTFile( final File inputFile, final int numMinutes )
+	{
+		assert( inputFile != null ) ;
+		final long MINUTES_IN_MILLIS = numMinutes * 60 * 1000 ; // milliseconds
+
+		StringBuilder result = new StringBuilder() ;
+		try( BufferedReader reader = new BufferedReader(
+				new FileReader( inputFile.getAbsolutePath() ) ) )
+		{
+			String line = null ;
+			//			long currentTimeMillis = 0;
+
+			while( (line = reader.readLine()) != null )
+			{
+				// Skip blank lines
+				if( line.trim().isEmpty() )
+				{
+					continue ;
+				}
+
+				// SRT files are broken into blocks that each look like this:
+				// 1 // the segment number
+				// 00:00:12,923 --> 00:00:14,987 // start and end time for this subtitle
+				// The following takes place between 5 a.m. // subtitle text
+
+				// Check for subtitle number
+				if( isInteger( line.trim() ) )
+				{
+					// Got the beginning of a segment
+					// Read the timecode line
+					final String timecodeLine = reader.readLine() ;
+					if( timecodeLine != null )
+					{
+						final long startTimeMillis = parseTimecode( timecodeLine.split( "-->" )[ 0 ].trim() ) ;
+
+						// If the subtitle starts within the first two minutes
+						if( startTimeMillis < MINUTES_IN_MILLIS )
+						{
+							// Read subtitle text until a blank line
+							while( (line = reader.readLine()) != null && !line.trim().isEmpty() )
+							{
+								result.append( line ).append(" ") ;
+							}
+							result.append( System.lineSeparator() ) ; // Add a newline after each subtitle
+						}
+						else
+						{
+							// If the subtitle starts after two minutes, we can stop processing
+							break ; 
+						} // if( startTimeMillis < 2min )
+					} // if( timecodeLine != null )
+				} // if( isInteger )
+			} // while( line = reader )
+		} // try
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
+		}
+		return result.toString().trim() ;
+	}
+
+	private static boolean isInteger( final String s )
+	{
+		try
+		{
+			Integer.parseInt( s ) ;
+			return true ;
+		}
+		catch( NumberFormatException e )
+		{
+			return false ;
+		}
+	}
+
+	private static long parseTimecode( final String timecode )
+	{
+		final String[] parts = timecode.split( ":" ) ;
+		final int hours = Integer.parseInt( parts[ 0 ] ) ;
+		final int minutes = Integer.parseInt( parts[ 1 ] ) ;
+		final String[] secondsAndMillis = parts[ 2 ].split( "," ) ;
+		final int seconds = Integer.parseInt( secondsAndMillis[ 0 ] ) ;
+		final int milliseconds = Integer.parseInt( secondsAndMillis[ 1 ] ) ;
+
+		return (long) hours * 3600 * 1000 + 
+				(long) minutes * 60 * 1000 + 
+				(long) seconds * 1000 + 
+				milliseconds ;
+	}
+
+	public List< File > findDownloadedSRTFiles( final File inputDirectory )
+	{
+		assert( inputDirectory != null ) ;
+		assert( inputDirectory.isDirectory() ) ;
+
+		List< File > downloadedSRTFiles = new ArrayList< File >() ;
+		final File[] fileList = inputDirectory.listFiles() ;
+
+		final Pattern downloadedSRTFilePattern = Pattern.compile( "[\\d]+ - S[\\d]+E[\\d]+ - downloaded.srt" ) ;
+		for( File theFile : fileList )
+		{
+			final Matcher downloadedSRTFileMatcher = downloadedSRTFilePattern.matcher( theFile.getName() ) ;
+			if( downloadedSRTFileMatcher.find() )
+			{
+				// Found a match.
+				downloadedSRTFiles.add( theFile ) ;
+			}
+		}
+		return downloadedSRTFiles ;		
+	}
 
 	public Set< Integer > findMissingDownloadedSRTEpisodes( final String imdbShowIDString, final File seasonDirectory, final TheTVDB_seriesEpisodesClass seasonEpisodes )
 	{
 		Set< Integer > missingDownloadedSRTEpisodes = new HashSet< Integer >() ;
-		
+
 		for( TheTVDB_episodeClass seasonEpisode : seasonEpisodes.data.episodes )
 		{
 			final String downloadedSRTFileName = makeSRTDownloadFileName( imdbShowIDString, seasonEpisode.seasonNumber.intValue(), seasonEpisode.number.intValue() ) ;
@@ -240,13 +724,13 @@ public class RenameEpisodesBySRT
 		}
 		return missingDownloadedSRTEpisodes ;
 	}
-	
+
 	public List< File > getAVFilesFromDirectory( final File seasonDirectory )
 	{
 		List< File > avFiles = common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ;
 		return avFiles ;
 	}
-	
+
 	public List< File > makeWavFilesForSeason( final File seasonDirectory )
 	{
 		assert( seasonDirectory != null ) ;
@@ -309,7 +793,7 @@ public class RenameEpisodesBySRT
 				+ " - downloaded.srt" ;
 		return srtDownloadFileName ;
 	}
-	
+
 	/**
 	 * Download the subtitle file identified by subtitleData into outputDirectory.
 	 * @param subtitleData
@@ -325,7 +809,7 @@ public class RenameEpisodesBySRT
 		final int seasonNumber = downloadData.getSeasonNumber() ;
 		final int episodeNumber = downloadData.getEpisodeNumber() ;
 		final String subtitleFileID = downloadData.subtitleData.getAttributes().getFiles().getFirst().getFile_id().toString() ;
-		
+
 		final String newFileName = makeSRTDownloadFileName( downloadData.getImdbShowIDString(),
 				seasonNumber,
 				episodeNumber ) ;
@@ -335,7 +819,7 @@ public class RenameEpisodesBySRT
 			// File already exists, no need to download.
 			return 0 ;
 		}
-		
+
 		File subtitleFile = openSubtitles.downloadSubtitleFileByID( subtitleFileID, newOutputFile ) ;
 		if( null == subtitleFile )
 		{
@@ -345,7 +829,7 @@ public class RenameEpisodesBySRT
 
 		return 0 ;
 	}
-	
+
 	public void downloadSRTFilesForSeason( final String imdbShowIDString, final int seasonNumber, final File outputDirectory )
 	{
 		OpenSubtitles openSubtitles = new OpenSubtitles( log, common ) ;
@@ -377,11 +861,6 @@ public class RenameEpisodesBySRT
 
 			downloadedSubtitleFiles.add( subtitleFile ) ;
 		}
-	}
-
-	public void matchAndRenameShowFilesForSeason( final File seasonDirectory )
-	{
-
 	}
 
 	public List< File > getShowDirectories( final String topLevelDirectoryString )
@@ -419,14 +898,24 @@ public class RenameEpisodesBySRT
 		}
 		return showDirectories ;
 	}
-	
+
 	public boolean shouldKeepRunning()
 	{
 		return !common.shouldStopExecution( getStopFileName() ) ;
 	}
-	
+
 	public String getStopFileName()
 	{
 		return stopFileName ;
+	}
+
+	public int getNumMinutesToMatch()
+	{
+		return numMinutesToMatch ;
+	}
+
+	public static String getMatchingDataFilename()
+	{
+		return matchingDataFileName ;
 	}
 }

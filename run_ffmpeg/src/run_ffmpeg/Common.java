@@ -23,6 +23,7 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -78,8 +79,8 @@ public class Common
 
 	private static final String[] pathsToWhisperX =
 		{
-				"c:\\Program Files\\Python\\Python312\\Scripts\\whisperX",
-				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX"
+				"c:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe",
+				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe"
 		} ;
 	
 	protected static final String[] videoExtensions =
@@ -697,6 +698,40 @@ public class Common
 		return fileNameWithoutExtension ;
 	}
 
+	/**
+	 * Return the files in the inputDirectory that match the given pattern. The pattern will be matched against the file name and extension but not the path.
+	 * @param inputDirectory
+	 * @param fileMatchPattern
+	 * @return
+	 */
+	public List< File > getFilesInDirectoryByRegex( final File inputDirectory, final Pattern fileMatchPattern )
+	{
+		assert( inputDirectory != null ) ;
+		assert( inputDirectory.isDirectory() ) ;
+		assert( fileMatchPattern != null ) ;
+		
+		List< File > matchingFiles = new ArrayList< File >() ;
+		final File[] filesInDirectory = inputDirectory.listFiles() ;
+		
+		for( File theFile : filesInDirectory )
+		{
+			final Matcher fileMatchMatcher = fileMatchPattern.matcher( theFile.getName() ) ;
+			if( fileMatchMatcher.find() )
+			{
+				// Found a match.
+				matchingFiles.add( theFile ) ;
+			}
+		}
+		return matchingFiles ;		
+	}
+	
+	public List< File > getFilesInDirectoryByRegex( final File inputDirectory,final String fileMatchPatternString )
+	{
+		assert( fileMatchPatternString != null ) ;
+		
+		return getFilesInDirectoryByRegex( inputDirectory, Pattern.compile( fileMatchPatternString ) ) ;
+	}
+	
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
