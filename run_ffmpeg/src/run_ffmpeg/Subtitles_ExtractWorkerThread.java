@@ -55,7 +55,7 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 		{
 				codecNameSubTitlePGSString,
 				codecNameSubTitleSRTString,
-				codecNameSubtitleMovText,
+//				codecNameSubtitleMovText, // Roku can show this natively -- no need to extract.
 				codecNameSubtitleHDMVString
 		} ;
 
