@@ -19,10 +19,10 @@ import run_ffmpeg.ffmpeg.FFmpeg_Stream;
 /**
  * Thread class that extracts subtitles from files in a given list of folders.
  */
-public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
+public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 {
 	/// Reference to the controller thread.
-	ExtractSubtitles theController = null ;
+	Subtitles_Extract theController = null ;
 
 	/// Reference to a PD object to access its probeFileAndUpdateDB() method.
 	/// Will be passed to the worker threads.
@@ -36,9 +36,11 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	protected Map< String, FFmpeg_ProbeResult > probedFiles = new HashMap< String, FFmpeg_ProbeResult >() ;
 
 	static final String codecTypeSubTitleNameString = "subtitle" ;
-	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ;
-	static final String codecNameSubTitleSRTString = "subrip" ;
-	static final String codecNameSubTitleDVDSubString = "dvd_subtitle" ;
+	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ; // pgs image format; subtitle edit does a decent job of OCR
+	static final String codecNameSubtitleHDMVString = "hdmv_text_subtitle" ; // outputs as .sup and can process like pgs
+	static final String codecNameSubTitleSRTString = "subrip" ; // srt files
+	static final String codecNameSubTitleDVDSubString = "dvd_subtitle" ; // vob sub image format; need to use other means (AI?); subtitle edit does a poor job of OCR
+	static final String codecNameSubtitleMovText = "mov_text" ; // also shows as Timed Text in mp4 files.
 
 	/// Identify the allowable languages for subtitles.
 	static final String[] allowableSubTitleLanguages =
@@ -47,13 +49,14 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 				"en"
 		} ;
 
-	/// These subtitle codec names to be extracted.
+	/// The subtitle codec names to be extracted.
 	/// This will mostly be used when selecting which streams to extract as separate files.
 	static final String[] extractableSubTitleCodecNames =
 		{
 				codecNameSubTitlePGSString,
-				codecNameSubTitleSRTString
-				//			codecNameSubTitleDVDSubString
+				codecNameSubTitleSRTString,
+				codecNameSubtitleMovText,
+				codecNameSubtitleHDMVString
 		} ;
 
 	/**
@@ -63,7 +66,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	 * @param common
 	 * @param foldersToExtract
 	 */
-	public ExtractSubtitlesWorkerThread( ExtractSubtitles theController,
+	public Subtitles_ExtractWorkerThread( Subtitles_Extract theController,
 			Logger log,
 			Common common,
 			ProbeDirectories probeDirectories,
@@ -80,6 +83,15 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		this.foldersToExtract = foldersToExtract ;
 	}
 
+	/**
+	 * This is a subordinate method to help build the overall extract ffmpeg command.
+	 * Build the command *option* string to extract subtitles from the given probeResult file.
+	 * If no subtiles can be extracted (typically no pgs or srt streams), then return an empty structure.
+	 * @param probeResult
+	 * @param theFile
+	 * @param supFiles
+	 * @return
+	 */
 	public ImmutableList.Builder< String > buildFFmpegSubTitleExtractionOptionsString( FFmpeg_ProbeResult probeResult,
 			TranscodeFile theFile,
 			List< File > supFiles )
@@ -90,7 +102,7 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		ImmutableList.Builder< String > ffmpegOptionsCommandString = new ImmutableList.Builder< String >() ;
 
 		// includedSubTitleStreams will include only allowable subtitle streams to extract
-		List< FFmpeg_Stream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
+		final List< FFmpeg_Stream > extractableSubTitleStreams = findExtractableSubTitleStreams( probeResult ) ;
 
 		// If the file has multiple subtitle streams that can be extracted, then ensure we name the
 		// first such stream without a stream index #
@@ -132,14 +144,14 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 			// Found PGS or SRT stream
 			ffmpegOptionsCommandString.add( "-map", "0:" + streamIndex ) ;
 
-			// Create the .sup filename
+			// Create the output filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
 			String outputPath = theFile.getInputDirectory() ;
 			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputPath )
 					+ Common.stripExtensionFromFileName( theFile.getInputFile().getName() ) ;
 
-			// Movie (2009) -> Movie (2009).1.sup or Movie (2009).1.srt
+			// Movie (2009) -> Movie (2009).en.1.sup or Movie (2009).en.1.srt
 			outputFileNameWithPath += ".en" ;
 			if( extractableSubTitleStreams.size() > 1 )
 			{
@@ -157,25 +169,17 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 				}
 			}
 
-			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) )
+			if( stStream.codec_name.equals( codecNameSubTitlePGSString ) || stStream.codec_name.equals( codecNameSubtitleHDMVString ))
 			{
 				outputFileNameWithPath += ".sup" ;
 				supFiles.add( new File( outputFileNameWithPath ) ) ;
 			}
-			else if( stStream.codec_name.equals( codecNameSubTitleSRTString ) )
+			else if( stStream.codec_name.equals( codecNameSubTitleSRTString ) || stStream.codec_name.equals( codecNameSubtitleMovText ) )
 			{
 				outputFileNameWithPath += ".srt" ;
 			}
-
-			//			if( stStream.codec_name.equals( codecNameSubTitleDVDSubString ) )
-			//			{
-			//				ffmpegOptionsCommandString.add( "-c:s", "dvdsub" ) ;
-			//				ffmpegOptionsCommandString.add( "-f", "rawvideo", outputFileNameWithPath ) ;
-			//			}
-			//			else
-			//			{
 			ffmpegOptionsCommandString.add( "-c:s", "copy", outputFileNameWithPath ) ;
-			//			}
+
 		}
 		log.fine( "ffmpegOptionsCommandString: "
 				+ common.toStringForCommandExecution( ffmpegOptionsCommandString.build() ) ) ;
@@ -201,7 +205,24 @@ public class ExtractSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		if( subTitleExtractionOptionsString.build().isEmpty() )
 		{
 			// No usable streams found
-			// Skip this file
+			// Extract the first audio stream as a wave file and conduct a whisperX transcription of it.
+			log.info( getName() + " Extracting audio for file " + probeResult.getFileNameWithPath() ) ;
+			
+			final File avFile = fileToSubTitleExtract.getInputFile() ;
+			final String wavFileNameWithPath = Common.replaceExtension( avFile.getAbsolutePath(), "wav" ) ;
+			final File wavFile = new File( wavFileNameWithPath ) ;
+
+			// Only make the wav file if it is absent.
+			// Pass -1 for the duration hours/mins/secs to extract the entire audio stream.
+			if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile, 0, 0, 0, -1, -1, -1 ) )
+			{
+				log.warning( getName() + " Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
+				return ;
+			}
+
+			// wav file exists, either through extracting here or finding in the directory
+			// Either way, add it to the return list.
+			theController.addFilesToTranscriptionPipelin( avFile ) ;
 			return ;
 		}
 

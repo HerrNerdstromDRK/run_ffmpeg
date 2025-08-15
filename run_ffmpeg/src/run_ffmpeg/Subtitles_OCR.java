@@ -16,7 +16,7 @@ import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
  *  of files to OCR and the worker threads retrieve one file at a time to OCR.
  * @author Dan
  */
-public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitlesWorkerThread >
+public class Subtitles_OCR extends run_ffmpegControllerThreadTemplate< Subtitles_OCRWorkerThread >
 {
 	/// The default number of threads to run.
 	private int defaultNumThreads = 6 ;
@@ -28,11 +28,11 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	private long lastAliveCheck = 0 ;
 
 	/// File name to which to log activities for this application.
-	private static final String logFileName = "log_ocr_subtitle.txt" ;
+	private static final String logFileName = "log_subtitles_ocr.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
-	private static final String stopFileName = "C:\\Temp\\stop_ocr_subtitle.txt" ;
+	private static final String stopFileName = "C:\\Temp\\stop_subtitles_ocr.txt" ;
 
 	/// The list of filenames to OCR
 	/// Will be used as the job priority queue.
@@ -45,7 +45,7 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	/**
 	 * The default constructor uses the static file names.
 	 */
-	public OCRSubtitles()
+	public Subtitles_OCR()
 	{
 		super( logFileName, stopFileName ) ;
 	}
@@ -56,12 +56,12 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	 * @param logFileName
 	 * @param stopFileName
 	 */
-	public OCRSubtitles( final String logFileName, final String stopFileName )
+	public Subtitles_OCR( final String logFileName, final String stopFileName )
 	{
 		super( logFileName, stopFileName ) ;
 	}
 
-	public OCRSubtitles( Logger log,
+	public Subtitles_OCR( Logger log,
 			Common common,
 			MoviesAndShowsMongoDB masMDB,
 			MongoCollection< FFmpeg_ProbeResult > probeInfoCollection )
@@ -69,7 +69,7 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 		super( log, common, stopFileName, masMDB, probeInfoCollection ) ;
 	}
 
-	public OCRSubtitles( Logger log,
+	public Subtitles_OCR( Logger log,
 			Common common,
 			final String stopFileName,
 			MoviesAndShowsMongoDB masMDB,
@@ -80,7 +80,7 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	
 	public static void main( String[] args )
 	{
-		OCRSubtitles ocrs = new OCRSubtitles() ;
+		Subtitles_OCR ocrs = new Subtitles_OCR() ;
 		ocrs.Init() ;
 		ocrs.Execute() ;
 		System.out.println( "Process shut down." ) ;
@@ -111,23 +111,23 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	 * Note that this means the drive prefixes must be mutually exclusive.
 	 */
 	@Override
-	protected List< OCRSubtitlesWorkerThread > buildWorkerThreads()
+	protected List< Subtitles_OCRWorkerThread > buildWorkerThreads()
 	{
 		assert( !filesToOCR.isEmpty() ) ;
-		List< OCRSubtitlesWorkerThread > threads = new ArrayList< OCRSubtitlesWorkerThread >() ;
+		List< Subtitles_OCRWorkerThread > threads = new ArrayList< Subtitles_OCRWorkerThread >() ;
 
 		if( isUseThreads() )
 		{
 			for( int i = 0 ; i < getDefaultNumThreads() ; ++i )
 			{
-				OCRSubtitlesWorkerThread ocrThread = new OCRSubtitlesWorkerThread( this, log, common ) ;
+				Subtitles_OCRWorkerThread ocrThread = new Subtitles_OCRWorkerThread( this, log, common ) ;
 				ocrThread.setName( "OCR Thread " + (i + 1) ) ;
 				threads.add( ocrThread ) ;
 			}
 		}
 		else
 		{
-			OCRSubtitlesWorkerThread ocrThread = new OCRSubtitlesWorkerThread( this, log, common ) ;
+			Subtitles_OCRWorkerThread ocrThread = new Subtitles_OCRWorkerThread( this, log, common ) ;
 			ocrThread.setName( getSingleThreadedName() ) ;
 			threads.add( ocrThread ) ;
 		}
@@ -179,8 +179,8 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	public int countActiveOCR()
 	{
 		int numActiveOCR = 0 ;
-		OCRSubtitlesWorkerThread[] workerThreads = getWorkerThreads() ;
-		for( OCRSubtitlesWorkerThread theThread : workerThreads )
+		Subtitles_OCRWorkerThread[] workerThreads = getWorkerThreads() ;
+		for( Subtitles_OCRWorkerThread theThread : workerThreads )
 		{
 			if( theThread.isWorkInProgress() )
 			{
@@ -197,7 +197,7 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 	@Override
 	public void Execute_mainLoopStart()
 	{
-		OCRSubtitlesWorkerThread[] workerThreads = getWorkerThreads() ;
+		Subtitles_OCRWorkerThread[] workerThreads = getWorkerThreads() ;
 		assert( workerThreads.length > 0 ) ;
 
 		if( !isUseThreads() )
@@ -220,7 +220,7 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 			int numActiveOCR = 0 ;
 
 			// Walk through the threadMap to check for number of alive and dead threads and report out status.
-			for( OCRSubtitlesWorkerThread theThread : workerThreads )
+			for( Subtitles_OCRWorkerThread theThread : workerThreads )
 			{
 				if( theThread.isAlive() )
 				{
@@ -291,21 +291,12 @@ public class OCRSubtitles extends run_ffmpegControllerThreadTemplate< OCRSubtitl
 		return fileToOCR ;
 	}
 
-	protected OCRSubtitlesWorkerThread[] getWorkerThreads()
+	protected Subtitles_OCRWorkerThread[] getWorkerThreads()
 	{
-		OCRSubtitlesWorkerThread[] workerThreads = new OCRSubtitlesWorkerThread[ 0 ] ;
-		OCRSubtitlesWorkerThread[] retMe = getWorkerThreads( workerThreads ) ;
+		Subtitles_OCRWorkerThread[] workerThreads = new Subtitles_OCRWorkerThread[ 0 ] ;
+		Subtitles_OCRWorkerThread[] retMe = getWorkerThreads( workerThreads ) ;
 		return retMe ;
 	}
-	
-//	/**
-//	 * Return true if more work is available, and false otherwise.
-//	 */
-//	@Override
-//	public boolean hasMoreWork()
-//	{
-//		return !filesToOCR.isEmpty() ;
-//	}
 
 	/**
 	 * Return true if at least one job is available.

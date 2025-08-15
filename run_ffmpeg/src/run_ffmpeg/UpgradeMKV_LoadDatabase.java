@@ -51,6 +51,12 @@ public class UpgradeMKV_LoadDatabase
 		final List< FFmpeg_ProbeResult > filesToUpgrade = findFilesThatNeedUpgrade( allProbeInfoInstances ) ;
 		log.info( "Found " + filesToUpgrade.size() + " file(s) to upgrade" ) ;
 		
+		if( filesToUpgrade.isEmpty() )
+		{
+			// Nothing left to do.
+			return ;
+		}
+		
 //		for( FFmpegProbeResult theProbeResult : filesToUpgrade )
 //		{
 //			log.fine( "Upgrade: " + theProbeResult.getFileNameWithPath() ) ;

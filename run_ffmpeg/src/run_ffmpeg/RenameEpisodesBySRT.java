@@ -31,6 +31,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 
+/**
+ * This class matches and renames .mkv files for tv shows to their proper series/season/episode names. It also updates the names
+ *  of the .srt files.
+ * It downloads reference srt files from opensubtitles and compares those against the srt files for the .mkv files
+ * Downloading reference srt files is throttled by opensubtitles, but this application includes wait operations to eventually
+ *  download them all.
+ * Precondition: The .mkv files MUST already have one srt file for each (use Subtitles_Orchestrator).
+ */
 public class RenameEpisodesBySRT
 {
 	/// Setup the logging subsystem
@@ -126,7 +134,6 @@ public class RenameEpisodesBySRT
 		// Generalize this to queue all work ahead of time and then do one unit of work each iteration while checking for
 		//  download time expiration.
 		List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload = new ArrayList< RenameEpisodesBySRT_DownloadDataClass >() ;
-		List< File > generatedSRTFiles = new ArrayList< File >() ;
 
 		// Can add shows or seasons individually
 		// showDirectories is the set of tv show directories, one directory for each show
@@ -139,20 +146,13 @@ public class RenameEpisodesBySRT
 		List< File > seasonDirectories = new ArrayList< File >() ;
 		seasonDirectories.addAll( getSeasonDirectoriesFromShowDirectories( showDirectories ) ) ;
 
-		// List of media files from which to extract audio.
-		List< File > avFiles = new ArrayList< File >() ;
-
-		// The wav files from which to generate SRT files.
-		// This structure will be filled as audio is extracted from each av file.
-		List< File > wavFiles = new ArrayList< File >() ;
-
 		Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes = new HashMap< File, TheTVDB_seriesEpisodesClass >() ;
 
-		// Walk through the seasonDirectories and identify which subtitles to download and which mkv files to export to wav
-		setupPreprocessingWork( seasonDirectories, subtitleDataToDownload, avFiles, seasonDirectoryEpisodes ) ;
+		// Walk through the seasonDirectories and identify which subtitles to download and find the generated srt files
+		setupPreprocessingWork( seasonDirectories, subtitleDataToDownload, seasonDirectoryEpisodes ) ;
 
-		// Download the subtitle files, extract audio from the mkv files, and generate the srt files from the wav files 
-		conductPreprocessingWork( subtitleDataToDownload, generatedSRTFiles, avFiles, wavFiles ) ;
+		// Download the subtitle files
+		conductPreprocessingWork( subtitleDataToDownload ) ;
 
 		// The previous method can complete either by completing the preprocessing work or because the stop file is now present
 		// indicating we should stop the application.
@@ -172,15 +172,12 @@ public class RenameEpisodesBySRT
 		log.info( "Done." ) ;
 	} // execute()
 
-	public void conductPreprocessingWork( final List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload,
-			List< File > generatedSRTFiles,
-			final List< File > avFiles,
-			List< File > wavFiles )
+	public void conductPreprocessingWork( final List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload )
 	{
 		// Main loop for processing data items
 		// Will only conduct one unit of work per loop to minimize time between subtitle file downloads
 		boolean didWorkThisLoop = false ;
-		while( shouldKeepRunning() && (!subtitleDataToDownload.isEmpty() || !avFiles.isEmpty() || !wavFiles.isEmpty()) )
+		while( shouldKeepRunning() && !subtitleDataToDownload.isEmpty() )
 		{
 			// This loop is designed to do all srt downloads permitted, followed by one wav extraction,
 			//  followed by one ai srt generation. However, so long as any srt files remain to be downloaded,
@@ -209,47 +206,6 @@ public class RenameEpisodesBySRT
 			}
 			// PC: Downloads are throttled or no more srt files to download.
 
-			// Move on to extracting a .wav file.
-			if( !avFiles.isEmpty() )
-			{
-				final File avFile = avFiles.removeFirst() ;
-				final String wavFileNameWithPath = Common.replaceExtension( avFile.getAbsolutePath(), "wav" ) ;
-				final File wavFile = new File( wavFileNameWithPath ) ;
-
-				// Only make the wav file if it is absent.
-				if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile, 0, 0, 0, 0, getNumMinutesToMatch(), 0 ) )
-				{
-					log.warning( "Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
-					continue ;
-				}
-
-				// wav file exists, either through extracting here or finding in the directory
-				// Either way, add it to the return list.
-				wavFiles.add( wavFile ) ;
-
-				didWorkThisLoop = true ;
-			}
-
-			if( !didWorkThisLoop && !wavFiles.isEmpty() )
-			{
-				// Generate an SRT via whisper ai.
-				final File wavFile = wavFiles.removeFirst() ;
-				final String srtFileNameWithPath = wavFile.getAbsolutePath().replace( ".wav", ".srt" ) ;
-
-				File srtFile = new File( srtFileNameWithPath ) ;
-				if( !srtFile.exists() )
-				{
-					// File does not already exist -- create it. Currently only transcribing the first two minutes.
-					srtFile = whisper.transcribeToSRT( wavFile ) ;
-				}
-
-				if( (srtFile != null) && srtFile.exists() )
-				{
-					generatedSRTFiles.add( srtFile ) ;
-				}
-				didWorkThisLoop = true ;
-			}
-
 			if( !didWorkThisLoop )
 			{
 				// Nothing done this loop...must be waiting for timer to expire.
@@ -275,7 +231,6 @@ public class RenameEpisodesBySRT
 	 */
 	public void setupPreprocessingWork( final List< File > seasonDirectories,
 			final List< RenameEpisodesBySRT_DownloadDataClass > subtitleDataToDownload,
-			final List< File > avFiles,
 			Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes )
 	{
 		for( File seasonDirectory : seasonDirectories )
@@ -321,15 +276,6 @@ public class RenameEpisodesBySRT
 						imdbShowIDString, seasonNumber, episodeNumber, theData, seasonDirectory ) ;
 				subtitleDataToDownload.add( downloadData ) ;
 			}
-
-			log.info( "Searching for a/v media in " + seasonDirectory.getAbsolutePath() ) ;
-			final int numAVFilesBegin = avFiles.size() ;
-
-			// Identify all media files from which to extract audio
-			avFiles.addAll( common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ) ;
-
-			final int numAVFilesEnd = avFiles.size() ;
-			log.info( "Added " + (numAVFilesEnd - numAVFilesBegin) + " file(s) in " + seasonDirectory.getAbsolutePath() ) ;
 		} // for( seasonDirectory )
 	}
 
@@ -723,64 +669,6 @@ public class RenameEpisodesBySRT
 			}
 		}
 		return missingDownloadedSRTEpisodes ;
-	}
-
-	public List< File > getAVFilesFromDirectory( final File seasonDirectory )
-	{
-		List< File > avFiles = common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ;
-		return avFiles ;
-	}
-
-	public List< File > makeWavFilesForSeason( final File seasonDirectory )
-	{
-		assert( seasonDirectory != null ) ;
-
-		List< File > wavFiles = new ArrayList< File >() ;
-		final List< File > avFiles = common.getFilesInDirectoryByExtension( seasonDirectory, Common.getVideoExtensions() ) ;
-		for( File avFile : avFiles )
-		{
-			final String wavFileNameWithPath = Common.replaceExtension( avFile.getAbsolutePath(), "wav" ) ;
-			final File wavFile = new File( wavFileNameWithPath ) ;
-
-			// Only make the wav file if it is absent.
-			if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile ) )
-			{
-				log.warning( "Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
-				continue ;
-			}
-
-			// wav file exists, either through extracting here or finding in the directory
-			// Either way, add it to the return list.
-			wavFiles.add( wavFile ) ;
-		}
-		return wavFiles ;
-	}
-
-	public List< File > makeSRTFilesForSeason( final File seasonDirectory, final List< File > wavFiles )
-	{
-		assert( seasonDirectory != null ) ;
-		assert( wavFiles != null ) ;
-
-		OpenAIWhisper whisper = new OpenAIWhisper( log, common ) ;
-		List< File > generatedSRTFiles = new ArrayList< File >() ;
-
-		// Generate an srt file for each file in wavFiles
-		for( File wavFile : wavFiles )
-		{
-			final String srtFileNameWithPath = wavFile.getAbsolutePath().replace( ".wav", ".srt" ) ;
-			File srtFile = new File( srtFileNameWithPath ) ;
-			if( !srtFile.exists() )
-			{
-				// File does not already exist -- create it.
-				srtFile = whisper.transcribeToSRT( wavFile ) ;
-			}
-
-			if( srtFile != null )
-			{
-				generatedSRTFiles.add( srtFile ) ;
-			}
-		}
-		return generatedSRTFiles ;
 	}
 
 	public String makeSRTDownloadFileName( final String imdbShowIDString,

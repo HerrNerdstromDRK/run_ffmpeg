@@ -3,23 +3,25 @@ package run_ffmpeg;
 import java.util.logging.Logger;
 
 /**
- * This worker class encapsulates either an extract or ocr object and serves as proxy
+ * This worker class encapsulates either an extract/ocr/transcribe worker object and serves as proxy
  *  for the run_ffmpegControllerThreadTemplate to execute the subordinate threads of each
  *  of the contained objects.
  */
-public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
+public class Subtitles_OrchestratorWorkerThread extends run_ffmpegWorkerThread
 {
-	private ExtractAndOCRSubtitles theController = null ;
+	private Subtitles_Orchestrator theController = null ;
 	
 	/// Exactly one of these will be non-null and thus represent the function of this object
-	private ExtractSubtitles extractSubtitles = null ;
-	private OCRSubtitles ocrSubtitles = null ;
+	private Subtitles_Extract extractSubtitles = null ;
+	private Subtitles_OCR ocrSubtitles = null ;
+	private Subtitles_Transcribe transcribeSubtitles = null ;
 	
-	public ExtractAndOCRSubtitlesWorkerThread( Logger log,
+	public Subtitles_OrchestratorWorkerThread( Logger log,
 			Common common,
-			ExtractAndOCRSubtitles theController,
-			ExtractSubtitles extractSubtitles,
-			OCRSubtitles ocrSubtitles )
+			Subtitles_Orchestrator theController,
+			Subtitles_Extract extractSubtitles,
+			Subtitles_OCR ocrSubtitles,
+			Subtitles_Transcribe transcribeSubtitles )
 	{
 		super( log, common ) ;
 		assert( theController != null ) ;
@@ -27,6 +29,7 @@ public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		this.theController = theController ;
 		this.extractSubtitles = extractSubtitles ;
 		this.ocrSubtitles = ocrSubtitles ;
+		this.transcribeSubtitles = transcribeSubtitles ;
 	}
 
 	@Override
@@ -36,8 +39,9 @@ public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		// thread normally conducts. The only difference is that this object (and its controller object)
 		// tie the two together to form a pipeline.
 		// Note: This code explicitly does *not* call Init() since that method would set the folders
-		// to extract/OCR to whatever is already there -- ExtractAndOCRSubtitles has already configured
+		// to extract/OCR/transcribe to whatever is already there -- Subtitles_Orchestrator has already configured
 		// each of the subordinate objects appropriately.
+		// Calling Execute() here is effectively a blocking method.
 		if( extractSubtitles != null )
 		{
 			extractSubtitles.Execute() ;
@@ -46,6 +50,11 @@ public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		else if( ocrSubtitles != null )
 		{
 			ocrSubtitles.Execute() ;
+			log.info( getName() + " Shutting down." ) ;
+		}
+		else if( transcribeSubtitles != null )
+		{
+			transcribeSubtitles.Execute() ;
 			log.info( getName() + " Shutting down." ) ;
 		}
 	}
@@ -59,6 +68,10 @@ public class ExtractAndOCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		else if( ocrSubtitles != null )
 		{
 			return ocrSubtitles.atLeastOneThreadIsAlive() ;
+		}
+		else if( transcribeSubtitles != null )
+		{
+			return transcribeSubtitles.atLeastOneThreadIsAlive() ;
 		}
 		return false ;
 	}

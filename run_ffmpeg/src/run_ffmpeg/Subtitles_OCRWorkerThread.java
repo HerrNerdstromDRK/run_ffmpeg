@@ -5,12 +5,12 @@ import java.util.logging.Logger;
 
 import com.google.common.collect.ImmutableList;
 
-public class OCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
+public class Subtitles_OCRWorkerThread extends run_ffmpegWorkerThread
 {
 	/// Reference back to the controller thread.
-	private transient OCRSubtitles theController = null ;
+	private transient Subtitles_OCR theController = null ;
 
-	public OCRSubtitlesWorkerThread( OCRSubtitles theController,
+	public Subtitles_OCRWorkerThread( Subtitles_OCR theController,
 			Logger log,
 			Common common )
 	{
@@ -21,13 +21,6 @@ public class OCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 		this.theController = theController ;
 	}
 
-//	@Override
-//	public boolean hasMoreWork()
-//	{
-//		// This object operates by asking the producer for work
-//		return theController.hasMoreWork() ;
-//	}
-	
 	@Override
 	public void run()
 	{
@@ -72,16 +65,7 @@ public class OCRSubtitlesWorkerThread extends run_ffmpegWorkerThread
 	{
 		log.info( getName() + " Running OCR on file: " + fileToOCR.toString() ) ;
 		setWorkInProgress( true ) ;
-		// Format is:
-		// dotnet PgsToSrt.dll --input video1.fr.sup --output video1.fr.srt --tesseractlanguage fra --tesseractdata path_to_language_files
-		// The output filename will default, as will the language file.
-		// However, will need to include path to the tessdata
-		// Gonna try SubtitleEdit for a while.
 		ImmutableList.Builder< String > ocrExecuteCommand = new ImmutableList.Builder<String>() ;
-		//		ocrExecuteCommand.add( Common.getPathToDotNet(), Common.getPathToPgsToSrtDLL() ) ;
-		//		ocrExecuteCommand.add( "--input", fileToOCR.getAbsolutePath() ) ;
-		//		ocrExecuteCommand.add( "--tesseractdata", Common.getPathToTessdata() ) ;
-		//		ocrExecuteCommand.add( "--tesseractversion", Common.getTesseractVersion() ) ;
 		ocrExecuteCommand.add( common.getPathToSubtitleEdit() ) ;
 		ocrExecuteCommand.add( "/convert" ) ;
 		ocrExecuteCommand.add( fileToOCR.getAbsolutePath() ) ;

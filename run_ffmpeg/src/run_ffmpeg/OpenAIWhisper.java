@@ -72,7 +72,10 @@ public class OpenAIWhisper
 
 		// Setup ffmpeg basic options
 		whisperCommand.add( common.getPathToWhisperX() ) ;
-		whisperCommand.add( "--language", "English" ) ;
+
+		// Commented out the language to account for some movies/tv shows that are in a foreign language (such as Chinese for IP Man).
+		// whisperX will auto-detect.
+		//		whisperCommand.add( "--language", "English" ) ;
 		whisperCommand.add( "--output_format", "srt" ) ;
 		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;
 //		whisperCommand.add( "--diarize" ) ;
