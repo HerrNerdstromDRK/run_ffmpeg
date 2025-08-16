@@ -17,7 +17,7 @@ public class WorkflowStageThread extends Thread
 		this.common = common ;
 		this.masMDB = masMDB ;
 	}
-	
+
 	@Override
 	public void run()
 	{
@@ -25,8 +25,11 @@ public class WorkflowStageThread extends Thread
 		{
 			try
 			{
-				doAction() ;
-				Thread.sleep( 100 ) ;
+				if( !doAction() )
+				{
+					// If no work was completed, then sleep. Otherwise, proceed immediately to the next action.
+					Thread.sleep( 100 ) ;
+				}
 			}
 			catch( Exception e )
 			{
@@ -36,11 +39,16 @@ public class WorkflowStageThread extends Thread
 		log.info( getThreadName() + " shut down." ) ;
 	}
 
-	public void doAction()
+	/**
+	 * Override this method. This method performs the work intended for subclass instances of this class.
+	 * @return true if work completed false if no work completed.
+	 */
+	public boolean doAction()
 	{
-		log.warning( "Base class doAction called" ) ;		
+		log.warning( "Base class doAction called" ) ;
+		return false ;
 	}
-	
+
 	public boolean doKeepRunning()
 	{
 		return keepRunning ;
@@ -50,7 +58,7 @@ public class WorkflowStageThread extends Thread
 	{
 		keepRunning = false ;
 	}
-	
+
 	public String getThreadName()
 	{
 		return threadName ;

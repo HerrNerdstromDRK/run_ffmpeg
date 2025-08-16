@@ -1,21 +1,11 @@
 package run_ffmpeg;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.logging.Logger;
-
-import org.bson.conversions.Bson;
-import org.bson.types.ObjectId;
-
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
 
 public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 {
-	private transient MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_TranscodeMKVFilesInfoCollection = null ;
-	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
+//	private transient MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > jobRecord_TranscodeMKVFilesInfoCollection = null ;
+//	private transient MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = null ;
 	private final String mp4WorkingDirectory = "D:\\temp" ;
 
 	public WorkflowStageThread_TranscodeMKVFiles( final String threadName,
@@ -25,11 +15,11 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 	{
 		super( threadName, log, common, masMDB ) ;
 //		jobRecord_TranscodeMKVFilesInfoCollection = masMDB.getJobRecord_TranscodeMKVFileInfoCollection() ;
-		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
+//		movieAndShowInfoCollection = masMDB.getMovieAndShowInfoCollection() ;
 	}
 
 	@Override
-	public void doAction()
+	public boolean doAction()
 	{
 //		// Get the jobrecord from the database.
 //		// No real way to do this without deleting jobs.
@@ -161,6 +151,8 @@ public class WorkflowStageThread_TranscodeMKVFiles extends WorkflowStageThread
 //		movieAndShowInfo.updateCorrelatedFile( mp4ProbeResult ) ;
 //		movieAndShowInfo.makeReadyCorrelatedFilesList() ;
 //		movieAndShowInfoCollection.replaceOne( movieAndShowInfoIDFilter,  movieAndShowInfo ) ;
+		
+		return false ;
 	}
 
 	public String getMP4WorkingDirectory()

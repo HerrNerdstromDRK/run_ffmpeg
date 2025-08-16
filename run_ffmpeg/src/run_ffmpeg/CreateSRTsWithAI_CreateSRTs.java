@@ -39,28 +39,31 @@ public class CreateSRTsWithAI_CreateSRTs
 		
 		while( shouldKeepRunning() )
 		{
-			final FFmpeg_ProbeResult theProbeResult = createSRTsHandle.findOneAndDelete( null ) ;
-			if( null == theProbeResult )
+			final FFmpeg_ProbeResult inputProbeResult = createSRTsHandle.findOneAndDelete( null ) ;
+			if( null == inputProbeResult )
 			{
 				// No more work to do.
 				log.info( "Out of work to do." ) ;
 				break ;
 			}
 			
-			processWorkObject( theProbeResult ) ;
+			processWorkObject( inputProbeResult ) ;
 		}
 	}
 	
-	public void processWorkObject( final FFmpeg_ProbeResult theProbeResult )
+	public void processWorkObject( final FFmpeg_ProbeResult inputProbeResult )
 	{
+		assert( inputProbeResult != null ) ;
+		
+		final File inputFile = new File( inputProbeResult.getFileNameWithPath() ) ;
+		
 		// Steps:
 		// 1) Extract a .wav file for the given input file
 		// 2) Transcribe the .wav file
 		// 3) Move/delete the temporary files
 		
 		// 1) Extract a .wav file
-		final String wavOutputFileNameWithPath = Common.replaceExtension( theProbeResult.getFileNameWithPath(), "wav" ) ;
-		final File inputFile = new File( theProbeResult.getFileNameWithPath() ) ;
+		final String wavOutputFileNameWithPath = Common.replaceExtension( inputFile.getAbsolutePath(), "wav" ) ;
 		final File wavOutputFile = new File( wavOutputFileNameWithPath ) ;
 		
 		log.info( "Extracting audio from " + inputFile.getAbsolutePath() + " to " + wavOutputFile.getAbsolutePath() ) ;
@@ -75,7 +78,6 @@ public class CreateSRTsWithAI_CreateSRTs
 		OpenAIWhisper whisper = new OpenAIWhisper( log, common ) ;
 		whisper.transcribeToSRT( wavOutputFile ) ;
 		// whisperFile should have the same semantic name as the original input file but ending with .srt
-		
 	}
 	
 	public String getStopFileName()

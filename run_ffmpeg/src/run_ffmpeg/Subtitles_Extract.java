@@ -22,6 +22,9 @@ public class Subtitles_Extract extends run_ffmpegControllerThreadTemplate< Subti
 	/// Will be passed to the worker threads.
 	/// Included here so only one instance of PD is created.
 	private transient ProbeDirectories probeDirectories = null ;
+	
+	protected transient MoviesAndShowsMongoDB masMDB = null ;
+	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTCollection = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_subtitles_extract.txt" ;
@@ -82,6 +85,8 @@ public class Subtitles_Extract extends run_ffmpegControllerThreadTemplate< Subti
 		probeDirectories = new ProbeDirectories( log, common, masMDB, probeInfoCollection ) ;
 		foldersToExtractByThread = new ArrayList< List< String > >() ;
 		foldersToExtractByThread.add( new ArrayList< String >() ) ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
+		createSRTCollection = masMDB.getAction_CreateSRTsWithAICollection() ;
 	}
 
 	public static void main(String[] args)
@@ -181,9 +186,9 @@ public class Subtitles_Extract extends run_ffmpegControllerThreadTemplate< Subti
 		}
 	}
 	
-	protected void addFilesToTranscriptionPipelin( final File theFile )
+	protected void addFilesToTranscriptionPipeline( final FFmpeg_ProbeResult theProbeResult )
 	{
-		assert( theFile != null ) ;
+		assert( theProbeResult != null ) ;
 
 		if( null == transcriptionFilePipeline )
 		{
@@ -193,13 +198,15 @@ public class Subtitles_Extract extends run_ffmpegControllerThreadTemplate< Subti
 		
 		synchronized( transcriptionFilePipeline )
 		{
-			transcriptionFilePipeline.add( theFile ) ;
+			createSRTCollection.insertOne( theProbeResult ) ;
+//			transcriptionFilePipeline.add( theFile ) ;
 		}
+		log.info( "Added " + theProbeResult.getFileNameWithPath() + " to transcribe" ) ;
 	}
 	
-	protected void addFilesToTranscriptionPipelin( final List< File > theFiles )
+	protected void addFilesToTranscriptionPipeline( final List< FFmpeg_ProbeResult > theProbeResults )
 	{
-		assert( theFiles != null ) ;
+		assert( theProbeResults != null ) ;
 
 		if( null == transcriptionFilePipeline )
 		{
@@ -209,8 +216,10 @@ public class Subtitles_Extract extends run_ffmpegControllerThreadTemplate< Subti
 		
 		synchronized( transcriptionFilePipeline )
 		{
-			transcriptionFilePipeline.addAll( theFiles ) ;
+			createSRTCollection.insertMany( theProbeResults ) ;
+//			transcriptionFilePipeline.addAll( theFiles ) ;
 		}
+		log.info( "Added " + theProbeResults.size() + " file(s) to transcribe" ) ;
 	}
 
 	/**

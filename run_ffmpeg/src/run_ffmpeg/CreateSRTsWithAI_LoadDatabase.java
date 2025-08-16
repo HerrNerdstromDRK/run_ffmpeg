@@ -59,7 +59,7 @@ public class CreateSRTsWithAI_LoadDatabase
 		List< FFmpeg_ProbeResult > filesToGenerateSRT = new ArrayList< FFmpeg_ProbeResult >() ;
 		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstances )
 		{
-//			log.fine( "Processing theProbeResult: " + theProbeResult.toString() ) ;
+			//			log.fine( "Processing theProbeResult: " + theProbeResult.toString() ) ;
 
 			// Get each subtitle stream.
 			final List< FFmpeg_Stream > subtitleStreams = theProbeResult.getStreamsByCodecType( "subtitle" ) ;
@@ -67,15 +67,15 @@ public class CreateSRTsWithAI_LoadDatabase
 
 			for( FFmpeg_Stream theStream : subtitleStreams )
 			{
-//				log.fine( "Processing theStream: " + theStream.toString() ) ;
-				
+				//				log.fine( "Processing theStream: " + theStream.toString() ) ;
+
 				// I only care about English subtitles
 				if( null == theStream.tags )
 				{
 					log.warning( "null theStream.tags for stream " + theStream.index + " of file " + theProbeResult.getFileNameWithPath() ) ;
 					continue ;
 				}
-				
+
 				final String theLanguage = theStream.tags.get( "language" ) ;
 				if( null == theLanguage )
 				{
@@ -88,8 +88,8 @@ public class CreateSRTsWithAI_LoadDatabase
 				{
 					// non-English subtitle stream
 					log.fine( "Skipping language " + theStream.tags.get( "language" )
-						+ " for stream " + theStream
-						+ " in file " + theProbeResult.getFileNameWithPath() ) ;
+					+ " for stream " + theStream
+					+ " in file " + theProbeResult.getFileNameWithPath() ) ;
 					continue ;
 				}
 
@@ -105,18 +105,18 @@ public class CreateSRTsWithAI_LoadDatabase
 				}
 
 				filesToGenerateSRT.add( theProbeResult ) ;
-				
+
 				// Only need to add the probe result once per file -- multiple streams mean nothing for this algorithm
 				break ;
 			}
 		}
 		log.info( "Added " + filesToGenerateSRT.size() + " file(s) to convert" ) ;
 
-//		for( FFmpeg_ProbeResult theProbeResult : filesToGenerateSRT )
-//		{
-//			log.fine( "Writing to database: _id " + theProbeResult._id.toString() + " for " + theProbeResult.getFileNameShort() ) ;
-//		}
-		
+		//		for( FFmpeg_ProbeResult theProbeResult : filesToGenerateSRT )
+		//		{
+		//			log.fine( "Writing to database: _id " + theProbeResult._id.toString() + " for " + theProbeResult.getFileNameShort() ) ;
+		//		}
+
 		if( !filesToGenerateSRT.isEmpty() )
 		{
 			log.info( "Clearing old actions..."  ) ;
@@ -124,7 +124,10 @@ public class CreateSRTsWithAI_LoadDatabase
 
 			log.info( "Adding " + filesToGenerateSRT.size() + " file(s) to database..." ) ;
 			MongoCollection< FFmpeg_ProbeResult > createSRTsHandle = masMDB.getAction_CreateSRTsWithAICollection() ;
-			createSRTsHandle.insertMany( filesToGenerateSRT ) ;
+			for( FFmpeg_ProbeResult theProbeResult : filesToGenerateSRT )
+			{
+				createSRTsHandle.insertOne( theProbeResult ) ;
+			}
 		}
 		log.info( "Cache performance> Hits: " + cacheHits + ", Misses: " + cacheMisses ) ;
 		log.info( "Shutdown." ) ;
@@ -151,12 +154,12 @@ public class CreateSRTsWithAI_LoadDatabase
 				+ ".*" // add the wildcard matcher
 				+ "\\." // add the period before the extension
 				+ "srt" ; // add the extension
-//		final String regexFileNameWithPath = FilenameUtils.getFullPath( theProbeResult.getFileNameWithPath() ) + filenameWithRegex ;
+		//		final String regexFileNameWithPath = FilenameUtils.getFullPath( theProbeResult.getFileNameWithPath() ) + filenameWithRegex ;
 		final Pattern fileMatchPattern = Pattern.compile( filenameWithRegex ) ;
 
 		// Get the files in the home directory for this media file
 		final File[] filesInDirectory = getFilesInDirectoryWithCaching( FilenameUtils.getFullPath( theProbeResult.getFileNameWithPath() ) ) ;
-		
+
 		// Conduct a regex matching
 		for( File theFile : filesInDirectory )
 		{
@@ -173,7 +176,7 @@ public class CreateSRTsWithAI_LoadDatabase
 	public File[] getFilesInDirectoryWithCaching( final String fullPath )
 	{
 		assert( fullPath != null ) ;
-		
+
 		File[] filesInDirectory = filesInDirectoriesCache.get( fullPath ) ;
 		if( null == filesInDirectory )
 		{
@@ -189,7 +192,7 @@ public class CreateSRTsWithAI_LoadDatabase
 		}
 		return filesInDirectory ;
 	}
-	
+
 	public boolean canBeExtractedWithFFmpeg( final FFmpeg_Stream theStream )
 	{
 		assert( theStream != null ) ;

@@ -97,8 +97,8 @@ public class Subtitles_Orchestrator extends run_ffmpegControllerThreadTemplate< 
 //		extractSubtitles.addFoldersToExtractWithNewThread( Common.getAllMediaFolders() ) ;
 //		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToTVShows() ) ;
 //		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToMovies() ) ;
-//		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToToOCR() ) ;
-		extractSubtitles.addFoldersToExtractWithNewThread( "\\\\skywalker\\\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ;
+		extractSubtitles.addFoldersToExtractWithNewThread( Common.getPathToToOCR() ) ;
+//		extractSubtitles.addFoldersToExtractWithNewThread( "\\\\skywalker\\\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ;
 
 		// Also pass the list of folders to the convert objects since those folders may have existing .sup/.wav files to convert
 		ocrSubtitles.addFoldersToOCR( extractSubtitles.getAllFoldersToExtract() ) ;

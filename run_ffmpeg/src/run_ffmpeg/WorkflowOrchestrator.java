@@ -12,13 +12,9 @@ import java.util.logging.Logger;
  *  with the thread that owns the previous state.
  * Workflow jobs are stored in the database.
  * Convention is herein established that, upon initiating a stage in the workflow,
- *  that the thread owning that stage will first removed the job from the database,
+ *  that the thread owning that stage will first remove the job from the database,
  *  then process it, then either restore that job in the event of a failure, or create
  *  a job for the next stage and install it into the database.
- * Workflow:
- *  Extract subtitle->OCR->transcode->move files to final destinations->update probe info
- * Parallel workflow:
- *  Make fake MKVs->update probe info.
  * @author Dan
  */
 public class WorkflowOrchestrator
@@ -38,24 +34,24 @@ public class WorkflowOrchestrator
 
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB( log ) ;
-	
+
 		setupThreads() ;
 	}
 
 	private void setupThreads()
 	{
-		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
-				"probeFileThread", log, common, masMDB ) ;
-		threadList.add( probeFileThread ) ;
-		WorkflowStageThread_UpdateCorrelatedFile updatedCorrelatedFileThread = new WorkflowStageThread_UpdateCorrelatedFile(
-				"updateCorrelatedFileThread", log, common, masMDB ) ;
-		threadList.add( updatedCorrelatedFileThread ) ;
-		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
-				"transcodeMKVFilesThread", log, common, masMDB ) ;
-		threadList.add( transcodeMKVFilesThread ) ;
+//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
+//				"probeFileThread", log, common, masMDB ) ;
+//		threadList.add( probeFileThread ) ;
+//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
+//				"transcodeMKVFilesThread", log, common, masMDB ) ;
+//		threadList.add( transcodeMKVFilesThread ) ;
+		WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
+				"subtitleTranscribe", log, common, masMDB ) ;
+		threadList.add( transcribeThread ) ;				
 	}
 
-	public static void main(String[] args)
+	public static void main( final String[] args )
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
 		wfo.runThreads() ;
@@ -64,20 +60,18 @@ public class WorkflowOrchestrator
 	public void runThreads()
 	{
 		// Only start threads if execution is permitted
-		if( !common.shouldStopExecution( getStopFileName() ) )
+		if( common.shouldStopExecution( getStopFileName() ) )
 		{
-			log.info( "Starting threads..." ) ;
-			for( WorkflowStageThread theThread : threadList )
-			{
-				log.info( "Starting thread " + theThread.toString() + "..." ) ;
-				theThread.start() ;
-			}
-			log.info( "Started " + threadList.size() + " thread(s)" ) ;
+			return ;
 		}
-		else
+		
+		log.info( "Starting threads..." ) ;
+		for( WorkflowStageThread theThread : threadList )
 		{
-			log.info( "Stop execution indicator found" ) ;
+			log.info( "Starting thread " + theThread.toString() + "..." ) ;
+			theThread.start() ;
 		}
+		log.info( "Started " + threadList.size() + " thread(s)" ) ;
 
 		while( !common.shouldStopExecution( getStopFileName() ) )
 		{

@@ -2,39 +2,39 @@ package run_ffmpeg;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FilenameUtils;
 
 import com.google.common.collect.ImmutableList;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.result.DeleteResult;
 
 import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 import run_ffmpeg.ffmpeg.FFmpeg_Stream;
 
-/**
- * Thread class that extracts subtitles from files in a given list of folders.
- */
-public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
+public class Subtitles_LoadDatabase
 {
-	/// Reference to the controller thread.
-	Subtitles_Extract theController = null ;
+	/// Setup the logging subsystem
+	protected Logger log = null ;
+	protected Common common = null ;
+	
+	protected transient MoviesAndShowsMongoDB masMDB = null ;
+	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTWithAICollection = null ;
+	
+	/// All FFmpeg_ProbeResults currently known, sorted by the absolute path.
+	protected Map< String, FFmpeg_ProbeResult > allProbeInfoInstances = null ;
 
-	/// Reference to a PD object to access its probeFileAndUpdateDB() method.
-	/// Will be passed to the worker threads.
-	/// Included here so only one instance of PD is created.
-	private transient ProbeDirectories probeDirectories = null ;
+	/// File name to which to log activities for this application.
+	private static final String logFileName = "log_subtitles_loaddatabase.txt" ;
 
-	/// The list of folders from which to extract subtitles.
-	private List< String > foldersToExtract = null ;
-
-	/// Store the probe results by full path name for each file already probed.
-	protected Map< String, FFmpeg_ProbeResult > probedFiles = new HashMap< String, FFmpeg_ProbeResult >() ;
-
+	/// If the file by the given name is present, stop this processing at the
+	/// next iteration of the main loop.
+	private static final String stopFileName = "C:\\Temp\\stop_subtitles_loaddatabase.txt" ;
+	
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ; // pgs image format; subtitle edit does a decent job of OCR
 	static final String codecNameSubtitleHDMVString = "hdmv_text_subtitle" ; // outputs as .sup and can process like pgs
@@ -58,31 +58,159 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 				codecNameSubtitleMovText, // Roku can show this natively -- no need to extract.
 				codecNameSubtitleHDMVString
 		} ;
-
-	/**
-	 * Initiate a worker thread to extract subtitles from all the files in the given list of folders.
-	 * @param theController
-	 * @param log
-	 * @param common
-	 * @param foldersToExtract
-	 */
-	public Subtitles_ExtractWorkerThread( Subtitles_Extract theController,
-			Logger log,
-			Common common,
-			ProbeDirectories probeDirectories,
-			List< String > foldersToExtract )
+	
+	public Subtitles_LoadDatabase()
 	{
-		super( log, common ) ;
-
-		assert( theController != null ) ;
-		assert( probeDirectories != null ) ;
-		assert( foldersToExtract != null ) ;
-
-		this.theController = theController ;
-		this.probeDirectories = probeDirectories ;
-		this.foldersToExtract = foldersToExtract ;
+		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
+		common = new Common( log ) ;
+		masMDB = new MoviesAndShowsMongoDB( log ) ;
+		createSRTWithAICollection = masMDB.getAction_CreateSRTsWithAICollection() ;
+		log.info( "Database has " + createSRTWithAICollection.countDocuments() + " object(s) currently loaded." ) ;
+		
+		allProbeInfoInstances = new HashMap< String, FFmpeg_ProbeResult >() ;
+		
+		initObject() ;
 	}
 
+	private void initObject()
+	{
+		log.info( "Loading all FFmpeg_ProbeResults..." ) ;
+		final List< FFmpeg_ProbeResult > allProbeInfoInstancesList = masMDB.getAllProbeInfoInstances() ;
+		log.info( "Loaded " + allProbeInfoInstancesList.size() + " instance(s)." ) ;
+		
+		log.info( "Sorting..." ) ;
+		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstancesList )
+		{
+			allProbeInfoInstances.put( theProbeResult.getFileNameWithPath(), theProbeResult ) ;
+		}
+		log.info( "Done." ) ;
+	}
+	
+	public static void main( final String[] args )
+	{
+		(new Subtitles_LoadDatabase()).execute() ;
+	}
+	
+	public void execute()
+	{
+		// Build the list of folders to extract and OCR
+		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
+//		foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
+//		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
+//		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
+		foldersToExtractAndConvert.add( Common.getPathToToOCR() ) ;
+//		foldersToExtractAndConvert.add( "\\\\skywalker\\\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ;
+		
+		log.info( "Extracting subtitles in " + foldersToExtractAndConvert.toString() ) ;
+		
+		List< File > inputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, Common.getVideoExtensions() ) ;
+		log.info( "Found " + inputFiles.size() + " file(s) from which to extract subtitles" ) ;
+		
+		for( File inputFile : inputFiles )
+		{
+			if( common.shouldStopExecution( stopFileName ) )
+			{
+				break ;
+			}
+			extractAndAddToDatabase( inputFile ) ;
+		}
+		log.info( "Number of srt files to generate via whisperX: " + createSRTWithAICollection.countDocuments() ) ;
+		log.info( "Shutdown." ) ;
+	}
+	
+	/**
+	 * Extract subtitles from this file and then add any OCR or transcribe work to the database to be handled by distributed workers.
+	 * @param inputFile
+	 */
+	public void extractAndAddToDatabase( final File inputFile )
+	{
+		assert( inputFile != null ) ;
+		
+		if( hasMatchingSRTFiles( inputFile ) )
+		{
+			return ;
+		}
+		
+		if( findAndAddSUPFilesToDatabase( inputFile ) )
+		{
+			// Found matching sup file(s).
+			// SUP added to OCR collection for processing; nothing further to accomplish here.
+			return ;
+		}
+		
+		final FFmpeg_ProbeResult inputProbeResult = getProbeResult( inputFile ) ;
+		if( null == inputProbeResult )
+		{
+			log.warning( "Failed to probe file: " + inputFile.getAbsolutePath() ) ;
+			return ;
+		}
+		
+		extractSubtitles( inputProbeResult ) ;
+	}
+	
+	public void addToDatabase_Transcribe( final FFmpeg_ProbeResult theProbeResult )
+	{
+		assert( theProbeResult != null ) ;
+		
+		createSRTWithAICollection.insertOne( theProbeResult ) ;
+	}
+	
+	/**
+	 * Return an FFmpeg_ProbeResult for this file. If not found in the database, it will be probed but not stored in the database.
+	 * @param inputFile
+	 * @return FFmpeg_ProbeResult for the given inputFile or null if ffprobe fails.
+	 */
+	public FFmpeg_ProbeResult getProbeResult( final File inputFile )
+	{
+		assert( inputFile != null ) ;
+		
+		FFmpeg_ProbeResult theProbeResult = allProbeInfoInstances.get( inputFile.getAbsolutePath() ) ;
+		if( null == theProbeResult )
+		{
+			theProbeResult = common.ffprobeFile( inputFile, log ) ;
+		}
+		return theProbeResult ;
+	}
+	
+	public boolean hasMatchingSRTFiles( final File inputFile )
+	{
+		assert( inputFile != null ) ;
+		
+		// First, check for the presence of .srt file(s).
+		final File parentDir = inputFile.getParentFile() ;
+		final String baseNameQuoted = Pattern.quote( FilenameUtils.getBaseName( inputFile.getName() ) ) ;
+		final String srtPatternString = baseNameQuoted + "\\.en(?:\\.(\\d)+)?\\.srt" ;
+		final Pattern srtPattern = Pattern.compile( srtPatternString ) ;
+		final List< File > srtFiles = common.getFilesInDirectoryByRegex( parentDir, srtPattern ) ;
+		
+		if( !srtFiles.isEmpty() )
+		{
+			log.fine( "Found matching srt file(s) for file " + inputFile.getAbsolutePath() + "; skipping." ) ;
+			return true ;
+		}
+		
+		return false ;
+	}
+	
+	public boolean findAndAddSUPFilesToDatabase( final File inputFile )
+	{
+		final File parentDir = inputFile.getParentFile() ;
+		final String baseNameQuoted = Pattern.quote( FilenameUtils.getBaseName( inputFile.getName() ) ) ;
+		final String supPatternString = baseNameQuoted + "\\.en\\..*\\.sup" ;
+		final Pattern supPattern = Pattern.compile( supPatternString ) ;
+		final List< File > supFiles = common.getFilesInDirectoryByRegex( parentDir, supPattern ) ;
+		
+		if( supFiles.isEmpty() )
+		{
+			// No SUP files to add
+			return false ;
+		}
+		
+// TODO
+		return true  ;
+
+	}
+	
 	/**
 	 * This is a subordinate method to help build the overall extract ffmpeg command.
 	 * Build the command *option* string to extract subtitles from the given probeResult file.
@@ -92,10 +220,13 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 	 * @param supFiles
 	 * @return
 	 */
-	public ImmutableList.Builder< String > buildFFmpegSubTitleExtractionOptionsString( FFmpeg_ProbeResult probeResult,
-			TranscodeFile theFile,
-			List< File > supFiles )
+	public ImmutableList.Builder< String > buildFFmpegSubTitleExtractionOptionsString( FFmpeg_ProbeResult probeResult, final List< File > supFiles )
 	{
+		assert( probeResult != null ) ;
+		assert( supFiles != null ) ;
+		
+		final File inputFile = new File( probeResult.getFileNameWithPath() ) ;
+		
 		// The ffmpegOptionsCommandString will contain only the options to extract subtitles
 		// from the given FFmpegProbeResult
 		// All of the actual ffmpeg command build ("ffmpeg -i ...") happens elsewhere
@@ -147,9 +278,9 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 			// Create the output filename
 			// First, replace the .mkv with empty string: Movie (2000).mkv -> Movie (2009)
 			//				String outputFileName = theFile.getMKVFileNameWithPath().replace( ".mkv", "" ) ;
-			String outputPath = theFile.getInputDirectory() ;
+			final String outputPath = FilenameUtils.getFullPath( inputFile.getAbsolutePath() ) ;
 			String outputFileNameWithPath = common.addPathSeparatorIfNecessary( outputPath )
-					+ Common.stripExtensionFromFileName( theFile.getInputFile().getName() ) ;
+					+ FilenameUtils.getBaseName( inputFile.getAbsolutePath() ) ;
 
 			// Movie (2009) -> Movie (2009).en.1.sup or Movie (2009).en.1.srt
 			outputFileNameWithPath += ".en" ;
@@ -192,14 +323,18 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 	 * @param fileToSubTitleExtract
 	 * @param probeResult
 	 */
-	public void extractSubtitles( TranscodeFile fileToSubTitleExtract, FFmpeg_ProbeResult probeResult )
+	public void extractSubtitles( FFmpeg_ProbeResult probeResult )
 	{
+		assert( probeResult != null ) ;
+		
+		final File inputFile = new File( probeResult.getFileNameWithPath() ) ;
+		
 		// Build a set of options for an ffmpeg command based on the JSON input
 		// If no suitable subtitles are found, the options string will be empty
 		// supFileNames will hold the names of the sup files ffmpeg will generate
 		List< File > supFiles = new ArrayList< File >() ;
 		ImmutableList.Builder< String > subTitleExtractionOptionsString =
-				buildFFmpegSubTitleExtractionOptionsString( probeResult, fileToSubTitleExtract, supFiles ) ;
+				buildFFmpegSubTitleExtractionOptionsString( probeResult, supFiles ) ;
 
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
 		if( subTitleExtractionOptionsString.build().isEmpty() )
@@ -208,22 +343,22 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 			//  Need to address this here.
 			// No usable streams found
 			// Extract the first audio stream as a wave file and conduct a whisperX transcription of it.
-			log.info( getName() + " Extracting audio for file " + probeResult.getFileNameWithPath() ) ;
+			log.info( " Extracting audio for file " + probeResult.getFileNameWithPath() ) ;
 			
-			final File avFile = fileToSubTitleExtract.getInputFile() ;
-			final String wavFileNameWithPath = Common.replaceExtension( avFile.getAbsolutePath(), "wav" ) ;
+			final String wavFileNameWithPath = Common.replaceExtension( inputFile.getAbsolutePath(), "wav" ) ;
 			final File wavFile = new File( wavFileNameWithPath ) ;
 
 			// Only make the wav file if it is absent.
 			// Pass -1 for the duration hours/mins/secs to extract the entire audio stream.
-			if( !wavFile.exists() && !common.extractAudioFromAVFile( avFile, wavFile, 0, 0, 0, -1, -1, -1 ) )
+			if( !wavFile.exists() && !common.extractAudioFromAVFile( inputFile, wavFile, 0, 0, 0, -1, -1, -1 ) )
 			{
-				log.warning( getName() + " Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
+				log.warning( " Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
 				return ;
 			}
 
 			// wav file exists, either through extracting here or finding in the directory
 			// Either way, add it to the return list.
+			addToDatabase_Transcribe( probeResult ) ;
 //			theController.addFilesToTranscriptionPipeline( avFile ) ;
 			return ;
 		}
@@ -234,20 +369,20 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 		ffmpegSubTitleExtractCommand.add( "-y" ) ;
 		ffmpegSubTitleExtractCommand.add( "-analyzeduration", Common.getAnalyzeDurationString() ) ;
 		ffmpegSubTitleExtractCommand.add( "-probesize", Common.getProbeSizeString() ) ;
-		ffmpegSubTitleExtractCommand.add( "-i", fileToSubTitleExtract.getInputFileNameWithPath() ) ;
+		ffmpegSubTitleExtractCommand.add( "-i", inputFile.getAbsolutePath() ) ;
 		ffmpegSubTitleExtractCommand.addAll( subTitleExtractionOptionsString.build() ) ;
 
 		boolean executeSuccess = common.executeCommand( ffmpegSubTitleExtractCommand ) ;
 		if( !executeSuccess )
 		{
-			log.warning( "Failed to extract PGS: " + fileToSubTitleExtract.toString() ) ;
+			log.warning( "Failed to extract PGS: " + inputFile.getAbsolutePath() ) ;
 		}
 		else
 		{
 			// Successful extract.
 			// Prune the current folder for small sup files.
 			PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
-			File regularFile = new File( fileToSubTitleExtract.getInputFileNameWithPath() ) ;
+			File regularFile = new File( inputFile.getAbsolutePath() ) ;
 			pssf.pruneFolder( regularFile.getParent() ) ;
 
 			// Now pass any remaining sup files to the pipeline for OCR and beyond.
@@ -266,24 +401,24 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 			}
 
 			// If a subtitle stream was found that is too small to keep then record it in the database.
-			if( probeResult.getSmallSubtitleStreams() )
-			{
-				// Found one more small subtitle files
-				log.fine( "Found small subtitle stream for file " + fileToSubTitleExtract.getInputFileNameWithPath() ) ;
-
-				MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = theController.getProbeInfoCollection() ;
-				DeleteResult deleteResult = probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
-				if( deleteResult.getDeletedCount() > 0 )
-				{
-					// FFmpegProbeResult was in the database; ok to insert the replacement
-					// Note that the probe result could be absent from the database if we are extracting subtitles
-					//  from a folder that is not kept in the database.
-					probeInfoCollection.insertOne( probeResult ) ;
-				}
-			}
+//			if( probeResult.getSmallSubtitleStreams() )
+//			{
+//				// Found one more small subtitle files
+//				log.fine( "Found small subtitle stream for file " + fileToSubTitleExtract.getInputFileNameWithPath() ) ;
+//
+//				MongoCollection< FFmpeg_ProbeResult > probeInfoCollection = theController.getProbeInfoCollection() ;
+//				DeleteResult deleteResult = probeInfoCollection.deleteOne( Filters.eq( "_id", probeResult._id ) ) ;
+//				if( deleteResult.getDeletedCount() > 0 )
+//				{
+//					// FFmpegProbeResult was in the database; ok to insert the replacement
+//					// Note that the probe result could be absent from the database if we are extracting subtitles
+//					//  from a folder that is not kept in the database.
+//					probeInfoCollection.insertOne( probeResult ) ;
+//				}
+//			}
 
 			// The addFilesToPipeline() method will handle a null pipeline.
-			theController.addFilesToOCRPipeline( remainingSupFiles ) ;
+//			theController.addFilesToOCRPipeline( remainingSupFiles ) ;
 		}
 	}
 
@@ -332,14 +467,7 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 		} // for( stream )
 		return extractableSubTitleStreams ;
 	}
-
-	public boolean hasMoreWork()
-	{
-		// Since completing one unit of work does not change the internal structures, we have no
-		// way to measure if more work remains except that work is currently in progress.
-		return isWorkInProgress() ;
-	}
-
+	
 	public static boolean isAllowableSubTitleLanguage( final String audioLanguage )
 	{
 		for( String allowableLanguage : allowableSubTitleLanguages )
@@ -366,110 +494,5 @@ public class Subtitles_ExtractWorkerThread extends run_ffmpegWorkerThread
 		}
 		// No allowable code name found
 		return false ;
-	}
-
-	/**
-	 * Thread main worker method to extract subtitles from files in the given list of folders.
-	 */
-	@Override
-	public void run()
-	{
-		log.info( getName() + " Extracting folders: " + foldersToExtract.toString() ) ;
-		final String[] extensionsToExtract = { ".mkv", ".MKV", ".mp4" } ;
-
-		final long startTime = System.nanoTime() ;
-		setWorkInProgress( true ) ;
-
-		// Load probe info from the database for the files in the given folders.
-		probedFiles.putAll( probeDirectories.getProbeInfoForFolders( foldersToExtract ) ) ;
-
-		List< File > filesToExtract = new ArrayList< File >() ;
-		for( String folderName : foldersToExtract )
-		{
-			filesToExtract.addAll( common.getFilesInDirectoryByExtension( folderName, extensionsToExtract ) ) ;
-		}
-
-		// Extract the largest files first to coincide with the OCR order
-		Collections.sort( filesToExtract, new FileSortLargeToSmall() ) ;
-
-		log.info( "Extracting " + filesToExtract.size() + " file(s)" ) ;
-		//		for( TranscodeFile theFile : filesToProcess )
-		//		{
-		//			log.info( theFile.toString() ) ;
-		//		}
-
-		// Perform the core work of this application of extracting the files.
-		for( File theFile : filesToExtract )
-		{
-			if( !shouldKeepRunning() )
-			{
-				log.info( getName() + " Stopping execution shouldKeepRunning returning false" ) ;
-				return ;
-			}
-			runOneFile( theFile ) ;
-		}
-
-		log.info( getName() + " Completed extracting subtitle files from folder " + foldersToExtract ) ;
-
-		setWorkInProgress( false ) ;
-		final long endTime = System.nanoTime() ;
-
-		log.info( getName() + " Completed extracting from drives and folders: " + foldersToExtract.toString() ) ;
-		log.info( common.makeElapsedTimeString( startTime, endTime ) ) ;
-		log.info( getName() + " Thread shutdown." ) ;
-	} // run()
-
-	/**
-	 * Extract from this one file.
-	 * @param theFileToProcess
-	 */
-	public void runOneFile( File inputFile )
-	{
-		if( !shouldKeepRunning() )
-		{
-			log.info( getName() + " Stopping execution shouldKeepRunning returning false" ) ;
-			return ;
-		}
-
-		TranscodeFile theTranscodeFile = new TranscodeFile( inputFile, log ) ;
-		// Skip this file if a .srt file exists in its directory (extract already done).
-		if( theTranscodeFile.hasSRTInputFiles() || theTranscodeFile.hasSUPInputFiles() )
-		{
-			log.fine( getName() + " Skipping file due to presence of SRT or SUP file: " + inputFile.getAbsolutePath() ) ;
-			return ;
-		}
-
-		// Look for usable subtitle streams in the file and retrieve a list of options for an ffmpeg extract command.
-		FFmpeg_ProbeResult probeResult = probedFiles.get( inputFile.getAbsolutePath() ) ;
-		if( null == probeResult )
-		{
-			// No probe info found for the given file.
-			// Probe the file
-			if( inputFile.getParent().startsWith( Common.getPathToMovies() )
-					|| inputFile.getParent().startsWith( Common.getPathToTVShows() ) )
-			{
-				// The file is in a core folder that should be recorded into the database.
-				probeResult = probeDirectories.probeFileAndUpdateDB( inputFile ) ;
-			}
-			else
-			{
-				// File is not in a core folder, just probe it here and do not record into the database.
-				probeResult = common.ffprobeFile( inputFile, log ) ;
-			}
-		}
-		if( null == probeResult )
-		{
-			// Unable to ffprobe the file
-			log.warning( "Error probing file: " + inputFile.getAbsolutePath() ) ;
-			return ;
-		}
-		theTranscodeFile.processFFmpegProbeResult( probeResult ) ;
-
-		extractSubtitles( theTranscodeFile, probeResult ) ;
-	}
-
-	public boolean shouldKeepRunning()
-	{
-		return theController.shouldKeepRunning() ;
 	}
 }

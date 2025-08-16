@@ -1,16 +1,12 @@
 package run_ffmpeg;
 
-import java.io.File;
 import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
-import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
-
 public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 {
 	private transient MongoCollection< JobRecord_ProbeFile > jobRecord_ProbeFileInfoCollection = null ;
-	private transient MongoCollection< JobRecord_UpdateCorrelatedFile > jobRecord_UpdateCorrelatedFileInfoCollection = null ;
 	
 	public WorkflowStageThread_ProbeFile( final String threadName,
 			Logger log,
@@ -23,7 +19,7 @@ public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 	}
 
 	@Override
-	public void doAction()
+	public boolean doAction()
 	{
 		// Get the jobrecord from the database.
 		// No real way to do this without deleting jobs.
@@ -32,18 +28,15 @@ public class WorkflowStageThread_ProbeFile extends WorkflowStageThread
 		if( null == theJob )
 		{
 			// Nothing to do.
-			return ;
+			return false ;
 		}
 		log.info( "Got job: " + theJob.toString() ) ;
 		
-		File theFile = new File( theJob.fileNameWithPath ) ;
-		ProbeDirectories pd = new ProbeDirectories( log, common, masMDB, masMDB.getProbeInfoCollection() ) ;
-		FFmpeg_ProbeResult theProbeResult = pd.probeFileAndUpdateDB( theFile ) ;
+//		File theFile = new File( theJob.fileNameWithPath ) ;
+//		ProbeDirectories pd = new ProbeDirectories( log, common, masMDB, masMDB.getProbeInfoCollection() ) ;
+//		FFmpeg_ProbeResult theProbeResult = pd.probeFileAndUpdateDB( theFile ) ;
 		
-		// Build the job to build the movie and show index.
-		JobRecord_UpdateCorrelatedFile jobRecord_UpdateCorrelatedFile = new JobRecord_UpdateCorrelatedFile(
-				theJob.getFileNameWithPath(), theJob.getMovieAndShowInfo_id(), theProbeResult.get_id() ) ;
-		jobRecord_UpdateCorrelatedFileInfoCollection.insertOne( jobRecord_UpdateCorrelatedFile ) ;
+		return false ;
 	}
 	
 }
