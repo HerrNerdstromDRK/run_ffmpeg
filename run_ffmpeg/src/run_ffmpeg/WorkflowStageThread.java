@@ -9,6 +9,9 @@ public class WorkflowStageThread extends Thread
 	protected transient Common common = null ;
 	protected transient MoviesAndShowsMongoDB masMDB = null ;
 	private boolean keepRunning = true ;
+	
+	/// The time at which, in ms, an action was performed.
+	protected long timeLastWorkAccomplished = 0 ;
 
 	public WorkflowStageThread( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
 	{
@@ -16,6 +19,7 @@ public class WorkflowStageThread extends Thread
 		this.log = log ;
 		this.common = common ;
 		this.masMDB = masMDB ;
+		setTimeLastWorkAccomplished( System.currentTimeMillis() ) ;
 	}
 
 	@Override
@@ -29,6 +33,11 @@ public class WorkflowStageThread extends Thread
 				{
 					// If no work was completed, then sleep. Otherwise, proceed immediately to the next action.
 					Thread.sleep( 100 ) ;
+				}
+				else
+				{
+					// Some work was done.
+					setTimeLastWorkAccomplished( System.currentTimeMillis() ) ;
 				}
 			}
 			catch( Exception e )
@@ -72,5 +81,15 @@ public class WorkflowStageThread extends Thread
 	public String getUpdateString()
 	{
 		return "" ;
+	}
+
+	public long getTimeLastWorkAccomplished()
+	{
+		return timeLastWorkAccomplished ;
+	}
+
+	public void setTimeLastWorkAccomplished( final long timeLastWorkAccomplished )
+	{
+		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
 	}
 }

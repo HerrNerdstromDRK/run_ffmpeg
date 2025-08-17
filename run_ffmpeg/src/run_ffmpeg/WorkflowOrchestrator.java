@@ -30,8 +30,17 @@ public class WorkflowOrchestrator
 	private transient List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
 
 	/// The time, in ms, between updates to the console.
-	protected long infoFrequency = 10000 ;
+	protected final long infoFrequency = 10000 ;
 	protected long lastInfoUpdate = 0 ;
+
+	/// The time, in ms, of the last time any thread accomplished a unit of work.
+	/// Default value is MAX_VALUE indicating no idle threads.
+	protected long timeLastWorkAccomplished = 0 ;
+
+	/// The max amount of time to wait for a single thread to become active.
+	/// If all threads are idle for this amount of time (or higher), then the
+	/// application will shutdown.
+	protected final long maxIdleThreadTimeout = 20000 ;
 	protected int numOCRThreads = 2 ;
 
 	public WorkflowOrchestrator()
@@ -42,6 +51,7 @@ public class WorkflowOrchestrator
 		// Establish connection to the database.
 		masMDB = new MoviesAndShowsMongoDB( log ) ;
 
+		setTimeLastWorkAccomplished( System.currentTimeMillis() ) ;
 		setupThreads() ;
 	}
 
@@ -81,7 +91,7 @@ public class WorkflowOrchestrator
 			return ;
 		}
 
-		log.info( "Starting threads..." ) ;
+//		log.info( "Starting threads..." ) ;
 		for( WorkflowStageThread theThread : threadList )
 		{
 			log.info( "Starting thread " + theThread.toString() + "..." ) ;
@@ -89,7 +99,7 @@ public class WorkflowOrchestrator
 		}
 		log.info( "Started " + threadList.size() + " thread(s)" ) ;
 
-		while( !common.shouldStopExecution( getStopFileName() ) )
+		while( !common.shouldStopExecution( getStopFileName() ) && !idleThreadsTimeout() )
 		{
 			try
 			{
@@ -99,7 +109,8 @@ public class WorkflowOrchestrator
 					logUpdate() ;
 					setLastInfoUpdate( System.currentTimeMillis() ) ;
 				}
-				
+
+				updateIdleThreadTimer() ;				
 				Thread.sleep( 100 ) ;
 			}
 			catch( Exception e )
@@ -108,6 +119,19 @@ public class WorkflowOrchestrator
 			}
 		}
 
+		if( common.shouldStopExecution( getStopFileName() ) )
+		{
+			log.info( "Shutting down due to presence of stop file: " + getStopFileName() ) ;
+		}
+		else if( idleThreadsTimeout() )
+		{
+			log.info( "Shutting down due to idle thread timeout of " + (getMaxIdleThreadTimeout() / 1000) + " seconds" ) ;
+		}
+		else
+		{
+			log.warning( "Shutting down for UNKNOWN reason" ) ;
+		}
+		
 		// Shutdown the threads.
 		log.info( "Stopping threads..." ) ;
 		for( WorkflowStageThread theThread : threadList )
@@ -133,6 +157,35 @@ public class WorkflowOrchestrator
 		log.info( "Program shut down complete." ) ;
 	}
 
+	/**
+	 * Check the active/sleep status of each thread.
+	 * If all threads are asleep, assume they are doing no work and update the timeSinceLastActiveThread, if not already
+	 *  counting.
+	 */
+	protected void updateIdleThreadTimer()
+	{
+		for( WorkflowStageThread theThread : threadList )
+		{
+			if( theThread.getTimeLastWorkAccomplished() > getTimeLastWorkAccomplished() )
+			{
+//				log.info( "Updating time last work was accomplished" ) ;
+				setTimeLastWorkAccomplished( theThread.getTimeLastWorkAccomplished() ) ;
+			}
+		}
+	}
+
+	/**
+	 * Return true if all threads have been idle beyond the timeout limit; false otherwise.
+	 * @return
+	 */
+	protected boolean idleThreadsTimeout()
+	{
+		final long currentTime = System.currentTimeMillis() ;
+		final long durationOfIdleThreads = currentTime - getTimeLastWorkAccomplished() ;
+
+		return (durationOfIdleThreads >= getMaxIdleThreadTimeout()) ;
+	}
+
 	protected boolean timeToUpdateStatus()
 	{
 		final long currentTime = System.currentTimeMillis() ;
@@ -152,10 +205,10 @@ public class WorkflowOrchestrator
 			{
 				String threadInfo = theThread.getName() + " " ;
 				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
-				
+
 				final String threadUpdateString = theThread.getUpdateString() ;
 				if( !threadUpdateString.isBlank() ) threadInfo += ": " + theThread.getUpdateString() ;
-				
+
 				log.info( threadInfo ) ;
 			}
 		}
@@ -185,11 +238,6 @@ public class WorkflowOrchestrator
 		return infoFrequency ;
 	}
 
-	public void setInfoFrequency( final long infoFrequency )
-	{
-		this.infoFrequency = infoFrequency ;
-	}
-
 	public long getLastInfoUpdate()
 	{
 		return lastInfoUpdate ;
@@ -198,6 +246,21 @@ public class WorkflowOrchestrator
 	public void setLastInfoUpdate( final long lastInfoUpdate )
 	{
 		this.lastInfoUpdate = lastInfoUpdate ;
+	}
+
+	public long getTimeLastWorkAccomplished()
+	{
+		return timeLastWorkAccomplished ;
+	}
+
+	public void setTimeLastWorkAccomplished( final long timeLastWorkAccomplished )
+	{
+		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
+	}
+
+	public long getMaxIdleThreadTimeout()
+	{
+		return maxIdleThreadTimeout ;
 	}
 
 }
