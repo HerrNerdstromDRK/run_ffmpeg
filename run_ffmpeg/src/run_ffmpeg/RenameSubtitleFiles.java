@@ -16,6 +16,9 @@ import com.mongodb.client.model.Filters;
 
 import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 
+/**
+ * Rename subtitle files to the proper format.
+ */
 public class RenameSubtitleFiles
 {
 	/// Setup the logging subsystem

@@ -12,13 +12,13 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 	protected transient Logger log = null ;
 	protected transient Common common = null ;
 	protected transient MoviesAndShowsMongoDB masMDB = null ;
-	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTCollection = null ;
+	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTWithAICollection = null ;
 	protected transient OpenAIWhisper whisper = null ;
 
 	public WorkflowStageThread_SubtitleTranscribe( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
-		createSRTCollection = masMDB.getAction_CreateSRTsWithAICollection() ;
+		createSRTWithAICollection = masMDB.getAction_CreateSRTsWithAICollection() ;
 		whisper = new OpenAIWhisper( log, common ) ;
 	}
 
@@ -28,27 +28,40 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 	 */
 	public boolean doAction()
 	{
-		final FFmpeg_ProbeResult inputProbeResult = createSRTCollection.findOneAndDelete( null ) ;
+		final FFmpeg_ProbeResult inputProbeResult = createSRTWithAICollection.findOneAndDelete( null ) ;
 		if( null == inputProbeResult )
 		{
 			return false ;
 		}
 		final File inputFile = new File( inputProbeResult.getFileNameWithPath() ) ;
-		
+
 		// The output filename will default, as will the language file.
 		// Generate an SRT via whisper ai.
 		final String srtFileNameWithPath = inputFile.getAbsolutePath().replace( ".mkv", ".en.srt" ) ;
 
-		File srtFile = new File( srtFileNameWithPath ) ;
+		final File srtFile = new File( srtFileNameWithPath ) ;
 		if( !srtFile.exists() )
 		{
 			// File does not already exist -- create it.
 			final String wavFileNameWithPath = inputFile.getAbsolutePath().replace( ".mkv", ".wav" ) ;
 			final File wavFile = new File( wavFileNameWithPath ) ;
-			
-			srtFile = whisper.transcribeToSRT( wavFile ) ;
+
+			final File srtFileWithWrongName = whisper.transcribeToSRT( wavFile ) ;
+
+			// The whisperX AI outputs the srt file with the same name as the .wav file.
+			// Need to change it to include ".en" in the file name
+			if( srtFileWithWrongName != null )
+			{
+				srtFileWithWrongName.renameTo( srtFile ) ;
+			}
 		}
 
 		return true ;
+	}
+	
+	@Override
+	public String getUpdateString()
+	{
+		return "Database size: " + createSRTWithAICollection.countDocuments() ;
 	}
 }

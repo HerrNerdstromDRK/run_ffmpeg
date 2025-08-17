@@ -16,7 +16,7 @@ import com.mongodb.client.MongoCollection;
 import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 import run_ffmpeg.ffmpeg.FFmpeg_Stream;
 
-public class Subtitles_LoadDatabase
+public class Subtitles_ExtractAndLoadDatabase
 {
 	/// Setup the logging subsystem
 	protected Logger log = null ;
@@ -24,6 +24,7 @@ public class Subtitles_LoadDatabase
 	
 	protected transient MoviesAndShowsMongoDB masMDB = null ;
 	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTWithAICollection = null ;
+	protected transient MongoCollection< JobRecord_OCRFile > createSRTWithOCRCollection = null ;
 	
 	/// All FFmpeg_ProbeResults currently known, sorted by the absolute path.
 	protected Map< String, FFmpeg_ProbeResult > allProbeInfoInstances = null ;
@@ -59,14 +60,17 @@ public class Subtitles_LoadDatabase
 				codecNameSubtitleHDMVString
 		} ;
 	
-	public Subtitles_LoadDatabase()
+	public Subtitles_ExtractAndLoadDatabase()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
 		masMDB = new MoviesAndShowsMongoDB( log ) ;
 		createSRTWithAICollection = masMDB.getAction_CreateSRTsWithAICollection() ;
-		log.info( "Database has " + createSRTWithAICollection.countDocuments() + " object(s) currently loaded." ) ;
-		
+		log.info( "AI database has " + createSRTWithAICollection.countDocuments() + " object(s) currently loaded." ) ;
+
+		createSRTWithOCRCollection = masMDB.getAction_CreateSRTsWithOCRCollection() ;
+		log.info( "OCR database has " + createSRTWithOCRCollection.countDocuments() + " object(s) currently loaded." ) ;
+
 		allProbeInfoInstances = new HashMap< String, FFmpeg_ProbeResult >() ;
 		
 		initObject() ;
@@ -88,7 +92,7 @@ public class Subtitles_LoadDatabase
 	
 	public static void main( final String[] args )
 	{
-		(new Subtitles_LoadDatabase()).execute() ;
+		(new Subtitles_ExtractAndLoadDatabase()).execute() ;
 	}
 	
 	public void execute()
@@ -102,8 +106,14 @@ public class Subtitles_LoadDatabase
 //		foldersToExtractAndConvert.add( "\\\\skywalker\\\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ;
 		
 		log.info( "Extracting subtitles in " + foldersToExtractAndConvert.toString() ) ;
+
+		// Locate and add any .sup (or other) files to the database.
+		final String[] imageFormatExtensions = { "sup" } ;
+		final List< File > supInputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, imageFormatExtensions ) ;
+		addToDatabase_OCR( supInputFiles ) ;
+		log.info( "Added " + supInputFiles.size() + " .sup file(s) to database" ) ;
 		
-		List< File > inputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, Common.getVideoExtensions() ) ;
+		final List< File > inputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, Common.getVideoExtensions() ) ;
 		log.info( "Found " + inputFiles.size() + " file(s) from which to extract subtitles" ) ;
 		
 		for( File inputFile : inputFiles )
@@ -115,6 +125,7 @@ public class Subtitles_LoadDatabase
 			extractAndAddToDatabase( inputFile ) ;
 		}
 		log.info( "Number of srt files to generate via whisperX: " + createSRTWithAICollection.countDocuments() ) ;
+		log.info( "Number of srt files to generate via OCR: " + createSRTWithOCRCollection.countDocuments() ) ;
 		log.info( "Shutdown." ) ;
 	}
 	
@@ -153,6 +164,23 @@ public class Subtitles_LoadDatabase
 		assert( theProbeResult != null ) ;
 		
 		createSRTWithAICollection.insertOne( theProbeResult ) ;
+	}
+	
+	public void addToDatabase_OCR( final File fileToOCR )
+	{
+		assert( fileToOCR != null ) ;
+		
+		createSRTWithOCRCollection.insertOne( new JobRecord_OCRFile( fileToOCR ) ) ;
+	}
+	
+	public void addToDatabase_OCR( final List< File > filesToOCR )
+	{
+		assert( filesToOCR != null ) ;
+		
+		for( File inputFile : filesToOCR )
+		{
+			addToDatabase_OCR( inputFile ) ;
+		}
 	}
 	
 	/**
@@ -205,10 +233,7 @@ public class Subtitles_LoadDatabase
 			// No SUP files to add
 			return false ;
 		}
-		
-// TODO
 		return true  ;
-
 	}
 	
 	/**
@@ -250,7 +275,7 @@ public class Subtitles_LoadDatabase
 				final String numberOfBytesEngString = tags.get( "NUMBER_OF_BYTES-eng" ) ;
 				if( numberOfBytesEngString != null )
 				{
-					log.info( "numberOfBytesEngString: " + numberOfBytesEngString ) ;
+//					log.info( "numberOfBytesEngString: " + numberOfBytesEngString ) ;
 					Integer numberOfBytesEngInteger = Integer.valueOf( numberOfBytesEngString ) ;
 					if( numberOfBytesEngInteger.intValue() < 250 )
 					{
@@ -339,7 +364,6 @@ public class Subtitles_LoadDatabase
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
 		if( subTitleExtractionOptionsString.build().isEmpty() )
 		{
-			// TODO: This loop could be reached on purpose: if extracting mov_text is disabled.
 			//  Need to address this here.
 			// No usable streams found
 			// Extract the first audio stream as a wave file and conduct a whisperX transcription of it.
@@ -382,7 +406,7 @@ public class Subtitles_LoadDatabase
 			// Successful extract.
 			// Prune the current folder for small sup files.
 			PruneSmallSUPFiles pssf = new PruneSmallSUPFiles() ;
-			File regularFile = new File( inputFile.getAbsolutePath() ) ;
+			final File regularFile = new File( inputFile.getAbsolutePath() ) ;
 			pssf.pruneFolder( regularFile.getParent() ) ;
 
 			// Now pass any remaining sup files to the pipeline for OCR and beyond.
@@ -418,7 +442,7 @@ public class Subtitles_LoadDatabase
 //			}
 
 			// The addFilesToPipeline() method will handle a null pipeline.
-//			theController.addFilesToOCRPipeline( remainingSupFiles ) ;
+			addToDatabase_OCR( remainingSupFiles ) ;
 		}
 	}
 

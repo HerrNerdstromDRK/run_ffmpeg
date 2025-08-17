@@ -7,7 +7,7 @@ public class WorkflowStageThread extends Thread
 	private String threadName = null ;
 	protected transient Logger log = null ;
 	protected transient Common common = null ;
-	protected MoviesAndShowsMongoDB masMDB = null ;
+	protected transient MoviesAndShowsMongoDB masMDB = null ;
 	private boolean keepRunning = true ;
 
 	public WorkflowStageThread( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
@@ -69,5 +69,8 @@ public class WorkflowStageThread extends Thread
 		return getThreadName() ;
 	}
 
-
+	public String getUpdateString()
+	{
+		return "" ;
+	}
 }

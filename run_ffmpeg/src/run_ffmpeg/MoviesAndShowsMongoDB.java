@@ -53,6 +53,7 @@ public class MoviesAndShowsMongoDB
 //	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
 	private final String action_TranscodeMKVFilesInfoCollectionName = "action_transcodemkvfiles" ;
 	private final String action_CreateSRTsWithAI = "action_createsrtswithai" ;
+	private final String action_CreateSRTsWithOCR = "action_createsrtswithocr" ;
 //	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
 //	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
@@ -249,6 +250,21 @@ public class MoviesAndShowsMongoDB
 	public void dropAction_CreateSRTsWithAICollection()
 	{
 		log.info( "Dropping action_CreateSRTsWithAI" )  ;
+		getAction_CreateSRTsWithAICollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_OCRFile > getAction_CreateSRTsWithOCRCollection()
+	{	
+		log.fine( "Getting action_CreateSRTsWithOCR" ) ;
+		MongoCollection< JobRecord_OCRFile > theCollection = persistentDatabaseHandle.getCollection(
+				action_CreateSRTsWithOCR,
+				JobRecord_OCRFile.class ) ;
+		return theCollection ;
+	}
+
+	public void dropAction_CreateSRTsWithOCRCollection()
+	{
+		log.info( "Dropping action_CreateSRTsWithOCR" )  ;
 		getAction_CreateSRTsWithAICollection().drop() ;
 	}
 

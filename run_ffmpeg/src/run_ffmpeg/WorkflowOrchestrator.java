@@ -20,12 +20,19 @@ import java.util.logging.Logger;
 public class WorkflowOrchestrator
 {
 	/// Setup the logging subsystem
-	private transient Logger log = null ;
-	private transient Common common = null ;
+	protected transient Logger log = null ;
+	protected transient Common common = null ;
+	protected transient MoviesAndShowsMongoDB masMDB = null ;
+
 	private final String logFileName = "log_workflow_orchestrator.txt" ;
-	private transient List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
 	private final transient String stopFileName = "C:\\Temp\\stop_workflow.txt" ;
-	private transient MoviesAndShowsMongoDB masMDB = null ;
+
+	private transient List< WorkflowStageThread > threadList = new ArrayList< WorkflowStageThread >() ;
+
+	/// The time, in ms, between updates to the console.
+	protected long infoFrequency = 10000 ;
+	protected long lastInfoUpdate = 0 ;
+	protected int numOCRThreads = 2 ;
 
 	public WorkflowOrchestrator()
 	{
@@ -40,15 +47,24 @@ public class WorkflowOrchestrator
 
 	private void setupThreads()
 	{
-//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
-//				"probeFileThread", log, common, masMDB ) ;
-//		threadList.add( probeFileThread ) ;
-//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
-//				"transcodeMKVFilesThread", log, common, masMDB ) ;
-//		threadList.add( transcodeMKVFilesThread ) ;
+		//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
+		//				"probeFileThread", log, common, masMDB ) ;
+		//		threadList.add( probeFileThread ) ;
+		//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
+		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
+		//		threadList.add( transcodeMKVFilesThread ) ;
 		WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
-				"subtitleTranscribe", log, common, masMDB ) ;
-		threadList.add( transcribeThread ) ;				
+				"AI", log, common, masMDB ) ;
+		transcribeThread.setName( "AI" ) ;
+		threadList.add( transcribeThread ) ;	
+
+		for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
+		{
+			final String threadName = "OCR_" + threadNum ;
+			WorkflowStageThread_SubtitleOCR ocrThread = new WorkflowStageThread_SubtitleOCR( threadName, log, common, masMDB ) ;
+			ocrThread.setName( threadName ) ;
+			threadList.add( ocrThread ) ;
+		}
 	}
 
 	public static void main( final String[] args )
@@ -64,7 +80,7 @@ public class WorkflowOrchestrator
 		{
 			return ;
 		}
-		
+
 		log.info( "Starting threads..." ) ;
 		for( WorkflowStageThread theThread : threadList )
 		{
@@ -78,7 +94,12 @@ public class WorkflowOrchestrator
 			try
 			{
 				// Anything for this thread to do?
-				// TODO: Maybe add updated thread execution status or something, number commands, etc.
+				if( timeToUpdateStatus() )
+				{
+					logUpdate() ;
+					setLastInfoUpdate( System.currentTimeMillis() ) ;
+				}
+				
 				Thread.sleep( 100 ) ;
 			}
 			catch( Exception e )
@@ -112,9 +133,71 @@ public class WorkflowOrchestrator
 		log.info( "Program shut down complete." ) ;
 	}
 
+	protected boolean timeToUpdateStatus()
+	{
+		final long currentTime = System.currentTimeMillis() ;
+		final long timeSinceLastUpdate = currentTime - getLastInfoUpdate() ;
+		if( timeSinceLastUpdate >= getInfoFrequency() )
+		{
+			return true ;
+		}
+		return false ;
+	}
+
+	protected void logUpdate()
+	{
+		try
+		{
+			for( WorkflowStageThread theThread : threadList )
+			{
+				String threadInfo = theThread.getName() + " " ;
+				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
+				
+				final String threadUpdateString = theThread.getUpdateString() ;
+				if( !threadUpdateString.isBlank() ) threadInfo += ": " + theThread.getUpdateString() ;
+				
+				log.info( threadInfo ) ;
+			}
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
+		}
+	}
+
 	public String getStopFileName()
 	{
 		return stopFileName ;
+	}
+
+	public int getNumOCRThreads()
+	{
+		return numOCRThreads ;
+	}
+
+	public void setNumOCRThreads( final int numOCRThreads )
+	{
+		this.numOCRThreads = numOCRThreads ;
+	}
+
+	public long getInfoFrequency()
+	{
+		return infoFrequency ;
+	}
+
+	public void setInfoFrequency( final long infoFrequency )
+	{
+		this.infoFrequency = infoFrequency ;
+	}
+
+	public long getLastInfoUpdate()
+	{
+		return lastInfoUpdate ;
+	}
+
+	public void setLastInfoUpdate( final long lastInfoUpdate )
+	{
+		this.lastInfoUpdate = lastInfoUpdate ;
 	}
 
 }

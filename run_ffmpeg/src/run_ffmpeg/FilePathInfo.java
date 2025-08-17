@@ -13,6 +13,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.io.FilenameUtils;
+
 public class FilePathInfo
 {
 	/// Setup the logging subsystem
@@ -43,6 +45,8 @@ public class FilePathInfo
 		fileNames.add( "\\\\yoda\\Backup\\Movies\\Transformers (2007)" ) ;
 		fileNames.add( "d:\\temp\\Test (2025)\\Season 01\\Test - S01E01 - Test Name.mkv" ) ;
 		fileNames.add( "C:\\temp\\stop.txt" ) ;
+		fileNames.add( "C:\\temp\\Show Name - S01E01 - Episode name.1.srt" ) ;
+		fileNames.add( "C:\\temp\\Show Name - S01E01 - Episode name.en.srt" ) ;
 
 		try
 		{
@@ -69,23 +73,24 @@ public class FilePathInfo
 				File theFile = new File( fileName ) ;
 				log.info( "**********" ) ;
 				log.info( "File: " + theFile ) ;
-				log.info( "length(): " + theFile.length() ) ;
-				log.info( "getCanonicalPath(): " + theFile.getCanonicalPath() ) ;
-				log.info( "getAbsolutePath(): " + theFile.getAbsolutePath() ) ;
-				log.info( "getName(): " + theFile.getName() ) ;
-				log.info( "getPath(): " + theFile.getPath() ) ;
-				log.info( "getParent(): " + theFile.getParent() ) ;
-				log.info( "getParentFile().getName(): " + theFile.getParentFile().getName() ) ;
-				log.info( "getParentFile().getParent(): " + theFile.getParentFile().getParent() ) ;
-				log.info( "getPath(): " + theFile.getPath() ) ;
-			}
+				log.info( "theFile.length(): " + theFile.length() ) ;
+				log.info( "theFile.getCanonicalPath(): " + theFile.getCanonicalPath() ) ;
+				log.info( "theFile.getAbsolutePath(): " + theFile.getAbsolutePath() ) ;
+				log.info( "theFile.getName(): " + theFile.getName() ) ;
+				log.info( "theFile.getParent(): " + theFile.getParent() ) ;
+				log.info( "theFile.getParentFile().getName(): " + theFile.getParentFile().getName() ) ;
+				log.info( "theFile.getParentFile().getParent(): " + theFile.getParentFile().getParent() ) ;
+				log.info( "theFile.getPath(): " + theFile.getPath() ) ;
+				
+				log.info( "FilenameUtils.getBaseName(): " + FilenameUtils.getBaseName( fileName ) ) ;
+				log.info( "FilenameUtils.getExtension(): " + FilenameUtils.getExtension( fileName ) ) ;
+				log.info( "FilenameUtils.getName(): " + FilenameUtils.getName( fileName ) ) ;
+				log.info( "FilenameUtils.getPath(): " + FilenameUtils.getPath( fileName ) ) ;
+				log.info( "FilenameUtils.getPrefix(): " + FilenameUtils.getPrefix( fileName ) ) ;
 
-			for( String fileName : fileNames )
-			{
 				Path thePath = Paths.get( fileName ) ;
-				log.info( "********** Path" ) ;
-				log.info( "fileName: " + fileName ) ;
-				log.info( "thePath: " + thePath.toString() ) ;
+				log.info( "thePath.fileName: " + fileName ) ;
+				log.info( "thePath.toString: " + thePath.toString() ) ;
 				log.info( "thePath.getName( 0 ): " + thePath.getName(0 ) ) ;
 				log.info( "thePath.getFileName(): " + thePath.getFileName() ) ;
 				log.info( "thePath.getFileSystem(): " + thePath.getFileSystem().toString() ) ;
