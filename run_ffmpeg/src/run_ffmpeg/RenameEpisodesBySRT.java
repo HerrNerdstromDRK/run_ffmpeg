@@ -104,13 +104,14 @@ public class RenameEpisodesBySRT
 		// Can add shows or seasons individually
 		// showDirectories is the set of tv show directories, one directory for each show
 		List< File > showDirectories = new ArrayList< File >() ;
-		showDirectories.addAll( getShowDirectories( Common.getPathToToOCR() ) ) ;
+		//showDirectories.addAll( getShowDirectories( Common.getPathToToOCR() ) ) ;
 		//showDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Greys Anatomy (2005) {imdb-0413573} {tvdb-73762}" ) ) ;
 
 		// seasonDirectories will be populated with each season of each show listed in the showDirectories structure.
 		// Can also add individual seasons directly into the list.
 		List< File > seasonDirectories = new ArrayList< File >() ;
 		seasonDirectories.addAll( getSeasonDirectoriesFromShowDirectories( showDirectories ) ) ;
+		seasonDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\24 (2001) {imdb-0285331} {tvdb-76290}\\Season 01" ) ) ;
 		//		seasonDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Greys Anatomy (2005) {imdb-0413573} {tvdb-73762}\\Season 01" ) ) ;
 
 		Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes = new HashMap< File, TheTVDB_seriesEpisodesClass >() ;
@@ -172,8 +173,6 @@ public class RenameEpisodesBySRT
 			final String tvdbShowIDString = FileNamePattern.getTVDBShowID( seasonDirectory ) ;
 			assert( tvdbShowIDString != null ) ;
 
-			//				final int seasonNumber = FileNamePattern.getShowSeasonNumber( seasonDirectory ) ;
-
 			// Get the downloaded and generated srt files for this season.
 			final List< File > downloadedSRTFiles = common.getFilesInDirectoryByRegex( seasonDirectory, "[\\d]+ - S[\\d]+E[\\d]+ - downloaded.srt" ) ;
 			final List< File > generatedSRTFiles = common.getFilesInDirectoryByRegex( seasonDirectory, "^(?!.*downloaded).*\\.srt$" ) ;
@@ -192,10 +191,6 @@ public class RenameEpisodesBySRT
 			for( File generatedSRTFile : generatedSRTFiles )
 			{
 				final String firstMinutesOfSubtitleText = getFirstMinutesOfSRTFile( generatedSRTFile, getNumMinutesToMatch() ) ;
-				if( firstMinutesOfSubtitleText.isBlank() || firstMinutesOfSubtitleText.isEmpty() )
-				{
-					int debug = 0 ; ++debug ;
-				}
 				RenameEpisdodesBySRT_SRTData srtFileData = new RenameEpisdodesBySRT_SRTData( generatedSRTFile, firstMinutesOfSubtitleText ) ;
 				generatedSRTFilesData.add( srtFileData ) ;
 			}
@@ -251,7 +246,11 @@ public class RenameEpisodesBySRT
 				final int episodeNumber = fnp.getEpisodeNumber() ;
 				
 				// Get the episode name from the tvdb information.
-				final String episodeName = getEpisodeName( seasonDirectoryEpisodes.get( downloadedSRTFile.getParentFile() ), seasonNumber, episodeNumber ) ;
+				String episodeName = getEpisodeName( seasonDirectoryEpisodes.get( downloadedSRTFile.getParentFile() ), seasonNumber, episodeNumber ) ;
+
+				// Strip invalid characters and strings
+				// Replacing ".", ":00 ", and " - " is meant to replace episodes of 24 from "24 - S01E20 - 7:00 P.M. - 8:00 P.M."
+				episodeName = episodeName.replace( "\'", "" ).replace( ".", "" ).replace( ":00 ", "" ).replace( " - ", " " ) ;
 
 				// Build the base name: "Show Name - S01E01 - Episode Name"
 				String outputBaseFileName = showName + " - S" ;
@@ -273,10 +272,6 @@ public class RenameEpisodesBySRT
 				// Get the srt files that match the given mkv file.
 				final List< File > srtFilesMatchingInputMKVFile = common.getFilesInDirectoryByRegex(
 						seasonDirectory, inputMKVFileName.replace( ".mkv", ".*\\.srt" ) ) ;
-				if( srtFilesMatchingInputMKVFile.size() > 1 )
-				{
-					int debug = 1 ; ++debug ;
-				}
 				renameSRTFilesWithNewBasename( srtFilesMatchingInputMKVFile, outputBaseFileName ) ;
 				
 				final File inputMKVFile = new File( downloadedSRTFile.getParentFile(), inputMKVFileName ) ;
@@ -284,8 +279,11 @@ public class RenameEpisodesBySRT
 				// Replace the original .mkv file with the new name, and the same for the downloaded srt file
 				try
 				{
-//					log.info( "Renaming " + bestGeneratedSRTMatchFile.getAbsolutePath() + " -> " + outputSRTFile.getAbsolutePath() ) ;
 					log.info( "Renaming " + inputMKVFile.getAbsolutePath() + " -> " + outputMKVFile.getAbsolutePath() ) ;
+					if( !common.getTestMode() )
+					{
+						inputMKVFile.renameTo( outputMKVFile ) ;
+					}
 				}
 				catch( Exception theException )
 				{
@@ -313,6 +311,10 @@ public class RenameEpisodesBySRT
 			final File srtOutputFile = new File( srtFile.getParentFile(), srtOutputFileName ) ;
 			
 			log.info( "Rename: " + srtFile.getAbsolutePath() + " -> " + srtOutputFile.getAbsolutePath() ) ;
+			if( !common.getTestMode() )
+			{
+				srtFile.renameTo( srtOutputFile ) ;
+			}
 		}
 	}
 	
@@ -519,6 +521,14 @@ public class RenameEpisodesBySRT
 		for( RenameEpisdodesBySRT_SRTData generatedSRTFileData : generatedSRTFilesData )
 		{
 			final String firstMinutesOfGeneratedSRTFile = generatedSRTFileData.getFirstMinutesOfSubtitleText() ;
+			if( firstMinutesOfGeneratedSRTFile.isBlank() || firstMinutesOfGeneratedSRTFile.isEmpty() )
+			{
+				// No dialogue in the first N minutes of the file. This is normal, especially for forced subtitles
+				// (the first Dothraki dialogue during some GoT episodes doesn't start until 46 minutes into
+				// the episode).
+				// Skip this generated srt file.
+				continue ;
+			}
 			final Double cosineDistanceDouble = cosineDistance.apply( firstMinutesOfDownloadedSRTFile, firstMinutesOfGeneratedSRTFile ) ;
 
 			if( (null == bestMatchFile) || (cosineDistanceDouble.doubleValue() < bestMatchDouble.doubleValue()) )
@@ -552,11 +562,6 @@ public class RenameEpisodesBySRT
 	{
 		assert( inputFile != null ) ;
 		final long MINUTES_IN_MILLIS = numMinutes * 60 * 1000 ; // milliseconds
-		
-		if( inputFile.getAbsolutePath().contains( "Game Of Thrones Season 1 Disc 1_t01.en.6" ) )
-		{
-			int debug = 0 ; ++debug ;
-		}
 
 		StringBuilder result = new StringBuilder() ;
 		try( BufferedReader reader = new BufferedReader(
@@ -588,7 +593,7 @@ public class RenameEpisodesBySRT
 					{
 						final long startTimeMillis = parseTimecode( timecodeLine.split( "-->" )[ 0 ].trim() ) ;
 
-						// If the subtitle starts within the first two minutes
+						// If the subtitle starts within the first N minutes
 						if( startTimeMillis < MINUTES_IN_MILLIS )
 						{
 							// Read subtitle text until a blank line

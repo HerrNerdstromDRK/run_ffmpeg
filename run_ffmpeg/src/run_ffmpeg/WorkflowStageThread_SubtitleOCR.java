@@ -76,6 +76,11 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			log.warning( getName() + " OCR failed; deleting file: " + outputFileName ) ;
 			outputFile.delete() ;
 		}
+		else
+		{
+			// Command succeeded. Delete the .sup file.
+			fileToOCR.delete() ;
+		}
 		return commandSuccess ;
 	}
 

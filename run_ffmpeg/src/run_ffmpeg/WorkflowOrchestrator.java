@@ -168,7 +168,6 @@ public class WorkflowOrchestrator
 		{
 			if( theThread.getTimeLastWorkAccomplished() > getTimeLastWorkAccomplished() )
 			{
-//				log.info( "Updating time last work was accomplished" ) ;
 				setTimeLastWorkAccomplished( theThread.getTimeLastWorkAccomplished() ) ;
 			}
 		}
