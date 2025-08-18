@@ -10,6 +10,11 @@ public class WorkflowStageThread extends Thread
 	protected transient MoviesAndShowsMongoDB masMDB = null ;
 	private boolean keepRunning = true ;
 	
+	/// true if work is currently in progress, false otherwise.
+	/// Important for subclasses to use this variable as it communicates to the orchestrator if the thread should be counted as part of
+	///  the idle timeout checks.
+	protected boolean workInProgress = false ;
+	
 	/// The time at which, in ms, an action was performed.
 	protected long timeLastWorkAccomplished = 0 ;
 
@@ -91,5 +96,15 @@ public class WorkflowStageThread extends Thread
 	public void setTimeLastWorkAccomplished( final long timeLastWorkAccomplished )
 	{
 		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
+	}
+
+	public boolean isWorkInProgress()
+	{
+		return workInProgress ;
+	}
+
+	public void setWorkInProgress( final boolean workInProgress )
+	{
+		this.workInProgress = workInProgress ;
 	}
 }

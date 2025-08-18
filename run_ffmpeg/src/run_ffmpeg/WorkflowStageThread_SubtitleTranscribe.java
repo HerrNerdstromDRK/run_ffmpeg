@@ -33,6 +33,7 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 		{
 			return false ;
 		}
+		setWorkInProgress( true ) ;
 		final File inputFile = new File( inputProbeResult.getFileNameWithPath() ) ;
 
 		// The output filename will default, as will the language file.
@@ -56,6 +57,7 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 			}
 		}
 
+		setWorkInProgress( false ) ;
 		return true ;
 	}
 	

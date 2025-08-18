@@ -38,6 +38,7 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			// No more entries left to process.
 			return false ;
 		}
+		setWorkInProgress( true ) ;
 		
 		final String fileNameWithPathToOCR = ocrJobRecord.getFileNameWithPath() ;
 		final File fileToOCR = new File( fileNameWithPathToOCR ) ;
@@ -81,6 +82,8 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			// Command succeeded. Delete the .sup file.
 			fileToOCR.delete() ;
 		}
+		
+		setWorkInProgress( false ) ;
 		return commandSuccess ;
 	}
 

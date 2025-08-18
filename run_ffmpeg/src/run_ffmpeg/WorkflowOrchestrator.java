@@ -55,28 +55,6 @@ public class WorkflowOrchestrator
 		setupThreads() ;
 	}
 
-	private void setupThreads()
-	{
-		//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
-		//				"probeFileThread", log, common, masMDB ) ;
-		//		threadList.add( probeFileThread ) ;
-		//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
-		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
-		//		threadList.add( transcodeMKVFilesThread ) ;
-		WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
-				"AI", log, common, masMDB ) ;
-		transcribeThread.setName( "AI" ) ;
-		threadList.add( transcribeThread ) ;	
-
-		for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
-		{
-			final String threadName = "OCR_" + threadNum ;
-			WorkflowStageThread_SubtitleOCR ocrThread = new WorkflowStageThread_SubtitleOCR( threadName, log, common, masMDB ) ;
-			ocrThread.setName( threadName ) ;
-			threadList.add( ocrThread ) ;
-		}
-	}
-
 	public static void main( final String[] args )
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
@@ -157,20 +135,34 @@ public class WorkflowOrchestrator
 		log.info( "Program shut down complete." ) ;
 	}
 
-	/**
-	 * Check the active/sleep status of each thread.
-	 * If all threads are asleep, assume they are doing no work and update the timeSinceLastActiveThread, if not already
-	 *  counting.
-	 */
-	protected void updateIdleThreadTimer()
+	public long getInfoFrequency()
 	{
-		for( WorkflowStageThread theThread : threadList )
-		{
-			if( theThread.getTimeLastWorkAccomplished() > getTimeLastWorkAccomplished() )
-			{
-				setTimeLastWorkAccomplished( theThread.getTimeLastWorkAccomplished() ) ;
-			}
-		}
+		return infoFrequency ;
+	}
+
+	public long getLastInfoUpdate()
+	{
+		return lastInfoUpdate ;
+	}
+
+	public long getMaxIdleThreadTimeout()
+	{
+		return maxIdleThreadTimeout ;
+	}
+
+	public int getNumOCRThreads()
+	{
+		return numOCRThreads ;
+	}
+
+	public String getStopFileName()
+	{
+		return stopFileName ;
+	}
+
+	public long getTimeLastWorkAccomplished()
+	{
+		return timeLastWorkAccomplished ;
 	}
 
 	/**
@@ -181,8 +173,67 @@ public class WorkflowOrchestrator
 	{
 		final long currentTime = System.currentTimeMillis() ;
 		final long durationOfIdleThreads = currentTime - getTimeLastWorkAccomplished() ;
-
+	
 		return (durationOfIdleThreads >= getMaxIdleThreadTimeout()) ;
+	}
+
+	protected void logUpdate()
+	{
+		try
+		{
+			for( WorkflowStageThread theThread : threadList )
+			{
+				String threadInfo = theThread.getName() + " " ;
+				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
+				threadInfo += ", workInProgress: " + theThread.isWorkInProgress() ;
+				
+				final String threadUpdateString = theThread.getUpdateString() ;
+				if( !threadUpdateString.isBlank() ) threadInfo += ": " + theThread.getUpdateString() ;
+	
+				log.info( threadInfo ) ;
+			}
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Exception: " + theException.toString() ) ;
+		}
+	}
+
+	public void setLastInfoUpdate( final long lastInfoUpdate )
+	{
+		this.lastInfoUpdate = lastInfoUpdate ;
+	}
+
+	public void setNumOCRThreads( final int numOCRThreads )
+	{
+		this.numOCRThreads = numOCRThreads ;
+	}
+
+	public void setTimeLastWorkAccomplished( final long timeLastWorkAccomplished )
+	{
+		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
+	}
+
+	private void setupThreads()
+	{
+		//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
+		//				"probeFileThread", log, common, masMDB ) ;
+		//		threadList.add( probeFileThread ) ;
+		//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
+		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
+		//		threadList.add( transcodeMKVFilesThread ) ;
+		WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
+				"AI", log, common, masMDB ) ;
+		transcribeThread.setName( "AI" ) ;
+		threadList.add( transcribeThread ) ;	
+	
+		for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
+		{
+			final String threadName = "OCR_" + threadNum ;
+			WorkflowStageThread_SubtitleOCR ocrThread = new WorkflowStageThread_SubtitleOCR( threadName, log, common, masMDB ) ;
+			ocrThread.setName( threadName ) ;
+			threadList.add( ocrThread ) ;
+		}
 	}
 
 	protected boolean timeToUpdateStatus()
@@ -196,70 +247,30 @@ public class WorkflowOrchestrator
 		return false ;
 	}
 
-	protected void logUpdate()
+	/**
+	 * Check the active/sleep status of each thread.
+	 * If all threads are asleep, assume they are doing no work and update the timeSinceLastActiveThread, if not already
+	 *  counting.
+	 */
+	protected void updateIdleThreadTimer()
 	{
-		try
+		if( !areAllThreadsIdle() )
 		{
-			for( WorkflowStageThread theThread : threadList )
+			// Work happening right now
+			setTimeLastWorkAccomplished( System.currentTimeMillis() ) ;
+		}
+	}
+	
+	protected boolean areAllThreadsIdle()
+	{
+		for( WorkflowStageThread theThread : threadList )
+		{
+			if( theThread.isWorkInProgress() )
 			{
-				String threadInfo = theThread.getName() + " " ;
-				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
-
-				final String threadUpdateString = theThread.getUpdateString() ;
-				if( !threadUpdateString.isBlank() ) threadInfo += ": " + theThread.getUpdateString() ;
-
-				log.info( threadInfo ) ;
+				// This thread is NOT idle.
+				return false ;
 			}
 		}
-		catch( Exception theException )
-		{
-			log.warning( "Exception: " + theException.toString() ) ;
-		}
+		return true ;
 	}
-
-	public String getStopFileName()
-	{
-		return stopFileName ;
-	}
-
-	public int getNumOCRThreads()
-	{
-		return numOCRThreads ;
-	}
-
-	public void setNumOCRThreads( final int numOCRThreads )
-	{
-		this.numOCRThreads = numOCRThreads ;
-	}
-
-	public long getInfoFrequency()
-	{
-		return infoFrequency ;
-	}
-
-	public long getLastInfoUpdate()
-	{
-		return lastInfoUpdate ;
-	}
-
-	public void setLastInfoUpdate( final long lastInfoUpdate )
-	{
-		this.lastInfoUpdate = lastInfoUpdate ;
-	}
-
-	public long getTimeLastWorkAccomplished()
-	{
-		return timeLastWorkAccomplished ;
-	}
-
-	public void setTimeLastWorkAccomplished( final long timeLastWorkAccomplished )
-	{
-		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
-	}
-
-	public long getMaxIdleThreadTimeout()
-	{
-		return maxIdleThreadTimeout ;
-	}
-
 }
