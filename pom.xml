@@ -60,7 +60,43 @@
 			<artifactId>mongodb-driver-sync</artifactId>
 			<version>5.5.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-client-chat -->
+		<dependency>
+		    <groupId>org.springframework.ai</groupId>
+		    <artifactId>spring-ai-client-chat</artifactId>
+		    <version>1.0.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-model -->
+		<dependency>
+		    <groupId>org.springframework.ai</groupId>
+		    <artifactId>spring-ai-model</artifactId>
+		    <version>1.0.1</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-ollama -->
+		<dependency>
+		    <groupId>org.springframework.ai</groupId>
+		    <artifactId>spring-ai-ollama</artifactId>
+		    <version>1.0.1</version>
+		</dependency>
 	</dependencies>
+	<repositories>
+	    <repository>
+	        <id>spring-milestones</id>
+	        <name>Spring Milestones</name>
+	        <url>https://repo.spring.io/milestone</url>
+	        <snapshots>
+	            <enabled>false</enabled>
+	        </snapshots>
+	    </repository>
+	    <repository>
+	        <id>spring-snapshots</id>
+	        <name>Spring Snapshots</name>
+	        <url>https://repo.spring.io/snapshot</url>
+	        <releases>
+	            <enabled>false</enabled>
+	        </releases>
+	    </repository>
+		</repositories>
 	<build>
 		<sourceDirectory>run_ffmpeg/src</sourceDirectory>
 		<plugins>

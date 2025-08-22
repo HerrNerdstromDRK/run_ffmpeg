@@ -93,7 +93,7 @@ public class RenameEpisodesBySRT
 
 	public void execute()
 	{
-		common.setTestMode( false ) ;
+		common.setTestMode( true ) ;
 
 		// The number of SRT files we can download is limited by time block (at present 20 downloads per 4-hour block).
 		// -> Download SRT files whenever possible, and work the other actions otherwise.
@@ -111,7 +111,7 @@ public class RenameEpisodesBySRT
 		// Can also add individual seasons directly into the list.
 		List< File > seasonDirectories = new ArrayList< File >() ;
 		seasonDirectories.addAll( getSeasonDirectoriesFromShowDirectories( showDirectories ) ) ;
-		seasonDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\24 (2001) {imdb-0285331} {tvdb-76290}\\Season 01" ) ) ;
+		seasonDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ) ;
 		//		seasonDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Greys Anatomy (2005) {imdb-0413573} {tvdb-73762}\\Season 01" ) ) ;
 
 		Map< File, TheTVDB_seriesEpisodesClass > seasonDirectoryEpisodes = new HashMap< File, TheTVDB_seriesEpisodesClass >() ;
@@ -223,6 +223,7 @@ public class RenameEpisodesBySRT
 				final File bestGeneratedSRTMatchFile = getBestSRTMatch( downloadedSRTFileData, generatedSRTFilesData ) ;
 
 				// Now have a match for this downloadedSRTFile.
+				log.info( "Best match for " + downloadedSRTFile.getName() + ": " + bestGeneratedSRTMatchFile.getName() ) ;
 				// Need to reconstruct the series/episode information, find the owning mkv file, and rename the mkv and generated srt files.
 				
 				// Get the proper show name.
@@ -250,7 +251,7 @@ public class RenameEpisodesBySRT
 
 				// Strip invalid characters and strings
 				// Replacing ".", ":00 ", and " - " is meant to replace episodes of 24 from "24 - S01E20 - 7:00 P.M. - 8:00 P.M."
-				episodeName = episodeName.replace( "\'", "" ).replace( ".", "" ).replace( ":00 ", "" ).replace( " - ", " " ) ;
+				episodeName = episodeName.replace( "\'", "" ).replace( ".", "" ).replace( ":00 ", "" ).replace( " - ", " " ).replace( "!", "" ) ;
 
 				// Build the base name: "Show Name - S01E01 - Episode Name"
 				String outputBaseFileName = showName + " - S" ;
