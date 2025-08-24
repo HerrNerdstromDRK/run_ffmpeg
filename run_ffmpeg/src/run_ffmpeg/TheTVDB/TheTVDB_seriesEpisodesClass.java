@@ -43,6 +43,29 @@ public class TheTVDB_seriesEpisodesClass
 		public String year = "" ;
 	}
 	
+	/**
+	 * Return the minimum duration of all episodes, expressed in seconds.
+	 * @return
+	 */
+	public double getMinDuration()
+	{
+		assert( data != null ) ;
+		assert( data.episodes != null ) ;
+	
+		// Will be in minutes, for now
+		int minDuration = Integer.MAX_VALUE ;
+		for( TheTVDB_episodeClass theEpisode : data.episodes )
+		{
+			if( theEpisode.runtime.intValue() < minDuration )
+			{
+				minDuration = theEpisode.runtime.intValue() ;
+			}
+		}
+	
+		// Convert to seconds.
+		return (double) (minDuration * 60) ;
+	}
+
 	@Override
 	public String toString()
 	{

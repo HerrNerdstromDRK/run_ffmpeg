@@ -519,7 +519,7 @@ public class Common
 		log.fine( "Processing: " + theFile.getAbsolutePath() ) ;
 		FFmpeg_ProbeResult result = null ;
 
-		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>();
+		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>() ;
 		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
 
 		// Add option "-v quiet" to suppress the normal ffprobe output
@@ -535,9 +535,9 @@ public class Common
 		ffprobeExecuteCommand.add( "-i", theFile.getAbsolutePath() ) ;
 
 		// Build the GSON parser for the JSON input
-		GsonBuilder builder = new GsonBuilder(); 
-		builder.setPrettyPrinting(); 
-		Gson gson = builder.create();
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
 
 		try
 		{
@@ -691,6 +691,77 @@ public class Common
 		return extension ;
 	}
 
+	/**
+	 * Return the duration of the given file, in seconds.
+	 * @param inputFile
+	 * @return
+	 */
+	public double getFileDuration( final File inputFile )
+	{
+		assert( inputFile != null ) ;
+
+		ImmutableList.Builder<String> ffprobeExecuteCommand = new ImmutableList.Builder<String>() ;
+		ffprobeExecuteCommand.add( getPathToFFprobe() ) ;
+
+		// Add option "-v quiet" to suppress the normal ffprobe output
+		ffprobeExecuteCommand.add( "-v", "error" ) ;
+
+		// Instruct ffprobe to show streams
+		ffprobeExecuteCommand.add( "-show_entries", "format=duration" ) ;
+
+		// Instruct ffprobe to return result as json
+		ffprobeExecuteCommand.add( "-print_format", "json" ) ;
+
+		// Finally, add the input file
+		ffprobeExecuteCommand.add( "-i", inputFile.getAbsolutePath() ) ;
+
+		// Build the GSON parser for the JSON input
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+
+		Ollama_Test_ffprobeResult result = null ;
+		double fileDuration = 0.0 ;
+
+		try
+		{
+			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
+			log.info( Arrays.toString( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ) ;
+
+			final ProcessBuilder theProcessBuilder = new ProcessBuilder( ffprobeExecuteCommand.build().toArray( new String[ 1 ] ) ) ;
+			final Process process = theProcessBuilder.start() ;
+
+			BufferedReader inputStreamReader = new BufferedReader( new InputStreamReader( process.getInputStream() ) ) ;
+			//			int lineNumber = 1 ;
+			String inputLine = null ;
+			StringBuilder inputBuffer = new StringBuilder() ;
+			while( (inputLine = inputStreamReader.readLine()) != null )
+			{
+				//				log.fine( "" + lineNumber + "> " + inputLine ) ;
+				inputBuffer.append( inputLine ) ;
+				//				inputBuffer += inputLine ;
+				//				++lineNumber ;
+			}
+
+			if( process.exitValue() != 0 )
+			{
+				log.warning( "Error running ffprobe on file " + inputFile.getAbsolutePath() + "; exitValue: " + process.exitValue() ) ;
+			}
+			else
+			{
+				// Deserialize the JSON streams info from this file
+				result = gson.fromJson( inputBuffer.toString(), Ollama_Test_ffprobeResult.class ) ;
+//				log.info( "result: " + result.toString() ) ;
+				fileDuration = Double.valueOf( result.format.duration ) ;
+			}
+		}
+		catch( Exception theException )
+		{
+			theException.printStackTrace() ;
+		}
+		return fileDuration ;
+	}
+	
 	public static String getFileNameWithoutExtension( final File inputFile )
 	{
 		final String fileName = inputFile.getName() ;
@@ -944,6 +1015,30 @@ public class Common
 		return retMe ; 
 	}
 
+	/**
+	 * Return a List of the files with duration, in seconds, of at least the given minimum duration.
+	 * @param inputFiles
+	 * @return
+	 */
+	public List< File > pruneByMinDuration( final List< File > inputFiles, final double minDuration )
+	{
+		assert( inputFiles != null ) ;
+
+		List< File > prunedFileList = new ArrayList< File >() ;
+		for( File inputFile : inputFiles )
+		{
+
+			final double fileDuration = getFileDuration( inputFile ) ;
+			if( fileDuration >= minDuration )
+			{
+				// This file is long enough to be considered an episode.
+				// Keep it.
+				prunedFileList.add( inputFile ) ;
+			}
+		}
+		return prunedFileList ;
+	}
+	
 	/**
 	 * Returns a new String without the last extension.
 	 * @param fileName

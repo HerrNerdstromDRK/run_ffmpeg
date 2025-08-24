@@ -206,6 +206,39 @@ public class FileNamePattern
 		return imdbShowID ;
 	}
 	
+	public static int getEpisodeNumber_static( final File theFile )
+	{
+		assert( theFile != null ) ;
+		
+		int episodeNumber = -1 ;
+		final Pattern episodeNumberPattern = Pattern.compile( ".* - S[\\d]+E(?<episodeNumber>[\\d]+) - .*\\..*" ) ;
+		final Matcher episodeNumberMatcher = episodeNumberPattern.matcher( theFile.getAbsolutePath() ) ;
+		if( episodeNumberMatcher.find() )
+		{
+			episodeNumber = Integer.parseInt( episodeNumberMatcher.group( "episodeNumber" ) ) ;
+		}
+		return episodeNumber ;
+	}
+	
+	/**
+	 * Returns the name of the show represented by the given file (could be a directory), or null otherwise.
+	 * @param theFile
+	 * @return
+	 */
+	public static String getShowName_static( final File theFile )
+	{
+		assert( theFile != null ) ;
+		
+		String showName = null ;
+		final Pattern showNamePattern = Pattern.compile( ".*\\\\(?<seasonName>.*) \\([\\d]{4}\\) \\{imdb-[\\d]+\\} \\{tvdb-[\\d]+\\}\\\\.*" ) ;
+		final Matcher showNameMatcher = showNamePattern.matcher( theFile.getAbsolutePath() ) ;
+		if( showNameMatcher.find() )
+		{
+			showName = showNameMatcher.group( "seasonName" ) ;
+		}
+		return showName ;
+	}
+	
 	/**
 	 * Returns the season number from the given file path, or -1 if no season number found.
 	 * @param theFile
