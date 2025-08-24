@@ -4,20 +4,20 @@ import java.io.File;
 
 import com.google.gson.Gson;
 
-public class JobRecord_OCRFile
+public class JobRecord_FileNameWithPath
 {
 	public String fileNameWithPath = null ;
 	
 	/// Default public constructor mandatory for serialization.
-	public JobRecord_OCRFile()
+	public JobRecord_FileNameWithPath()
 	{}
 	
-	public JobRecord_OCRFile( final String fileNameWithPath )
+	public JobRecord_FileNameWithPath( final String fileNameWithPath )
 	{
 		this.fileNameWithPath = fileNameWithPath ;
 	}
 	
-	public JobRecord_OCRFile( final File inputFile )
+	public JobRecord_FileNameWithPath( final File inputFile )
 	{
 		this.fileNameWithPath = inputFile.getAbsolutePath() ;
 	}

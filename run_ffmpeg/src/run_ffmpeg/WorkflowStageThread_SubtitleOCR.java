@@ -12,7 +12,7 @@ import com.mongodb.client.MongoCollection;
 public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 {
 	/// The createSRTWithOCRCollection is the collection of file names with paths to OCR.
-	protected transient MongoCollection< JobRecord_OCRFile > createSRTWithOCRCollection = null ;
+	protected transient MongoCollection< JobRecord_FileNameWithPath > createSRTWithOCRCollection = null ;
 
 	public WorkflowStageThread_SubtitleOCR( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
 	{
@@ -32,7 +32,7 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 	 */
 	public boolean doAction()
 	{
-		final JobRecord_OCRFile ocrJobRecord = createSRTWithOCRCollection.findOneAndDelete( null ) ;
+		final JobRecord_FileNameWithPath ocrJobRecord = createSRTWithOCRCollection.findOneAndDelete( null ) ;
 		if( null == ocrJobRecord )
 		{
 			// No more entries left to process.

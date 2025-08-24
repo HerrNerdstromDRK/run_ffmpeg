@@ -117,7 +117,7 @@ public class FixTVShowNaming
 	{
 		common.setTestMode( true ) ;
 		
-		tvDirectories.add( Common.getPathToToOCR() ) ;
+		tvDirectories.add( Common.getPathToOCR() ) ;
 //		tvDirectories.add( Common.getPathToTVShows() ) ;
 //		tvDirectories.add( common.addPathSeparatorIfNecessary( Common.getPathToTVShows() ) + "Brooklyn Nine-Nine (2013) {tvdb-269586}" ) ; 
 		
@@ -287,7 +287,7 @@ public class FixTVShowNaming
 					}
 
 					String showName = namedCaptureGroupMatcher.group( TV_Show_Pattern.showNameString ) ;
-					showName = WordUtils.capitalize( stripInvalidSubStrings( showName ) ) ;
+					showName = WordUtils.capitalize( FileNamePattern.stripInvalidSubStrings( showName ) ) ;
 
 					String seasonAndEpisodeNumber = namedCaptureGroupMatcher.group( TV_Show_Pattern.seasonAndEpisodeString ) ;
 					seasonAndEpisodeNumber = WordUtils.capitalize( seasonAndEpisodeNumber ) ;
@@ -307,7 +307,7 @@ public class FixTVShowNaming
 						log.warning( "Unable to get episodeName for: " + inputFileName ) ;
 						continue ;
 					}
-					episodeName = WordUtils.capitalize( stripInvalidSubStrings( episodeName ) ) ;
+					episodeName = WordUtils.capitalize( FileNamePattern.stripInvalidSubStrings( episodeName ) ) ;
 
 					String extension = namedCaptureGroupMatcher.group( TV_Show_Pattern.extensionString ) ;
 					//					extension = WordUtils.capitalize( extension ) ;
@@ -410,33 +410,5 @@ public class FixTVShowNaming
 			}
 		}
 		return false ;
-	}
-
-	public String stripInvalidSubStrings( final String inputFileName )
-	{
-		assert( inputFileName != null ) ;
-
-		String retMe = inputFileName ;
-		retMe = retMe.replace( ",", "" ) ;
-
-		// Remove '+' (M+A+S+H)
-		retMe = retMe.replace( "+", "" ) ;
-		retMe = retMe.replace( "&", "" ) ;
-		retMe = retMe.replace( "--", "" ) ;
-		//			retMe = retMe.replace( "- ", " " ) ;
-		retMe = retMe.replace( "  ", " " ) ;
-		retMe = retMe.replace( "\'", "" ) ;
-		retMe = retMe.replace( "!", "" ) ;
-		retMe = retMe.replace( ".", " " ) ;
-		retMe = retMe.replace( ",", "" ) ;
-		retMe = retMe.replace( "\'", "" ) ;
-		retMe = retMe.replace( "?", "" ) ;
-		retMe = retMe.replace( "#", "" ) ;
-		retMe = retMe.replace( ":", "" ) ;
-		retMe = retMe.replace( ":", "" ) ;
-		retMe = retMe.replace( "_", "" ) ;
-		retMe = retMe.replace( "*", "" ) ;
-
-		return retMe ;
 	}
 }

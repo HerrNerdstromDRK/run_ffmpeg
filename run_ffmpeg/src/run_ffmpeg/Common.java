@@ -114,11 +114,13 @@ public class Common
 	private static final String pathToMediaFolderBase = primaryFileServerName + pathSeparator + "Media" ;
 	private static final String moviesFolderName = "Movies" ;
 	private static final String otherVideosFolderName = "Other_Videos" ;
+	private static final String stagingFolderName = "Staging" ;
 	private static final String toOCRFolderName = "To_OCR" ;
 	private static final String tvShowsFolderName = "TV_Shows" ;
 	private static final String pathToMovies = pathToMediaFolderBase + pathSeparator + moviesFolderName ;
 	private static final String pathToOtherVideos = pathToMediaFolderBase + pathSeparator + otherVideosFolderName ;
-	private static final String pathToToOCR = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
+	private static final String pathToOCR = pathToMediaFolderBase + pathSeparator + toOCRFolderName ;
+	private static final String pathToStaging = pathToMediaFolderBase + pathSeparator + stagingFolderName ; 
 	private static final String pathToTVShows = pathToMediaFolderBase + pathSeparator + tvShowsFolderName ;
 	private static final String pathToTmpDir = pathToMediaFolderBase + pathSeparator + "Test" ;
 	private static final String pathToDeleteDir = pathToMediaFolderBase + pathSeparator + "To_Delete" ;
@@ -1412,9 +1414,9 @@ public class Common
 		return pathToOtherVideos ;
 	}
 
-	public static String getPathToToOCR()
+	public static String getPathToOCR()
 	{
-		return pathToToOCR ;
+		return pathToOCR ;
 	}
 
 	public static String getPathToDeleteDir()
@@ -1436,6 +1438,11 @@ public class Common
 		{
 			log.info( theObject.toString() ) ;
 		}
+	}
+
+	public static String getPathToStaging()
+	{
+		return pathToStaging ;
 	}
 
 }

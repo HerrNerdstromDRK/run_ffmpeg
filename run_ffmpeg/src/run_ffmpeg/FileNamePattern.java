@@ -440,6 +440,39 @@ public class FileNamePattern
 		this.isTVShow = isTVShow ;
 	}
 
+	/**
+	 * Remove characters that are invalid to a common naming scheme, such as apostrophes, commas, periods, etc.
+	 * @param inputFileName
+	 * @return
+	 */
+	public static String stripInvalidSubStrings( final String inputFileName )
+	{
+		assert( inputFileName != null ) ;
+
+		String retMe = inputFileName ;
+		retMe = retMe.replace( ",", "" ) ;
+
+		// Remove '+' (M+A+S+H)
+		retMe = retMe.replace( "+", "" ) ;
+		retMe = retMe.replace( "&", "" ) ;
+		retMe = retMe.replace( "--", "" ) ;
+		//			retMe = retMe.replace( "- ", " " ) ;
+		retMe = retMe.replace( "  ", " " ) ;
+		retMe = retMe.replace( "\'", "" ) ;
+		retMe = retMe.replace( "!", "" ) ;
+		retMe = retMe.replace( ".", " " ) ;
+		retMe = retMe.replace( ",", "" ) ;
+		retMe = retMe.replace( "\'", "" ) ;
+		retMe = retMe.replace( "?", "" ) ;
+		retMe = retMe.replace( "#", "" ) ;
+		retMe = retMe.replace( ":", "" ) ;
+		retMe = retMe.replace( ":", "" ) ;
+		retMe = retMe.replace( "_", "" ) ;
+		retMe = retMe.replace( "*", "" ) ;
+
+		return retMe ;
+	}
+	
 	public String toString()
 	{
 		Gson loginRequestGson = new Gson() ;

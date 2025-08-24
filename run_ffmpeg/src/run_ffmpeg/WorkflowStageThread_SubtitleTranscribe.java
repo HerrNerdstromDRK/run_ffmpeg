@@ -9,9 +9,6 @@ import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 
 public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 {
-	protected transient Logger log = null ;
-	protected transient Common common = null ;
-	protected transient MoviesAndShowsMongoDB masMDB = null ;
 	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTWithAICollection = null ;
 	protected transient OpenAIWhisper whisper = null ;
 

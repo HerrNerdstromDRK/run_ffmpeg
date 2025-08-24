@@ -225,8 +225,13 @@ public class WorkflowOrchestrator
 		WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
 				"AI", log, common, masMDB ) ;
 		transcribeThread.setName( "AI" ) ;
-		threadList.add( transcribeThread ) ;	
-	
+		threadList.add( transcribeThread ) ;
+
+		WorkflowStateThread_ExtractSubtitle extractThread = new WorkflowStateThread_ExtractSubtitle(
+				"Extract", log, common, masMDB ) ;
+		extractThread.setName( "Extract" ) ;
+		threadList.add( extractThread ) ;
+		
 		for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
 		{
 			final String threadName = "OCR_" + threadNum ;

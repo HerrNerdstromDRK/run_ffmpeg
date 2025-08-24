@@ -107,7 +107,7 @@ public class RenameEpisodesBySRT
 		// Can add shows or seasons individually
 		// showDirectories is the set of tv show directories, one directory for each show
 		List< File > showDirectories = new ArrayList< File >() ;
-		showDirectories.addAll( getShowDirectories( Common.getPathToToOCR() ) ) ;
+		showDirectories.addAll( getShowDirectories( Common.getPathToOCR() ) ) ;
 		//showDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}" ) ) ;
 		//showDirectories.add( new File( "\\\\skywalker\\Media\\To_OCR\\Greys Anatomy (2005) {imdb-0413573} {tvdb-73762}" ) ) ;
 
@@ -275,13 +275,15 @@ public class RenameEpisodesBySRT
 			final int episodeNumber = FileNamePattern.getEpisodeNumber_static( bestMatchingDownloadedSRTFile ) ;
 			final String episodeName = getEpisodeName( seasonEpisodes, seasonNumber, episodeNumber ) ;
 
-			String episodeBaseName = showName + " - S" ;
+			// This is a bit ugly to work around a limitatio nof WordUtils.capitalizeFully: It will mix capitalization of even
+			//  strings like "S02E03" to "S03e03".
+			String episodeBaseName = WordUtils.capitalizeFully( FileNamePattern.stripInvalidSubStrings( showName ), ' ' )  ;
+			episodeBaseName += " - S" ;
 			if( seasonNumber < 10 ) episodeBaseName += "0" ;
 			episodeBaseName += "" + seasonNumber + "E" ;
 			if( episodeNumber < 10 ) episodeBaseName += "0" ;
 			episodeBaseName += "" + episodeNumber ;
-			episodeBaseName += " - " + episodeName ;
-			episodeBaseName = WordUtils.capitalizeFully( episodeBaseName ) ;
+			episodeBaseName += " - " + WordUtils.capitalizeFully( FileNamePattern.stripInvalidSubStrings( episodeName ), ' ' ) ;
 
 			// Rename the mkv file.
 			final String newMKVFileName = episodeBaseName + ".mkv" ;

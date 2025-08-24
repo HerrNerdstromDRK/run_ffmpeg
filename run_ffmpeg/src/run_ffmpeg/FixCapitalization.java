@@ -42,7 +42,7 @@ public class FixCapitalization
 		common.setTestMode( true ) ;
 
 		final List< String > directories = new ArrayList< String >() ;
-		directories.add( Common.getPathToToOCR() ) ;
+		directories.add( Common.getPathToOCR() ) ;
 
 		// Look through each directory for all files ending in .mkv, .mp4, or .srt
 		capitalizeFiles( directories, new String[] { ".mkv", ".mp4", ".srt" } ) ;

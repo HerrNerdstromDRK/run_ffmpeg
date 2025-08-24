@@ -54,6 +54,7 @@ public class MoviesAndShowsMongoDB
 	private final String action_TranscodeMKVFilesInfoCollectionName = "action_transcodemkvfiles" ;
 	private final String action_CreateSRTsWithAI = "action_createsrtswithai" ;
 	private final String action_CreateSRTsWithOCR = "action_createsrtswithocr" ;
+	private final String action_ExtractSubtitle = "action_extractsubtitle" ;
 //	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
 //	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
@@ -253,12 +254,27 @@ public class MoviesAndShowsMongoDB
 		getAction_CreateSRTsWithAICollection().drop() ;
 	}
 	
-	public MongoCollection< JobRecord_OCRFile > getAction_CreateSRTsWithOCRCollection()
+	public MongoCollection< JobRecord_FileNameWithPath > getAction_ExtractSubtitleCollection()
 	{	
 		log.fine( "Getting action_CreateSRTsWithOCR" ) ;
-		MongoCollection< JobRecord_OCRFile > theCollection = persistentDatabaseHandle.getCollection(
+		MongoCollection< JobRecord_FileNameWithPath > theCollection = persistentDatabaseHandle.getCollection(
+				action_ExtractSubtitle,
+				JobRecord_FileNameWithPath.class ) ;
+		return theCollection ;
+	}
+
+	public void dropAction_ExtractSubtitleCollection()
+	{
+		log.info( "Dropping action_ExtractSubtitleCollection" )  ;
+		getAction_ExtractSubtitleCollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_FileNameWithPath > getAction_CreateSRTsWithOCRCollection()
+	{	
+		log.fine( "Getting action_CreateSRTsWithOCR" ) ;
+		MongoCollection< JobRecord_FileNameWithPath > theCollection = persistentDatabaseHandle.getCollection(
 				action_CreateSRTsWithOCR,
-				JobRecord_OCRFile.class ) ;
+				JobRecord_FileNameWithPath.class ) ;
 		return theCollection ;
 	}
 
