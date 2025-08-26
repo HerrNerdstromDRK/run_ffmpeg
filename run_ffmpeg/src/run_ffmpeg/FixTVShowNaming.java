@@ -117,8 +117,9 @@ public class FixTVShowNaming
 	{
 		common.setTestMode( false ) ;
 		
-		tvDirectories.add( Common.getPathToOCR() ) ;
-		tvDirectories.add( Common.getPathToTVShows() ) ;
+		tvDirectories.add( Common.getPathToStaging() ) ;
+//		tvDirectories.add( Common.getPathToOCR() ) ;
+//		tvDirectories.add( Common.getPathToTVShows() ) ;
 //		tvDirectories.add( common.addPathSeparatorIfNecessary( Common.getPathToTVShows() ) + "Brooklyn Nine-Nine (2013) {tvdb-269586}" ) ; 
 
 //		reportMalformedTVShowNames() ;

@@ -183,9 +183,9 @@ public class WorkflowOrchestrator
 		{
 			for( WorkflowStageThread theThread : threadList )
 			{
-				String threadInfo = theThread.getName() + " " ;
-				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
-				threadInfo += ", workInProgress: " + theThread.isWorkInProgress() ;
+				String threadInfo = theThread.getName() ;
+//				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
+				threadInfo += ": workInProgress: " + theThread.isWorkInProgress() ;
 				
 				final String threadUpdateString = theThread.getUpdateString() ;
 				if( !threadUpdateString.isBlank() ) threadInfo += ": " + theThread.getUpdateString() ;
