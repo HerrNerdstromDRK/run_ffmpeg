@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * The purpoase of this class is to delete .sup files that have a corresponding .srt file.
+ * The purpose of this class is to delete .sup files that have a corresponding .srt file.
  * @author Dan
  */
 public class DeleteDuplicativeSUPFiles

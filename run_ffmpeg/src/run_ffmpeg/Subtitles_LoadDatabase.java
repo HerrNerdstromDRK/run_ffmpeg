@@ -65,16 +65,17 @@ public class Subtitles_LoadDatabase
 		// Build the list of folders to extract and process (OCR/transcribe)
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//		foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
-		//		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
+		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
 		//		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
-		foldersToExtractAndConvert.add( Common.getPathToStaging() ) ;
+//		foldersToExtractAndConvert.add( Common.getPathToStaging() ) ;
 		//		foldersToExtractAndConvert.add( "\\\\skywalker\\\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ;
 
 		log.info( "Extracting subtitles in " + foldersToExtractAndConvert.toString() ) ;
 
 		// Locate and add any .sup files to the database for OCR.
 		{
+			log.info( "Searching for .sup files..." ) ;
 			final String[] imageFormatExtensions = { "sup" } ;
 			final List< File > supInputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, imageFormatExtensions ) ;
 
@@ -85,6 +86,7 @@ public class Subtitles_LoadDatabase
 
 		// Find and load video files (mkv/mp4/etc.) into the database to extract.
 		{
+			log.info( "Searching for video files to extract..." ) ;
 			final List< File > inputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, Common.getVideoExtensions() ) ;
 			log.info( "Found " + inputFiles.size() + " file(s) from which to extract subtitles" ) ;
 

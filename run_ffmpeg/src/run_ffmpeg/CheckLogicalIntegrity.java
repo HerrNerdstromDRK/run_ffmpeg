@@ -153,10 +153,10 @@ public class CheckLogicalIntegrity
 		
 		for( Map.Entry< File, List< File > > entry : movieFilesInFolders.entrySet() )
 		{
+			// Look through each file in this folder for a movie file
 			final File directory = entry.getKey() ;
 			final List< File > files = entry.getValue() ;
 			
-			// Look through each file in this folder for a movie file
 			int numMovieFilesFound = 0 ;
 			for( File theFile : files )
 			{

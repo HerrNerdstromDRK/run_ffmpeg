@@ -103,7 +103,7 @@ public class FixTVShowNaming
 
 	public static void main( String[] args )
 	{
-		(new FixTVShowNaming()).run() ;
+		(new FixTVShowNaming()).execute() ;
 	}
 
 	public FixTVShowNaming()
@@ -113,16 +113,16 @@ public class FixTVShowNaming
 		tvDB = new TheTVDB() ;
 	}
 
-	public void run()
+	public void execute()
 	{
-		common.setTestMode( true ) ;
+		common.setTestMode( false ) ;
 		
 		tvDirectories.add( Common.getPathToOCR() ) ;
-//		tvDirectories.add( Common.getPathToTVShows() ) ;
+		tvDirectories.add( Common.getPathToTVShows() ) ;
 //		tvDirectories.add( common.addPathSeparatorIfNecessary( Common.getPathToTVShows() ) + "Brooklyn Nine-Nine (2013) {tvdb-269586}" ) ; 
-		
-		reportMalformedTVShowNames() ;
-//		fixMalformedTVShowNames() ;
+
+//		reportMalformedTVShowNames() ;
+		fixMalformedTVShowNames() ;
 	}
 
 	public void reportMalformedTVShowNames()
@@ -179,6 +179,8 @@ public class FixTVShowNaming
 	
 	public void fixMalformedTVShowNames()
 	{
+		log.info( "Searching through directories: " + tvDirectories.toString() ) ;
+		
 		final TV_Show_Pattern[] tvShowPatterns =
 			{
 					// Pattern: bad pattern, show name, season and episode number, episode name, extension
@@ -269,7 +271,7 @@ public class FixTVShowNaming
 					}
 					foundMatch = true ;
 
-					log.info( "Found match between inputFileName " + inputFileName + " and pattern " + tvShowPattern.patternName
+					log.fine( "Found match between inputFileName " + inputFileName + " and pattern " + tvShowPattern.patternName
 							+ " (" + tvShowPattern.badPatternMatch + ")" ) ;
 					
 					// Extract the elements of the file name
