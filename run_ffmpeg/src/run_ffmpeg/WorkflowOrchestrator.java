@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * Instrument the workflow.
  * Works by retaining at least one worker thread for each function
@@ -183,7 +185,7 @@ public class WorkflowOrchestrator
 		{
 			for( WorkflowStageThread theThread : threadList )
 			{
-				String threadInfo = theThread.getName() ;
+				String threadInfo = StringUtils.rightPad( theThread.getName(), 7 ) ;
 //				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
 				threadInfo += ": workInProgress: " + theThread.isWorkInProgress() ;
 				

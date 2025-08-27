@@ -836,27 +836,6 @@ public class Common
 	 * @param inputExtensions
 	 * @return non-null, but perhaps empty
 	 */
-//	public List< File > getFilesInDirectoryByExtension( final List< File > inputDirectoryFiles, final String[] inputExtensions )
-//	{
-//		assert( inputDirectoryFiles != null ) ;
-//		
-//		Set< File > uniqueFiles = new TreeSet< File >() ;
-//		
-//		for( File inputDirectoryFile : inputDirectoryFiles )
-//		{
-//			uniqueFiles.addAll( getFilesInDirectoryByExtension( inputDirectoryFile, inputExtensions ) ) ;
-//		}
-//				
-//		List< File > allFiles = new ArrayList< File >( uniqueFiles ) ;
-//		return allFiles ;
-//	}
-	
-	/**
-	 * Return a list of Files in the given directory with any of the given extensions.
-	 * @param inputDirectory
-	 * @param inputExtensions
-	 * @return non-null, but perhaps empty
-	 */
 	public List< File > getFilesInDirectoryByExtension( final List< String > inputDirectoryFilePaths, final String[] inputExtensions )
 	{
 		assert( inputDirectoryFilePaths != null ) ;
@@ -866,6 +845,27 @@ public class Common
 		for( String inputDirectoryFilePath : inputDirectoryFilePaths )
 		{
 			uniqueFiles.addAll( getFilesInDirectoryByExtension( inputDirectoryFilePath, inputExtensions ) ) ;
+		}
+				
+		List< File > allFiles = new ArrayList< File >( uniqueFiles ) ;
+		return allFiles ;
+	}
+	
+	/**
+	 * Return a list of Files in the given directory with the given extension.
+	 * @param inputDirectory
+	 * @param inputExtensions
+	 * @return non-null, but perhaps empty
+	 */
+	public List< File > getFilesInDirectoryByExtension( final List< String > inputDirectoryFilePaths, final String inputExtension )
+	{
+		assert( inputDirectoryFilePaths != null ) ;
+		
+		Set< File > uniqueFiles = new TreeSet< File >() ;
+		
+		for( String inputDirectoryFilePath : inputDirectoryFilePaths )
+		{
+			uniqueFiles.addAll( getFilesInDirectoryByExtension( inputDirectoryFilePath, inputExtension ) ) ;
 		}
 				
 		List< File > allFiles = new ArrayList< File >( uniqueFiles ) ;
