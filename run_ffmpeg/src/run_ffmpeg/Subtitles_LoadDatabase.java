@@ -1,7 +1,6 @@
 package run_ffmpeg;
 
 import java.io.File;
-import java.security.AllPermission;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -74,10 +73,11 @@ public class Subtitles_LoadDatabase
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//		foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
-		//		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
+		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
 		//		foldersToExtractAndConvert.add( Common.getPathToStaging() ) ;
-		//		foldersToExtractAndConvert.add( "\\\\skywalker\\\\Media\\To_OCR\\Arrested Development (2003) {imdb-0367279} {tvdb-72173}\\Season 02" ) ;
+//		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\Silo (2023) {imdb-14688458} {tvdb-403245}" ) ;
+//		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\A Pup Named Scooby-Doo (1988) {tvdb-73546}" ) ;
 
 		log.info( "Extracting subtitles in " + foldersToExtractAndConvert.toString() ) ;
 
@@ -101,26 +101,33 @@ public class Subtitles_LoadDatabase
 			// Prune videoFiles for any video files that already have at least one associated srt, wav, or sup file.
 			// The presence of any of these files indicates the file either has an srt file or is currently undergoing an srt build.
 			// First, get all of the srt/wav/sup files in these directories
-			log.info( "Finding srt files..." ) ;
+//			log.info( "Finding srt files..." ) ;
 			final List< File > srtFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, "srt" ) ;
-			
-			log.info( "Finding sup files..." ) ;
-			final List< File > supFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, "sup" ) ;
+			log.info( "Found " + srtFiles.size() + " srt file(s)." ) ;
 
-			log.info( "Finding wav files..." ) ;
+//			log.info( "Finding sup files..." ) ;
+			final List< File > supFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, "sup" ) ;
+			log.info( "Found " + supFiles.size() + " sup file(s)." ) ;
+
+//			log.info( "Finding wav files..." ) ;
 			final List< File > wavFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, "wav" ) ;
+			log.info( "Found " + wavFiles.size() + " wav file(s)." ) ;
 
 			// Add the srt files into a Map that is sorted by the srtFile's parent directory
 			Multimap< File, File > srtFilesByDirectory = ArrayListMultimap.create() ;
 			srtFiles.forEach( file -> srtFilesByDirectory.put( file.getParentFile(),  file ) ) ;
+//			log.info( "srtFilesByDirectory.size: " + srtFilesByDirectory.size() ) ;
 
 			// Do the same for .sup and .wav files
 			Multimap< File, File > supFilesByDirectory = ArrayListMultimap.create() ;
 			supFiles.forEach( file -> supFilesByDirectory.put( file.getParentFile(),  file ) ) ;
+//			log.info( "supFilesByDirectory.size: " + supFilesByDirectory.size() ) ;
 
 			Multimap< File, File > wavFilesByDirectory = ArrayListMultimap.create() ;
 			wavFiles.forEach( file -> wavFilesByDirectory.put( file.getParentFile(),  file ) ) ;
+//			log.info( "wavFilesByDirectory.size: " + wavFilesByDirectory.size() ) ;
 			
+			// Remove from the videoFiles structure any files that have an associated srt/wav/sup file
 			List< File > videoFilesPruned = pruneVideoFilesForExtraction( videoFiles, srtFilesByDirectory, supFilesByDirectory, wavFilesByDirectory ) ; 
 
 			// This will add the files to the database regardless if .srt files exist for them.
@@ -133,6 +140,15 @@ public class Subtitles_LoadDatabase
 		log.info( "Shutdown." ) ;
 	}
 
+	/**
+	 * Look through the list of Files in videoFiles and the three *FilesByDirectory. For each srt/sup/wav file found, omit it from the prunedFiles
+	 *  list. Return the list of files with no associated srt/sup/wav files.
+	 * @param videoFiles
+	 * @param srtFilesByDirectory
+	 * @param supFilesByDirectory
+	 * @param wavFilesByDirectory
+	 * @return
+	 */
 	public List< File > pruneVideoFilesForExtraction( final List< File > videoFiles,
 			final Multimap< File, File > srtFilesByDirectory,
 			final Multimap< File, File > supFilesByDirectory,
@@ -148,7 +164,7 @@ public class Subtitles_LoadDatabase
 		for( File videoFile : videoFiles )
 		{
 			final String baseNameQuoted = Pattern.quote( FilenameUtils.getBaseName( videoFile.getName() ) ) ;
-			final String srtPatternString = baseNameQuoted + "\\.en(?:\\.(\\d)+)?\\.srt" ;
+			final String srtPatternString = baseNameQuoted + "\\.en(?:\\.[\\d]+)?\\.srt" ;
 			final Pattern srtPattern = Pattern.compile( srtPatternString ) ;
 			
 			final String wavPatternString = baseNameQuoted + "\\.wav" ;
@@ -156,10 +172,10 @@ public class Subtitles_LoadDatabase
 			
 			final String supPatternString = baseNameQuoted + "\\.sup" ;
 			final Pattern supPattern = Pattern.compile( supPatternString ) ;
-			
-			if( !findMatchingFilesRegex( srtPattern, srtFilesByDirectory.get( videoFile.getParentFile() ) ).isEmpty()
-					&& !findMatchingFilesRegex( wavPattern, wavFilesByDirectory.get( videoFile.getParentFile() ) ).isEmpty()
-					&& !findMatchingFilesRegex( supPattern, supFilesByDirectory.get( videoFile.getParentFile() ) ).isEmpty() )
+
+			if( findMatchingFilesRegex( srtPattern, srtFilesByDirectory.get( videoFile.getParentFile() ) ).isEmpty()
+					&& findMatchingFilesRegex( wavPattern, wavFilesByDirectory.get( videoFile.getParentFile() ) ).isEmpty()
+					&& findMatchingFilesRegex( supPattern, supFilesByDirectory.get( videoFile.getParentFile() ) ).isEmpty() )
 			{
 				prunedFiles.add( videoFile ) ;
 			}

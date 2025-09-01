@@ -52,6 +52,9 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 			{
 				srtFileWithWrongName.renameTo( srtFile ) ;
 			}
+			
+			// Delete the .wav file
+			wavFile.delete() ;
 		}
 
 		setWorkInProgress( false ) ;

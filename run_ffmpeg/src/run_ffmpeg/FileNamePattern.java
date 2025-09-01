@@ -458,7 +458,6 @@ public class FileNamePattern
 		retMe = retMe.replace( "--", "" ) ;
 		//			retMe = retMe.replace( "- ", " " ) ;
 		retMe = retMe.replace( "  ", " " ) ;
-		retMe = retMe.replace( "\'", "" ) ;
 		retMe = retMe.replace( "!", "" ) ;
 		retMe = retMe.replace( ".", " " ) ;
 		retMe = retMe.replace( ",", "" ) ;
