@@ -26,7 +26,7 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 	protected transient MongoCollection< JobRecord_FileNameWithPath > extractSubtitleCollection = null ;
 
 	/// Push transcribe jobs to the createSRTWithAICollection
-	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTWithAICollection = null ;
+	protected transient MongoCollection< JobRecord_FileNameWithPath > createSRTWithTranscribeCollection = null ;
 
 	/// Push OCR jobs here for .sup files that are created as a result of extracting PGS subtitles.
 	protected transient MongoCollection< JobRecord_FileNameWithPath > createSRTWithOCRCollection = null ;
@@ -80,8 +80,8 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 		extractSubtitleCollection = masMDB.getAction_ExtractSubtitleCollection() ;
 
 		// Push .wav files into the AI transcribe collection
-		createSRTWithAICollection = masMDB.getAction_CreateSRTsWithAICollection() ;
-		log.info( "AI database has " + createSRTWithAICollection.countDocuments() + " object(s) currently loaded." ) ;
+		createSRTWithTranscribeCollection = masMDB.getAction_CreateSRTsWithTranscribeCollection() ;
+		log.info( "AI database has " + createSRTWithTranscribeCollection.countDocuments() + " object(s) currently loaded." ) ;
 
 		createSRTWithOCRCollection = masMDB.getAction_CreateSRTsWithOCRCollection() ;
 		log.info( "OCR database has " + createSRTWithOCRCollection.countDocuments() + " object(s) currently loaded." ) ;
@@ -280,7 +280,7 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 
 			// wav file exists, either through extracting here or finding in the directory
 			// Either way, add it to the return list.
-			addToDatabase_Transcribe( probeResult ) ;
+			addToDatabase_Transcribe( inputFile ) ;
 			return ;
 		}
 		// PC: subtitle options string is non-empty and the inputFile has at least one valid subtitle stream that
@@ -377,11 +377,18 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 		}
 	}
 
-	public void addToDatabase_Transcribe( final FFmpeg_ProbeResult theProbeResult )
+	public void addToDatabase_Transcribe( final String fileNameWithPath )
 	{
-		assert( theProbeResult != null ) ;
+		assert( fileNameWithPath != null ) ;
 
-		createSRTWithAICollection.insertOne( theProbeResult ) ;
+		createSRTWithTranscribeCollection.insertOne( new JobRecord_FileNameWithPath( fileNameWithPath ) ) ;
+	}
+	
+	public void addToDatabase_Transcribe( final File fileToTranscribe )
+	{
+		assert( fileToTranscribe != null ) ;
+
+		createSRTWithTranscribeCollection.insertOne( new JobRecord_FileNameWithPath( fileToTranscribe ) ) ;
 	}
 
 	/**

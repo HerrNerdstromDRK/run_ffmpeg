@@ -120,13 +120,13 @@ public class CreateSRTsWithAI_LoadDatabase
 		if( !filesToGenerateSRT.isEmpty() )
 		{
 			log.info( "Clearing old actions..."  ) ;
-			masMDB.dropAction_CreateSRTsWithAICollection() ;
+			masMDB.dropAction_CreateSRTsWithTranscribeCollection() ;
 
 			log.info( "Adding " + filesToGenerateSRT.size() + " file(s) to database..." ) ;
-			MongoCollection< FFmpeg_ProbeResult > createSRTsHandle = masMDB.getAction_CreateSRTsWithAICollection() ;
+			MongoCollection< JobRecord_FileNameWithPath > createSRTsHandle = masMDB.getAction_CreateSRTsWithTranscribeCollection() ;
 			for( FFmpeg_ProbeResult theProbeResult : filesToGenerateSRT )
 			{
-				createSRTsHandle.insertOne( theProbeResult ) ;
+				createSRTsHandle.insertOne( new JobRecord_FileNameWithPath( theProbeResult.getFileNameWithPath() ) ) ;
 			}
 		}
 		log.info( "Cache performance> Hits: " + cacheHits + ", Misses: " + cacheMisses ) ;

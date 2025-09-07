@@ -66,14 +66,14 @@ public class PruneSmallSUPFiles
 	}
 
 	/**
-	 * Deletes all files with the given extension(s)and returned the number of files deleted.
+	 * Creates empty srt files for all files with the given extension(s) that are too small to be useful srt files
 	 * @param folderToPrune
 	 * @param extensionsToPrune
-	 * @return
+	 * @return The number of empty srt files created.
 	 */
 	public int pruneFolder( final String folderToPrune, final String[] extensionsToPrune )
 	{
-		int numDeleted = 0 ;
+		int numReplaced = 0 ;
 		
 		List< File > filesToPrune = common.getFilesInDirectoryByExtension( folderToPrune, extensionsToPrune ) ;
 		log.info( "Checking " + filesToPrune.size() + " files in folder " + folderToPrune ) ;
@@ -83,11 +83,19 @@ public class PruneSmallSUPFiles
 			if( fileToPrune.length() < getMinimalValidFileSize() )
 			{
 				// File too small.
-				// Delete it
-				log.info( "Deleting file " + fileToPrune.getAbsolutePath()
+				// Build an empty srt file for this file.
+				log.info( "Building empty srt file for " + fileToPrune.getAbsolutePath()
 					+ ", size: " + fileToPrune.length()
 					+ " less than minimum " + getMinimalValidFileSize() ) ;
-				++numDeleted ;
+
+				// Replace .sup with .srt
+				final String srtFileName = Common.replaceExtension( fileToPrune.getName(), "srt" ) ;
+				final File srtFile = new File( fileToPrune.getParentFile(), srtFileName ) ;
+				
+				SRTFileUtils srtFileUtils = new SRTFileUtils( log, common ) ;
+				srtFileUtils.writeEmptySRTFile( srtFile ) ;
+				
+				++numReplaced ;
 				
 				if( !common.getTestMode() )
 				{
@@ -96,7 +104,7 @@ public class PruneSmallSUPFiles
 			} // if( < length )
 		} // for( fileToPrune )
 		
-		return numDeleted ;
+		return numReplaced ;
 	} // pruneFolder()
 
 	public boolean shouldKeepRunning()

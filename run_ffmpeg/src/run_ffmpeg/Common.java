@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
@@ -83,7 +84,7 @@ public class Common
 				"c:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe",
 				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe"
 		} ;
-	
+
 	protected static final String[] videoExtensions =
 		{
 				"mkv",
@@ -187,7 +188,7 @@ public class Common
 		{
 			log.warning( "Unable to find SubtitleEdit" ) ;
 		}
-		
+
 		for( String testLocation : pathsToWhisperX )
 		{
 			if( (new File( testLocation )).isFile() )
@@ -246,82 +247,89 @@ public class Common
 		log.info( "theCommand: " + Arrays.toString( theCommand.build().toArray( new String[ 1 ] ) ) ) ;
 		boolean retMe = true ;
 
-		// Only execute the command if we are NOT in test mode
-		if( !getTestMode() )
+		if( getTestMode() )
 		{
-			try
+			// Only execute the command if we are NOT in test mode
+			return retMe ;
+		}
+		try
+		{
+			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
+			final ProcessBuilder theProcessBuilder = new ProcessBuilder( theCommand.build().toArray( new String[ 1 ] ) ) ;
+			
+			// Set encoding charmap for outputs. Testing or whisperX use.
+			Map< String, String > environment = theProcessBuilder.environment() ;
+			environment.put( "PYTHONUTF8", "1" ) ;
+			environment.put( "PYTHONIOENCODING",  "utf-8" ) ;
+			
+			final Process process = theProcessBuilder.start() ;
+
+			BufferedReader inputStreamReader = process.inputReader() ;
+			BufferedReader errorStreamReader =  process.errorReader() ;
+
+			while( process.isAlive() )
 			{
-				Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
-				final ProcessBuilder theProcessBuilder = new ProcessBuilder( theCommand.build().toArray( new String[ 1 ] ) ) ;
-				final Process process = theProcessBuilder.start() ;
+				String inputStreamLine = null ;
+				String lastInputStreamLine = "" ; // never null
+				String errorStreamLine = null ;
+				String lastErrorStreamLine = "" ; // never null
 
-				BufferedReader inputStreamReader = process.inputReader() ;
-				BufferedReader errorStreamReader =  process.errorReader() ;
-
-				while( process.isAlive() )
+				// Read the error stream first
+				while( errorStreamReader.ready() )
 				{
-					String inputStreamLine = null ;
-					String lastInputStreamLine = "" ; // never null
-					String errorStreamLine = null ;
-					String lastErrorStreamLine = "" ; // never null
-
-					// Read the error stream first
-					while( errorStreamReader.ready() )
+					errorStreamLine = errorStreamReader.readLine() ;
+					if( errorStreamLine != null )
 					{
-						errorStreamLine = errorStreamReader.readLine() ;
-						if( errorStreamLine != null )
+						if( errorStreamLine.equalsIgnoreCase( lastErrorStreamLine ) )
 						{
-							if( errorStreamLine.equalsIgnoreCase( lastErrorStreamLine ) )
-							{
-								// Same as last error input
-								continue ;
-							}
-							lastErrorStreamLine = errorStreamLine ;
-							if( !filterOut( errorStreamLine ) )
-							{
-								log.info( "ErrorStream: " + errorStreamLine ) ;
-							}
+							// Same as last error input
+							continue ;
+						}
+						lastErrorStreamLine = errorStreamLine ;
+						if( !filterOut( errorStreamLine ) )
+						{
+							log.info( "ErrorStream: " + errorStreamLine ) ;
 						}
 					}
-					while( inputStreamReader.ready() )
-					{
-						inputStreamLine = inputStreamReader.readLine() ;
-						if( inputStreamLine != null )
-						{
-							if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
-							{
-								// Same as last input
-								continue ;
-							}
-							lastInputStreamLine = inputStreamLine ;
-							if( !filterOut( inputStreamLine ) )
-							{
-								log.info( "InputStream: " + inputStreamLine ) ;
-							}
-						}
-					}
-					if( (null == inputStreamLine) && (null == errorStreamLine) )
-					{
-						// Neither stream had data.
-						// Pause to wait for input.
-						Thread.sleep( 100 ) ;
-					}
-				} // while( process.isAlive() )
-				// Post-condition: Process has terminated.
-
-				// Check if the process has exited.
-				if( process.exitValue() != 0 )
-				{
-					// Error occurred
-					retMe = false ;
-					log.warning( "Process exitValue() return error: " + process.exitValue() + ", returning false from method; info: " + process.info().toString() ) ;
 				}
-			}
-			catch( Exception theException )
+				while( inputStreamReader.ready() )
+				{
+					inputStreamLine = inputStreamReader.readLine() ;
+					if( inputStreamLine != null )
+					{
+						if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
+						{
+							// Same as last input
+							continue ;
+						}
+						lastInputStreamLine = inputStreamLine ;
+						if( !filterOut( inputStreamLine ) )
+						{
+							log.info( "InputStream: " + inputStreamLine ) ;
+						}
+					}
+				}
+				if( (null == inputStreamLine) && (null == errorStreamLine) )
+				{
+					// Neither stream had data.
+					// Pause to wait for input.
+					Thread.sleep( 100 ) ;
+				}
+			} // while( process.isAlive() )
+			// Post-condition: Process has terminated.
+
+			// Check if the process has exited.
+			if( process.exitValue() != 0 )
 			{
+				// Error occurred
 				retMe = false ;
-				log.warning( "Exception: " + theException + " for command: " + theCommand ) ;
+				log.warning( "Process exitValue() return error: " + process.exitValue() + ", returning false from method; info: " + process.info().toString() ) ;
 			}
+		}
+		catch( Exception theException )
+		{
+			retMe = false ;
+			log.warning( "Exception: " + theException + " for command: " + theCommand ) ;
 		}
 		return retMe ;
 	}
@@ -336,7 +344,7 @@ public class Common
 	{
 		return extractAudioFromAVFile( inputFile, outputFile, 0, 0, 0, -1, -1, -1 ) ;
 	}
-	
+
 	/**
 	 * Extract the audio from a given media inputFile and place it at the outputFile with given start and duration.
 	 * Passing negative values for the durations will result in the entire audio stream being extracted.
@@ -753,7 +761,7 @@ public class Common
 			{
 				// Deserialize the JSON streams info from this file
 				result = gson.fromJson( inputBuffer.toString(), Ollama_Test_ffprobeResult.class ) ;
-//				log.info( "result: " + result.toString() ) ;
+				//				log.info( "result: " + result.toString() ) ;
 				fileDuration = Double.valueOf( result.format.duration ) ;
 			}
 		}
@@ -763,7 +771,7 @@ public class Common
 		}
 		return fileDuration ;
 	}
-	
+
 	public static String getFileNameWithoutExtension( final File inputFile )
 	{
 		final String fileName = inputFile.getName() ;
@@ -783,10 +791,10 @@ public class Common
 		assert( inputDirectory != null ) ;
 		assert( inputDirectory.isDirectory() ) ;
 		assert( fileMatchPattern != null ) ;
-		
+
 		List< File > matchingFiles = new ArrayList< File >() ;
 		final File[] filesInDirectory = inputDirectory.listFiles() ;
-		
+
 		for( File theFile : filesInDirectory )
 		{
 			final Matcher fileMatchMatcher = fileMatchPattern.matcher( theFile.getName() ) ;
@@ -798,14 +806,14 @@ public class Common
 		}
 		return matchingFiles ;		
 	}
-	
+
 	public List< File > getFilesInDirectoryByRegex( final File inputDirectory,final String fileMatchPatternString )
 	{
 		assert( fileMatchPatternString != null ) ;
-		
+
 		return getFilesInDirectoryByRegex( inputDirectory, Pattern.compile( fileMatchPatternString ) ) ;
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -829,7 +837,7 @@ public class Common
 		assert( inputDirectoryFile != null ) ;
 		return getFilesInDirectoryByExtension( inputDirectoryFile.getAbsolutePath(), inputExtensions ) ;
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with any of the given extensions.
 	 * @param inputDirectory
@@ -839,18 +847,18 @@ public class Common
 	public List< File > getFilesInDirectoryByExtension( final List< String > inputDirectoryFilePaths, final String[] inputExtensions )
 	{
 		assert( inputDirectoryFilePaths != null ) ;
-		
+
 		Set< File > uniqueFiles = new TreeSet< File >() ;
-		
+
 		for( String inputDirectoryFilePath : inputDirectoryFilePaths )
 		{
 			uniqueFiles.addAll( getFilesInDirectoryByExtension( inputDirectoryFilePath, inputExtensions ) ) ;
 		}
-				
+
 		List< File > allFiles = new ArrayList< File >( uniqueFiles ) ;
 		return allFiles ;
 	}
-	
+
 	/**
 	 * Return a list of Files in the given directory with the given extension.
 	 * @param inputDirectory
@@ -860,14 +868,14 @@ public class Common
 	public List< File > getFilesInDirectoryByExtension( final List< String > inputDirectoryFilePaths, final String inputExtension )
 	{
 		assert( inputDirectoryFilePaths != null ) ;
-		
+
 		Set< File > uniqueFiles = new TreeSet< File >() ;
-		
+
 		for( String inputDirectoryFilePath : inputDirectoryFilePaths )
 		{
 			uniqueFiles.addAll( getFilesInDirectoryByExtension( inputDirectoryFilePath, inputExtension ) ) ;
 		}
-				
+
 		List< File > allFiles = new ArrayList< File >( uniqueFiles ) ;
 		return allFiles ;
 	}
@@ -991,7 +999,7 @@ public class Common
 		List< File > inputFileNameList = getFilesInDirectoryByExtension( directoryName, extension ) ;
 		return (inputFileNameList.size() > 0) ;
 	}
-	
+
 	/**
 	 * Return true if the string represents an integer, false otherwise.
 	 * @param s
@@ -1000,7 +1008,7 @@ public class Common
 	protected static boolean isInteger( final String integerString )
 	{
 		assert( integerString != null ) ;
-		
+
 		try
 		{
 			Integer.parseInt( integerString ) ;
@@ -1060,7 +1068,7 @@ public class Common
 		}
 		return prunedFileList ;
 	}
-	
+
 	/**
 	 * Returns a new String without the last extension.
 	 * @param fileName
@@ -1347,7 +1355,7 @@ public class Common
 	{
 		this.pathToWhisperX = pathToWhisperX ;
 	}
-	
+
 	public void setTestMode( boolean newValue )
 	{
 		testMode = newValue ;

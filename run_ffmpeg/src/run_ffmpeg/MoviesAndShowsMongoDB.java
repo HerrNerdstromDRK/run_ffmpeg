@@ -52,7 +52,7 @@ public class MoviesAndShowsMongoDB
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
 //	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
 	private final String action_TranscodeMKVFilesInfoCollectionName = "action_transcodemkvfiles" ;
-	private final String action_CreateSRTsWithAI = "action_createsrtswithai" ;
+	private final String action_CreateSRTsWithTranscribe = "action_createsrtswithtranscribe" ;
 	private final String action_CreateSRTsWithOCR = "action_createsrtswithocr" ;
 	private final String action_ExtractSubtitle = "action_extractsubtitle" ;
 //	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
@@ -239,19 +239,19 @@ public class MoviesAndShowsMongoDB
 		getAction_TranscodeMKVFileInfoCollection().drop() ;
 	}
 	
-	public MongoCollection< FFmpeg_ProbeResult > getAction_CreateSRTsWithAICollection()
+	public MongoCollection< JobRecord_FileNameWithPath > getAction_CreateSRTsWithTranscribeCollection()
 	{	
-		log.fine( "Getting action_CreateSRTsWithAI" ) ;
-		MongoCollection< FFmpeg_ProbeResult > theCollection = persistentDatabaseHandle.getCollection(
-				action_CreateSRTsWithAI,
-				FFmpeg_ProbeResult.class ) ;
+		log.fine( "Getting action_CreateSRTsWithTranscribe" ) ;
+		MongoCollection< JobRecord_FileNameWithPath > theCollection = persistentDatabaseHandle.getCollection(
+				action_CreateSRTsWithTranscribe,
+				JobRecord_FileNameWithPath.class ) ;
 		return theCollection ;
 	}
 
-	public void dropAction_CreateSRTsWithAICollection()
+	public void dropAction_CreateSRTsWithTranscribeCollection()
 	{
 		log.info( "Dropping action_CreateSRTsWithAI" )  ;
-		getAction_CreateSRTsWithAICollection().drop() ;
+		getAction_CreateSRTsWithTranscribeCollection().drop() ;
 	}
 	
 	public MongoCollection< JobRecord_FileNameWithPath > getAction_ExtractSubtitleCollection()
@@ -281,7 +281,7 @@ public class MoviesAndShowsMongoDB
 	public void dropAction_CreateSRTsWithOCRCollection()
 	{
 		log.info( "Dropping action_CreateSRTsWithOCR" )  ;
-		getAction_CreateSRTsWithAICollection().drop() ;
+		getAction_CreateSRTsWithOCRCollection().drop() ;
 	}
 
 //	public void dropJobRecord_ProbeFileInfoCollection()

@@ -5,17 +5,15 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
-import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
-
 public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 {
-	protected transient MongoCollection< FFmpeg_ProbeResult > createSRTWithAICollection = null ;
+	protected transient MongoCollection< JobRecord_FileNameWithPath > createSRTWithTranscribeCollection = null ;
 	protected transient OpenAIWhisper whisper = null ;
 
 	public WorkflowStageThread_SubtitleTranscribe( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
-		createSRTWithAICollection = masMDB.getAction_CreateSRTsWithAICollection() ;
+		createSRTWithTranscribeCollection = masMDB.getAction_CreateSRTsWithTranscribeCollection() ;
 		whisper = new OpenAIWhisper( log, common ) ;
 	}
 
@@ -25,13 +23,13 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 	 */
 	public boolean doAction()
 	{
-		final FFmpeg_ProbeResult inputProbeResult = createSRTWithAICollection.findOneAndDelete( null ) ;
-		if( null == inputProbeResult )
+		final JobRecord_FileNameWithPath jobRecord = createSRTWithTranscribeCollection.findOneAndDelete( null ) ;
+		if( null == jobRecord )
 		{
 			return false ;
 		}
 		setWorkInProgress( true ) ;
-		final File inputFile = new File( inputProbeResult.getFileNameWithPath() ) ;
+		final File inputFile = new File( jobRecord.getFileNameWithPath() ) ;
 
 		// The output filename will default, as will the language file.
 		// Generate an SRT via whisper ai.
@@ -64,6 +62,6 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 	@Override
 	public String getUpdateString()
 	{
-		return "Database size: " + createSRTWithAICollection.countDocuments() ;
+		return "Database size: " + createSRTWithTranscribeCollection.countDocuments() ;
 	}
 }

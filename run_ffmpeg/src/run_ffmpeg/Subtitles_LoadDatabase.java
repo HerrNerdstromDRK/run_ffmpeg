@@ -27,6 +27,7 @@ public class Subtitles_LoadDatabase
 	protected transient MoviesAndShowsMongoDB masMDB = null ;
 	protected transient MongoCollection< JobRecord_FileNameWithPath > extractSubtitleCollection = null ;
 	protected transient MongoCollection< JobRecord_FileNameWithPath > createSRTWithOCRCollection = null ;
+	protected transient MongoCollection< JobRecord_FileNameWithPath > createSRTWithTranscribeCollection = null ;
 
 	/// File name to which to log activities for this application.
 	private static final String logFileName = "log_subtitles_loaddatabase.txt" ;
@@ -60,6 +61,9 @@ public class Subtitles_LoadDatabase
 
 		createSRTWithOCRCollection = masMDB.getAction_CreateSRTsWithOCRCollection() ;
 		log.info( "OCR database has " + createSRTWithOCRCollection.countDocuments() + " object(s) currently loaded." ) ;
+		
+		createSRTWithTranscribeCollection = masMDB.getAction_CreateSRTsWithTranscribeCollection() ;
+		log.info( "AI database has " + createSRTWithTranscribeCollection.countDocuments() + " object(s) currently loaded" ) ;		
 	}
 
 	public static void main( final String[] args )
@@ -82,15 +86,25 @@ public class Subtitles_LoadDatabase
 		log.info( "Extracting subtitles in " + foldersToExtractAndConvert.toString() ) ;
 
 		// Locate and add any .sup files to the database for OCR.
-		{
-			log.info( "Searching for .sup files..." ) ;
-			final String[] imageFormatExtensions = { "sup" } ;
-			final List< File > supInputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, imageFormatExtensions ) ;
-
-			addToDatabase_OCR( supInputFiles ) ;
-
-			log.info( "Added " + supInputFiles.size() + " .sup file(s) to database" ) ;
-		}
+//		{
+//			log.info( "Searching for .sup files..." ) ;
+//			final String[] imageFormatExtensions = { "sup" } ;
+//			final List< File > supInputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, imageFormatExtensions ) ;
+//
+//			addToDatabase_OCR( supInputFiles ) ;
+//
+//			log.info( "Added " + supInputFiles.size() + " .sup file(s) to database" ) ;
+//		}
+		
+		// Locate and add any .wav files to the database for AI transcription.
+//		{
+//			log.info( "Searching for .wav files..." ) ;
+//			final String[] audioFormatExtensions = { "wav" } ;
+//			final List< File > wavInputFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, audioFormatExtensions ) ;
+//			
+//			
+//			log.info( "Added " + wavInputFiles.size() + " .wav file(s) to database" ) ;
+//		}
 
 		// Find and load video files (mkv/mp4/etc.) into the database to extract.
 		{
@@ -107,10 +121,12 @@ public class Subtitles_LoadDatabase
 
 //			log.info( "Finding sup files..." ) ;
 			final List< File > supFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, "sup" ) ;
+			addToDatabase_OCR( supFiles ) ;
 			log.info( "Found " + supFiles.size() + " sup file(s)." ) ;
 
 //			log.info( "Finding wav files..." ) ;
 			final List< File > wavFiles = common.getFilesInDirectoryByExtension( foldersToExtractAndConvert, "wav" ) ;
+			addToDatabase_Transcribe( wavFiles ) ;
 			log.info( "Found " + wavFiles.size() + " wav file(s)." ) ;
 
 			// Add the srt files into a Map that is sorted by the srtFile's parent directory
@@ -134,7 +150,10 @@ public class Subtitles_LoadDatabase
 			// This is on purpose to simplify code here -- the file check code must live somewhere, so I choose to keep this
 			//  code cleaner/smaller...for no particular reason.
 			addToDatabase_Extract( videoFilesPruned ) ;
+			
 			log.info( "Number of files to extract: " + extractSubtitleCollection.countDocuments() ) ;
+			log.info( "Number of files to OCR: " + createSRTWithOCRCollection.countDocuments() ) ;
+			log.info( "Number of files to transcribe: " + createSRTWithTranscribeCollection.countDocuments() ) ;
 		}
 
 		log.info( "Shutdown." ) ;
@@ -242,6 +261,27 @@ public class Subtitles_LoadDatabase
 			}				
 		}
 		return srtFilesPruned ;
+	}
+	
+	public void addToDatabase_Transcribe( final File fileToTranscribe )
+	{
+		assert( fileToTranscribe != null ) ;
+
+		createSRTWithTranscribeCollection.insertOne( new JobRecord_FileNameWithPath( fileToTranscribe ) ) ;
+	}
+
+	public void addToDatabase_Transcribe( final List< File > filesToOCR )
+	{
+		assert( filesToOCR != null ) ;
+
+		// Build a JobRecord for each and then add all at once.
+		List< JobRecord_FileNameWithPath > jobRecords = new ArrayList< JobRecord_FileNameWithPath >() ;
+		filesToOCR.forEach( file -> jobRecords.add( new JobRecord_FileNameWithPath( file ) ) ) ;
+
+		if( !jobRecords.isEmpty() )
+		{
+			createSRTWithTranscribeCollection.insertMany( jobRecords ) ;
+		}
 	}
 
 	public void addToDatabase_Extract( final File inputFile )

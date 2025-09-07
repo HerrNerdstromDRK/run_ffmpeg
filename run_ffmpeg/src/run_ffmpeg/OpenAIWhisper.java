@@ -97,6 +97,10 @@ public class OpenAIWhisper
 
 		// Only execute the whisper if testMode is false
 		boolean executeSuccess = common.getTestMode() ? true : common.executeCommand( whisperCommand ) ;
+		if( !executeSuccess )
+		{
+			log.warning( "Failed to transcribe input file " + inputFile.getAbsolutePath() ) ;
+		}
 		return executeSuccess ? outputFile : null ;
 	}
 	

@@ -5,8 +5,6 @@ import java.util.logging.Logger;
 
 import com.mongodb.client.MongoCollection;
 
-import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
-
 public class CreateSRTsWithAI_CreateSRTs
 {
 	/// Setup the logging subsystem
@@ -35,27 +33,27 @@ public class CreateSRTsWithAI_CreateSRTs
 	
 	public void execute()
 	{
-		MongoCollection< FFmpeg_ProbeResult > createSRTsHandle = masMDB.getAction_CreateSRTsWithAICollection() ;
+		MongoCollection< JobRecord_FileNameWithPath > createSRTsHandle = masMDB.getAction_CreateSRTsWithTranscribeCollection() ;
 		
 		while( shouldKeepRunning() )
 		{
-			final FFmpeg_ProbeResult inputProbeResult = createSRTsHandle.findOneAndDelete( null ) ;
-			if( null == inputProbeResult )
+			final JobRecord_FileNameWithPath jobRecord = createSRTsHandle.findOneAndDelete( null ) ;
+			if( null == jobRecord )
 			{
 				// No more work to do.
 				log.info( "Out of work to do." ) ;
 				break ;
 			}
 			
-			processWorkObject( inputProbeResult ) ;
+			processWorkObject( jobRecord ) ;
 		}
 	}
 	
-	public void processWorkObject( final FFmpeg_ProbeResult inputProbeResult )
+	public void processWorkObject( final JobRecord_FileNameWithPath jobRecord )
 	{
-		assert( inputProbeResult != null ) ;
+		assert( jobRecord != null ) ;
 		
-		final File inputFile = new File( inputProbeResult.getFileNameWithPath() ) ;
+		final File inputFile = new File( jobRecord.getFileNameWithPath() ) ;
 		
 		// Steps:
 		// 1) Extract a .wav file for the given input file
