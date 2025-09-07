@@ -73,7 +73,7 @@ public class Subtitles_LoadDatabase
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//		foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
-//		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
+		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
 		//		foldersToExtractAndConvert.add( Common.getPathToStaging() ) ;
 //		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\Silo (2023) {imdb-14688458} {tvdb-403245}" ) ;
