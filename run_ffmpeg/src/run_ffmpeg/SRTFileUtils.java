@@ -3,6 +3,7 @@ package run_ffmpeg;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -60,7 +61,7 @@ public class SRTFileUtils
 				// The following takes place between 5 a.m. // subtitle text
 
 				// Check for subtitle number
-				if( isInteger( line.trim() ) )
+				if( Common.isInteger( line.trim() ) )
 				{
 					// Got the beginning of a segment
 					// Read the timecode line
@@ -181,24 +182,6 @@ public class SRTFileUtils
 	}
 
 	/**
-	 * Return true if the string represents an integer, false otherwise.
-	 * @param s
-	 * @return
-	 */
-	protected boolean isInteger( final String s )
-	{
-		try
-		{
-			Integer.parseInt( s ) ;
-			return true ;
-		}
-		catch( NumberFormatException e )
-		{
-			return false ;
-		}
-	}
-
-	/**
 	 * Strip the input data of common punctuation and other subtitle markings to make comparisons between srt files of
 	 *  different origins more accurate.
 	 * @param inputSRTData
@@ -233,5 +216,33 @@ public class SRTFileUtils
 				(long) minutes * 60 * 1000 + 
 				(long) seconds * 1000 + 
 				milliseconds ;
+	}
+	
+	public void writeEmptySRTFile( final String outputFileNameWithPath )
+	{
+		assert( outputFileNameWithPath != null ) ;
+		assert( !outputFileNameWithPath.isBlank() ) ;
+		
+		final File outputFile = new File( outputFileNameWithPath ) ;
+		writeEmptySRTFile( outputFile ) ;
+	}
+	
+	public void writeEmptySRTFile( final File outputFile )
+	{
+		assert( outputFile != null ) ;
+
+		try
+		{
+			List< String > emptySRTFileData = new ArrayList< String >() ;
+			emptySRTFileData.add( "1" ) ;
+			emptySRTFileData.add( "00:00:01,000 --> 00:00:02,000" ) ;
+			emptySRTFileData.add( "Empty" ) ;
+			
+			Files.write( outputFile.toPath(), emptySRTFileData ) ;
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Exception writing empty srt file (" + outputFile.getAbsolutePath() + "): " + theException.toString() ) ;
+		}
 	}
 }

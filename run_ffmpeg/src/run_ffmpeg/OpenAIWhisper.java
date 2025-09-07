@@ -82,6 +82,7 @@ public class OpenAIWhisper
 		whisperCommand.add( "--compute_type", "float32" ) ;
 		whisperCommand.add( "--hf_token", getDiarizeToken() ) ;
 		whisperCommand.add( "--threads", "8" ) ;
+		whisperCommand.add( "--suppress_numerals", "True" ) ;
 //		whisperCommand.add( "--fp16", "False" ) ;
 		whisperCommand.add( inputFile.getAbsolutePath() ) ;
 		

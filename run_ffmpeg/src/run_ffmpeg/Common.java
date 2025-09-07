@@ -991,6 +991,26 @@ public class Common
 		List< File > inputFileNameList = getFilesInDirectoryByExtension( directoryName, extension ) ;
 		return (inputFileNameList.size() > 0) ;
 	}
+	
+	/**
+	 * Return true if the string represents an integer, false otherwise.
+	 * @param s
+	 * @return
+	 */
+	protected static boolean isInteger( final String integerString )
+	{
+		assert( integerString != null ) ;
+		
+		try
+		{
+			Integer.parseInt( integerString ) ;
+			return true ;
+		}
+		catch( NumberFormatException e )
+		{
+			return false ;
+		}
+	}
 
 	public void makeDirectory( final String directoryName )
 	{
