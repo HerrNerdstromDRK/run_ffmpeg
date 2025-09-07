@@ -172,31 +172,6 @@ public class FFmpeg_ProbeResult
 		return codecName ;
 	}
 
-	public boolean hasError()
-	{
-		return error != null;
-	}
-
-	public boolean isMP2()
-	{
-		return getVideoCodec().equalsIgnoreCase( "mpeg2video" ) ;
-	}
-	
-	public boolean isH264()
-	{
-		return getVideoCodec().equalsIgnoreCase( "h264" ) ;
-	}
-	
-	public boolean isH265()
-	{
-		return getVideoCodec().equalsIgnoreCase( "h265" ) || getVideoCodec().equalsIgnoreCase( "hevc" ) ;
-	}
-	
-	public boolean isVC1()
-	{
-		return getVideoCodec().equalsIgnoreCase( "vc1" ) ;
-	}
-	
 	public boolean hasAudio()
 	{
 		assert( getStreams() != null ) ;
@@ -204,6 +179,11 @@ public class FFmpeg_ProbeResult
 		return !audioStreams.isEmpty() ;
 	}
 	
+	public boolean hasError()
+	{
+		return error != null;
+	}
+
 	public boolean hasSubtitles()
 	{
 		assert( getStreams() != null ) ;
@@ -212,6 +192,26 @@ public class FFmpeg_ProbeResult
 		return !subtitleStreams.isEmpty() ;
 	}
 	
+	public boolean isH264()
+	{
+		return getVideoCodec().equalsIgnoreCase( "h264" ) ;
+	}
+
+	public boolean isH265()
+	{
+		return getVideoCodec().equalsIgnoreCase( "h265" ) || getVideoCodec().equalsIgnoreCase( "hevc" ) ;
+	}
+
+	public boolean isMP2()
+	{
+		return getVideoCodec().equalsIgnoreCase( "mpeg2video" ) ;
+	}
+
+	public boolean isVC1()
+	{
+		return getVideoCodec().equalsIgnoreCase( "vc1" ) ;
+	}
+
 	public void set_id( ObjectId _id )
 	{
 		this._id = _id;

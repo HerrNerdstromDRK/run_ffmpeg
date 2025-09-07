@@ -240,6 +240,16 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 	public void extractSubtitles( FFmpeg_ProbeResult probeResult )
 	{
 		assert( probeResult != null ) ;
+		
+		if( !probeResult.hasAudio() )
+		{
+			// No audio stream in this file.
+			log.info( "No audio stream for file " + probeResult.getFileNameWithPath() + "; creating empty srt file" ) ;
+			
+			SRTFileUtils srtFileUtils = new SRTFileUtils( log, common ) ;
+			srtFileUtils.writeEmptySRTFile( probeResult ) ;
+			return ;
+		}
 
 		final File inputFile = new File( probeResult.getFileNameWithPath() ) ;
 

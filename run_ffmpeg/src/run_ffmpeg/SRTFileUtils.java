@@ -8,8 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+
+import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 
 /**
  * A set of utility methods for SubRip subtitle files.
@@ -218,15 +221,17 @@ public class SRTFileUtils
 				milliseconds ;
 	}
 	
-	public void writeEmptySRTFile( final String outputFileNameWithPath )
+	public void writeEmptySRTFile( final FFmpeg_ProbeResult probeResult )
 	{
-		assert( outputFileNameWithPath != null ) ;
-		assert( !outputFileNameWithPath.isBlank() ) ;
+		assert( probeResult != null ) ;
 		
-		final File outputFile = new File( outputFileNameWithPath ) ;
-		writeEmptySRTFile( outputFile ) ;
-	}
+		final File inputFile = new File( probeResult.getFileNameWithPath() ) ;
+		final String srtFileName = FilenameUtils.getBaseName( probeResult.getFileNameWithoutPath() ) + ".en.srt" ;
+		final File srtOutputFile = new File( inputFile.getParentFile(), srtFileName ) ;
 	
+		writeEmptySRTFile( srtOutputFile ) ;
+	}
+
 	public void writeEmptySRTFile( final File outputFile )
 	{
 		assert( outputFile != null ) ;
@@ -244,5 +249,14 @@ public class SRTFileUtils
 		{
 			log.warning( "Exception writing empty srt file (" + outputFile.getAbsolutePath() + "): " + theException.toString() ) ;
 		}
+	}
+	
+	public void writeEmptySRTFile( final String outputFileNameWithPath )
+	{
+		assert( outputFileNameWithPath != null ) ;
+		assert( !outputFileNameWithPath.isBlank() ) ;
+		
+		final File outputFile = new File( outputFileNameWithPath ) ;
+		writeEmptySRTFile( outputFile ) ;
 	}
 }

@@ -70,7 +70,7 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 		{
 			// Output file is too small
 			// Build a small srt file so we won't try to create another SRT file in the future.
-			log.warning( getName() + " Output file too small: " + outputFile.getAbsolutePath() + "; creating empty srt file" ) ;
+			log.info( getName() + " Output file too small: " + outputFile.getAbsolutePath() + "; creating empty srt file" ) ;
 			
 			SRTFileUtils srtFileUtils = new SRTFileUtils( log, common ) ;
 			srtFileUtils.writeEmptySRTFile( outputFile ) ;
