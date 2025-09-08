@@ -29,30 +29,27 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 			return false ;
 		}
 		setWorkInProgress( true ) ;
-		final File inputFile = new File( jobRecord.getFileNameWithPath() ) ;
+		final File inputWavFile = new File( jobRecord.getFileNameWithPath() ) ;
 
 		// The output filename will default, as will the language file.
 		// Generate an SRT via whisper ai.
-		final String srtFileNameWithPath = inputFile.getAbsolutePath().replace( ".mkv", ".en.srt" ) ;
+		final String srtFileNameWithPath = inputWavFile.getAbsolutePath().replace( ".wav", ".en.srt" ) ;
 
 		final File srtFile = new File( srtFileNameWithPath ) ;
 		if( !srtFile.exists() )
 		{
-			// File does not already exist -- create it.
-			final String wavFileNameWithPath = inputFile.getAbsolutePath().replace( ".mkv", ".wav" ) ;
-			final File wavFile = new File( wavFileNameWithPath ) ;
-
-			final File srtFileWithWrongName = whisper.transcribeToSRT( wavFile ) ;
+			// File does not already exist -- create it via transcription.
+			final File srtFileWithWrongName = whisper.transcribeToSRT( inputWavFile ) ;
 
 			// The whisperX AI outputs the srt file with the same name as the .wav file.
 			// Need to change it to include ".en" in the file name
 			if( srtFileWithWrongName != null )
 			{
 				srtFileWithWrongName.renameTo( srtFile ) ;
+				
+				// Delete the .wav file
+				inputWavFile.delete() ;
 			}
-			
-			// Delete the .wav file
-			wavFile.delete() ;
 		}
 
 		setWorkInProgress( false ) ;
