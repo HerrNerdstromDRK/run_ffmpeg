@@ -64,25 +64,29 @@ public class Common
 	private static final String[] pathsToFFMPEG =
 		{
 				"c:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
-				"d:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe"
+				"d:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe",
+				"s:\\Program Files\\ffmpeg\\bin\\ffmpeg.exe"
 		} ;
 
 	private static final String[] pathsToFFPROBE =
 		{
 				"c:\\Program Files\\ffmpeg\\bin\\ffprobe.exe",
-				"d:\\Program Files\\ffmpeg\\bin\\ffprobe.exe"
+				"d:\\Program Files\\ffmpeg\\bin\\ffprobe.exe",
+				"s:\\Program Files\\ffmpeg\\bin\\ffprobe.exe"
 		} ;
 
 	private static final String[] pathsToSubtitleEdit =
 		{
 				"c:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe",
-				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
+				"d:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe",
+				"s:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
 
 	private static final String[] pathsToWhisperX =
 		{
 				"c:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe",
-				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe"
+				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe",
+				"s:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe"
 		} ;
 
 	protected static final String[] videoExtensions =
