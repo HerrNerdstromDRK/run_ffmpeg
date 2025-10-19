@@ -20,7 +20,7 @@ import run_ffmpeg.ffmpeg.FFmpeg_Stream;
  * This thread will continually read filenames from the extractSubtitleCollection and extract a subtitle from each. If necessary, it will
  *  create a .wav file. It will then place the output file into either transcribe or OCR collection, if necessary, for follow-on processing.
  */
-public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
+public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 {
 	/// Pull jobs from the extractSubtitleCollection
 	protected transient MongoCollection< JobRecord_FileNameWithPath > extractSubtitleCollection = null ;
@@ -67,7 +67,7 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 				codecNameSubtitleHDMVString
 		} ;
 
-	public WorkflowStateThread_ExtractSubtitle( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
+	public WorkflowStageThread_ExtractSubtitle( final String threadName, Logger log, Common common, MoviesAndShowsMongoDB masMDB )
 	{
 		super( threadName, log, common, masMDB ) ;
 
@@ -280,7 +280,7 @@ public class WorkflowStateThread_ExtractSubtitle extends WorkflowStageThread
 
 			// wav file exists, either through extracting here or finding in the directory
 			// Either way, add it to the return list.
-			addToDatabase_Transcribe( inputFile ) ;
+			addToDatabase_Transcribe( wavFile ) ;
 			return ;
 		}
 		// PC: subtitle options string is non-empty and the inputFile has at least one valid subtitle stream that

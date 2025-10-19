@@ -229,7 +229,7 @@ public class WorkflowOrchestrator
 		transcribeThread.setName( "AI" ) ;
 		threadList.add( transcribeThread ) ;
 
-		WorkflowStateThread_ExtractSubtitle extractThread = new WorkflowStateThread_ExtractSubtitle(
+		WorkflowStageThread_ExtractSubtitle extractThread = new WorkflowStageThread_ExtractSubtitle(
 				"Extract", log, common, masMDB ) ;
 		extractThread.setName( "Extract" ) ;
 		threadList.add( extractThread ) ;

@@ -115,12 +115,13 @@ public class Common
 	private static final String probeSizeString = "5G" ;
 
 	/// The name of the primary file server
-	private static final String primaryFileServerName = "\\\\skywalker" ;
+//	private static final String primaryFileServerName = "\\\\skywalker" ;
+	private static final String primaryFileServerName = "S:" ;
 	private static final String pathToMediaFolderBase = primaryFileServerName + pathSeparator + "Media" ;
 	private static final String moviesFolderName = "Movies" ;
 	private static final String otherVideosFolderName = "Other_Videos" ;
 	private static final String stagingFolderName = "Staging" ;
-	private static final String toOCRFolderName = "To_OCR" ;
+	private static final String toOCRFolderName = "To OCR" ;
 	private static final String tvShowsFolderName = "TV_Shows" ;
 	private static final String pathToMovies = pathToMediaFolderBase + pathSeparator + moviesFolderName ;
 	private static final String pathToOtherVideos = pathToMediaFolderBase + pathSeparator + otherVideosFolderName ;
@@ -260,6 +261,7 @@ public class Common
 		{
 			Thread.currentThread().setPriority( Thread.MIN_PRIORITY ) ;
 			final ProcessBuilder theProcessBuilder = new ProcessBuilder( theCommand.build().toArray( new String[ 1 ] ) ) ;
+			theProcessBuilder.redirectErrorStream( true ) ;
 			
 			// Set encoding charmap for outputs. Testing or whisperX use.
 			Map< String, String > environment = theProcessBuilder.environment() ;
@@ -269,61 +271,82 @@ public class Common
 			final Process process = theProcessBuilder.start() ;
 
 			BufferedReader inputStreamReader = process.inputReader() ;
-			BufferedReader errorStreamReader =  process.errorReader() ;
-
-			while( process.isAlive() )
+			
+			String inputStreamLine = null ;
+			String lastInputStreamLine = "" ; // never null
+			while( (inputStreamLine = inputStreamReader.readLine()) != null )
 			{
-				String inputStreamLine = null ;
-				String lastInputStreamLine = "" ; // never null
-				String errorStreamLine = null ;
-				String lastErrorStreamLine = "" ; // never null
+				if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
+				{
+					// Same as last input
+					continue ;
+				}
+				lastInputStreamLine = inputStreamLine ;
+				
+				if( !filterOut( inputStreamLine ) )
+				{
+					log.info( "InputStream: " + inputStreamLine ) ;
+				}
+				
+			} // while( readLine() )
+						
+//			BufferedReader errorStreamReader =  process.errorReader() ;
 
-				// Read the error stream first
-				while( errorStreamReader.ready() )
-				{
-					errorStreamLine = errorStreamReader.readLine() ;
-					if( errorStreamLine != null )
-					{
-						if( errorStreamLine.equalsIgnoreCase( lastErrorStreamLine ) )
-						{
-							// Same as last error input
-							continue ;
-						}
-						lastErrorStreamLine = errorStreamLine ;
-						if( !filterOut( errorStreamLine ) )
-						{
-							log.info( "ErrorStream: " + errorStreamLine ) ;
-						}
-					}
-				}
-				while( inputStreamReader.ready() )
-				{
-					inputStreamLine = inputStreamReader.readLine() ;
-					if( inputStreamLine != null )
-					{
-						if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
-						{
-							// Same as last input
-							continue ;
-						}
-						lastInputStreamLine = inputStreamLine ;
-						if( !filterOut( inputStreamLine ) )
-						{
-							log.info( "InputStream: " + inputStreamLine ) ;
-						}
-					}
-				}
-				if( (null == inputStreamLine) && (null == errorStreamLine) )
-				{
-					// Neither stream had data.
-					// Pause to wait for input.
-					Thread.sleep( 100 ) ;
-				}
-			} // while( process.isAlive() )
+//			while( process.isAlive() )
+//			{
+//				String inputStreamLine = null ;
+//				String lastInputStreamLine = "" ; // never null
+//				String errorStreamLine = null ;
+//				String lastErrorStreamLine = "" ; // never null
+//
+//				// Read the error stream first
+//				while( errorStreamReader.ready() )
+//				{
+//					errorStreamLine = errorStreamReader.readLine() ;
+//					if( errorStreamLine != null )
+//					{
+//						if( errorStreamLine.equalsIgnoreCase( lastErrorStreamLine ) )
+//						{
+//							// Same as last error input
+//							continue ;
+//						}
+//						lastErrorStreamLine = errorStreamLine ;
+//						if( !filterOut( errorStreamLine ) )
+//						{
+//							log.info( "ErrorStream: " + errorStreamLine ) ;
+//						}
+//					}
+//				}
+//				while( inputStreamReader.ready() )
+//				{
+//					inputStreamLine = inputStreamReader.readLine() ;
+//					if( inputStreamLine != null )
+//					{
+//						if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
+//						{
+//							// Same as last input
+//							continue ;
+//						}
+//						lastInputStreamLine = inputStreamLine ;
+//						if( !filterOut( inputStreamLine ) )
+//						{
+//							log.info( "InputStream: " + inputStreamLine ) ;
+//						}
+//					}
+//				}
+//				if( (null == inputStreamLine) && (null == errorStreamLine) )
+//				{
+//					// Neither stream had data.
+//					// Pause to wait for input.
+//					Thread.sleep( 100 ) ;
+//				}
+//			} // while( process.isAlive() )
 			// Post-condition: Process has terminated.
 
+			final int exitCode = process.waitFor() ;
+
 			// Check if the process has exited.
-			if( process.exitValue() != 0 )
+			if( exitCode != 0 )
 			{
 				// Error occurred
 				retMe = false ;
