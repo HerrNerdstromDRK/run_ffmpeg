@@ -115,13 +115,13 @@ public class Common
 	private static final String probeSizeString = "5G" ;
 
 	/// The name of the primary file server
-//	private static final String primaryFileServerName = "\\\\skywalker" ;
-	private static final String primaryFileServerName = "S:" ;
+	private static final String primaryFileServerName = "\\\\skywalker" ;
+//	private static final String primaryFileServerName = "S:" ;
 	private static final String pathToMediaFolderBase = primaryFileServerName + pathSeparator + "Media" ;
 	private static final String moviesFolderName = "Movies" ;
 	private static final String otherVideosFolderName = "Other_Videos" ;
 	private static final String stagingFolderName = "Staging" ;
-	private static final String toOCRFolderName = "To OCR" ;
+	private static final String toOCRFolderName = "To_OCR" ;
 	private static final String tvShowsFolderName = "TV_Shows" ;
 	private static final String pathToMovies = pathToMediaFolderBase + pathSeparator + moviesFolderName ;
 	private static final String pathToOtherVideos = pathToMediaFolderBase + pathSeparator + otherVideosFolderName ;

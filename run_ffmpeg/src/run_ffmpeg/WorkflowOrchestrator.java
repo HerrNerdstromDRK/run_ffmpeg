@@ -43,7 +43,8 @@ public class WorkflowOrchestrator
 	/// If all threads are idle for this amount of time (or higher), then the
 	/// application will shutdown.
 	protected final long maxIdleThreadTimeout = 20000 ;
-	protected int numOCRThreads = 2 ;
+	protected int numOCRThreads = 0 ;
+	protected int numTranscribeThreads = 0 ;
 
 	public WorkflowOrchestrator()
 	{
@@ -157,6 +158,11 @@ public class WorkflowOrchestrator
 		return numOCRThreads ;
 	}
 
+	public int getNumTranscribeThreads()
+	{
+		return numTranscribeThreads ;
+	}
+
 	public String getStopFileName()
 	{
 		return stopFileName ;
@@ -211,6 +217,11 @@ public class WorkflowOrchestrator
 		this.numOCRThreads = numOCRThreads ;
 	}
 
+	public void setNumTranscribeThreads( final int numTranscribeThreads )
+	{
+		this.numTranscribeThreads = numTranscribeThreads ;
+	}
+
 	public void setTimeLastWorkAccomplished( final long timeLastWorkAccomplished )
 	{
 		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
@@ -224,15 +235,19 @@ public class WorkflowOrchestrator
 		//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
 		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
 		//		threadList.add( transcodeMKVFilesThread ) ;
-		WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
-				"AI", log, common, masMDB ) ;
-		transcribeThread.setName( "AI" ) ;
-		threadList.add( transcribeThread ) ;
-
 		WorkflowStageThread_ExtractSubtitle extractThread = new WorkflowStageThread_ExtractSubtitle(
 				"Extract", log, common, masMDB ) ;
 		extractThread.setName( "Extract" ) ;
 		threadList.add( extractThread ) ;
+
+		for( int threadNum = 1 ; threadNum <= getNumTranscribeThreads() ; ++ threadNum )
+		{
+			final String threadName = "AI_" + threadNum ;
+			WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
+					threadName, log, common, masMDB ) ;
+			transcribeThread.setName( threadName ) ;
+			threadList.add( transcribeThread ) ;
+		}
 		
 		for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
 		{
