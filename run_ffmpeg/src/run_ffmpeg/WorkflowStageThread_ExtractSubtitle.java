@@ -252,6 +252,11 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 		}
 
 		final File inputFile = new File( probeResult.getFileNameWithPath() ) ;
+		if( !Subtitles_LoadDatabase.subtitlesAlreadyExtracted( log, inputFile ) )
+		{
+			// Nothing to do for this file.
+			return ;
+		}
 
 		// Build a set of options for an ffmpeg command based on the JSON input
 		// If no suitable subtitles are found, the options string will be empty
@@ -259,7 +264,7 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 		List< File > supFiles = new ArrayList< File >() ;
 		ImmutableList.Builder< String > subTitleExtractionOptionsString =
 				buildFFmpegSubTitleExtractionOptionsString( probeResult, supFiles ) ;
-
+		
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
 		if( subTitleExtractionOptionsString.build().isEmpty() )
 		{
