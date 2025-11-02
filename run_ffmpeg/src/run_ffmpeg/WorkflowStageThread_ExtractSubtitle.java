@@ -112,11 +112,12 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 			return false ;
 		}
 		setWorkInProgress( true ) ;
+		
 		final File inputFile = new File( fileNameWithPathToExtract.getFileNameWithPath() ) ;
-
 		extractSubtitlesFromFile( inputFile ) ;
 
 		setWorkInProgress( false ) ;
+
 		return true ;
 	}
 
@@ -232,29 +233,37 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 	}
 
 	/**
-	 * Extract the subtitle streams from the given file with associated probeResult.
-	 * This method will build and execute the ffmpeg command.
-	 * @param fileToSubTitleExtract
-	 * @param probeResult
+	 * Extract subtitles from this file and then add any OCR or transcribe work to the database to be handled by distributed workers.
+	 * @param inputFile
 	 */
-	public void extractSubtitles( FFmpeg_ProbeResult probeResult )
+	protected void extractSubtitlesFromFile( final File inputFile )
 	{
-		assert( probeResult != null ) ;
-		
-		if( !probeResult.hasAudio() )
+		if( (null == inputFile) || !inputFile.exists() )
 		{
-			// No audio stream in this file.
-			log.info( "No audio stream for file " + probeResult.getFileNameWithPath() + "; creating empty srt file" ) ;
-			
-			SRTFileUtils srtFileUtils = new SRTFileUtils( log, common ) ;
-			srtFileUtils.writeEmptySRTFile( probeResult ) ;
 			return ;
 		}
 
-		final File inputFile = new File( probeResult.getFileNameWithPath() ) ;
-		if( !Subtitles_LoadDatabase.subtitlesAlreadyExtracted( log, inputFile ) )
+		if( Subtitles_LoadDatabase.subtitlesAlreadyExtracted( log, inputFile ) )
 		{
-			// Nothing to do for this file.
+			// Has srt/sup/wav files already -- nothing to extract.
+			return ;
+		}
+
+		// getProbeResult() pulls from the database or, if not there, runs ffprobe explicitly.
+		final FFmpeg_ProbeResult inputProbeResult = getProbeResult( inputFile ) ;
+		if( null == inputProbeResult )
+		{
+			log.warning( "Failed to probe file: " + inputFile.getAbsolutePath() ) ;
+			return ;
+		}
+		
+		if( !inputProbeResult.hasAudio() )
+		{
+			// No audio stream in this file.
+			log.info( "No audio stream for file " + inputProbeResult.getFileNameWithPath() + "; creating empty srt file" ) ;
+			
+			SRTFileUtils srtFileUtils = new SRTFileUtils( log, common ) ;
+			srtFileUtils.writeEmptySRTFile( inputProbeResult ) ;
 			return ;
 		}
 
@@ -263,14 +272,14 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 		// supFileNames will hold the names of the sup files ffmpeg will generate
 		List< File > supFiles = new ArrayList< File >() ;
 		ImmutableList.Builder< String > subTitleExtractionOptionsString =
-				buildFFmpegSubTitleExtractionOptionsString( probeResult, supFiles ) ;
+				buildFFmpegSubTitleExtractionOptionsString( inputProbeResult, supFiles ) ;
 		
 		// If subTitleExtractionOptionsString is empty, then no usable subtitle streams were found
 		if( subTitleExtractionOptionsString.build().isEmpty() )
 		{
 			// No usable streams found
 			// Extract the first audio stream as a wav file and schedule a whisperX transcription of it.
-			log.info( " Extracting audio for file " + probeResult.getFileNameWithPath() ) ;
+			log.info( " Extracting audio for file " + inputFile.getAbsolutePath() ) ;
 
 			final String wavFileNameWithPath = Common.replaceExtension( inputFile.getAbsolutePath(), "wav" ) ;
 			final File wavFile = new File( wavFileNameWithPath ) ;
@@ -324,41 +333,13 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 				else
 				{
 					// .sup file was purged indicating it was too small
-					probeResult.setSmallSubtitleStreams( true ) ;
+					inputProbeResult.setSmallSubtitleStreams( true ) ;
 				}
 			}
 
 			// The addFilesToPipeline() method will handle a null pipeline.
 			addToDatabase_OCR( remainingSupFiles ) ;
 		}
-	}
-
-	/**
-	 * Extract subtitles from this file and then add any OCR or transcribe work to the database to be handled by distributed workers.
-	 * @param inputFile
-	 */
-	protected void extractSubtitlesFromFile( final File inputFile )
-	{
-		if( (null == inputFile) || !inputFile.exists() )
-		{
-			return ;
-		}
-
-		if( hasMatchingSRTFiles( inputFile ) )
-		{
-			// Has srt files already -- nothing to extract.
-			return ;
-		}
-
-		// getProbeResult() pulls from the database and, if not there, runs ffprobe explicitly.
-		final FFmpeg_ProbeResult inputProbeResult = getProbeResult( inputFile ) ;
-		if( null == inputProbeResult )
-		{
-			log.warning( "Failed to probe file: " + inputFile.getAbsolutePath() ) ;
-			return ;
-		}
-
-		extractSubtitles( inputProbeResult ) ;
 	}
 
 	public void addToDatabase_OCR( final File fileToOCR )
