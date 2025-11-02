@@ -43,8 +43,8 @@ public class WorkflowOrchestrator
 	/// If all threads are idle for this amount of time (or higher), then the
 	/// application will shutdown.
 	protected final long maxIdleThreadTimeout = 20000 ;
-	protected int numOCRThreads = 0 ;
-	protected int numTranscribeThreads = 0 ;
+	protected int numOCRThreads = 2 ;
+	protected int numTranscribeThreads = 1 ;
 
 	public WorkflowOrchestrator()
 	{
