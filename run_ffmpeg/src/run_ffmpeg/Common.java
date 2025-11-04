@@ -289,60 +289,8 @@ public class Common
 				}
 				
 			} // while( readLine() )
-						
-//			BufferedReader errorStreamReader =  process.errorReader() ;
-
-//			while( process.isAlive() )
-//			{
-//				String inputStreamLine = null ;
-//				String lastInputStreamLine = "" ; // never null
-//				String errorStreamLine = null ;
-//				String lastErrorStreamLine = "" ; // never null
-//
-//				// Read the error stream first
-//				while( errorStreamReader.ready() )
-//				{
-//					errorStreamLine = errorStreamReader.readLine() ;
-//					if( errorStreamLine != null )
-//					{
-//						if( errorStreamLine.equalsIgnoreCase( lastErrorStreamLine ) )
-//						{
-//							// Same as last error input
-//							continue ;
-//						}
-//						lastErrorStreamLine = errorStreamLine ;
-//						if( !filterOut( errorStreamLine ) )
-//						{
-//							log.info( "ErrorStream: " + errorStreamLine ) ;
-//						}
-//					}
-//				}
-//				while( inputStreamReader.ready() )
-//				{
-//					inputStreamLine = inputStreamReader.readLine() ;
-//					if( inputStreamLine != null )
-//					{
-//						if( inputStreamLine.equalsIgnoreCase( lastInputStreamLine ) )
-//						{
-//							// Same as last input
-//							continue ;
-//						}
-//						lastInputStreamLine = inputStreamLine ;
-//						if( !filterOut( inputStreamLine ) )
-//						{
-//							log.info( "InputStream: " + inputStreamLine ) ;
-//						}
-//					}
-//				}
-//				if( (null == inputStreamLine) && (null == errorStreamLine) )
-//				{
-//					// Neither stream had data.
-//					// Pause to wait for input.
-//					Thread.sleep( 100 ) ;
-//				}
-//			} // while( process.isAlive() )
+	
 			// Post-condition: Process has terminated.
-
 			final int exitCode = process.waitFor() ;
 
 			// Check if the process has exited.
