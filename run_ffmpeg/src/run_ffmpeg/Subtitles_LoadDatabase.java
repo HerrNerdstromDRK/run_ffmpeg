@@ -79,7 +79,7 @@ public class Subtitles_LoadDatabase
 		//		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
 		//		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
 		foldersToExtractAndConvert.add( "S:\\Media\\To_OCR" ) ;
-//		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
+		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
 		//		foldersToExtractAndConvert.add( Common.getPathToStaging() ) ;
 		//		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\Silo (2023) {imdb-14688458} {tvdb-403245}" ) ;
 		//		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\A Pup Named Scooby-Doo (1988) {tvdb-73546}" ) ;

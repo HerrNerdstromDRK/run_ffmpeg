@@ -42,6 +42,12 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 		
 		final String fileNameWithPathToOCR = ocrJobRecord.getFileNameWithPath() ;
 		final File fileToOCR = new File( fileNameWithPathToOCR ) ;
+		if( !fileToOCR.exists() )
+		{
+			log.warning( "fileToOCR does not exist: " + fileToOCR.getAbsolutePath() ) ;
+			setWorkInProgress( false ) ;
+			return false ;
+		}
 
 		log.info( getName() + " Running OCR on file: " + fileToOCR.getAbsolutePath() ) ;
 
