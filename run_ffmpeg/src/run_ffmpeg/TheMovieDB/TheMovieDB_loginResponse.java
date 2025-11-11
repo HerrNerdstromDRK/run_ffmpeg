@@ -1,10 +1,12 @@
-package run_ffmpeg.ffmpeg;
+package run_ffmpeg.TheMovieDB;
 
 import com.google.gson.Gson;
 
-public class FFmpeg_ChapterTag
+public class TheMovieDB_loginResponse
 {
-	public String title;
+	public Integer status_code = null ;
+	public String status_message = "" ;
+	public String success = "" ;
 
 	public String toString()
 	{

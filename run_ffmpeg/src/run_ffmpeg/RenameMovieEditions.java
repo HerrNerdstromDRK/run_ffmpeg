@@ -134,7 +134,7 @@ public class RenameMovieEditions
 					// Rename the files
 					try
 					{
-						Files.move( curlyFilePath,  newPath, StandardCopyOption.REPLACE_EXISTING ) ;
+						Files.move( curlyFilePath, newPath, StandardCopyOption.REPLACE_EXISTING ) ;
 					}
 					catch( Exception theException )
 					{
@@ -223,9 +223,7 @@ public class RenameMovieEditions
 				log.warning( "Unable to move file " + origPath.toString() + " to " + newDirectoryNameWithPath.toLowerCase() + ": " + theException.toString() ) ;
 				continue ;
 			}
-
 		} // for( movieDirectory )
-
 	}
 
 	/**
@@ -400,5 +398,4 @@ public class RenameMovieEditions
 	{
 
 	}
-
 }

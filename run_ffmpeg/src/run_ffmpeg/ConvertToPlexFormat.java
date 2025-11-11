@@ -1,7 +1,6 @@
 package run_ffmpeg;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
@@ -10,7 +9,12 @@ import com.google.common.collect.ImmutableList;
 
 import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 
-public class ConvertBetweenContainers
+/**
+ * Class to convert from one container type to another. Typical use is to convert from MKV or MOV to MP4
+ *  to show home videos on the Plex.
+ * Output files are in the Common.tmpDir.
+ */
+public class ConvertToPlexFormat
 {
 	/// Setup the logging subsystem
 	private Logger log = null ;
@@ -22,11 +26,11 @@ public class ConvertBetweenContainers
 	private static final String logFileName = "log_convert_between_containers.txt" ;
 	private static final String stopFileName = "C:\\Temp\\stop_convert_between_containers.txt" ;
 	
-	protected final String inputExtension = "mkv" ;
+	protected final String inputExtension = "MOV" ;
 	protected final String outputExtension = "mp4" ;
 	protected boolean skip4KFiles = true ;
 	
-	public ConvertBetweenContainers()
+	public ConvertToPlexFormat()
 	{
 		log = Common.setupLogger( logFileName, this.getClass().getName() ) ;
 		common = new Common( log ) ;
@@ -34,7 +38,7 @@ public class ConvertBetweenContainers
 	
 	public static void main( String[] args )
 	{
-		(new ConvertBetweenContainers()).execute() ;
+		(new ConvertToPlexFormat()).execute() ;
 	}
 	
 	public void execute()
@@ -45,7 +49,9 @@ public class ConvertBetweenContainers
 		log.info( "Listing files..." ) ;
 		
 		// Get list of input files
-		List< File > inputFiles = common.getFilesInDirectoryByExtension( Common.getPathToMovies() + "\\2 Fast 2 Furious (2003)", getInputExtension() ) ;
+		List< File > inputFiles = new ArrayList< File >() ;
+		inputFiles.addAll( common.getFilesInDirectoryByExtension( "S:\\Dan Pictures\\Family - New Zealand - 2025-10", getInputExtension() ) ) ;
+		// inputFiles.add( common.getFilesInDirectoryByExtension( Common.getPathToMovies() + "\\2 Fast 2 Furious (2003)", getInputExtension() ) ) ;
 //		inputFiles.addAll( common.getFilesInDirectoryByExtension( Common.getPathToTVShows(),  getInputExtension() ) ) ;
 		Collections.sort( inputFiles, new FileSortLargeToSmall() ) ;
 		
@@ -106,23 +112,24 @@ public class ConvertBetweenContainers
 		ffmpegCommand.add( "-i", inputFile.getAbsolutePath() ) ;
 
 		// Transcode to H265
-		ffmpegCommand.add( "-map", "0" ) ;
-
-		ffmpegCommand.add( "-map", "0:v" ) ;
-		ffmpegCommand.add( "-vcodec", "copy" ) ;
+		ffmpegCommand.add( "-c:v", "libx265" ) ;
+		//		ffmpegCommand.add( "-map", "0" ) ;
+//
+//		ffmpegCommand.add( "-map", "0:v" ) ;
+//		ffmpegCommand.add( "-vcodec", "copy" ) ;
 		
 		// Copy audio and subtitles
 		if( inputFileProbeResult.hasAudio() )
 		{
-			ffmpegCommand.add( "-map", "0:a" ) ;
+//			ffmpegCommand.add( "-map", "0:a" ) ;
 			ffmpegCommand.add( "-acodec", "copy") ;
 		}
 
-		if( inputFileProbeResult.hasSubtitles() )
-		{
-			ffmpegCommand.add( "-map", "0:s" ) ;
-			ffmpegCommand.add( "-scodec", "copy" ) ;
-		}
+//		if( inputFileProbeResult.hasSubtitles() )
+//		{
+//			ffmpegCommand.add( "-map", "0:s" ) ;
+//			ffmpegCommand.add( "-scodec", "copy" ) ;
+//		}
 
 		final String outputFileName = inputFile.getName().replace( "." + getInputExtension(), "." + getOutputExtension() ) ;
 
@@ -155,40 +162,40 @@ public class ConvertBetweenContainers
 				+ " minutes, or "
 				+ common.getNumberFormat().format( timePerGigaByte )
 				+ " seconds per GB" ) ;
-
-		// Replace the original file with the new file.
-		try
-		{
-			final Path origFilePath = inputFile.toPath() ;
-			final FileNamePattern fileNamePattern = new FileNamePattern( log, inputFile ) ;
-
-			// First move the original file to one that is prepended with the show or movie name
-			final String fileNameInDeleteDirectory = common.addPathSeparatorIfNecessary( Common.getPathToDeleteDir() )
-					+ fileNamePattern.getShowOrMovieOrDirectoryName()
-					+ "_" + inputFile.getName() ;
-			final File fileInDeleteDirectory = new File( fileNameInDeleteDirectory ) ;
-			final Path pathInDeleteDirectory = fileInDeleteDirectory.toPath() ;
-
-			log.info( "Moving " + origFilePath.toString() + " to " + pathInDeleteDirectory.toString() ) ;
-			if( !common.getTestMode() )
-			{
-				Files.move( origFilePath, pathInDeleteDirectory ) ;
-			}
-
-			// Finally, move the temp output file to the original file
-			final File newFileInTempLocationFile = new File( outputFileNameWithPath ) ;
-			final Path newFileInTempLocationPath = newFileInTempLocationFile.toPath() ;
-
-			log.info( "Moving " + newFileInTempLocationPath.toString() + " to " + origFilePath.toString() ) ;
-			if( !common.getTestMode() )
-			{
-				Files.move( newFileInTempLocationPath, origFilePath ) ;
-			}			
-		}
-		catch( Exception theException )
-		{
-			log.warning( "Error moving files: " + theException.toString() ) ;
-		}	
+//
+//		// Replace the original file with the new file.
+//		try
+//		{
+//			final Path origFilePath = inputFile.toPath() ;
+//			final FileNamePattern fileNamePattern = new FileNamePattern( log, inputFile ) ;
+//
+//			// First move the original file to one that is prepended with the show or movie name
+//			final String fileNameInDeleteDirectory = common.addPathSeparatorIfNecessary( Common.getPathToDeleteDir() )
+//					+ fileNamePattern.getShowOrMovieOrDirectoryName()
+//					+ "_" + inputFile.getName() ;
+//			final File fileInDeleteDirectory = new File( fileNameInDeleteDirectory ) ;
+//			final Path pathInDeleteDirectory = fileInDeleteDirectory.toPath() ;
+//
+//			log.info( "Moving " + origFilePath.toString() + " to " + pathInDeleteDirectory.toString() ) ;
+//			if( !common.getTestMode() )
+//			{
+//				Files.move( origFilePath, pathInDeleteDirectory ) ;
+//			}
+//
+//			// Finally, move the temp output file to the original file
+//			final File newFileInTempLocationFile = new File( outputFileNameWithPath ) ;
+//			final Path newFileInTempLocationPath = newFileInTempLocationFile.toPath() ;
+//
+//			log.info( "Moving " + newFileInTempLocationPath.toString() + " to " + origFilePath.toString() ) ;
+//			if( !common.getTestMode() )
+//			{
+//				Files.move( newFileInTempLocationPath, origFilePath ) ;
+//			}			
+//		}
+//		catch( Exception theException )
+//		{
+//			log.warning( "Error moving files: " + theException.toString() ) ;
+//		}	
 	}
 	
 	public void setSkip4KFiles( final boolean newValue )

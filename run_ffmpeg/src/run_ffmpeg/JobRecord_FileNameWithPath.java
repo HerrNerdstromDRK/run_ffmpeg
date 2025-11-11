@@ -22,13 +22,6 @@ public class JobRecord_FileNameWithPath
 		this.fileNameWithPath = inputFile.getAbsolutePath() ;
 	}
 
-	public String toString()
-	{
-		Gson gsonRequest= new Gson() ;
-		final String jsonRequest = gsonRequest.toJson( this ) ;
-		return jsonRequest.toString() ;
-	}
-
 	public String getFileNameWithPath()
 	{
 		return fileNameWithPath ;
@@ -37,5 +30,12 @@ public class JobRecord_FileNameWithPath
 	public void setFileNameWithPath( final String fileNameWithPath )
 	{
 		this.fileNameWithPath = fileNameWithPath ;
+	}
+
+	public String toString()
+	{
+		Gson gsonRequest= new Gson() ;
+		final String jsonRequest = gsonRequest.toJson( this ) ;
+		return jsonRequest.toString() ;
 	}
 }

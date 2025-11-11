@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -461,6 +462,21 @@ public class Common
 			log.warning( "Exceptoin while finding pattern \"" + pattern + "\" in directory " + directoryPath + ": " + theException.toString() ) ;
 		}
 		return matchedFiles ;
+	}
+	
+	public List< File > findFilesThatStartWith( final String directoryPath, final String startsWithString )
+	{
+		Preconditions.checkArgument( directoryPath != null ) ;
+		Preconditions.checkArgument( startsWithString != null ) ;
+		
+		final File directoryFile = new File( directoryPath ) ;
+		final File[] directoryFiles = directoryFile.listFiles() ;
+		List< File > filesThatStartWith = new ArrayList< File >() ;
+		Arrays.stream( directoryFiles )
+			.forEach( file -> {
+				if( file.getName().startsWith( startsWithString ) ) { filesThatStartWith.add( file ) ; }
+			});
+		return filesThatStartWith ;
 	}
 
 	/**

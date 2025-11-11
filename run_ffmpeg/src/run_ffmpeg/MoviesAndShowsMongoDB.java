@@ -47,16 +47,14 @@ public class MoviesAndShowsMongoDB
 	private final int mongoDBPortNumber = 27017 ;
 	private final String databaseName = "MoviesAndShows" ;
 	private final String probeInfoCollectionName = "probeinfo" ;
-	private final String movieAndShowInfoCollectionName = "movieandshowinfos" ;
 	private final String hDMoviesAndShowsCollectionName = "hdmoviesandshows" ;
 	private final String sDMoviesAndShowsCollectionName = "sdmoviesandshows" ;
-//	private final String jobRecord_MakeFakeMKVFilesInfoCollectionName = "jobrecord_makefakemkvfiles" ;
+	private final String action_MakeMovieChoiceName = "action_makemoviechoice" ;
+	private final String action_MadeMovieChoiceName = "action_mademoviechoice" ;
 	private final String action_TranscodeMKVFilesInfoCollectionName = "action_transcodemkvfiles" ;
 	private final String action_CreateSRTsWithTranscribe = "action_createsrtswithtranscribe" ;
 	private final String action_CreateSRTsWithOCR = "action_createsrtswithocr" ;
 	private final String action_ExtractSubtitle = "action_extractsubtitle" ;
-//	private final String jobRecord_ProbeFileInfoCollectionName = "jobrecord_probefile" ;
-//	private final String jobRecord_UpdateCorrelatedFileInfoCollectionName = "jobrecord_updatecorrelatedfile" ;
 
 	/// File name to which to log activities for this application.
 	static private final String logFileName = "log_movies_and_shows_mongodb.txt" ;
@@ -194,35 +192,6 @@ public class MoviesAndShowsMongoDB
 		}
 		return allProbeInfoInstances ;
 	}
-		
-	public MongoCollection< MovieAndShowInfo > getMovieAndShowInfoCollection()
-	{	
-		log.fine( "Getting movieAndShowInfoCollectionName" )  ;
-		MongoCollection< MovieAndShowInfo > theCollection = persistentDatabaseHandle.getCollection( movieAndShowInfoCollectionName,
-				MovieAndShowInfo.class ) ;
-		return theCollection ;
-	}
-
-	public void dropMovieAndShowInfoCollection()
-	{
-		log.info( "Dropping movieAndShowInfoCollectionName" )  ;
-		getMovieAndShowInfoCollection().drop() ;
-	}
-
-//	public MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > getJobRecord_MakeFakeMKVFileInfoCollection()
-//	{	
-//		log.fine( "Getting jobRecord_MakeFakeMKVFilesCollection" )  ;
-//		MongoCollection< JobRecord_MakeFakeOrTranscodeMKVFile > theCollection = persistentDatabaseHandle.getCollection(
-//				jobRecord_MakeFakeMKVFilesInfoCollectionName,
-//				JobRecord_MakeFakeOrTranscodeMKVFile.class ) ;
-//		return theCollection ;
-//	}
-//
-//	public void dropJobRecord_MakeFakeMKVFileInfoCollection()
-//	{
-//		log.info( "Dropping jobRecord_MakeFakeMKVFilesCollection" )  ;
-//		getJobRecord_MakeFakeMKVFileInfoCollection().drop() ;
-//	}
 
 	public MongoCollection< FFmpeg_ProbeResult > getAction_TranscodeMKVFileInfoCollection()
 	{	
@@ -283,6 +252,36 @@ public class MoviesAndShowsMongoDB
 		log.info( "Dropping action_CreateSRTsWithOCR" )  ;
 		getAction_CreateSRTsWithOCRCollection().drop() ;
 	}
+	
+	public void dropAction_MakeMovieChoiceColletion()
+	{
+		log.info( "Dropping action_MakeMovieChoiceColletion" )  ;
+		getAction_MakeMovieChoiceCollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_MakeMovieChoice > getAction_MakeMovieChoiceCollection()
+	{	
+		log.fine( "Getting action_MakeMovieChoice" ) ;
+		MongoCollection< JobRecord_MakeMovieChoice > theCollection = persistentDatabaseHandle.getCollection(
+				action_MakeMovieChoiceName,
+				JobRecord_MakeMovieChoice.class ) ;
+		return theCollection ;
+	}
+	
+	public void dropAction_MadeMovieChoiceColletion()
+	{
+		log.info( "Dropping action_MadeMovieChoiceColletion" )  ;
+		getAction_MadeMovieChoiceCollection().drop() ;
+	}
+	
+	public MongoCollection< JobRecord_MadeMovieChoice > getAction_MadeMovieChoiceCollection()
+	{	
+		log.fine( "Getting action_MadeMovieChoice" ) ;
+		MongoCollection< JobRecord_MadeMovieChoice > theCollection = persistentDatabaseHandle.getCollection(
+				action_MadeMovieChoiceName,
+				JobRecord_MadeMovieChoice.class ) ;
+		return theCollection ;
+	}
 
 //	public void dropJobRecord_ProbeFileInfoCollection()
 //	{
@@ -342,34 +341,5 @@ public class MoviesAndShowsMongoDB
 
 		log.fine( "Read " + probeInfoMap.size() + " probeInfo document(s)" ) ;
 		return probeInfoMap ;
-	}
-	
-	/**
-	 * Read all MoveAndShowInfos into a Map and return it to the caller.
-	 * @return
-	 */
-	public Map< String, MovieAndShowInfo > loadMovieAndShowInfoMap()
-	{
-		MongoCollection< MovieAndShowInfo > movieAndShowInfoCollection = getMovieAndShowInfoCollection() ;
-		Map< String, MovieAndShowInfo > movieAndShowInfoMap = new HashMap< String, MovieAndShowInfo >() ;
-		
-		log.fine( "Reading all MovieAndShowInfos from the database" ) ;
-		
-		Bson findMovieAndShowInfosFilter = Filters.regex( "movieOrShowName", ".*" ) ;
-		FindIterable< MovieAndShowInfo > movieAndShowInfoResult = movieAndShowInfoCollection.find( findMovieAndShowInfosFilter ) ;
-		Iterator< MovieAndShowInfo > movieAndShowInfoResultIterator = movieAndShowInfoResult.iterator() ;
-		
-		while( movieAndShowInfoResultIterator.hasNext() )
-		{
-			MovieAndShowInfo theMovieAndShowInfoResult = movieAndShowInfoResultIterator.next() ;
-			final String movieOrShowName = theMovieAndShowInfoResult.getMovieOrShowName() ;
-			
-			// Store the MovieAndShowInfo object into the map to return.
-			movieAndShowInfoMap.put( movieOrShowName, theMovieAndShowInfoResult ) ;
-		}
-		
-		log.fine( "Read " + movieAndShowInfoMap.size() + " MovieAndShowInfo document(s)" ) ;
-		return movieAndShowInfoMap ;
-	}
-	
+	}	
 }

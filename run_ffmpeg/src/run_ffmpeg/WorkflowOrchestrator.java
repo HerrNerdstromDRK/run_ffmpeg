@@ -43,7 +43,7 @@ public class WorkflowOrchestrator
 	/// If all threads are idle for this amount of time (or higher), then the
 	/// application will shutdown.
 	protected final long maxIdleThreadTimeout = 20000 ;
-	protected int numOCRThreads = 2 ;
+	protected int numOCRThreads = 6 ;
 	protected int numTranscribeThreads = 1 ;
 
 	public WorkflowOrchestrator()
@@ -66,9 +66,12 @@ public class WorkflowOrchestrator
 
 	public void runThreads()
 	{
+		common.setTestMode( false ) ;
+		
 		// Only start threads if execution is permitted
 		if( common.shouldStopExecution( getStopFileName() ) )
 		{
+			log.info( "Stopping execution due to presence of stop file." ) ;
 			return ;
 		}
 
@@ -239,6 +242,11 @@ public class WorkflowOrchestrator
 				"Extract", log, common, masMDB ) ;
 		extractThread.setName( "Extract" ) ;
 		threadList.add( extractThread ) ;
+		
+		WorkflowStageThread_MadeMovieChoice madeMovieChoiceThread = new WorkflowStageThread_MadeMovieChoice(
+				"MadeMovieChoice", log, common, masMDB ) ;
+		madeMovieChoiceThread.setName( "MadeMovieChoice" ) ;
+		threadList.add( madeMovieChoiceThread ) ;
 
 		for( int threadNum = 1 ; threadNum <= getNumTranscribeThreads() ; ++ threadNum )
 		{

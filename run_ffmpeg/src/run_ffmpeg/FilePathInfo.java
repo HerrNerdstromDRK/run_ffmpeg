@@ -47,6 +47,7 @@ public class FilePathInfo
 		fileNames.add( "C:\\temp\\stop.txt" ) ;
 		fileNames.add( "C:\\temp\\Show Name - S01E01 - Episode name.1.srt" ) ;
 		fileNames.add( "C:\\temp\\Show Name - S01E01 - Episode name.en.srt" ) ;
+		fileNames.add( "C:\\temp" ) ;
 
 		try
 		{

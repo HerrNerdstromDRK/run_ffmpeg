@@ -15,7 +15,6 @@ public class FFmpeg_Format
 	public double start_time;
 
 	/** Duration in seconds */
-	// TODO Change this to java.time.Duration
 	public double duration;
 
 	/** File size in bytes */
@@ -30,9 +29,9 @@ public class FFmpeg_Format
 
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
+		Gson toStringGson = new Gson() ;
+		final String objectToString = toStringGson.toJson( this ) ;
+		return objectToString.toString() ;
 	}
 }
 

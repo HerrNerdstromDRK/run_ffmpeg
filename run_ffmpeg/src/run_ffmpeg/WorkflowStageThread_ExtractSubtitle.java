@@ -37,7 +37,7 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 	protected Map< String, FFmpeg_ProbeResult > allProbeInfoInstances = null ;
 
 	/// File name to which to log activities for this application.
-	//	private static final String logFileName = "workflowstatethread_extract_subtitle.txt" ;
+	//	private static final String logFileName = "workflowstagethread_extract_subtitle.txt" ;
 
 	/// If the file by the given name is present, stop this processing at the
 	/// next iteration of the main loop.
@@ -78,13 +78,14 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 	{
 		// Pull jobs from the extractSubtitleCollection
 		extractSubtitleCollection = masMDB.getAction_ExtractSubtitleCollection() ;
+		log.info( "Extract subtitle database has " + extractSubtitleCollection.countDocuments() + " object(s) currently loaded." ) ;
 
 		// Push .wav files into the AI transcribe collection
 		createSRTWithTranscribeCollection = masMDB.getAction_CreateSRTsWithTranscribeCollection() ;
-		log.info( "AI database has " + createSRTWithTranscribeCollection.countDocuments() + " object(s) currently loaded." ) ;
+		log.fine( "AI database has " + createSRTWithTranscribeCollection.countDocuments() + " object(s) currently loaded." ) ;
 
 		createSRTWithOCRCollection = masMDB.getAction_CreateSRTsWithOCRCollection() ;
-		log.info( "OCR database has " + createSRTWithOCRCollection.countDocuments() + " object(s) currently loaded." ) ;
+		log.fine( "OCR database has " + createSRTWithOCRCollection.countDocuments() + " object(s) currently loaded." ) ;
 
 		allProbeInfoInstances = new HashMap< String, FFmpeg_ProbeResult >() ;
 

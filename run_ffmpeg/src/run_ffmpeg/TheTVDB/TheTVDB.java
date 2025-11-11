@@ -198,34 +198,6 @@ public class TheTVDB
 		return seriesInfo ;
 	}
 
-//	public String getShowNameById( final Integer showId )
-//	{
-//		String retMe = null ;
-//		for( Map.Entry< String, Integer > kvPair : tvShowIDs.entrySet() )
-//		{
-//			if( kvPair.getValue().equals( showId ) )
-//			{
-//				retMe = kvPair.getKey() ;
-//				break ;
-//			}
-//		}
-//		return retMe ;
-//	}
-
-	/**
-	 * Return the TVDB show id for the given TV shows, or null if not found.
-	 * @param showName
-	 * @return
-	 */
-//	public static Integer getTVShowID( final String showName )
-//	{
-//		assert( showName != null ) ;
-//		assert( !showName.isBlank() ) ;
-//
-//		Integer retMe = tvShowIDs.get( showName ) ;
-//		return retMe ;
-//	}
-
 	/**
 	 * Issues the HTTP GET query to the given uri.
 	 * @param uri

@@ -1,11 +1,14 @@
-package run_ffmpeg.ffmpeg;
+package run_ffmpeg.TheMovieDB;
+
+import java.util.List;
 
 import com.google.gson.Gson;
 
-public class FFmpeg_ChapterTag
+public class TheMovieDB_configurationResponse
 {
-	public String title;
-
+	public TheMovieDB_imagesResult images = null ;
+	public List< String > change_keys = null ;
+	
 	public String toString()
 	{
 		Gson toStringGson = new Gson() ;

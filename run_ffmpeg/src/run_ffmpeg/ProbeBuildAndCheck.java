@@ -9,7 +9,6 @@ public class ProbeBuildAndCheck
 	public static void main( String[] args )
 	{
 		ProbeDirectories.main( null ) ;
-		BuildMovieAndShowIndex.main( null ) ;
 		CheckLogicalIntegrity.main( null ) ;
 	}
 }

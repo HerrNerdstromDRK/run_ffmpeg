@@ -110,7 +110,7 @@ public class UpgradeMKV_TranscodeFiles
 
 	/**
 	 * Return a MultiMap of all files that are not H265.
-	 * The key is codec_name ("h264, mpeg2video, etc.), and the FFmpegProbeResult corresponds to that file.
+	 * The key is codec_name (h264, mpeg2video, etc.), and the FFmpegProbeResult corresponds to that file.
 	 * @return
 	 */
 	public List< FFmpeg_ProbeResult > findFilesThatNeedUpgrade( final List< FFmpeg_ProbeResult > allProbeInfoInstances )

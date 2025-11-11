@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class FileNamePattern
 {
@@ -472,10 +473,13 @@ public class FileNamePattern
 		return retMe ;
 	}
 	
+	@Override
 	public String toString()
 	{
-		Gson loginRequestGson = new Gson() ;
-		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-		return loginRequestJson.toString() ;
-	}	
+		GsonBuilder builder = new GsonBuilder() ; 
+		builder.setPrettyPrinting() ; 
+		Gson gson = builder.create() ;
+		String json = gson.toJson( this ) ;
+		return json ;
+	}
 }

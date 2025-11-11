@@ -8,7 +8,6 @@ import org.bson.types.ObjectId;
 
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
  * Store the data returned from an ffprobe invocation.
@@ -260,17 +259,8 @@ public class FFmpeg_ProbeResult
 	@Override
 	public String toString()
 	{
-		GsonBuilder builder = new GsonBuilder() ; 
-		builder.setPrettyPrinting() ; 
-		Gson gson = builder.create() ;
-		final String json = gson.toJson( this ) ;
-		return json ;
+		Gson toStringGson = new Gson() ;
+		final String objectToString = toStringGson.toJson( this ) ;
+		return objectToString.toString() ;
 	}
-	
-//	public String toString()
-//	{
-//		Gson loginRequestGson = new Gson() ;
-//		final String loginRequestJson = loginRequestGson.toJson( this ) ;
-//		return loginRequestJson.toString() ;
-//	}
 }
