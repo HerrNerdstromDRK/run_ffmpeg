@@ -1,10 +1,15 @@
 package run_ffmpeg;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import com.mongodb.client.MongoCollection;
 
 /**
  * Instrument the workflow.
@@ -62,83 +67,6 @@ public class WorkflowOrchestrator
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
 		wfo.runThreads() ;
-	}
-
-	public void runThreads()
-	{
-		common.setTestMode( false ) ;
-		
-		// Only start threads if execution is permitted
-		if( common.shouldStopExecution( getStopFileName() ) )
-		{
-			log.info( "Stopping execution due to presence of stop file." ) ;
-			return ;
-		}
-
-//		log.info( "Starting threads..." ) ;
-		for( WorkflowStageThread theThread : threadList )
-		{
-			log.info( "Starting thread " + theThread.toString() + "..." ) ;
-			theThread.start() ;
-		}
-		log.info( "Started " + threadList.size() + " thread(s)" ) ;
-
-		while( !common.shouldStopExecution( getStopFileName() ) && !idleThreadsTimeout() )
-		{
-			try
-			{
-				// Anything for this thread to do?
-				if( timeToUpdateStatus() )
-				{
-					logUpdate() ;
-					setLastInfoUpdate( System.currentTimeMillis() ) ;
-				}
-
-				updateIdleThreadTimer() ;				
-				Thread.sleep( 100 ) ;
-			}
-			catch( Exception e )
-			{
-				log.warning( "Exception: " + e.toString() ) ;
-			}
-		}
-
-		if( common.shouldStopExecution( getStopFileName() ) )
-		{
-			log.info( "Shutting down due to presence of stop file: " + getStopFileName() ) ;
-		}
-		else if( idleThreadsTimeout() )
-		{
-			log.info( "Shutting down due to idle thread timeout of " + (getMaxIdleThreadTimeout() / 1000) + " seconds" ) ;
-		}
-		else
-		{
-			log.warning( "Shutting down for UNKNOWN reason" ) ;
-		}
-		
-		// Shutdown the threads.
-		log.info( "Stopping threads..." ) ;
-		for( WorkflowStageThread theThread : threadList )
-		{
-			theThread.stopRunning() ;
-		}
-		log.info( "Stopped " + threadList.size() + " thread(s)" ) ;
-
-		log.info( "Joining threads..." ) ;
-		for( WorkflowStageThread theThread : threadList )
-		{
-			try
-			{
-				theThread.join() ;
-			}
-			catch( Exception e )
-			{
-				log.warning( "Exception stopping thread " + theThread.toString() + ": " + e.toString() ) ;
-			}
-			log.info( "Joined thread: " + theThread.toString() ) ;
-		}
-		log.info( "Joined " + threadList.size() + " thread(s)" ) ;
-		log.info( "Program shut down complete." ) ;
 	}
 
 	public long getInfoFrequency()
@@ -210,6 +138,83 @@ public class WorkflowOrchestrator
 		}
 	}
 
+	public void runThreads()
+		{
+			common.setTestMode( false ) ;
+			
+			// Only start threads if execution is permitted
+			if( common.shouldStopExecution( getStopFileName() ) )
+			{
+				log.info( "Stopping execution due to presence of stop file." ) ;
+				return ;
+			}
+	
+	//		log.info( "Starting threads..." ) ;
+			for( WorkflowStageThread theThread : threadList )
+			{
+				log.info( "Starting thread " + theThread.toString() + "..." ) ;
+				theThread.start() ;
+			}
+			log.info( "Started " + threadList.size() + " thread(s)" ) ;
+	
+			while( !common.shouldStopExecution( getStopFileName() ) && !idleThreadsTimeout() )
+			{
+				try
+				{
+					// Anything for this thread to do?
+					if( timeToUpdateStatus() )
+					{
+						logUpdate() ;
+						setLastInfoUpdate( System.currentTimeMillis() ) ;
+					}
+	
+					updateIdleThreadTimer() ;				
+					Thread.sleep( 100 ) ;
+				}
+				catch( Exception e )
+				{
+					log.warning( "Exception: " + e.toString() ) ;
+				}
+			}
+	
+			if( common.shouldStopExecution( getStopFileName() ) )
+			{
+				log.info( "Shutting down due to presence of stop file: " + getStopFileName() ) ;
+			}
+			else if( idleThreadsTimeout() )
+			{
+				log.info( "Shutting down due to idle thread timeout of " + (getMaxIdleThreadTimeout() / 1000) + " seconds" ) ;
+			}
+			else
+			{
+				log.warning( "Shutting down for UNKNOWN reason" ) ;
+			}
+			
+			// Shutdown the threads.
+			log.info( "Stopping threads..." ) ;
+			for( WorkflowStageThread theThread : threadList )
+			{
+				theThread.stopRunning() ;
+			}
+			log.info( "Stopped " + threadList.size() + " thread(s)" ) ;
+	
+			log.info( "Joining threads..." ) ;
+			for( WorkflowStageThread theThread : threadList )
+			{
+				try
+				{
+					theThread.join() ;
+				}
+				catch( Exception e )
+				{
+					log.warning( "Exception stopping thread " + theThread.toString() + ": " + e.toString() ) ;
+				}
+				log.info( "Joined thread: " + theThread.toString() ) ;
+			}
+			log.info( "Joined " + threadList.size() + " thread(s)" ) ;
+			log.info( "Program shut down complete." ) ;
+		}
+
 	public void setLastInfoUpdate( final long lastInfoUpdate )
 	{
 		this.lastInfoUpdate = lastInfoUpdate ;
@@ -230,6 +235,32 @@ public class WorkflowOrchestrator
 		this.timeLastWorkAccomplished = timeLastWorkAccomplished ;
 	}
 
+	private void setupExtractThreads()
+	{
+		// Setup one thread for each drive.
+		Set< String > drivePrefixes = new HashSet< String >() ;
+		
+		// Iterate through all of the extract jobs in the database and create a new extract thread for each.
+		MongoCollection< JobRecord_FileNameWithPath > extractSubtitleCollection = masMDB.getAction_ExtractSubtitleCollection() ;
+		for( JobRecord_FileNameWithPath extractJob : extractSubtitleCollection.find() )
+		{
+			final String jobPrefix = FilenameUtils.getPrefix( extractJob.getFileNameWithPath() ) ;
+			if( drivePrefixes.contains( jobPrefix ) )
+			{
+				// Already present in the drive prefixes. Skip it.
+				continue ;
+			}
+			// PC: First-seen for this drive prefix
+			WorkflowStageThread_ExtractSubtitle extractThread = new WorkflowStageThread_ExtractSubtitle(
+					"Extract - " + jobPrefix, log, common, masMDB ) ;
+			extractThread.setName( "Extract - " + jobPrefix ) ;
+			threadList.add( extractThread ) ;
+			
+			
+			drivePrefixes.add( jobPrefix ) ;
+		}
+	}
+	
 	private void setupThreads()
 	{
 		//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
@@ -238,10 +269,8 @@ public class WorkflowOrchestrator
 		//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
 		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
 		//		threadList.add( transcodeMKVFilesThread ) ;
-		WorkflowStageThread_ExtractSubtitle extractThread = new WorkflowStageThread_ExtractSubtitle(
-				"Extract", log, common, masMDB ) ;
-		extractThread.setName( "Extract" ) ;
-		threadList.add( extractThread ) ;
+		
+		setupExtractThreads() ;
 		
 		WorkflowStageThread_MadeMovieChoice madeMovieChoiceThread = new WorkflowStageThread_MadeMovieChoice(
 				"MadeMovieChoice", log, common, masMDB ) ;

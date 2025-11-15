@@ -26,7 +26,7 @@ public class ConvertToPlexFormat
 	private static final String logFileName = "log_convert_between_containers.txt" ;
 	private static final String stopFileName = "C:\\Temp\\stop_convert_between_containers.txt" ;
 	
-	protected final String inputExtension = "MOV" ;
+	protected final String inputExtension = "mp4" ;
 	protected final String outputExtension = "mp4" ;
 	protected boolean skip4KFiles = true ;
 	
@@ -50,7 +50,8 @@ public class ConvertToPlexFormat
 		
 		// Get list of input files
 		List< File > inputFiles = new ArrayList< File >() ;
-		inputFiles.addAll( common.getFilesInDirectoryByExtension( "S:\\Dan Pictures\\Family - New Zealand - 2025-10", getInputExtension() ) ) ;
+		inputFiles.addAll( common.getFilesInDirectoryByExtension( "C:\\Temp", getInputExtension() ) ) ;
+//		inputFiles.addAll( common.getFilesInDirectoryByExtension( "\\\\skywalker\\Media\\Test", getInputExtension() ) ) ;
 		// inputFiles.add( common.getFilesInDirectoryByExtension( Common.getPathToMovies() + "\\2 Fast 2 Furious (2003)", getInputExtension() ) ) ;
 //		inputFiles.addAll( common.getFilesInDirectoryByExtension( Common.getPathToTVShows(),  getInputExtension() ) ) ;
 		Collections.sort( inputFiles, new FileSortLargeToSmall() ) ;

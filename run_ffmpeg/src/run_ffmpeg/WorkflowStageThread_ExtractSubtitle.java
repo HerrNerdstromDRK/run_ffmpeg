@@ -9,9 +9,11 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
+import org.bson.conversions.Bson;
 
 import com.google.common.collect.ImmutableList;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 
 import run_ffmpeg.ffmpeg.FFmpeg_ProbeResult;
 import run_ffmpeg.ffmpeg.FFmpeg_Stream;
@@ -36,13 +38,10 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 	///  necessary to process those files.
 	protected Map< String, FFmpeg_ProbeResult > allProbeInfoInstances = null ;
 
-	/// File name to which to log activities for this application.
-	//	private static final String logFileName = "workflowstagethread_extract_subtitle.txt" ;
-
-	/// If the file by the given name is present, stop this processing at the
-	/// next iteration of the main loop.
-	//	private static final String stopFileName = "C:\\Temp\\stop_workflowstatethread_extract_subtitle.txt" ;
-
+	/// The drive prefix for this object to process. Loosely assigned as one extract thread per drive.
+	/// "" means the object will service all drive prefixes.
+	protected String drivePrefix = "" ;
+	
 	static final String codecTypeSubTitleNameString = "subtitle" ;
 	static final String codecNameSubTitlePGSString = "hdmv_pgs_subtitle" ; // pgs image format; subtitle edit does a decent job of OCR
 	static final String codecNameSubtitleHDMVString = "hdmv_text_subtitle" ; // outputs as .sup and can process like pgs
@@ -91,9 +90,9 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 
 		log.info( "Loading all FFmpeg_ProbeResults..." ) ;
 		final List< FFmpeg_ProbeResult > allProbeInfoInstancesList = masMDB.getAllProbeInfoInstances() ;
-		log.info( "Loaded " + allProbeInfoInstancesList.size() + " instance(s)." ) ;
+		log.info( "Loaded " + allProbeInfoInstancesList.size() + " FFmpeg_ProbeResult(s)." ) ;
 
-		log.info( "Sorting..." ) ;
+		log.info( "Sorting probe results..." ) ;
 		for( FFmpeg_ProbeResult theProbeResult : allProbeInfoInstancesList )
 		{
 			allProbeInfoInstances.put( theProbeResult.getFileNameWithPath(), theProbeResult ) ;
@@ -107,9 +106,22 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 	 */
 	public boolean doAction()
 	{
-		final JobRecord_FileNameWithPath fileNameWithPathToExtract = extractSubtitleCollection.findOneAndDelete( null ) ;
+		if( 0 == extractSubtitleCollection.countDocuments() )
+		{
+			// Empty -- nothing to extract
+			return false ;
+		}
+		
+		// Find the next job with the matching prefix.
+		final Pattern prefixPattern = Pattern.compile( getDrivePrefix() + ".*" ) ;
+		final Bson prefixBsonFilter = Filters.regex( "fileNameWithPath", prefixPattern ) ;
+		final JobRecord_FileNameWithPath fileNameWithPathToExtract = extractSubtitleCollection.findOneAndDelete( prefixBsonFilter ) ;
+			
 		if( null == fileNameWithPathToExtract )
 		{
+			// No drive prefix jobs available for this thread.
+			// This is to be expected if the collection has no jobs for this thread.
+			// Keep running in case a job appears.
 			return false ;
 		}
 		setWorkInProgress( true ) ;
@@ -424,6 +436,18 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 		return extractableSubTitleStreams ;
 	}
 
+	/// File name to which to log activities for this application.
+	//	private static final String logFileName = "workflowstagethread_extract_subtitle.txt" ;
+	
+	/// If the file by the given name is present, stop this processing at the
+	/// next iteration of the main loop.
+	//	private static final String stopFileName = "C:\\Temp\\stop_workflowstatethread_extract_subtitle.txt" ;
+	
+	public String getDrivePrefix()
+	{
+		return drivePrefix ;
+	}
+
 	/**
 	 * Return an FFmpeg_ProbeResult for this file. If not found in the database, it will be probed but not stored in the database.
 	 * @param inputFile
@@ -498,5 +522,10 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 		}
 		// No allowable code name found
 		return false ;
+	}
+
+	public void setDrivePrefix( String drivePrefix )
+	{
+		this.drivePrefix = drivePrefix ;
 	}
 }

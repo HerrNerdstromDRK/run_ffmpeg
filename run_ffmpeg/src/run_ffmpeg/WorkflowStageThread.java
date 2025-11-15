@@ -33,7 +33,7 @@ public class WorkflowStageThread extends Thread
 				if( !doAction() )
 				{
 					// If no work was completed, then sleep. Otherwise, proceed immediately to the next action.
-					Thread.sleep( 100 ) ;
+					Thread.sleep( 500 ) ;
 				}
 			}
 			catch( Exception e )
@@ -59,19 +59,9 @@ public class WorkflowStageThread extends Thread
 		return keepRunning ;
 	}
 
-	public void stopRunning()
-	{
-		keepRunning = false ;
-	}
-
 	public String getThreadName()
 	{
 		return threadName ;
-	}
-
-	public String toString()
-	{
-		return getThreadName() ;
 	}
 
 	public String getUpdateString()
@@ -87,5 +77,15 @@ public class WorkflowStageThread extends Thread
 	public void setWorkInProgress( final boolean workInProgress )
 	{
 		this.workInProgress = workInProgress ;
+	}
+
+	public void stopRunning()
+	{
+		keepRunning = false ;
+	}
+
+	public String toString()
+	{
+		return getThreadName() ;
 	}
 }
