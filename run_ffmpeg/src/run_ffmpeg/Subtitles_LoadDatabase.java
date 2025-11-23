@@ -78,7 +78,7 @@ public class Subtitles_LoadDatabase
 		//		foldersToExtractAndConvert.add( "C:\\Temp" ) ;
 		//		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\A Pup Named Scooby-Doo (1988) {tvdb-73546}" ) ;
 
-		log.info( "Extracting subtitles in " + foldersToExtractAndConvert.toString() ) ;
+		log.info( "Loading files from which to extract subtitles in " + foldersToExtractAndConvert.toString() ) ;
 
 		// Find and load video files (mkv/mp4/etc.) into the database to extract.
 		log.info( "Searching for video files to extract..." ) ;
@@ -89,6 +89,8 @@ public class Subtitles_LoadDatabase
 		// Check each video file for the presence of .srt, .sup, and .wav files.
 		for( File videoFile : videoFiles )
 		{
+			// If any SRT has been created for this video file, it will end with ".en.srt".
+			// Subsequent srt files will have a stream # included.
 			final String srtFileName = videoFile.getName().replace( ".mkv", ".en.srt" ) ;
 			final File srtFile = new File( videoFile.getParentFile(), srtFileName ) ;
 			if( srtFile.exists() )
@@ -97,7 +99,8 @@ public class Subtitles_LoadDatabase
 				continue ;
 			}
 
-			final String supFileName = videoFile.getName().replace( ".mkv", ".sup" ) ;
+			// Same argument as for .srt: first .sup will be *.en.sup, and subsequent will be .en.#.sup
+			final String supFileName = videoFile.getName().replace( ".mkv", ".en.sup" ) ;
 			final File supFile = new File( videoFile.getParentFile(), supFileName ) ;
 			if( supFile.exists() )
 			{
