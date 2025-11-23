@@ -67,7 +67,7 @@ public class WorkflowOrchestrator
 	public static void main( final String[] args )
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
-		wfo.setDoExtractOnly( true ) ;
+		wfo.setDoExtractOnly( false ) ;
 		wfo.execute() ;
 	}
 
