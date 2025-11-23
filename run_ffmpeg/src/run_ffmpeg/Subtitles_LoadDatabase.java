@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+
+import org.apache.commons.io.FilenameUtils;
 
 import com.mongodb.client.MongoCollection;
 
@@ -89,34 +92,36 @@ public class Subtitles_LoadDatabase
 		// Check each video file for the presence of .srt, .sup, and .wav files.
 		for( File videoFile : videoFiles )
 		{
-			// If any SRT has been created for this video file, it will end with ".en.srt".
-			// Subsequent srt files will have a stream # included.
-			final String srtFileName = videoFile.getName().replace( ".mkv", ".en.srt" ) ;
-			final File srtFile = new File( videoFile.getParentFile(), srtFileName ) ;
-			if( srtFile.exists() )
+			// Check for .sup/.wav files individually -- it's possible that a previous workflow has ocr'd/transcribed only
+			// one or several, but not all, of the .sup/.wav files for any given videoFile.
+			// Check for matching sup files to OCR.
+			final List< File > matchingSupFiles = getMatchingFiles( videoFile, "sup" ) ;
+			if( !matchingSupFiles.isEmpty() )
 			{
-				// Has .srt file -- skip
+				addToDatabase_OCR( matchingSupFiles ) ;
+			}
+			
+			final List< File > matchingWavFiles = getMatchingFiles( videoFile, "wav" ) ;
+			if( !matchingWavFiles.isEmpty() )
+			{
+				addToDatabase_Transcribe( matchingWavFiles ) ;
+			}
+
+			// If this video file has any matching .sup, .wav, or .srt files, then it has already been extracted.
+			if( !matchingSupFiles.isEmpty() || !matchingWavFiles.isEmpty() )
+			{
+				// Has a matching .sup or .wav file, no need to extract.
+				continue ;
+			}
+			
+			// Check for matching .srt files
+			final List< File > matchingSRTFiles = getMatchingFiles( videoFile, "srt" ) ;
+			if( !matchingSRTFiles.isEmpty() )
+			{
+				// No need to extract.
 				continue ;
 			}
 
-			// Same argument as for .srt: first .sup will be *.en.sup, and subsequent will be .en.#.sup
-			final String supFileName = videoFile.getName().replace( ".mkv", ".en.sup" ) ;
-			final File supFile = new File( videoFile.getParentFile(), supFileName ) ;
-			if( supFile.exists() )
-			{
-				// Has .sup, so the file has already been extracted but not yet OCR'd.
-				addToDatabase_OCR( videoFile ) ;
-				continue ;
-			}
-
-			final String wavFileName = videoFile.getName().replace( ".mkv", ".wav" ) ;
-			final File wavFile = new File( videoFile.getParentFile(), wavFileName ) ;
-			if( wavFile.exists() )
-			{
-				// Has .wav file, so it has been extracted but needs transcription.
-				addToDatabase_Transcribe( videoFile ) ;
-				continue ;
-			}
 			// PC: no .srt, .sup, or .wav: Need to extract
 			addToDatabase_Extract( videoFile ) ;
 		} // for( videoFile )
@@ -126,6 +131,26 @@ public class Subtitles_LoadDatabase
 		log.info( "Number of files to transcribe: " + createSRTWithTranscribeCollection.countDocuments() ) ;
 
 		log.info( "Shutdown." ) ;
+	}
+	
+	/**
+	 * Return a list of files in the videoFile's current directory with videoFile's name (all but extension)
+	 *  with the given extensionToMatch replaced.
+	 * For example, if videoFile is "Maleficent Mistress Of Evil (2019) {tmdb-420809}.mkv", and extensionToMatch is "sup",
+	 *  return all files that match "Maleficent Mistress Of Evil (2019) {tmdb-420809}.*sup" (regex).
+	 * @param videoFile
+	 * @param extensionToMatch
+	 * @return
+	 */
+	public List< File > getMatchingFiles( final File videoFile, final String extensionToMatch )
+	{
+		final String videoFileExtension = FilenameUtils.getExtension( videoFile.getAbsolutePath() ) ;
+		final String videoFileNameWithoutExtensionOrDot = videoFile.getName().replace( "." + videoFileExtension, "" ) ;
+		final String quotedVideoFileNameWithoutExtensionOrDot = Pattern.quote( videoFileNameWithoutExtensionOrDot ) ;
+		final Pattern matchPattern = Pattern.compile( quotedVideoFileNameWithoutExtensionOrDot + "\\..*\\." + extensionToMatch ) ;
+		
+		List< File > matchingFiles = common.getFilesInDirectoryByRegex( videoFile.getParentFile(), matchPattern ) ;
+		return matchingFiles ;
 	}
 
 	/**
