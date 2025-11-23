@@ -50,6 +50,7 @@ public class WorkflowOrchestrator
 	protected final long maxIdleThreadTimeout = 20000 ;
 	protected int numOCRThreads = 6 ;
 	protected int numTranscribeThreads = 3 ;
+	protected boolean doExtractOnly = false ;
 
 	public WorkflowOrchestrator()
 	{
@@ -66,7 +67,98 @@ public class WorkflowOrchestrator
 	public static void main( final String[] args )
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
-		wfo.runThreads() ;
+		wfo.setDoExtractOnly( true ) ;
+		wfo.execute() ;
+	}
+
+	public void execute()
+	{
+		common.setTestMode( false ) ;
+	
+		// Only start threads if execution is permitted
+		if( common.shouldStopExecution( getStopFileName() ) )
+		{
+			log.info( "Stopping execution due to presence of stop file." ) ;
+			return ;
+		}
+	
+		//		log.info( "Starting threads..." ) ;
+		for( WorkflowStageThread theThread : threadList )
+		{
+			log.info( "Starting thread " + theThread.toString() + "..." ) ;
+			theThread.start() ;
+		}
+		log.info( "Started " + threadList.size() + " thread(s)" ) ;
+	
+		while( !common.shouldStopExecution( getStopFileName() ) && !idleThreadsTimeout() )
+		{
+			try
+			{
+				// Anything for this thread to do?
+				if( timeToUpdateStatus() )
+				{
+					logUpdate() ;
+					setLastInfoUpdate( System.currentTimeMillis() ) ;
+				}
+	
+				updateIdleThreadTimer() ;				
+				Thread.sleep( 100 ) ;
+			}
+			catch( Exception e )
+			{
+				log.warning( "Exception: " + e.toString() ) ;
+			}
+		}
+	
+		if( common.shouldStopExecution( getStopFileName() ) )
+		{
+			log.info( "Shutting down due to presence of stop file: " + getStopFileName() ) ;
+		}
+		else if( idleThreadsTimeout() )
+		{
+			log.info( "Shutting down due to idle thread timeout of " + (getMaxIdleThreadTimeout() / 1000) + " seconds" ) ;
+		}
+		else
+		{
+			log.warning( "Shutting down for UNKNOWN reason" ) ;
+		}
+	
+		// Shutdown the threads.
+		log.info( "Stopping threads..." ) ;
+		for( WorkflowStageThread theThread : threadList )
+		{
+			theThread.stopRunning() ;
+		}
+		log.info( "Stopped " + threadList.size() + " thread(s)" ) ;
+	
+		log.info( "Joining threads..." ) ;
+		for( WorkflowStageThread theThread : threadList )
+		{
+			try
+			{
+				theThread.join() ;
+			}
+			catch( Exception e )
+			{
+				log.warning( "Exception stopping thread " + theThread.toString() + ": " + e.toString() ) ;
+			}
+			log.info( "Joined thread: " + theThread.toString() ) ;
+		}
+		log.info( "Joined " + threadList.size() + " thread(s)" ) ;
+		log.info( "Program shut down complete." ) ;
+	}
+
+	protected boolean areAllThreadsIdle()
+	{
+		for( WorkflowStageThread theThread : threadList )
+		{
+			if( theThread.isWorkInProgress() )
+			{
+				// This thread is NOT idle.
+				return false ;
+			}
+		}
+		return true ;
 	}
 
 	public long getInfoFrequency()
@@ -112,8 +204,13 @@ public class WorkflowOrchestrator
 	{
 		final long currentTime = System.currentTimeMillis() ;
 		final long durationOfIdleThreads = currentTime - getTimeLastWorkAccomplished() ;
-	
+
 		return (durationOfIdleThreads >= getMaxIdleThreadTimeout()) ;
+	}
+
+	public boolean isDoExtractOnly()
+	{
+		return doExtractOnly ;
 	}
 
 	protected void logUpdate()
@@ -123,12 +220,12 @@ public class WorkflowOrchestrator
 			for( WorkflowStageThread theThread : threadList )
 			{
 				String threadInfo = StringUtils.rightPad( theThread.getName(), 7 ) ;
-//				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
+				//				threadInfo += (theThread.getState() == Thread.State.TIMED_WAITING) ? "(SLEEP)" : "ACTIVE" ;
 				threadInfo += ": workInProgress: " + theThread.isWorkInProgress() ;
-				
+
 				final String threadUpdateString = theThread.getUpdateString() ;
 				if( !threadUpdateString.isBlank() ) threadInfo += ": " + theThread.getUpdateString() ;
-	
+
 				log.info( threadInfo ) ;
 			}
 		}
@@ -138,82 +235,10 @@ public class WorkflowOrchestrator
 		}
 	}
 
-	public void runThreads()
-		{
-			common.setTestMode( false ) ;
-			
-			// Only start threads if execution is permitted
-			if( common.shouldStopExecution( getStopFileName() ) )
-			{
-				log.info( "Stopping execution due to presence of stop file." ) ;
-				return ;
-			}
-	
-	//		log.info( "Starting threads..." ) ;
-			for( WorkflowStageThread theThread : threadList )
-			{
-				log.info( "Starting thread " + theThread.toString() + "..." ) ;
-				theThread.start() ;
-			}
-			log.info( "Started " + threadList.size() + " thread(s)" ) ;
-	
-			while( !common.shouldStopExecution( getStopFileName() ) && !idleThreadsTimeout() )
-			{
-				try
-				{
-					// Anything for this thread to do?
-					if( timeToUpdateStatus() )
-					{
-						logUpdate() ;
-						setLastInfoUpdate( System.currentTimeMillis() ) ;
-					}
-	
-					updateIdleThreadTimer() ;				
-					Thread.sleep( 100 ) ;
-				}
-				catch( Exception e )
-				{
-					log.warning( "Exception: " + e.toString() ) ;
-				}
-			}
-	
-			if( common.shouldStopExecution( getStopFileName() ) )
-			{
-				log.info( "Shutting down due to presence of stop file: " + getStopFileName() ) ;
-			}
-			else if( idleThreadsTimeout() )
-			{
-				log.info( "Shutting down due to idle thread timeout of " + (getMaxIdleThreadTimeout() / 1000) + " seconds" ) ;
-			}
-			else
-			{
-				log.warning( "Shutting down for UNKNOWN reason" ) ;
-			}
-			
-			// Shutdown the threads.
-			log.info( "Stopping threads..." ) ;
-			for( WorkflowStageThread theThread : threadList )
-			{
-				theThread.stopRunning() ;
-			}
-			log.info( "Stopped " + threadList.size() + " thread(s)" ) ;
-	
-			log.info( "Joining threads..." ) ;
-			for( WorkflowStageThread theThread : threadList )
-			{
-				try
-				{
-					theThread.join() ;
-				}
-				catch( Exception e )
-				{
-					log.warning( "Exception stopping thread " + theThread.toString() + ": " + e.toString() ) ;
-				}
-				log.info( "Joined thread: " + theThread.toString() ) ;
-			}
-			log.info( "Joined " + threadList.size() + " thread(s)" ) ;
-			log.info( "Program shut down complete." ) ;
-		}
+	public void setDoExtractOnly( final boolean doExtractOnly )
+	{
+		this.doExtractOnly = doExtractOnly ;
+	}
 
 	public void setLastInfoUpdate( final long lastInfoUpdate )
 	{
@@ -239,7 +264,7 @@ public class WorkflowOrchestrator
 	{
 		// Setup one thread for each drive.
 		Set< String > drivePrefixes = new HashSet< String >() ;
-		
+
 		// Iterate through all of the extract jobs in the database and create a new extract thread for each.
 		MongoCollection< JobRecord_FileNameWithPath > extractSubtitleCollection = masMDB.getAction_ExtractSubtitleCollection() ;
 		for( JobRecord_FileNameWithPath extractJob : extractSubtitleCollection.find() )
@@ -255,12 +280,12 @@ public class WorkflowOrchestrator
 					"Extract - " + jobPrefix, log, common, masMDB ) ;
 			extractThread.setName( "Extract - " + jobPrefix ) ;
 			threadList.add( extractThread ) ;
-			
-			
+
+
 			drivePrefixes.add( jobPrefix ) ;
 		}
 	}
-	
+
 	private void setupThreads()
 	{
 		//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
@@ -269,29 +294,32 @@ public class WorkflowOrchestrator
 		//		WorkflowStageThread_TranscodeMKVFiles transcodeMKVFilesThread = new WorkflowStageThread_TranscodeMKVFiles(
 		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
 		//		threadList.add( transcodeMKVFilesThread ) ;
-		
-		setupExtractThreads() ;
-		
-		WorkflowStageThread_MadeMovieChoice madeMovieChoiceThread = new WorkflowStageThread_MadeMovieChoice(
-				"MadeMovieChoice", log, common, masMDB ) ;
-		madeMovieChoiceThread.setName( "MadeMovieChoice" ) ;
-		threadList.add( madeMovieChoiceThread ) ;
 
-		for( int threadNum = 1 ; threadNum <= getNumTranscribeThreads() ; ++ threadNum )
+		setupExtractThreads() ;
+
+		if( !isDoExtractOnly() )
 		{
-			final String threadName = "AI_" + threadNum ;
-			WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
-					threadName, log, common, masMDB ) ;
-			transcribeThread.setName( threadName ) ;
-			threadList.add( transcribeThread ) ;
-		}
-		
-		for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
-		{
-			final String threadName = "OCR_" + threadNum ;
-			WorkflowStageThread_SubtitleOCR ocrThread = new WorkflowStageThread_SubtitleOCR( threadName, log, common, masMDB ) ;
-			ocrThread.setName( threadName ) ;
-			threadList.add( ocrThread ) ;
+			WorkflowStageThread_MadeMovieChoice madeMovieChoiceThread = new WorkflowStageThread_MadeMovieChoice(
+					"MadeMovieChoice", log, common, masMDB ) ;
+			madeMovieChoiceThread.setName( "MadeMovieChoice" ) ;
+			threadList.add( madeMovieChoiceThread ) ;
+
+			for( int threadNum = 1 ; threadNum <= getNumTranscribeThreads() ; ++ threadNum )
+			{
+				final String threadName = "AI_" + threadNum ;
+				WorkflowStageThread_SubtitleTranscribe transcribeThread = new WorkflowStageThread_SubtitleTranscribe(
+						threadName, log, common, masMDB ) ;
+				transcribeThread.setName( threadName ) ;
+				threadList.add( transcribeThread ) ;
+			}
+
+			for( int threadNum = 0 ; threadNum < getNumOCRThreads() ; ++ threadNum )
+			{
+				final String threadName = "OCR_" + threadNum ;
+				WorkflowStageThread_SubtitleOCR ocrThread = new WorkflowStageThread_SubtitleOCR( threadName, log, common, masMDB ) ;
+				ocrThread.setName( threadName ) ;
+				threadList.add( ocrThread ) ;
+			}
 		}
 	}
 
@@ -318,18 +346,5 @@ public class WorkflowOrchestrator
 			// Work happening right now
 			setTimeLastWorkAccomplished( System.currentTimeMillis() ) ;
 		}
-	}
-	
-	protected boolean areAllThreadsIdle()
-	{
-		for( WorkflowStageThread theThread : threadList )
-		{
-			if( theThread.isWorkInProgress() )
-			{
-				// This thread is NOT idle.
-				return false ;
-			}
-		}
-		return true ;
 	}
 }
