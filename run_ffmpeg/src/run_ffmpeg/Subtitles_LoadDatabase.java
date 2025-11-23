@@ -71,9 +71,9 @@ public class Subtitles_LoadDatabase
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
 		foldersToExtractAndConvert.add( "S:\\Media\\To_OCR" ) ;
-		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
-		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
-		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
+//		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
+//		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
+//		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
 		//		foldersToExtractAndConvert.add( Common.getPathToStaging() ) ;
 		//		foldersToExtractAndConvert.add( "C:\\Temp" ) ;
 		//		foldersToExtractAndConvert.add( "\\\\skywalker\\Media\\TV_Shows\\A Pup Named Scooby-Doo (1988) {tvdb-73546}" ) ;

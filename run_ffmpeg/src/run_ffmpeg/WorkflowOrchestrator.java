@@ -49,7 +49,7 @@ public class WorkflowOrchestrator
 	/// application will shutdown.
 	protected final long maxIdleThreadTimeout = 20000 ;
 	protected int numOCRThreads = 6 ;
-	protected int numTranscribeThreads = 1 ;
+	protected int numTranscribeThreads = 3 ;
 
 	public WorkflowOrchestrator()
 	{
