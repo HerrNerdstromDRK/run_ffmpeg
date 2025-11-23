@@ -48,7 +48,7 @@ public class WorkflowOrchestrator
 	/// If all threads are idle for this amount of time (or higher), then the
 	/// application will shutdown.
 	protected final long maxIdleThreadTimeout = 20000 ;
-	protected int numOCRThreads = 6 ;
+	protected int numOCRThreads = 3 ;
 	protected int numTranscribeThreads = 3 ;
 	protected boolean doExtractOnly = false ;
 
@@ -279,10 +279,21 @@ public class WorkflowOrchestrator
 			WorkflowStageThread_ExtractSubtitle extractThread = new WorkflowStageThread_ExtractSubtitle(
 					"Extract - " + jobPrefix, log, common, masMDB ) ;
 			extractThread.setName( "Extract - " + jobPrefix ) ;
+			extractThread.setDrivePrefix( jobPrefix ) ;
 			threadList.add( extractThread ) ;
 
-
 			drivePrefixes.add( jobPrefix ) ;
+		}
+		
+		if( drivePrefixes.isEmpty() )
+		{
+			// No extract jobs currently available.
+			// Make sure a basic extract job is available to handle new extract jobs.
+			WorkflowStageThread_ExtractSubtitle extractThread = new WorkflowStageThread_ExtractSubtitle(
+					"Extract - .*", log, common, masMDB ) ;
+			extractThread.setName( "Extract - .*" ) ;
+			extractThread.setDrivePrefix( ".*" ) ;
+			threadList.add( extractThread ) ;
 		}
 	}
 

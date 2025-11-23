@@ -135,7 +135,7 @@ public class MoviesAndShowsMongoDB
 
 	public MongoCollection< HDorSDFile > getHDMoviesAndShowsCollection()
 	{
-		log.fine( "Getting HDMoviesAndShowsCollection" )  ;
+//		log.fine( "Getting HDMoviesAndShowsCollection" )  ;
 		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( hDMoviesAndShowsCollectionName,
 				HDorSDFile.class ) ;
 		return theCollection ;
@@ -149,7 +149,7 @@ public class MoviesAndShowsMongoDB
 
 	public MongoCollection< HDorSDFile > getSDMoviesAndShowsCollection()
 	{
-		log.fine( "Getting SDMoviesAndShowsCollection" )  ;
+//		log.fine( "Getting SDMoviesAndShowsCollection" )  ;
 		MongoCollection< HDorSDFile > theCollection = persistentDatabaseHandle.getCollection( sDMoviesAndShowsCollectionName,
 				HDorSDFile.class ) ;
 		return theCollection ;
@@ -163,7 +163,7 @@ public class MoviesAndShowsMongoDB
 
 	public MongoCollection< FFmpeg_ProbeResult > getProbeInfoCollection()
 	{	
-		log.fine( "Getting probeInfoCollection" )  ;
+//		log.fine( "Getting probeInfoCollection" )  ;
 		MongoCollection< FFmpeg_ProbeResult > theCollection = persistentDatabaseHandle.getCollection( probeInfoCollectionName,
 				FFmpeg_ProbeResult.class ) ;
 		return theCollection ;
