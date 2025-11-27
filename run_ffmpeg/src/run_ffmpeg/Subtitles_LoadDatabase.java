@@ -73,7 +73,7 @@ public class Subtitles_LoadDatabase
 		// Build the list of folders to extract and process (OCR/transcribe)
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
-//		foldersToExtractAndConvert.add( "S:\\Media\\To_OCR" ) ;
+		foldersToExtractAndConvert.add( "S:\\Media\\To_OCR" ) ;
 //		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
 //		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
@@ -95,13 +95,13 @@ public class Subtitles_LoadDatabase
 			// Check for .sup/.wav files individually -- it's possible that a previous workflow has ocr'd/transcribed only
 			// one or several, but not all, of the .sup/.wav files for any given videoFile.
 			// Check for matching sup files to OCR.
-			final List< File > matchingSupFiles = getMatchingFiles( videoFile, "sup" ) ;
+			final List< File > matchingSupFiles = getMatchingFiles( videoFile, "sup", true ) ;
 			if( !matchingSupFiles.isEmpty() )
 			{
 				addToDatabase_OCR( matchingSupFiles ) ;
 			}
 			
-			final List< File > matchingWavFiles = getMatchingFiles( videoFile, "wav" ) ;
+			final List< File > matchingWavFiles = getMatchingFiles( videoFile, "wav", false ) ;
 			if( !matchingWavFiles.isEmpty() )
 			{
 				addToDatabase_Transcribe( matchingWavFiles ) ;
@@ -115,7 +115,7 @@ public class Subtitles_LoadDatabase
 			}
 			
 			// Check for matching .srt files
-			final List< File > matchingSRTFiles = getMatchingFiles( videoFile, "srt" ) ;
+			final List< File > matchingSRTFiles = getMatchingFiles( videoFile, "srt", true ) ;
 			if( !matchingSRTFiles.isEmpty() )
 			{
 				// No need to extract.
@@ -142,15 +142,34 @@ public class Subtitles_LoadDatabase
 	 * @param extensionToMatch
 	 * @return
 	 */
-	public List< File > getMatchingFiles( final File videoFile, final String extensionToMatch )
+	public List< File > getMatchingFiles( final File videoFile, final String extensionToMatch, final boolean searchForTwoPeriods )
 	{
 		final String videoFileExtension = FilenameUtils.getExtension( videoFile.getAbsolutePath() ) ;
 		final String videoFileNameWithoutExtensionOrDot = videoFile.getName().replace( "." + videoFileExtension, "" ) ;
 		final String quotedVideoFileNameWithoutExtensionOrDot = Pattern.quote( videoFileNameWithoutExtensionOrDot ) ;
-		final Pattern matchPattern = Pattern.compile( quotedVideoFileNameWithoutExtensionOrDot + "\\..*\\." + extensionToMatch ) ;
+		
+		// Two patterns exist here: File name-other.en.srt and File name-other.wav
+		// In the first instance, using two periods (between name and en, and between en and srt) is appropriate
+		// In the second case, only one period is appropriate.
+		// Trying to check for two periods in the second instance will simply not match files that exist, whereas
+		// not searching for two periods in the first instance will create false matches.
+		String matchPatternString = quotedVideoFileNameWithoutExtensionOrDot + "\\." ;
+		if( searchForTwoPeriods ) matchPatternString += ".*\\." + extensionToMatch ;
+		final Pattern matchPattern = Pattern.compile( matchPatternString ) ;
 		
 		List< File > matchingFiles = common.getFilesInDirectoryByRegex( videoFile.getParentFile(), matchPattern ) ;
 		return matchingFiles ;
+	}
+	
+	/**
+	 * Same as the other form for this method except default behavior is to only search for a single period.
+	 * @param videoFile
+	 * @param extensionToMatch
+	 * @return
+	 */
+	public List< File > getMatchingFiles( final File videoFile, final String extensionToMatch )
+	{
+		return getMatchingFiles( videoFile, extensionToMatch, false ) ;
 	}
 
 	/**

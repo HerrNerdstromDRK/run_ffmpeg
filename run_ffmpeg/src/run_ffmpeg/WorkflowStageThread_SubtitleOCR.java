@@ -49,6 +49,15 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			return false ;
 		}
 
+		final String outputFileName = fileToOCR.getAbsolutePath().replace( ".sup", ".srt" ) ;
+		File outputFile = new File( outputFileName ) ;
+		if( outputFile.exists() )
+		{
+			log.warning( "OCR output file already exists: " + outputFileName ) ;
+			setWorkInProgress( false ) ;
+			return true ;
+		}
+		
 		log.info( getName() + " Running OCR on file: " + fileToOCR.getAbsolutePath() ) ;
 
 		ImmutableList.Builder< String > ocrExecuteCommand = new ImmutableList.Builder<String>() ;
@@ -63,9 +72,8 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 		boolean commandSuccess = common.executeCommand( ocrExecuteCommand ) ;
 		log.info( getName() + " OCR on file " + fileToOCR.getAbsolutePath() + ": " + commandSuccess ) ;
 
-		final String outputFileName = fileToOCR.getAbsolutePath().replace( ".sup", ".srt" ) ;
-		final File outputFile = new File( outputFileName ) ;
-
+		// Reset the output file and check if it now exists as a result of conducting an OCR.
+		outputFile = new File( outputFileName ) ;
 		if( !outputFile.exists() )
 		{
 			log.warning( getName() + " Output file does not exist: " + outputFile.getAbsolutePath() ) ;
