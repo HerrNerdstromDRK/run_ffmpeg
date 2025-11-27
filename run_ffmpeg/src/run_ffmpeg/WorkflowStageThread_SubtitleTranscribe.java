@@ -28,15 +28,22 @@ public class WorkflowStageThread_SubtitleTranscribe extends WorkflowStageThread
 		{
 			return false ;
 		}
-		setWorkInProgress( true ) ;
+		
+		if( !jobRecord.getFileNameWithPath().endsWith( ".wav" ) )
+		{
+			// Not a .wav file
+			log.warning( "Invalid input file: " + jobRecord.getFileNameWithPath() ) ;
+			return true ;
+		}
 		
 		final File inputWavFile = new File( jobRecord.getFileNameWithPath() ) ;
 		if( !inputWavFile.exists() )
 		{
 			log.warning( "Unable to find inputWavFile: " + inputWavFile.getAbsolutePath() ) ;
-			setWorkInProgress( false ) ;
-			return false ;
+			return true ;
 		}
+
+		setWorkInProgress( true ) ;
 
 		// The output filename will default, as will the language file.
 		// Generate an SRT via whisper ai.
