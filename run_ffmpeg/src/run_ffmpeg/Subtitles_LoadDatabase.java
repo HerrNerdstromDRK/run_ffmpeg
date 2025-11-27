@@ -154,7 +154,8 @@ public class Subtitles_LoadDatabase
 		// Trying to check for two periods in the second instance will simply not match files that exist, whereas
 		// not searching for two periods in the first instance will create false matches.
 		String matchPatternString = quotedVideoFileNameWithoutExtensionOrDot + "\\." ;
-		if( searchForTwoPeriods ) matchPatternString += ".*\\." + extensionToMatch ;
+		if( searchForTwoPeriods ) matchPatternString += ".*\\." ;
+		matchPatternString += extensionToMatch ;
 		final Pattern matchPattern = Pattern.compile( matchPatternString ) ;
 		
 		List< File > matchingFiles = common.getFilesInDirectoryByRegex( videoFile.getParentFile(), matchPattern ) ;
