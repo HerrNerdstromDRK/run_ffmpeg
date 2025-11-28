@@ -61,19 +61,20 @@ public class WorkflowOrchestrator
 		masMDB = new MoviesAndShowsMongoDB( log ) ;
 
 		setTimeLastWorkAccomplished( System.currentTimeMillis() ) ;
-		setupThreads() ;
 	}
 
 	public static void main( final String[] args )
 	{
 		WorkflowOrchestrator wfo = new WorkflowOrchestrator() ;
-		wfo.setDoExtractOnly( false ) ;
 		wfo.execute() ;
 	}
 
 	public void execute()
 	{
 		common.setTestMode( false ) ;
+		setDoExtractOnly( true ) ;
+
+		setupThreads() ;
 	
 		// Only start threads if execution is permitted
 		if( common.shouldStopExecution( getStopFileName() ) )
@@ -299,6 +300,12 @@ public class WorkflowOrchestrator
 
 	private void setupThreads()
 	{
+		if( !threadList.isEmpty() )
+		{
+			// Threads already setup
+			return ;
+		}
+		
 		//		WorkflowStageThread_ProbeFile probeFileThread = new WorkflowStageThread_ProbeFile(
 		//				"probeFileThread", log, common, masMDB ) ;
 		//		threadList.add( probeFileThread ) ;
