@@ -72,7 +72,7 @@ public class WorkflowOrchestrator
 	public void execute()
 	{
 		common.setTestMode( false ) ;
-		setDoExtractOnly( true ) ;
+		setDoExtractOnly( false ) ;
 
 		setupThreads() ;
 	
