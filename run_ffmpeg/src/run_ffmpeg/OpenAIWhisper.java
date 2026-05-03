@@ -36,7 +36,8 @@ public class OpenAIWhisper
 	public void execute()
 	{
 		common.setTestMode( false ) ;
-		final String wavFileNameWithPath = "\\\\skywalker\\Media\\Test\\Boardwalk Empire - S02E100 - Back To The Boardwalk.wav" ;
+//		final String wavFileNameWithPath = "\\\\skywalker\\Media\\Test\\Boardwalk Empire - S02E100 - Back To The Boardwalk.wav" ;
+		final String wavFileNameWithPath = "\\\\skywalker\\Media\\Test\\whisperx_test.wav" ;
  
 		transcribeToSRT( wavFileNameWithPath ) ;
 		log.info( "Done." ) ;

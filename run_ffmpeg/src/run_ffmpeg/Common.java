@@ -209,7 +209,7 @@ public class Common
 			log.warning( "Unable to find local host name: " + theException.toString() ) ;
 		}
 
-		setPathToVirtualEnvironment( getPathToMediaFolderBase() + "\\python_virtual_mandalorian" ) ;
+		setPathToVirtualEnvironment( getPathToMediaFolderBase() + "\\python_virtual_whisperx" ) ;
 // TODO: FIX this		setPathToVirtualEnvironment( getPathToMediaFolderBase() + "\\python_virtual_" + getLocalHostName() ) ;
 		setPathToWhisperX( getPathToVirtualEnvironment() + "\\Scripts\\whisperx.exe" ) ;		
 	}
