@@ -36,9 +36,10 @@ public class OpenAIWhisper
 	public void execute()
 	{
 		common.setTestMode( false ) ;
-		final String wavFileNameWithPath = "\\\\skywalker\\Media\\To_OCR\\Boardwalk Empire (2010) {imdb-0979432}\\Season 02\\BOARDWALK_EMPIRE_S2_DISC1-F3_t01.wav" ;
+		final String wavFileNameWithPath = "\\\\skywalker\\Media\\Test\\Boardwalk Empire - S02E100 - Back To The Boardwalk.wav" ;
  
 		transcribeToSRT( wavFileNameWithPath ) ;
+		log.info( "Done." ) ;
 	}
 	
 	/**
@@ -69,8 +70,6 @@ public class OpenAIWhisper
 		}
 		
 		ImmutableList.Builder< String > whisperCommand = new ImmutableList.Builder< String >() ;
-
-		// Setup ffmpeg basic options
 		whisperCommand.add( common.getPathToWhisperX() ) ;
 
 		// Commented out the language to account for some movies/tv shows that are in a foreign language (such as Chinese for IP Man).
@@ -86,13 +85,6 @@ public class OpenAIWhisper
 		whisperCommand.add( "--suppress_numerals" ) ;
 //		whisperCommand.add( "--fp16", "False" ) ;
 		whisperCommand.add( inputFile.getAbsolutePath() ) ;
-		
-//		whisperCommand.add( "whisper" ) ;
-//		whisperCommand.add( "--language", "English" ) ;
-//		whisperCommand.add( "--output_format", "srt" ) ;
-//		whisperCommand.add( "--output_dir", outputFile.getParent() ) ;
-//		whisperCommand.add( "--fp16", "False" ) ;
-//		whisperCommand.add( inputFile.getAbsolutePath() ) ;
 
 		log.info( common.toStringForCommandExecution( whisperCommand.build() ) ) ;
 

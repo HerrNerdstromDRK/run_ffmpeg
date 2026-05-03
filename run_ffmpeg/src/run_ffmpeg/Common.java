@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -83,13 +84,6 @@ public class Common
 				"s:\\Program Files\\Subtitle Edit\\SubtitleEdit.exe"
 		} ;
 
-	private static final String[] pathsToWhisperX =
-		{
-				"c:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe",
-				"d:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe",
-				"s:\\Program Files\\Python\\Python312\\Scripts\\whisperX.exe"
-		} ;
-
 	protected static final String[] videoExtensions =
 		{
 				"mkv",
@@ -104,6 +98,10 @@ public class Common
 	private String pathToFFPROBE = null ;
 	private String pathToSubtitleEdit = null ;
 	private String pathToWhisperX = null ;
+	
+	/// Configuration for python virtual environment
+	private String localHostName = "" ;
+	private String pathToVirtualEnvironment = "" ;
 
 	/// The replacement file name for correlated files that are missing. This is for
 	/// user interface reporting via the web interface.
@@ -195,25 +193,25 @@ public class Common
 			log.warning( "Unable to find SubtitleEdit" ) ;
 		}
 
-		for( String testLocation : pathsToWhisperX )
-		{
-			if( (new File( testLocation )).isFile() )
-			{
-				// Found the file
-				setPathToWhisperX( testLocation ) ;
-				break ;
-			}
-		}
-		if( null == getPathToWhisperX() )
-		{
-			log.warning( "Unable to find whisperX" ) ;
-		}
-
 		if( !getIsWindows() )
 		{
 			// Linux naming
 			pathSeparator = "\\\\" ;
 		}
+
+		// Setup local host name
+		try
+		{
+			setLocalHostName( InetAddress.getLocalHost().getHostName() ) ;
+		}
+		catch( Exception theException )
+		{
+			log.warning( "Unable to find local host name: " + theException.toString() ) ;
+		}
+
+		setPathToVirtualEnvironment( getPathToMediaFolderBase() + "\\python_virtual_mandalorian" ) ;
+// TODO: FIX this		setPathToVirtualEnvironment( getPathToMediaFolderBase() + "\\python_virtual_" + getLocalHostName() ) ;
+		setPathToWhisperX( getPathToVirtualEnvironment() + "\\Scripts\\whisperx.exe" ) ;		
 	}
 
 	/**
@@ -924,6 +922,11 @@ public class Common
 		return filesInDirectoryWithExtension ;
 	}
 
+	public String getLocalHostName()
+	{
+		return localHostName ;
+	}
+	
 	public static int getMinimumSRTFileSize()
 	{
 		return minimumSRTFileSize;
@@ -1297,6 +1300,11 @@ public class Common
 		return pathToTmpDir ;
 	}
 
+	public String getPathToVirtualEnvironment()
+	{
+		return pathToVirtualEnvironment ;
+	}
+	
 	public static String getPrimaryfileservername()
 	{
 		return primaryFileServerName;
@@ -1322,6 +1330,14 @@ public class Common
 		Common.doMoveFiles = doMoveFiles;
 	}
 
+	public void setLocalHostName( final String newLocalHostName )
+	{
+		assert( newLocalHostName != null ) ;
+		assert( !newLocalHostName.isBlank() ) ;
+		
+		this.localHostName = newLocalHostName ;
+	}
+	
 	public void setPathToFFmpeg( final String pathToFFMPEG )
 	{
 		this.pathToFFMPEG = pathToFFMPEG ;
@@ -1337,6 +1353,14 @@ public class Common
 		this.pathToSubtitleEdit = pathToSubtitleEdit ;
 	}
 
+	public void setPathToVirtualEnvironment( final String newPath )
+	{
+		assert( newPath != null ) ;
+		assert( !newPath.isBlank() ) ;
+		
+		this.pathToVirtualEnvironment = newPath ;
+	}
+	
 	public String getPathToWhisperX()
 	{
 		return pathToWhisperX ;

@@ -74,6 +74,7 @@ public class Subtitles_LoadDatabase
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
 		foldersToExtractAndConvert.add( "S:\\Media\\To_OCR" ) ;
+//		foldersToExtractAndConvert.add( "E:\\To_OCR" ) ;
 //		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
 //		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;
 		foldersToExtractAndConvert.add( Common.getPathToOCR() ) ;
