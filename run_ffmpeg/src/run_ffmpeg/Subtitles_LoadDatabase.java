@@ -73,7 +73,7 @@ public class Subtitles_LoadDatabase
 		// Build the list of folders to extract and process (OCR/transcribe)
 		List< String > foldersToExtractAndConvert = new ArrayList< String >() ;
 		//foldersToExtractAndConvert.add( Common.getAllMediaFolders() ) ;
-		foldersToExtractAndConvert.add( "S:\\Media\\To_OCR" ) ;
+		foldersToExtractAndConvert.add( "C:\\Media\\To_OCR" ) ;
 //		foldersToExtractAndConvert.add( "E:\\To_OCR" ) ;
 //		foldersToExtractAndConvert.add( Common.getPathToTVShows() ) ;
 //		foldersToExtractAndConvert.add( Common.getPathToMovies() ) ;

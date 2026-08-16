@@ -48,8 +48,8 @@ public class WorkflowOrchestrator
 	/// If all threads are idle for this amount of time (or higher), then the
 	/// application will shutdown.
 	protected final long maxIdleThreadTimeout = 20000 ;
-	protected int numOCRThreads = 8 ;
-	protected int numTranscribeThreads = 3 ;
+	protected int numOCRThreads = 4 ;
+	protected int numTranscribeThreads = 0 ;
 	protected boolean doExtractOnly = false ;
 
 	public WorkflowOrchestrator()
@@ -128,6 +128,7 @@ public class WorkflowOrchestrator
 		log.info( "Stopping threads..." ) ;
 		for( WorkflowStageThread theThread : threadList )
 		{
+			log.info( "Stopping thread: " + theThread.getName() ) ;
 			theThread.stopRunning() ;
 		}
 		log.info( "Stopped " + threadList.size() + " thread(s)" ) ;
@@ -313,6 +314,12 @@ public class WorkflowOrchestrator
 		//				"transcodeMKVFilesThread", log, common, masMDB ) ;
 		//		threadList.add( transcodeMKVFilesThread ) ;
 
+//		log.info( "Setting up llama server" ) ;
+		WorkflowStageThread_RunLlamaCPPServer llamaCPPServerThread = new WorkflowStageThread_RunLlamaCPPServer( logFileName, log, common, masMDB ) ;
+		llamaCPPServerThread.setName( "llamaCppServerThread" ) ;
+		threadList.add( llamaCPPServerThread ) ;
+//		log.info( "llama server running..." ) ;
+		
 		setupExtractThreads() ;
 
 		if( !isDoExtractOnly() )

@@ -60,7 +60,6 @@ public class Common
 	private static boolean doMoveFiles = true ;
 
 	/// Separator to use to demarc directories
-	// TODO: Make this use the System.property
 	private static String pathSeparator = "\\" ;
 
 	private static final String[] pathsToFFMPEG =
@@ -98,7 +97,9 @@ public class Common
 	private String pathToFFPROBE = null ;
 	private String pathToSubtitleEdit = null ;
 	private String pathToWhisperX = null ;
-	
+	private String pathToLlamaCPPServer = "C:\\AI Models\\LLM\\llama\\llama-server.exe" ;
+	private String pathToSeconv = "C:\\AI Models\\LLM\\subtitleedit\\src\\seconv\\bin\\Debug\\net10.0\\seconv.exe" ;
+
 	/// Configuration for python virtual environment
 	private String localHostName = "" ;
 	private String pathToVirtualEnvironment = "" ;
@@ -248,6 +249,11 @@ public class Common
 	 */
 	public boolean executeCommand( ImmutableList.Builder< String > theCommand )
 	{
+		return executeCommand( theCommand, true ) ;
+	}
+	
+	public boolean executeCommand( ImmutableList.Builder< String > theCommand, final boolean doStreamLogging )
+	{
 		log.info( "theCommand: " + Arrays.toString( theCommand.build().toArray( new String[ 1 ] ) ) ) ;
 		boolean retMe = true ;
 
@@ -282,7 +288,7 @@ public class Common
 				}
 				lastInputStreamLine = inputStreamLine ;
 				
-				if( !filterOut( inputStreamLine ) )
+				if( !filterOut( inputStreamLine ) && doStreamLogging )
 				{
 					log.info( "InputStream: " + inputStreamLine ) ;
 				}
@@ -1465,6 +1471,27 @@ public class Common
 	public static String getPathToDeleteDir()
 	{
 		return pathToDeleteDir ;
+	}
+	
+	
+	public String getPathToLlamaCPPServer()
+	{
+		return pathToLlamaCPPServer ;
+	}
+
+	public void setPathToLlamaCPPServer( final String pathToLlamaCPPServer )
+	{
+		this.pathToLlamaCPPServer = pathToLlamaCPPServer ;
+	}
+	
+	public String getPathToSeconv()
+	{
+		return pathToSeconv ;
+	}
+
+	public void setPathToSeconv( final String pathToSeconv )
+	{
+		this.pathToSeconv = pathToSeconv ;
 	}
 
 	public String toString()

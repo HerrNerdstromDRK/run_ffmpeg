@@ -291,23 +291,31 @@ public class WorkflowStageThread_ExtractSubtitle extends WorkflowStageThread
 		if( subTitleExtractionOptionsString.build().isEmpty() )
 		{
 			// No usable streams found
+			
+			// Just add the mkv file to the OCR queue for seconv to extract and OCR
+			log.info( "Adding MKV file to OCR" ) ;
+			addToDatabase_OCR( inputFile ) ;
+			
+			
+			
+			
 			// Extract the first audio stream as a wav file and schedule a whisperX transcription of it.
-			log.info( " Extracting audio for file " + inputFile.getAbsolutePath() ) ;
-
-			final String wavFileNameWithPath = Common.replaceExtension( inputFile.getAbsolutePath(), "wav" ) ;
-			final File wavFile = new File( wavFileNameWithPath ) ;
-
-			// Only make the wav file if it is absent.
-			// Pass -1 for the duration hours/mins/secs to extract the entire audio stream.
-			if( !wavFile.exists() && !common.extractAudioFromAVFile( inputFile, wavFile, 0, 0, 0, -1, -1, -1 ) )
-			{
-				log.warning( " Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
-				return ;
-			}
-
-			// wav file exists, either through extracting here or finding in the directory
-			// Either way, add it to the return list.
-			addToDatabase_Transcribe( wavFile ) ;
+//			log.info( " Extracting audio for file " + inputFile.getAbsolutePath() ) ;
+//
+//			final String wavFileNameWithPath = Common.replaceExtension( inputFile.getAbsolutePath(), "wav" ) ;
+//			final File wavFile = new File( wavFileNameWithPath ) ;
+//
+//			// Only make the wav file if it is absent.
+//			// Pass -1 for the duration hours/mins/secs to extract the entire audio stream.
+//			if( !wavFile.exists() && !common.extractAudioFromAVFile( inputFile, wavFile, 0, 0, 0, -1, -1, -1 ) )
+//			{
+//				log.warning( " Failed to make wav file: " + wavFile.getAbsolutePath() ) ;
+//				return ;
+//			}
+//
+//			// wav file exists, either through extracting here or finding in the directory
+//			// Either way, add it to the return list.
+//			addToDatabase_Transcribe( wavFile ) ;
 			return ;
 		}
 		// PC: subtitle options string is non-empty and the inputFile has at least one valid subtitle stream that

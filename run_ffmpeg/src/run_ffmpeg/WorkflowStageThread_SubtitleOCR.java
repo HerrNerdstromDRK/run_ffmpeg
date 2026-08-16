@@ -39,7 +39,7 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			return false ;
 		}
 		setWorkInProgress( true ) ;
-		
+
 		final String fileNameWithPathToOCR = ocrJobRecord.getFileNameWithPath() ;
 		final File fileToOCR = new File( fileNameWithPathToOCR ) ;
 		if( !fileToOCR.exists() )
@@ -49,7 +49,8 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			return false ;
 		}
 
-		final String outputFileName = fileToOCR.getAbsolutePath().replace( ".sup", ".srt" ) ;
+		// Check if the output file already exists.
+		final String outputFileName = Common.replaceExtension( fileToOCR.getAbsolutePath(), ".srt" ) ;
 		File outputFile = new File( outputFileName ) ;
 		if( outputFile.exists() )
 		{
@@ -57,19 +58,21 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			setWorkInProgress( false ) ;
 			return true ;
 		}
-		
+
 		log.info( getName() + " Running OCR on file: " + fileToOCR.getAbsolutePath() ) ;
 
 		ImmutableList.Builder< String > ocrExecuteCommand = new ImmutableList.Builder<String>() ;
-		ocrExecuteCommand.add( common.getPathToSubtitleEdit() ) ;
-		ocrExecuteCommand.add( "/convert" ) ;
+		ocrExecuteCommand.add( common.getPathToSeconv() ) ;
 		ocrExecuteCommand.add( fileToOCR.getAbsolutePath() ) ;
 		ocrExecuteCommand.add( "subrip" ) ;
-		ocrExecuteCommand.add( "/FixCommonErrors" ) ;
-		ocrExecuteCommand.add( "/RemoveFormatting" ) ;
-		ocrExecuteCommand.add( "/RemoveLineBreaks" ) ;		
+		ocrExecuteCommand.add( "--ocr-engine:llamacpp" ) ;
+		ocrExecuteCommand.add( "--ocr-url:http://127.0.0.1:8080" ) ;
+		ocrExecuteCommand.add( "--ocr-language:English" ) ;
+		ocrExecuteCommand.add( "--fix-common-errors" ) ;
+		ocrExecuteCommand.add( "--remove-formatting" ) ;
+		ocrExecuteCommand.add( "--remove-line-breaks" ) ;
 
-		boolean commandSuccess = common.executeCommand( ocrExecuteCommand ) ;
+		boolean commandSuccess = common.executeCommand( ocrExecuteCommand, false ) ;
 		log.info( getName() + " OCR on file " + fileToOCR.getAbsolutePath() + ": " + commandSuccess ) ;
 
 		// Reset the output file and check if it now exists as a result of conducting an OCR.
@@ -85,7 +88,7 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 			// Output file is too small
 			// Build a small srt file so we won't try to create another SRT file in the future.
 			log.info( getName() + " Output file too small: " + outputFile.getAbsolutePath() + "; creating empty srt file" ) ;
-			
+
 			SRTFileUtils srtFileUtils = new SRTFileUtils( log, common ) ;
 			srtFileUtils.writeEmptySRTFile( outputFile ) ;
 
@@ -94,15 +97,15 @@ public class WorkflowStageThread_SubtitleOCR extends WorkflowStageThread
 
 		if( !commandSuccess )
 		{
-			log.warning( getName() + " OCR failed; deleting file: " + outputFileName ) ;
+			log.warning( getName() + " OCR failed for input file: " + fileToOCR.getAbsolutePath() ) ;
+		}
+
+		if( outputFile.getAbsolutePath().endsWith( ".sup" ) )
+		{
+			// Only delete the output file if it was a sup file
 			outputFile.delete() ;
 		}
-		else
-		{
-			// Command succeeded. Delete the .sup file.
-			fileToOCR.delete() ;
-		}
-		
+
 		setWorkInProgress( false ) ;
 		return commandSuccess ;
 	}
